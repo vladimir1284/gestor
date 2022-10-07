@@ -1,0 +1,153 @@
+{% load static %}
+
+<header id="header" class="header" style="background: black">
+    <div class="top-left">
+        <div class="navbar-header" style="background: black">
+            <a class="navbar-brand" style="color: white">Inventory Management System</a>
+
+            <a id="menuToggle" class="menutoggle"><i class="fa fa-bars"></i></a>
+        </div>
+    </div>
+    <div class="top-right" >
+        <div class="header-menu" >
+            <div class="header-left">
+                <button class="search-trigger"><i class="fa fa-search"></i></button>
+                <div class="form-inline">
+                    <form class="search-form" style="background-color: white">
+                        <input class="form-control mr-sm-2" type="text" placeholder="Search ..." aria-label="Search">
+                        <button class="search-close" type="submit"><i class="fa fa-close"></i></button>
+                    </form>
+                </div>
+
+                <div class="dropdown for-notification">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="notification" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-bell"></i>
+                        <span class="count bg-danger">10</span>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="notification" style="background-color: skyblue">
+                        <p class="red">You have 10 Notification</p>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 1 is Messaging.</p>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 2 is Messaging.</p>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 3 is Messaging.</p>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 4 is Messaging.</p>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 5 is Messaging.</p>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 6 is Messaging.</p>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 7 is Messaging.</p>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 8 is Messaging.</p>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 9 is Messaging.</p>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <i class="fa fa-user"></i>
+                            <p>Client Number 10 is Messaging.</p>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dropdown for-message">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="message" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-envelope"></i>
+                        <span class="count bg-primary">7</span>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="message" style="background: skyblue">
+                        <p class="red">You have 7 Messages</p>
+                        <a class="dropdown-item media" href="#">
+                            <span class="photo media-left"><img alt="avatar" src="{% static 'images/icons/user.png' %}"></span>
+                            <div class="message media-body">
+                                <span class="name float-left">Juan DelaCruz</span>
+                                <span class="time float-right">Just now</span>
+                                <p>Hi Good Afternoon</p>
+                            </div>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <span class="photo media-left"><img alt="avatar" src="{% static 'images/icons/user.png' %}"></span>
+                            <div class="message media-body">
+                                <span class="name float-left">Pedro Pinduko</span>
+                                <span class="time float-right">20 minutes ago</span>
+                                <p>How to install pip?</p>
+                            </div>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <span class="photo media-left"><img alt="avatar" src="{% static 'images/icons/user.png' %}"></span>
+                            <div class="message media-body">
+                                <span class="name float-left">Victor Magtanggol</span>
+                                <span class="time float-right">30 minutes ago</span>
+                                <p>How to create superuser account?</p>
+                            </div>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <span class="photo media-left"><img alt="avatar" src="{% static 'images/icons/user.png' %}"></span>
+                            <div class="message media-body">
+                                <span class="name float-left">Kimmy Matillano</span>
+                                <span class="time float-right">45 minutes ago</span>
+                                <p>How to install this Inventory Management System?</p>
+                            </div>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <span class="photo media-left"><img alt="avatar" src="{% static 'images/icons/user.png' %}"></span>
+                            <div class="message media-body">
+                                <span class="name float-left">Kevin Zaragosa</span>
+                                <span class="time float-right">2 minutes ago</span>
+                                <p>How to install pycharm?</p>
+                            </div>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <span class="photo media-left"><img alt="avatar" src="{% static 'images/icons/user.png' %}"></span>
+                            <div class="message media-body">
+                                <span class="name float-left">Joven Samanting</span>
+                                <span class="time float-right">5 minutes ago</span>
+                                <p>How to upgrade new version of pip?</p>
+                            </div>
+                        </a>
+                        <a class="dropdown-item media" href="#">
+                            <span class="photo media-left"><img alt="avatar" src="{% static 'images/icons/user.png' %}"></span>
+                            <div class="message media-body">
+                                <span class="name float-left">Clarence Dalmacio</span>
+                                <span class="time float-right">10 minutes ago</span>
+                                <p>How to run this IMS?</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-area dropdown float-right">
+                <a href="#" class="dropdown-toggle active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img class="user-avatar rounded-circle" src="{% static 'images/Admin.png' %}" alt="User Avatar">
+                </a>
+
+                <div class="user-menu dropdown-menu" style="background: skyblue">
+
+
+                    <a class="nav-link" href="{% url 'logout' %}"><i class="fa fa-power -off"></i>Logout</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</header>
