@@ -136,13 +136,6 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
-inventory/__init__.py
-inventory/asgi.py
-inventory/pyvenv.cfg
-inventory/settings.py
-inventory/urls.py
-inventory/views.py
-inventory/wsgi.py
 inventory/bin/activate
 inventory/bin/activate_this.py
 inventory/bin/activate.csh
@@ -172,3 +165,4 @@ inventory/bin/wheel3
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/inspectionProfiles/Project_Default.xml
 inventory_management_system_using_django.zip
+inventory/pyvenv.cfg
