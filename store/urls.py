@@ -27,8 +27,9 @@ urlpatterns = [
     path('create-order/', create_order, name='create-order'),
     path('create-delivery/', create_delivery, name='create-delivery'),
 
-    path('supplier-list/', SupplierListView.as_view(), name='supplier-list'),
-    path('buyer-list/', BuyerListView.as_view(), name='buyer-list'),
+    path('supplier-list/', SupplierListView.as_view(), name='supplier-cards'),
+    path('buyer-list/', BuyerListView.as_view(), name='client-cards'),
+    path('user-list/', BuyerListView.as_view(), name='user-cards'),
     path('season-list/', SeasonListView.as_view(), name='season-list'),
     path('drop-list/', DropListView.as_view(), name='drop-list'),
     path('product-list/', ProductListView.as_view(), name='product-list'),
