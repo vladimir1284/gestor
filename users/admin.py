@@ -4,8 +4,8 @@ from .models import User, UserProfile
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['username', 'is_buyer', 'is_supplier']
+    list_display = ['username']
 
-
+admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(UserProfile)

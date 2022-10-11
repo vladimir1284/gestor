@@ -1,8 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponseRedirect
+from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import permission_required
 
-from .forms import LoginForm, UserProfileForm
+from .forms import LoginForm, UserProfileForm, UserCreateForm
 from .models import User, UserProfile
+
 
 def login_page(request):
     forms = LoginForm()
@@ -14,7 +17,7 @@ def login_page(request):
             user = authenticate(username=username, password=password)
             if user:
                 login(request, user)
-                return redirect('dashboard')
+                return HttpResponseRedirect(request.GET['next'])
     context = {'form': forms}
     return render(request, 'users/login.html', context)
 
@@ -24,31 +27,36 @@ def logout_page(request):
     return redirect('login')
 
 
+@permission_required('auth.user.can_add_user')
 def create_user(request):
-    if not request.user.profile_user.role <= 1:
-        return redirect('/login/?next=%s' % request.path)
     forms = UserProfileForm()
+    userCform = UserCreateForm()
     if request.method == 'POST':
-        forms = UserProfileForm(request.POST)
-        if forms.is_valid():
-            firstname = forms.cleaned_data['first_name']
-            lastname = forms.cleaned_data['last_name']
-            role = forms.cleaned_data['role']
-            avatar = forms.cleaned_data['avatar']
-            email = forms.cleaned_data['email']
-            username = forms.cleaned_data['username']
-            password = forms.cleaned_data['password']
-            retype_password = forms.cleaned_data['retype_password']
-            if password == retype_password:
-                user = User.objects.create_user(username=username, 
-                                                first_name = firstname,
-                                                last_name = lastname,
-                                                password=password, 
-                                                email=email, 
-                                                is_supplier=True)
-                UserProfile.objects.create(user=user, role=role, avatar=avatar)
-                return redirect('supplier-list')
+        userCform = UserCreateForm(request.POST)
+        if userCform.is_valid():
+            forms = UserProfileForm(request.POST, request.FILES)
+            print(forms)
+            if forms.is_valid():
+                username = userCform.cleaned_data['username']
+                password = userCform.cleaned_data['password1']
+                firstname = userCform.cleaned_data['first_name']
+                lastname = userCform.cleaned_data['last_name']
+                email = userCform.cleaned_data['email']
+                role = forms.cleaned_data['role']
+                phone_number = forms.cleaned_data['phone_number']
+                avatar = forms.cleaned_data['avatar']
+                user = User.objects.create_user(username=username,
+                                                first_name=firstname,
+                                                last_name=lastname,
+                                                password=password,
+                                                email=email)
+                UserProfile.objects.create(user=user,
+                                           role=role,
+                                           avatar=avatar,
+                                           phone_number=phone_number)
+                return redirect('/')
     context = {
-        'form': forms
+        'form': forms,
+        'user_form': userCform
     }
     return render(request, 'users/addUser.html', context)

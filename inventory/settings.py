@@ -25,7 +25,7 @@ SECRET_KEY = 'k2z9po4i#n+1p(^ny1el2c!om(^-l+_%&ob0azk0-ike*-)81e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["towit.pythonanywhere.com"]
+ALLOWED_HOSTS = ["towit.pythonanywhere.com", "localhost"]
 
 
 # Application definition
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
+    "phonenumber_field",
 
     # local
     'store.apps.StoreConfig',
@@ -125,11 +127,14 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-AUTH_USER_MODEL = 'users.User'
+#AUTH_USER_MODEL = 'users.User'
+LOGIN_URL = '/users/login/'
 
-MEDIA_ROOT='static/'
-MEDIA_URL=''
+MEDIA_ROOT = 'static/'
+MEDIA_URL = ''
 
 LOGIN_REDIRECT_URL = '/store/dashboard/'
 
 LOGOUT_REDIRECT_URL = '/users/login/'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
