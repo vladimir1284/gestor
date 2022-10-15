@@ -1,25 +1,20 @@
 from django.contrib import admin
 
 from .models import (
-    Supplier,
-    Buyer,
-    Season,
-    Drop,
+    Associated,
     Product,
+    Unit,
     Order,
-    Delivery
+    Transaction,
+    StoreLocations,
+    ProductCategory,
 )
 
-class SupplierAdmin(admin.ModelAdmin):
-    list_display = ['user', 'name', 'address', 'created_date']
 
-class BuyerAdmin(admin.ModelAdmin):
-    list_display = ['user', 'name', 'address', 'created_date']
-
-admin.site.register(Supplier, SupplierAdmin)
-admin.site.register(Buyer, BuyerAdmin)
-admin.site.register(Season)
-admin.site.register(Drop)
+admin.site.register(Associated)
 admin.site.register(Product)
+admin.site.register(Unit)
 admin.site.register(Order)
-admin.site.register(Delivery)
+admin.site.register(Transaction)
+admin.site.register(StoreLocations)
+admin.site.register(ProductCategory)

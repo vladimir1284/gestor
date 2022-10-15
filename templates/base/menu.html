@@ -1,151 +1,147 @@
 {% load static %}
 <!-- Menu -->
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-<div class="app-brand demo">
-    <a href="index.html" class="app-brand-link">
-    <span class="app-brand-logo demo">
-        <img
-            id="logo"
-            src="{% static 'assets/img/icons/logo.png' %}"
-            alt="logo"
-            style = "width: 60px; height: 25px;"
-        />
-    </span>
-    <span class="app-brand-text demo menu-text fw-bolder ms-2">Towit</span>
-    </a>
-
-    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
-    <i class="bx bx-chevron-left bx-sm align-middle"></i>
-    </a>
-</div>
-
-<div class="menu-inner-shadow"></div>
-
-<ul class="menu-inner py-1">
-    <!-- Dashboard -->
-    <li class="menu-item active">
-    <a href="/" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-home-circle"></i>
-        <div data-i18n="Analytics">Principal</div>
-    </a>
-    </li>
-    <li class="menu-item">
-        <a href="javascript:void(0);" class="menu-link menu-toggle">
-            <i class="menu-icon tf-icons bx bx-stats"></i>
-            <div data-i18n="Reportes">Reportes</div>
+    <div class="app-brand demo">
+        <a href="index.html" class="app-brand-link">
+            <span class="app-brand-logo demo">
+                <img id="logo"
+                     src="{% static 'assets/img/icons/logo.png' %}"
+                     alt="logo"
+                     style = "width: 60px; height: 25px;"/>
+            </span>
+            <span class="app-brand-text demo menu-text fw-bolder ms-2">Towit</span>
         </a>
-        <ul class="menu-sub">
-            <li class="menu-item">
-            <a href="{% url 'client-cards' %}" class="menu-link">
-                <div data-i18n="Ventas">Ventas</div>
-            </a>
-            </li>
-            <li class="menu-item">
-            <a href="{% url 'user-cards' %}" class="menu-link">
-                <div data-i18n="Servicios">Servicios</div>
-            </a>
-            </li>
-            <li class="menu-item">
-            <a href="{% url 'user-cards' %}" class="menu-link">
-                <div data-i18n="Rendimiento">Rendimiento</div>
-            </a>
-            </li>
-        </ul>
-    </li>
-
-    <li class="menu-header small text-uppercase">
-    <span class="menu-header-text">Inventario</span>
-    </li>
-    <li class="menu-item">
-    <a href="javascript:void(0);" class="menu-link menu-toggle">
-        <i class="menu-icon tf-icons bx bx-collection"></i>
-        <div data-i18n="Account Settings">Productos</div>
-    </a>
-    <ul class="menu-sub">
-        <li class="menu-item">
-        <a href="pages-account-settings-account.html" class="menu-link">
-            <div data-i18n="Inventarrio">Inventario</div>
+        <a href="javascript:void(0);"
+           class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <i class="bx bx-chevron-left bx-sm align-middle"></i>
         </a>
+    </div>
+    <div class="menu-inner-shadow"></div>
+    <ul class="menu-inner py-1">
+        <!-- Dashboard -->
+        <li class="menu-item active">
+            <a href="/" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div data-i18n="Analytics">Principal</div>
+            </a>
         </li>
         <li class="menu-item">
-        <a href="pages-account-settings-account.html" class="menu-link">
-            <div data-i18n="Categorías">Categorías</div>
-        </a>
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-stats"></i>
+                <div data-i18n="Reportes">Reportes</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Ventas">Ventas</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Servicios">Servicios</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Rendimiento">Rendimiento</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Inventario</span>
         </li>
         <li class="menu-item">
-        <a href="pages-account-settings-account.html" class="menu-link">
-            <div data-i18n="Unidades">Unidades</div>
-        </a>
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-collection"></i>
+                <div data-i18n="Account Settings">Productos</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="pages-account-settings-account.html" class="menu-link">
+                        <div data-i18n="Inventarrio">Inventario</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="pages-account-settings-account.html" class="menu-link">
+                        <div data-i18n="Categorías">Categorías</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="pages-account-settings-account.html" class="menu-link">
+                        <div data-i18n="Unidades">Unidades</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-store"></i>
+                <div data-i18n="Account Settings">Compras</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Proveedores">Proveedores</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Reglas">Reglas</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="órdenes">Órdenes</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <!-- Mantenimientos -->
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Mantenimientos</span>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-user"></i>
+                <div data-i18n="Account Settings">Asociados</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Clientes">Clientes</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Lealtad">Programa de lealtad</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Usuarios">Operarios</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-credit-card "></i>
+                <div data-i18n="Facturación">Facturación</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Clientes">Clientes</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{% url 'logout' %}" class="menu-link">
+                        <div data-i18n="Usuarios">Operarios</div>
+                    </a>
+                </li>
+            </ul>
         </li>
     </ul>
-    </li>
-    <li class="menu-item">
-    <a href="javascript:void(0);" class="menu-link menu-toggle">
-        <i class="menu-icon tf-icons bx bx-store"></i>
-        <div data-i18n="Account Settings">Compras</div>
-    </a>
-    <ul class="menu-sub">
-        <li class="menu-item">
-        <a href="{% url 'supplier-cards' %}" class="menu-link">
-            <div data-i18n="Proveedores">Proveedores</div>
-        </a>
-        </li>
-        <li class="menu-item">
-        <a href="{% url 'supplier-cards' %}" class="menu-link">
-            <div data-i18n="Reglas">Reglas</div>
-        </a>
-        </li>
-        <li class="menu-item">
-        <a href="{% url 'order-list' %}" class="menu-link">
-            <div data-i18n="órdenes">Órdenes</div>
-        </a>
-        </li>
-    </ul>
-    </li>
-    
-    <!-- Mantenimientos -->
-    <li class="menu-header small text-uppercase"><span class="menu-header-text">Mantenimientos</span></li>
-    <li class="menu-item">
-        <a href="javascript:void(0);" class="menu-link menu-toggle">
-            <i class="menu-icon tf-icons bx bx-user"></i>
-            <div data-i18n="Account Settings">Asociados</div>
-        </a>
-        <ul class="menu-sub">
-            <li class="menu-item">
-            <a href="{% url 'client-cards' %}" class="menu-link">
-                <div data-i18n="Clientes">Clientes</div>
-            </a>
-            </li>
-            <li class="menu-item">
-            <a href="{% url 'client-cards' %}" class="menu-link">
-                <div data-i18n="Lealtad">Programa de lealtad</div>
-            </a>
-            </li>
-            <li class="menu-item">
-            <a href="{% url 'user-cards' %}" class="menu-link">
-                <div data-i18n="Usuarios">Operarios</div>
-            </a>
-            </li>
-        </ul>
-    </li>
-    <li class="menu-item">
-        <a href="javascript:void(0);" class="menu-link menu-toggle">
-            <i class="menu-icon tf-icons bx bx-credit-card "></i>
-            <div data-i18n="Facturación">Facturación</div>
-        </a>
-        <ul class="menu-sub">
-            <li class="menu-item">
-            <a href="{% url 'client-cards' %}" class="menu-link">
-                <div data-i18n="Clientes">Clientes</div>
-            </a>
-            </li>
-            <li class="menu-item">
-            <a href="{% url 'user-cards' %}" class="menu-link">
-                <div data-i18n="Usuarios">Operarios</div>
-            </a>
-            </li>
-        </ul>
-    </li>
-</ul>
 </aside>
 <!-- / Menu -->

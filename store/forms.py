@@ -1,138 +1,353 @@
 from django import forms
-
-from .models import Season, Drop, Product, Order, Delivery
-
-
-class SupplierForm(forms.Form):
-    name = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'id': 'name',
-        'data-val': 'true',
-        'data-val-required': 'Please enter name',
-    }))
-    address = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'id': 'address',
-        'data-val': 'true',
-        'data-val-required': 'Please enter address',
-    }))
-    email = forms.CharField(widget=forms.EmailInput(attrs={
-        'class': 'form-control',
-        'id': 'email',
-        'data-val': 'true',
-        'data-val-required': 'Please enter email',
-    }))
-    username = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'id': 'username',
-        'data-val': 'true',
-        'data-val-required': 'Please enter username',
-    }))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'form-control',
-        'id': 'password',
-        'data-val': 'true',
-        'data-val-required': 'Please enter password',
-    }))
-    retype_password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'form-control',
-        'id': 'retype_password',
-        'data-val': 'true',
-        'data-val-required': 'Please enter retype_password',
-    }))
-
-class BuyerForm(forms.Form):
-    name = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'id': 'name',
-        'data-val': 'true',
-        'data-val-required': 'Please enter name',
-    }))
-    address = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'id': 'address',
-        'data-val': 'true',
-        'data-val-required': 'Please enter address',
-    }))
-    email = forms.CharField(widget=forms.EmailInput(attrs={
-        'class': 'form-control',
-        'id': 'email',
-        'data-val': 'true',
-        'data-val-required': 'Please enter email',
-    }))
-    username = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'id': 'username',
-        'data-val': 'true',
-        'data-val-required': 'Please enter username',
-    }))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'form-control',
-        'id': 'password',
-        'data-val': 'true',
-        'data-val-required': 'Please enter password',
-    }))
-    retype_password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'form-control',
-        'id': 'retype_password',
-        'data-val': 'true',
-        'data-val-required': 'Please enter retype_password',
-    }))
+from .models import (
+    Associated,
+    Product,
+    Unit,
+    Order,
+    Transaction,
+    StoreLocations,
+    ProductCategory,
+)
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
+from crispy_forms.bootstrap import PrependedText, AppendedText, PrependedAppendedText
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 
 
-class SeasonForm(forms.ModelForm):
+class AssociatedCreateForm(forms.ModelForm):
+
     class Meta:
-        model = Season
-        fields = ['name', 'description']
+        model = Associated
+        fields = (
+            'name',
+            'company',
+            'address',
+            'note',
+            'email',
+            'avatar',
+            'phone_number',
+            'type'
+        )
 
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'id': 'name'}),
-            'description': forms.TextInput(attrs={'class': 'form-control', 'id': 'description'})
-        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.fields['address'].widget.attrs = {'rows': 2}
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            Div(
+                Field(
+                    PrependedText('name',
+                                  '<i class="bx bx-user-circle"></i>')
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('type',
+                                  '<i class="bx bx-certification"></i>',
+                                  css_class="form-select")
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('phone_number',
+                                  '<i class="bx bx-phone"></i>')
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedAppendedText('email',
+                                          '<i class="bx bx-envelope"></i>',
+                                          '@ejemplo.com')
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('company',
+                                  '<i class="bx bx-buildings"></i>'),
+                    css_class='form-control'
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('address',
+                                  '<i class="bx bx-building-house"></i>'),
+                    css_class='form-control'
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Div(
+                    Field('note', rows='2')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('avatar')
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
 
 
-class DropForm(forms.ModelForm):
-    class Meta:
-        model = Drop
-        fields = ['name']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'id': 'name'})
-        }
+class OrderCreateForm(forms.ModelForm):
 
-
-
-class ProductForm(forms.ModelForm):
-    class Meta:
-        model = Product
-        fields = ['name', 'sortno']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'id': 'name'}),
-            'sortno': forms.NumberInput(attrs={'class': 'form-control', 'id': 'sortno'})
-        }
-
-
-class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['supplier', 'product', 'design', 'color', 'buyer', 'season', 'drop']
+        fields = (
+            'type',
+            'concept',
+            'note',
+            'associated'
+        )
 
-        widgets = {
-            'supplier': forms.Select(attrs={'class': 'form-control', 'id': 'supplier'}),
-            'product': forms.Select(attrs={'class': 'form-control', 'id': 'product'}),
-            'design': forms.TextInput(attrs={'class': 'form-control', 'id': 'design'}),
-            'color': forms.TextInput(attrs={'class': 'form-control', 'id': 'color'}),
-            'buyer': forms.Select(attrs={'class': 'form-control', 'id': 'buyer'}),
-            'season': forms.Select(attrs={'class': 'form-control', 'id': 'season'}),
-            'drop': forms.Select(attrs={'class': 'form-control', 'id': 'drop'}),
-        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('name')
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
 
 
-class DeliveryForm(forms.ModelForm):
+class CategoryCreateForm(forms.ModelForm):
+
     class Meta:
-        model = Delivery
-        fields = '__all__'
+        model = ProductCategory
+        fields = ('name',)
 
-        widgets = {
-            'order': forms.Select(attrs={'class': 'form-control', 'id': 'order'}),
-            'courier_name': forms.TextInput(attrs={'class': 'form-control', 'id': 'courier_name'}),
-        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('name')
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class UnitCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Unit
+        fields = ('name',
+                  'factor',
+                  'magnitude')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('name')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('factor')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('magnitude')
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class ProductCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Product
+        fields = ('name',
+                  'description',
+                  'unit',
+                  'category',
+                  'type',
+                  'sell_price',
+                  'sell_tax',
+                  'sell_price_min',
+                  'sell_price_max',
+                  'image',
+                  'quantity_min')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Fieldset(
+                        _("Create Product"),
+                        Div(
+                            Div(
+                                Field('name')
+                            ),
+                            css_class="mb-3"
+                        ),
+                        Div(
+                            Div(
+                                Field('description', rows='2')
+                            ),
+                            css_class="mb-3"
+                        ),
+                        Div(
+                            Div(
+                                Field('unit', css_class="form-select")
+                            ),
+                            css_class="mb-3"
+                        ),
+                        Div(
+                            Div(
+                                Field('category', css_class="form-select")
+                            ),
+                            css_class="mb-3"
+                        ),
+                        Div(
+                            Div(
+                                Field('type', css_class="form-select")
+                            ),
+                            css_class="mb-3"
+                        ),
+                        Div(
+                            Div(
+                                Field('quantity_min', css_class="form-select")
+                            ),
+                            css_class="mb-3"
+                        ),
+                        Div(
+                            Div(
+                                Field('image', css_class="form-select")
+                            ),
+                            css_class="mb-3"
+                        ),
+                        css_class="card-body"
+                    ),
+                    css_class="card mb-4"
+                ),
+                css_class="col-xxl"
+            ),
+
+            Div(
+                Div(
+                    Fieldset(
+                        _("Sell Price"),
+                        Div(
+                            Div(
+                                Field(
+                                    PrependedText('sell_price', '$')
+                                )
+                            ),
+                            css_class="mb-3"
+                        ),
+                        Div(
+                            Div(
+                                Field(
+                                    PrependedText('sell_price_min', '$')
+                                )
+                            ),
+                            css_class="mb-3"
+                        ),
+                        Div(
+                            Div(
+                                Field(
+                                    PrependedText('sell_price_max', '$')
+                                )
+                            ),
+                            css_class="mb-3"
+                        ),
+                        Div(
+                            Div(
+                                Field(
+                                    AppendedText('sell_tax', '%')
+                                )
+                            ),
+                            css_class="mb-3"
+                        ),
+                        ButtonHolder(
+                            Submit('submit', 'Enviar',
+                                   css_class='btn btn-success')
+                        ),
+                        css_class="card-body"
+                    ),
+                    css_class="card mb-4"
+                ),
+                css_class="col-xxl"
+            )
+        )

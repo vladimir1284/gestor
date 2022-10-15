@@ -15,7 +15,7 @@
                 <thead>
                     <tr>
                         <th class="serial">#</th>
-                        <th>Supplier</th>
+                        <th>Associated</th>
                         <th>Product</th>
                         <th>Design</th>
                         <th>Color</th>
@@ -31,7 +31,7 @@
                     {% for order in order %}
                     <tr>
                         <td class="serial">{{ forloop.counter }}</td>
-                        <td>{{ order.supplier }}</td>
+                        <td>{{ order.associated }}</td>
                         <td>{{ order.product }}</td>
                         <td>{{ order.design }}</td>
                         <td>{{ order.color }}</td>

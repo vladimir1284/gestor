@@ -25,7 +25,8 @@ SECRET_KEY = 'k2z9po4i#n+1p(^ny1el2c!om(^-l+_%&ob0azk0-ike*-)81e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["towit.pythonanywhere.com", "localhost"]
+ALLOWED_HOSTS = ["towit.pythonanywhere.com",
+                 "localhost", '127.0.0.1', 'testserver']
 
 
 # Application definition
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'inventory.urls'
@@ -108,6 +110,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
+LANGUAGES = [
+    ('es', 'Español'),
+    ('en-us', 'English')
+]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale')
+]
 
 LANGUAGE_CODE = 'en-us'
 
@@ -138,3 +148,5 @@ LOGIN_REDIRECT_URL = '/store/dashboard/'
 LOGOUT_REDIRECT_URL = '/users/login/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

@@ -4,201 +4,133 @@ from django.contrib.auth.decorators import login_required
 
 from users.models import User
 from .models import (
-    Supplier,
-    Buyer,
-    Season,
-    Drop,
+    Associated,
     Product,
+    Unit,
     Order,
-    Delivery
+    Transaction,
+    StoreLocations,
+    ProductCategory,
 )
 from .forms import (
-    SupplierForm,
-    BuyerForm,
-    SeasonForm,
-    DropForm,
-    ProductForm,
-    OrderForm,
-    DeliveryForm
+    UnitCreateForm,
+    ProductCreateForm,
+    CategoryCreateForm,
+    AssociatedCreateForm
 )
 
-# Supplier views
-@login_required(login_url='login')
-def create_supplier(request):
-    forms = SupplierForm()
+
+class DifferentMagnitudeUnitsError(BaseException):
+    """
+    Raised when the input and output units
+    doesn't measure the same magnitude
+    """
+    pass
+
+
+def convertUnit(input_unit, output_unit, value):
+    iu = Unit.objects.get(name=input_unit)
+    ou = Unit.objects.get(name=output_unit)
+    if (iu.magnitude != ou.magnitude):
+        raise DifferentMagnitudeUnitsError
+    return value*iu.factor/ou.factor
+
+
+@login_required
+def create_category(request):
+    form = CategoryCreateForm()
     if request.method == 'POST':
-        forms = SupplierForm(request.POST)
-        if forms.is_valid():
-            name = forms.cleaned_data['name']
-            address = forms.cleaned_data['address']
-            email = forms.cleaned_data['email']
-            username = forms.cleaned_data['username']
-            password = forms.cleaned_data['password']
-            retype_password = forms.cleaned_data['retype_password']
-            if password == retype_password:
-                user = User.objects.create_user(username=username, password=password, email=email, is_supplier=True)
-                Supplier.objects.create(user=user, name=name, address=address)
-                return redirect('supplier-list')
+        form = CategoryCreateForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            ProductCategory.objects.create(name=name)
+            return redirect('/store/list-category')
     context = {
-        'form': forms
-    }
-    return render(request, 'store/addSupplier.html', context)
-
-
-class SupplierListView(ListView):
-    model = Supplier
-    template_name = 'store/supplier_list.html'
-    context_object_name = 'supplier'
-
-
-# Buyer views
-@login_required(login_url='login')
-def create_buyer(request):
-    forms = BuyerForm()
-    if request.method == 'POST':
-        forms = BuyerForm(request.POST)
-        if forms.is_valid():
-            name = forms.cleaned_data['name']
-            address = forms.cleaned_data['address']
-            email = forms.cleaned_data['email']
-            username = forms.cleaned_data['username']
-            password = forms.cleaned_data['password']
-            retype_password = forms.cleaned_data['retype_password']
-            if password == retype_password:
-                user = User.objects.create_user(username=username, password=password, email=email, is_buyer=True)
-                Buyer.objects.create(user=user, name=name, address=address)
-                return redirect('buyer-list')
-    context = {
-        'form': forms
-    }
-    return render(request, 'store/addbuyer.html', context)
-
-class BuyerListView(ListView):
-    model = Buyer
-    template_name = 'store/buyer_list.html'
-    context_object_name = 'buyer'
-
-
-# Season views
-@login_required(login_url='login')
-def create_season(request):
-    forms = SeasonForm()
-    if request.method == 'POST':
-        forms = SeasonForm(request.POST)
-        if forms.is_valid():
-            forms.save()
-            return redirect('season-list')
-    context = {
-        'form': forms
-    }
-    return render(request, 'store/addSeason.html', context)
-
-
-class SeasonListView(ListView):
-    model = Season
-    template_name = 'store/season_list.html'
-    context_object_name = 'season'
-
-
-# Drop views
-@login_required(login_url='login')
-def create_drop(request):
-    forms = DropForm()
-    if request.method == 'POST':
-        forms = DropForm(request.POST)
-        if forms.is_valid():
-            forms.save()
-            return redirect('drop-list')
-    context = {
-        'form': forms
+        'form': form
     }
     return render(request, 'store/addCategory.html', context)
 
 
-class DropListView(ListView):
-    model = Drop
-    template_name = 'store/category_list.html'
-    context_object_name = 'drop'
-
-
-# Product views
-@login_required(login_url='login')
-def create_product(request):
-    forms = ProductForm()
+@login_required
+def create_unit(request):
+    form = UnitCreateForm()
     if request.method == 'POST':
-        forms = ProductForm(request.POST)
-        if forms.is_valid():
-            forms.save()
-            return redirect('product-list')
+        form = UnitCreateForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            factor = form.cleaned_data['factor']
+            magnitude = form.cleaned_data['magnitude']
+            Unit.objects.create(name=name,
+                                factor=factor,
+                                magnitude=magnitude)
+            return redirect('/store/list-unit')
     context = {
-        'form': forms
+        'form': form
+    }
+    return render(request, 'store/addUnit.html', context)
+
+
+@login_required
+def create_product(request):
+    form = ProductCreateForm()
+    if request.method == 'POST':
+        form = ProductCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            unit = form.cleaned_data['unit']
+            category = form.cleaned_data['category']
+            type = form.cleaned_data['type']
+            sell_price = form.cleaned_data['sell_price']
+            sell_tax = form.cleaned_data['sell_tax']
+            sell_price_min = form.cleaned_data['sell_price_min']
+            sell_price_max = form.cleaned_data['sell_price_max']
+            quantity_min = form.cleaned_data['quantity_min']
+            image = form.cleaned_data['image']
+            Product.objects.create(name=name,
+                                   description=description,
+                                   unit=unit,
+                                   category=category,
+                                   type=type,
+                                   sell_price=sell_price,
+                                   sell_tax=sell_tax,
+                                   sell_price_min=sell_price_min,
+                                   sell_price_max=sell_price_max,
+                                   quantity_min=quantity_min,
+                                   image=image
+                                   )
+            return redirect('/store/list-product')
+    context = {
+        'form': form
     }
     return render(request, 'store/addProduct.html', context)
 
 
-class ProductListView(ListView):
-    model = Product
-    template_name = 'store/product_list.html'
-    context_object_name = 'product'
-
-
-# Order views
-@login_required(login_url='login')
-def create_order(request):
-    forms = OrderForm()
+@login_required
+def create_associated(request):
+    form = AssociatedCreateForm()
     if request.method == 'POST':
-        forms = OrderForm(request.POST)
-        if forms.is_valid():
-            supplier = forms.cleaned_data['supplier']
-            product = forms.cleaned_data['product']
-            design = forms.cleaned_data['design']
-            color = forms.cleaned_data['color']
-            buyer = forms.cleaned_data['buyer']
-            season = forms.cleaned_data['season']
-            drop = forms.cleaned_data['drop']
-            Order.objects.create(
-                supplier=supplier,
-                product=product,
-                design=design,
-                color=color,
-                buyer=buyer,
-                season=season,
-                drop=drop,
-                status='pending'
-            )
-            return redirect('order-list')
+        form = AssociatedCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            company = form.cleaned_data['company']
+            address = form.cleaned_data['address']
+            note = form.cleaned_data['note']
+            email = form.cleaned_data['email']
+            phone_number = form.cleaned_data['phone_number']
+            type = form.cleaned_data['type']
+            avatar = form.cleaned_data['avatar']
+            Associated.objects.create(name=name,
+                                   company=company,
+                                   address=address,
+                                   note=note,
+                                   email=email,
+                                   phone_number=phone_number,
+                                   type=type,
+                                   avatar=avatar
+                                   )
+            return redirect('/store/list-associated')
     context = {
-        'form': forms
+        'form': form
     }
-    return render(request, 'store/addOrder.html', context)
-
-
-class OrderListView(ListView):
-    model = Order
-    template_name = 'store/order_list.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['order'] = Order.objects.all().order_by('-id')
-        return context
-
-
-# Delivery views
-@login_required(login_url='login')
-def create_delivery(request):
-    forms = DeliveryForm()
-    if request.method == 'POST':
-        forms = DeliveryForm(request.POST)
-        if forms.is_valid():
-            forms.save()
-            return redirect('delivery-list')
-    context = {
-        'form': forms
-    }
-    return render(request, 'store/addelivery.html', context)
-
-
-class DeliveryListView(ListView):
-    model = Delivery
-    template_name = 'store/delivery_list.html'
-    context_object_name = 'delivery'
+    return render(request, 'store/addAssociated.html', context)

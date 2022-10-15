@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 
-{% block title %}Supplier List{% endblock title %}
+{% block title %}Associated List{% endblock title %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -18,7 +18,7 @@
                     <div class="page-title">
                         <ol class="breadcrumb text-right">
                             <li><a href="#">Dashboard</a></li>
-                            <li><a href="#">Supplier</a></li>
+                            <li><a href="#">Associated</a></li>
                             <li class="active">List</li>
                         </ol>
                     </div>
@@ -34,7 +34,7 @@
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
-                <h4 class="box-title">Supplier List </h4>
+                <h4 class="box-title">Associated List </h4>
             </div>
             <div class="card-body--">
                 <div class="table-stats order-table ov-h">
@@ -49,18 +49,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if supplier %}
-                            {% for supplier in supplier %}
+                            {% if associated %}
+                            {% for associated in associated %}
                             <tr>
                                 <td class="serial">{{ forloop.counter }}</td>
-                                <td>{{ supplier.name }}</td>
-                                <td>{{ supplier.address }}</td>
-                                <td>{{ supplier.user.email }}</td>
-                                <td>{{ supplier.created_date }}</td>
+                                <td>{{ associated.name }}</td>
+                                <td>{{ associated.address }}</td>
+                                <td>{{ associated.user.email }}</td>
+                                <td>{{ associated.created_date }}</td>
                             </tr>
                             {% endfor %}
                             {% else %}
-                                <tr><td>No Supplier Data</td></tr>
+                                <tr><td>No Associated Data</td></tr>
                             {% endif %}
                         </tbody>
                     </table>

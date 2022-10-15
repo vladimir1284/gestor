@@ -1,40 +1,61 @@
+from email.policy import default
+from pyexpat import model
 from django.db import models
 
 from users.models import User
+from django.utils.translation import gettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
 
 
-class Supplier(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=120, unique=True)
-    address = models.CharField(max_length=220)
+class Associated(models.Model):
+    # Either client or supplier
+    name = models.CharField(max_length=120)
+    company = models.CharField(max_length=120, blank=True)
+    address = models.TextField(blank=True)
+    note = models.TextField(blank=True)
+    email = models.EmailField(blank=True)
     created_date = models.DateField(auto_now_add=True)
+    avatar = models.ImageField(upload_to='images/avatars',
+                               blank=True)
+    phone_number = PhoneNumberField(blank=True)
+    TYPE_CHOICE = (
+        ('client', _('Client')),
+        ('supplier', _('Supplier')),
+    )
+    type = models.CharField(max_length=20, choices=TYPE_CHOICE,
+                            default='client')
 
     def __str__(self):
         return self.name
 
 
-class Buyer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class StoreLocations(models.Model):
     name = models.CharField(max_length=120, unique=True)
-    address = models.CharField(max_length=220)
-    created_date = models.DateField(auto_now_add=True)
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
 
 
-class Season(models.Model):
+class ProductCategory(models.Model):
+    # Categories for products
     name = models.CharField(max_length=120, unique=True)
-    description = models.CharField(max_length=220)
-    created_date = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.name
 
 
-class Drop(models.Model):
+class Unit(models.Model):
+    # Unit of measurement
     name = models.CharField(max_length=120, unique=True)
-    created_date = models.DateField(auto_now_add=True)
+    factor = models.FloatField(default=1)  # Factor to convert into SI
+    MAGNITUDE_CHOICE = (
+        ('mass', _('Mass')),
+        ('count', _('Count')),
+        ('distance', _('Distance')),
+        ('volume', _('Volume')),
+    )
+    magnitude = models.CharField(max_length=20, choices=MAGNITUDE_CHOICE)
 
     def __str__(self):
         return self.name
@@ -42,41 +63,64 @@ class Drop(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=120, unique=True)
-    sortno = models.PositiveIntegerField()
+    description = models.TextField(blank=True)
     created_date = models.DateField(auto_now_add=True)
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        ProductCategory, on_delete=models.CASCADE)
+    TYPE_CHOICE = (
+        ('part', _('Part')),
+        ('consumable', _('Consumable')),
+    )
+    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default='consumable')
+    sell_price = models.FloatField(  blank=True, default=0)
+    sell_tax = models.FloatField(  blank=True, default=0)
+    sell_price_min = models.FloatField(  blank=True, default=0)
+    sell_price_max = models.FloatField(  blank=True, default=0)
+    image = models.ImageField(upload_to='images/products',
+                              blank=True)
+    quantity = models.FloatField( blank=True, default=0)
+    quantity_min = models.FloatField(  blank=True, default=0)
 
     def __str__(self):
         return self.name
 
 
 class Order(models.Model):
+    # There can be several products in a single order.
     STATUS_CHOICE = (
-        ('pending', 'Pending'),
-        ('decline', 'Decline'),
-        ('approved', 'Approved'),
-        ('processing', 'Processing'),
-        ('complete', 'Complete'),
-        ('bulk', 'Bulk'),
+        ('pending', _('Pending')),
+        ('decline', _('Decline')),
+        ('approved', _('Approved')),
+        ('processing', _('Processing')),
+        ('complete', _('Complete')),
     )
-    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    design = models.CharField(max_length=50)
-    color = models.CharField(max_length=50)
-    buyer = models.ForeignKey(Buyer, on_delete=models.CASCADE, null=True)
-    season = models.ForeignKey(Season, on_delete=models.CASCADE, null=True)
-    drop = models.ForeignKey(Drop, on_delete=models.CASCADE, null=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICE)
+    TYPE_CHOICE = (
+        ('sell', _('Sell')),
+        ('purchase', _('Purchase')),
+    )
+    type = models.CharField(
+        max_length=20, choices=TYPE_CHOICE, default='purchase')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default='pending')
+    concept = models.CharField(max_length=120, default='Initial')
+    note = models.TextField(blank=True)
     created_date = models.DateField(auto_now_add=True)
-
+    associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.product.name
+        return self.concept
 
 
-class Delivery(models.Model):
+class Transaction(models.Model):
+    # Single product transaction (either sell or purchase).
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    courier_name = models.CharField(max_length=120)
-    created_date = models.DateField(auto_now_add=True)
+    note = models.TextField(blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    tax = models.FloatField()
+    price = models.FloatField()
+    quantity = models.FloatField()
+    # As used in the transaction
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.courier_name
+        return self.concept
