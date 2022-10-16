@@ -16,7 +16,9 @@ from .forms import (
     UnitCreateForm,
     ProductCreateForm,
     CategoryCreateForm,
-    AssociatedCreateForm
+    AssociatedCreateForm,
+    OrderCreateForm,
+    TransactionFormset
 )
 
 
@@ -49,6 +51,44 @@ def create_category(request):
         'form': form
     }
     return render(request, 'store/addCategory.html', context)
+
+
+@login_required
+def create_order(request):
+    form = OrderCreateForm()
+    formset = TransactionFormset()
+    if request.method == 'POST':
+        form = OrderCreateForm(request.POST)
+        if form.is_valid():
+            concept = form.cleaned_data['concept']
+            type = form.cleaned_data['type']
+            note = form.cleaned_data['note']
+            associated = form.cleaned_data['associated']
+            order = Order.objects.create(concept=concept,
+                                         type=type,
+                                         associated=associated,
+                                         note=note)
+            formset = TransactionFormset(request.POST)
+            for form in formset:
+                if form.is_valid():
+                    note = form.cleaned_data.get('note')
+                    product = form.cleaned_data.get('product')
+                    tax = form.cleaned_data.get('tax')
+                    price = form.cleaned_data.get('price')
+                    unit = form.cleaned_data.get('unit')
+                    quantity = form.cleaned_data.get('quantity')
+                    Transaction.objects.create(order=order,
+                                               product=product,
+                                               unit=unit,
+                                               tax=tax,
+                                               price=price,
+                                               quantity=quantity)
+            return redirect('/store/list-order')
+    context = {
+        'form': form,
+        'formset': formset,
+    }
+    return render(request, 'store/addOrder.html', context)
 
 
 @login_required
@@ -121,14 +161,14 @@ def create_associated(request):
             type = form.cleaned_data['type']
             avatar = form.cleaned_data['avatar']
             Associated.objects.create(name=name,
-                                   company=company,
-                                   address=address,
-                                   note=note,
-                                   email=email,
-                                   phone_number=phone_number,
-                                   type=type,
-                                   avatar=avatar
-                                   )
+                                      company=company,
+                                      address=address,
+                                      note=note,
+                                      email=email,
+                                      phone_number=phone_number,
+                                      type=type,
+                                      avatar=avatar
+                                      )
             return redirect('/store/list-associated')
     context = {
         'form': form

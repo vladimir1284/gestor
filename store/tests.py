@@ -4,7 +4,13 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from .forms import UnitCreateForm, ProductCreateForm
 from .views import convertUnit, DifferentMagnitudeUnitsError
-from .models import Unit, Product, ProductCategory
+from .models import (
+    Unit,
+    Product,
+    ProductCategory,
+    Order,
+    Transaction,
+    Associated)
 import random
 
 
@@ -37,7 +43,7 @@ class TestUnitConversion(TestCase):
         }
         self.kg_data = {
             'name': "kg",
-            'factor': "1",
+            'factor': 1,
             'magnitude': "mass",
         }
 
@@ -132,7 +138,7 @@ class TestStockFIFO(TestCase):
         # kg (SI)
         kg_data = {
             'name': "kg",
-            'factor': "1",
+            'factor': 1,
             'magnitude': "mass",
         }
         self.client.post('/store/create-unit/', kg_data)
@@ -143,16 +149,121 @@ class TestStockFIFO(TestCase):
         }
         self.client.post('/store/create-category/', food)
 
+        # supplier
+        supplier = {
+            'name': "Pedro Vendedor",
+            'type': "supplier",
+        }
+        self.client.post('/store/create-associated/', supplier)
+
+        # client
+        client = {
+            'name': "Juan Comprador",
+            'type': "client",
+        }
+        self.client.post('/store/create-associated/', client)
+
         # pescado congelado
         pescado_congelado = {
             'name': "pescado congelado",
-            'unit': "1",
-            'category': "1",
-            'type': 'consumable'
+            'unit': 1,
+            'category': 1,
+            'type': 'consumable',
+            'sell_price': 20,
+            'sell_tax': 15,
+            'sell_price_min': 20,
+            'sell_price_max': 30,
+            'quantity_min': 30,
+
         }
         self.client.post('/store/create-product/', pescado_congelado)
-        product = Product.objects.get(name="pescado congelado")
 
-        # initial stock
-        
-        self.assertEqual(product.name, 'pescado congelado')
+        # 1 de enero inicial
+        form_data = {
+            'form-TOTAL_FORMS': 1,
+            'form-INITIAL_FORMS': 0,
+            'concept': 'inicial',
+            'type': 'purchase',
+            'associated': 1,
+            'form-0-product': 1,
+            'form-0-tax': 0,
+            'form-0-price': 12,
+            'form-0-unit': 1,
+            'form-0-quantity': 100,
+        }
+        self.client.post('/store/create-order/', form_data)
+        trans = Transaction.objects.get(product=1)
+        print(trans)
+        self.assertEqual(trans.quantity, 100)
+
+        # 4 de enero compra
+        form_data = {
+            'form-TOTAL_FORMS': 1,
+            'form-INITIAL_FORMS': 0,
+            'concept': 'compra',
+            'type': 'purchase',
+            'associated': 1,
+            'form-0-product': 1,
+            'form-0-tax': 0,
+            'form-0-price': 14.5,
+            'form-0-unit': 1,
+            'form-0-quantity': 200,
+        }
+        self.client.post('/store/create-order/', form_data)
+        trans = Transaction.objects.get(price=14.5)
+        print(trans)
+        self.assertEqual(trans.quantity, 200)
+
+        # 8 de enero vende
+        form_data = {
+            'form-TOTAL_FORMS': 1,
+            'form-INITIAL_FORMS': 0,
+            'concept': 'venta',
+            'type': 'sell',
+            'associated': 2,
+            'form-0-product': 1,
+            'form-0-tax': 0,
+            'form-0-price': 20,
+            'form-0-unit': 1,
+            'form-0-quantity': 150,
+        }
+        self.client.post('/store/create-order/', form_data)
+        trans = Transaction.objects.get(price=20)
+        print(trans)
+        self.assertEqual(trans.quantity, 150)
+
+        # 12 de enero compra
+        form_data = {
+            'form-TOTAL_FORMS': 1,
+            'form-INITIAL_FORMS': 0,
+            'concept': 'compra',
+            'type': 'purchase',
+            'associated': 1,
+            'form-0-product': 1,
+            'form-0-tax': 0,
+            'form-0-price': 15,
+            'form-0-unit': 1,
+            'form-0-quantity': 225,
+        }
+        self.client.post('/store/create-order/', form_data)
+        trans = Transaction.objects.get(price=15)
+        print(trans)
+        self.assertEqual(trans.quantity, 225)
+
+        # 16 de enero vende
+        form_data = {
+            'form-TOTAL_FORMS': 1,
+            'form-INITIAL_FORMS': 0,
+            'concept': 'venta',
+            'type': 'sell',
+            'associated': 2,
+            'form-0-product': 1,
+            'form-0-tax': 0,
+            'form-0-price': 30,
+            'form-0-unit': 1,
+            'form-0-quantity': 75,
+        }
+        self.client.post('/store/create-order/', form_data)
+        trans = Transaction.objects.get(price=30)
+        print(trans)
+        self.assertEqual(trans.quantity, 75)

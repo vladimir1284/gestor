@@ -72,15 +72,16 @@ class Product(models.Model):
         ('part', _('Part')),
         ('consumable', _('Consumable')),
     )
-    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default='consumable')
-    sell_price = models.FloatField(  blank=True, default=0)
-    sell_tax = models.FloatField(  blank=True, default=0)
-    sell_price_min = models.FloatField(  blank=True, default=0)
-    sell_price_max = models.FloatField(  blank=True, default=0)
+    type = models.CharField(
+        max_length=20, choices=TYPE_CHOICE, default='consumable')
+    sell_price = models.FloatField(blank=True, default=0)
+    sell_tax = models.FloatField(blank=True, default=0)
+    sell_price_min = models.FloatField(blank=True, default=0)
+    sell_price_max = models.FloatField(blank=True, default=0)
     image = models.ImageField(upload_to='images/products',
                               blank=True)
-    quantity = models.FloatField( blank=True, default=0)
-    quantity_min = models.FloatField(  blank=True, default=0)
+    quantity = models.FloatField(blank=True, default=0)
+    quantity_min = models.FloatField(blank=True, default=0)
 
     def __str__(self):
         return self.name
@@ -101,14 +102,15 @@ class Order(models.Model):
     )
     type = models.CharField(
         max_length=20, choices=TYPE_CHOICE, default='purchase')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default='pending')
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICE, default='pending')
     concept = models.CharField(max_length=120, default='Initial')
     note = models.TextField(blank=True)
-    created_date = models.DateField(auto_now_add=True)
+    created_date = models.DateTimeField(auto_now_add=True)
     associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.concept
+        return "{}-{}".format(self.concept, self.created_date)
 
 
 class Transaction(models.Model):
@@ -123,4 +125,4 @@ class Transaction(models.Model):
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.concept
+        return "{}-{}-{}".format(self.order, self.product, self.quantity)
