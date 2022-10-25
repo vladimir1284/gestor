@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
+from django.forms import ModelForm
 
 from users.models import User
 from .models import (
@@ -9,6 +10,8 @@ from .models import (
     Unit,
     Order,
     Transaction,
+    Stock,
+    Profit,
     StoreLocations,
     ProductCategory,
 )
@@ -23,6 +26,14 @@ from .forms import (
 
 
 class DifferentMagnitudeUnitsError(BaseException):
+    """
+    Raised when the input and output units
+    doesn't measure the same magnitude
+    """
+    pass
+
+
+class NotEnoughStockError(BaseException):
     """
     Raised when the input and output units
     doesn't measure the same magnitude
@@ -71,24 +82,77 @@ def create_order(request):
             formset = TransactionFormset(request.POST)
             for form in formset:
                 if form.is_valid():
-                    note = form.cleaned_data.get('note')
-                    product = form.cleaned_data.get('product')
-                    tax = form.cleaned_data.get('tax')
-                    price = form.cleaned_data.get('price')
-                    unit = form.cleaned_data.get('unit')
-                    quantity = form.cleaned_data.get('quantity')
-                    Transaction.objects.create(order=order,
-                                               product=product,
-                                               unit=unit,
-                                               tax=tax,
-                                               price=price,
-                                               quantity=quantity)
+                    handle_transaction(form, order)
             return redirect('/store/list-order')
     context = {
         'form': form,
         'formset': formset,
     }
     return render(request, 'store/addOrder.html', context)
+
+
+def handle_transaction(form: ModelForm, order: Order):
+    note = form.cleaned_data.get('note')
+    product: Product = form.cleaned_data.get('product')
+    tax = form.cleaned_data.get('tax')
+    price = form.cleaned_data.get('price')
+    unit = form.cleaned_data.get('unit')
+    order_quantity = form.cleaned_data.get('quantity')
+    Transaction.objects.create(order=order,
+                               product=product,
+                               unit=unit,
+                               tax=tax,
+                               price=price,
+                               note=note,
+                               quantity=order_quantity)
+    # To be used in the rest of the system
+    product = Product.objects.get(id=product.id)
+    product_quantity = convertUnit(
+        input_unit=unit, output_unit=product.unit, value=order_quantity)
+
+    # TODO study taxes handling on sales to improve these formula
+    if (order.type == 'sell'):
+        # Generate profit
+        income = price*(1 - tax/100.)*order_quantity  # Take off taxes
+        if (product_quantity > product.quantity):
+            raise NotEnoughStockError
+
+        # Implementing FIFO method
+        stock_cost = 0
+        pending = product_quantity
+        stock_array = Stock.objects.filter(
+            product=product).order_by('created_date')
+        for stock in stock_array:
+            if (pending < stock.quantity):
+                stock_cost += pending * stock.cost
+                stock.quantity -= pending
+                stock.save()
+                break
+            elif (pending == stock.quantity):
+                stock_cost += stock.quantity * stock.cost
+                stock.delete()
+                break
+            else:
+                stock_cost += stock.quantity * stock.cost
+                pending -= stock.quantity
+                stock.delete()
+
+        profit = income - stock_cost
+        Profit.objects.create(product=product,
+                              quantity=product_quantity,
+                              profit=profit)
+        product.quantity -= product_quantity
+        product.stock_price -= stock_cost
+        product.save()
+    elif (order.type == 'purchase'):
+        # Generate stock
+        cost = price*(1 + tax/100.)  # Add on taxes
+        Stock.objects.create(product=product,
+                             quantity=product_quantity,
+                             cost=cost)
+        product.quantity += product_quantity
+        product.stock_price += product_quantity * cost
+        product.save()
 
 
 @login_required
