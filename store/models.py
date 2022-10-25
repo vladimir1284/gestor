@@ -81,10 +81,11 @@ class Product(models.Model):
     image = models.ImageField(upload_to='images/products',
                               blank=True)
     quantity = models.FloatField(blank=True, default=0)
+    stock_price = models.FloatField(blank=True, default=0)
     quantity_min = models.FloatField(blank=True, default=0)
 
     def __str__(self):
-        return self.name
+        return "{}-{}-${}".format(self.name, self.quantity, self.stock_price)
 
 
 class Order(models.Model):
@@ -110,7 +111,7 @@ class Order(models.Model):
     associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{}-{}".format(self.concept, self.created_date)
+        return self.concept
 
 
 class Transaction(models.Model):
@@ -125,4 +126,28 @@ class Transaction(models.Model):
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{}-{}-{}".format(self.order, self.product, self.quantity)
+        return "{}-{}-${} product: {}".format(self.order, self.quantity, self.price, self.product)
+
+
+class Stock(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    # Converted from transaction to product unit
+    quantity = models.FloatField()
+    # Calculated from transaction price and tax
+    cost = models.FloatField()
+
+    def __str__(self):
+        return "{}-{}-${}".format(self.product, self.quantity, self.cost)
+
+
+class Profit(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    # In product unit
+    quantity = models.FloatField()
+    # Calculated from sell price and inventory cost
+    profit = models.FloatField()
+
+    def __str__(self):
+        return "Qty: {} profit: ${} product: {}".format(self.quantity, self.profit, self.product)

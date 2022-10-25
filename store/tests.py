@@ -9,6 +9,7 @@ from .models import (
     Product,
     ProductCategory,
     Order,
+    Profit,
     Transaction,
     Associated)
 import random
@@ -134,7 +135,7 @@ class TestStockFIFO(TestCase):
         # should be logged in now
         self.assertTrue(response.context['user'].is_active)
 
-    def test_initial_stock(self):
+    def test_fifo_exercise(self):
         # kg (SI)
         kg_data = {
             'name': "kg",
@@ -194,7 +195,9 @@ class TestStockFIFO(TestCase):
         self.client.post('/store/create-order/', form_data)
         trans = Transaction.objects.get(product=1)
         print(trans)
-        self.assertEqual(trans.quantity, 100)
+        product = Product.objects.get(id=1)
+        self.assertEqual(product.quantity, 100)
+        self.assertEqual(product.stock_price, 1200)
 
         # 4 de enero compra
         form_data = {
@@ -205,14 +208,16 @@ class TestStockFIFO(TestCase):
             'associated': 1,
             'form-0-product': 1,
             'form-0-tax': 0,
-            'form-0-price': 14.5,
+            'form-0-price': 14.25,
             'form-0-unit': 1,
             'form-0-quantity': 200,
         }
         self.client.post('/store/create-order/', form_data)
-        trans = Transaction.objects.get(price=14.5)
+        trans = Transaction.objects.get(price=14.25)
         print(trans)
-        self.assertEqual(trans.quantity, 200)
+        product = Product.objects.get(id=1)
+        self.assertEqual(product.quantity, 300)
+        self.assertEqual(product.stock_price, 1200+2850)
 
         # 8 de enero vende
         form_data = {
@@ -230,7 +235,12 @@ class TestStockFIFO(TestCase):
         self.client.post('/store/create-order/', form_data)
         trans = Transaction.objects.get(price=20)
         print(trans)
-        self.assertEqual(trans.quantity, 150)
+        product = Product.objects.get(id=1)
+        self.assertEqual(product.quantity, 150)
+        self.assertEqual(product.stock_price, 2137.5)
+        profit = Profit.objects.all().order_by('-created_date')[0]
+        print(profit)
+        self.assertEqual(profit.profit, 1087.5)
 
         # 12 de enero compra
         form_data = {
@@ -248,7 +258,9 @@ class TestStockFIFO(TestCase):
         self.client.post('/store/create-order/', form_data)
         trans = Transaction.objects.get(price=15)
         print(trans)
-        self.assertEqual(trans.quantity, 225)
+        product = Product.objects.get(id=1)
+        self.assertEqual(product.quantity, 150+225)
+        self.assertEqual(product.stock_price, 2137.5+3375)
 
         # 16 de enero vende
         form_data = {
@@ -266,4 +278,9 @@ class TestStockFIFO(TestCase):
         self.client.post('/store/create-order/', form_data)
         trans = Transaction.objects.get(price=30)
         print(trans)
-        self.assertEqual(trans.quantity, 75)
+        product = Product.objects.get(id=1)
+        self.assertEqual(product.quantity, 75+225)
+        self.assertEqual(product.stock_price, 1068.75+3375)
+        profit = Profit.objects.all().order_by('-created_date')[0]
+        print(profit)
+        self.assertEqual(profit.profit, 1181.25)
