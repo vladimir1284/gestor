@@ -1,0 +1,499 @@
+- model: store.associated
+  pk: 1
+  fields:
+    name: papa
+    company: Ventas
+    address: rgytyjjh
+    note: tttttt
+    email: vladimir.rodriguezdiez@viep.com.mx
+    created_date: 2022-10-15
+    avatar: images/avatars/bosque.jpg
+    phone_number: '+12125552368'
+    type: supplier
+- model: store.associated
+  pk: 2
+  fields:
+    name: perfect client
+    company: Renta
+    address: wwwww
+    note: fvfg
+    email: vladimir.rodriguezdiez@viep.com.mx
+    created_date: 2022-10-15
+    avatar: images/avatars/51NaIeqZXyL.jpg
+    phone_number: '+12125552368'
+    type: client
+
+- model: store.productcategory
+  pk: 1
+  fields:
+    name: Frenos
+- model: store.productcategory
+  pk: 2
+  fields:
+    name: Electricidad
+- model: store.productcategory
+  pk: 3
+  fields:
+    name: Ruedas
+- model: store.productcategory
+  pk: 4
+  fields:
+    name: Suspensión
+- model: store.productcategory
+  pk: 5
+  fields:
+    name: Cadenas y Correas
+- model: store.productcategory
+  pk: 6
+  fields:
+    name: Filtros
+- model: store.productcategory
+  pk: 7
+  fields:
+    name: Metal
+- model: store.productcategory
+  pk: 8
+  fields:
+    name: Medios de protección
+- model: store.productcategory
+  pk: 9
+  fields:
+    name: Productos de limpieza
+- model: store.productcategory
+  pk: 10
+  fields:
+    name: Pintura
+- model: store.productcategory
+  pk: 11
+  fields:
+    name: Lubricantes
+
+- model: store.unit
+  pk: 1
+  fields:
+    name: m
+    factor: 1
+    magnitude: distance
+- model: store.unit
+  pk: 2
+  fields:
+    name: unidad
+    factor: 1
+    magnitude: count
+- model: store.unit
+  pk: 3
+  fields:
+    name: docena
+    factor: 12
+    magnitude: count
+
+
+- model: store.product
+  pk: 1
+  fields:
+    name: Freno Dexter 7k
+    unit: 2
+    category: 1
+    type: part
+    sell_price: 120
+    sell_tax: 8
+    stock_price: 90
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 2
+  fields:
+    name: Tambora Dexter 7k
+    unit: 2
+    category: 1
+    type: part
+    sell_price: 180
+    sell_tax: 8
+    stock_price: 137
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 3
+  fields:
+    name: Imán 7k
+    unit: 2
+    category: 1
+    type: part
+    sell_price: 40
+    sell_tax: 8
+    stock_price: 20
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 4
+  fields:
+    name: Sello 7k
+    unit: 2
+    category: 1
+    type: part
+    sell_price: 10
+    sell_tax: 8
+    stock_price: 5
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 5
+  fields:
+    name: Sello 10k
+    unit: 2
+    category: 1
+    type: part
+    sell_price: 20
+    sell_tax: 8
+    stock_price: 15
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 6
+  fields:
+    name: Tornillos U
+    unit: 2
+    category: 4
+    type: part
+    sell_price: 25
+    sell_tax: 8
+    stock_price: 15
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 7
+  fields:
+    name: Freno 10k 3.5"
+    unit: 2
+    category: 1
+    type: part
+    sell_price: 60
+    sell_tax: 8
+    stock_price: 40
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 8
+  fields:
+    name: Ecualizador 7k
+    unit: 2
+    category: 4
+    type: part
+    sell_price: 75
+    sell_tax: 8
+    stock_price: 55
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 9
+  fields:
+    name: Rodamiento pequeno 7k
+    unit: 2
+    category: 3
+    type: part
+    sell_price: 25
+    sell_tax: 8
+    stock_price: 15
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 10
+  fields:
+    name: Rodamiento grande 10k
+    unit: 2
+    category: 3
+    type: part
+    sell_price: 40
+    sell_tax: 8
+    stock_price: 20
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 11
+  fields:
+    name: Sello 8k
+    unit: 2
+    category: 3
+    type: part
+    sell_price: 20
+    sell_tax: 8
+    stock_price: 15
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 12
+  fields:
+    name: Breake away system
+    unit: 2
+    category: 1
+    type: part
+    sell_price: 90
+    sell_tax: 8
+    stock_price: 50
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 13
+  fields:
+    name: Juego de aceite camioneta
+    unit: 2
+    category: 6
+    type: part
+    sell_price: 130
+    sell_tax: 8
+    stock_price: 100
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 14
+  fields:
+    name: Filtro de aceite camioneta
+    unit: 2
+    category: 6
+    type: part
+    sell_price: 25
+    sell_tax: 8
+    stock_price: 15
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 15
+  fields:
+    name: Filtro de aire de motor CF
+    unit: 2
+    category: 6
+    type: part
+    sell_price: 80
+    sell_tax: 8
+    stock_price: 50
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 16
+  fields:
+    name: Filtro de combustible 
+    unit: 2
+    category: 6
+    type: part
+    sell_price: 70
+    sell_tax: 8
+    stock_price: 40
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 17
+  fields:
+    name: Filtro y aceite de transmisión
+    unit: 2
+    category: 6
+    type: part
+    sell_price: 500
+    sell_tax: 8
+    stock_price: 305
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 18
+  fields:
+    name: Luz de freno
+    unit: 2
+    category: 2
+    type: part
+    sell_price: 30
+    sell_tax: 8
+    stock_price: 15
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 19
+  fields:
+    name: Luz de población
+    unit: 2
+    category: 2
+    type: part
+    sell_price: 20
+    sell_tax: 8
+    stock_price: 10
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 20
+  fields:
+    name: Caja eléctrica 
+    unit: 2
+    category: 2
+    type: part
+    sell_price: 40
+    sell_tax: 8
+    stock_price: 20
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 21
+  fields:
+    name: Tuercas
+    unit: 3
+    category: 1
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 48
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 22
+  fields:
+    name: Cable de 7 pines
+    unit: 1
+    category: 2
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 2
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 23
+  fields:
+    name: Dot tape
+    unit: 2
+    category: 2
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 20
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 24
+  fields:
+    name: Disco corte
+    unit: 2
+    category: 7
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 1
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 25
+  fields:
+    name: Varilla soldar  LB
+    unit: 2
+    category: 7
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 1
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 26
+  fields:
+    name: Metal
+    unit: 1
+    category: 7
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 1
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 26
+  fields:
+    name: Oxig Acetileno
+    unit: 2
+    category: 7
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 2
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 27
+  fields:
+    name: Brake cleanner
+    unit: 2
+    category: 9
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 3
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 28
+  fields:
+    name: Papel 
+    unit: 2
+    category: 9
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 3
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 29
+  fields:
+    name: Grasa 
+    unit: 2
+    category: 11
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 4.3
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 30
+  fields:
+    name: Pintura Negra 
+    unit: 2
+    category: 10
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 7
+    created_date: 2022-10-15 23:08:18.454262+00:00
+- model: store.product
+  pk: 31
+  fields:
+    name: Tape
+    unit: 2
+    category: 2
+    type: consumable
+    sell_price: 0
+    sell_tax: 8
+    stock_price: 2
+    created_date: 2022-10-15 23:08:18.454262+00:00
+
+
+- model: store.order
+  pk: 3
+  fields:
+    type: purchase
+    status: pending
+    concept: Initial
+    note: ''
+    created_date: 2022-10-15 23:08:18.454262+00:00
+    associated: 1
+- model: store.order
+  pk: 4
+  fields:
+    type: purchase
+    status: pending
+    concept: Initial
+    note: ''
+    created_date: 2022-10-15 23:11:33.591166+00:00
+    associated: 1
+- model: store.order
+  pk: 5
+  fields:
+    type: purchase
+    status: pending
+    concept: Initial
+    note: ''
+    created_date: 2022-10-15 23:13:50.185590+00:00
+    associated: 1
+- model: store.order
+  pk: 6
+  fields:
+    type: purchase
+    status: pending
+    concept: Initial
+    note: ''
+    created_date: 2022-10-15 23:18:00.123290+00:00
+    associated: 1
+- model: store.order
+  pk: 7
+  fields:
+    type: purchase
+    status: pending
+    concept: Initial
+    note: ''
+    created_date: 2022-10-16 00:10:12.875767+00:00
+    associated: 1
+- model: store.transaction
+  pk: 1
+  fields:
+    order: 7
+    note: ''
+    product: 1
+    tax: 12.0
+    price: 23.0
+    quantity: 345.0
+    unit: 1
