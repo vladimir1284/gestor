@@ -126,7 +126,7 @@ class Transaction(models.Model):
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{}-{}-${} product: {}".format(self.order, self.quantity, self.price, self.product)
+        return "{}-{}-${} product: {}".format(self.order, self.quantity, self.price, self.product.name)
 
 
 class Stock(models.Model):
@@ -138,7 +138,7 @@ class Stock(models.Model):
     cost = models.FloatField()
 
     def __str__(self):
-        return "{}-{}-${}".format(self.product, self.quantity, self.cost)
+        return "{}-{}-${}".format(self.product.name, self.quantity, self.cost)
 
 
 class Profit(models.Model):
@@ -150,4 +150,4 @@ class Profit(models.Model):
     profit = models.FloatField()
 
     def __str__(self):
-        return "Qty: {} profit: ${} product: {}".format(self.quantity, self.profit, self.product)
+        return "Qty: {} profit: ${} product: {}".format(self.quantity, self.profit, self.product.name)

@@ -7,8 +7,9 @@
     type: part
     sell_price: 120
     sell_tax: 8
-    stock_price: 90
+    stock_price: 1170
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 13
 - model: store.product
   pk: 2
   fields:
@@ -18,8 +19,10 @@
     type: part
     sell_price: 180
     sell_tax: 8
-    stock_price: 137
+    stock_price: 1370
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 10
+    quantity_min: 12
 - model: store.product
   pk: 3
   fields:
@@ -29,8 +32,9 @@
     type: part
     sell_price: 40
     sell_tax: 8
-    stock_price: 20
+    stock_price: 380
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 19
 - model: store.product
   pk: 4
   fields:
@@ -40,8 +44,9 @@
     type: part
     sell_price: 10
     sell_tax: 8
-    stock_price: 5
+    stock_price: 15
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 3
 - model: store.product
   pk: 5
   fields:
@@ -51,8 +56,9 @@
     type: part
     sell_price: 20
     sell_tax: 8
-    stock_price: 15
+    stock_price: 270
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 18
 - model: store.product
   pk: 6
   fields:
@@ -62,8 +68,9 @@
     type: part
     sell_price: 25
     sell_tax: 8
-    stock_price: 15
+    stock_price: 240
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 16
 - model: store.product
   pk: 7
   fields:
@@ -73,8 +80,9 @@
     type: part
     sell_price: 60
     sell_tax: 8
-    stock_price: 40
+    stock_price: 640
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 16
 - model: store.product
   pk: 8
   fields:
@@ -84,8 +92,9 @@
     type: part
     sell_price: 75
     sell_tax: 8
-    stock_price: 55
+    stock_price: 880
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 16
 - model: store.product
   pk: 9
   fields:
@@ -95,8 +104,9 @@
     type: part
     sell_price: 25
     sell_tax: 8
-    stock_price: 15
+    stock_price: 285
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 19
 - model: store.product
   pk: 10
   fields:
@@ -106,8 +116,9 @@
     type: part
     sell_price: 40
     sell_tax: 8
-    stock_price: 20
+    stock_price: 380
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 19
 - model: store.product
   pk: 11
   fields:
@@ -117,8 +128,9 @@
     type: part
     sell_price: 20
     sell_tax: 8
-    stock_price: 15
+    stock_price: 240
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 16
 - model: store.product
   pk: 12
   fields:
@@ -128,8 +140,9 @@
     type: part
     sell_price: 90
     sell_tax: 8
-    stock_price: 50
+    stock_price: 900
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 18
 - model: store.product
   pk: 13
   fields:
@@ -139,8 +152,9 @@
     type: part
     sell_price: 130
     sell_tax: 8
-    stock_price: 100
+    stock_price: 1800
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 18
 - model: store.product
   pk: 14
   fields:
@@ -150,8 +164,9 @@
     type: part
     sell_price: 25
     sell_tax: 8
-    stock_price: 15
+    stock_price: 270
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 18
 - model: store.product
   pk: 15
   fields:
@@ -161,8 +176,9 @@
     type: part
     sell_price: 80
     sell_tax: 8
-    stock_price: 50
+    stock_price: 850
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 17
 - model: store.product
   pk: 16
   fields:
@@ -172,8 +188,9 @@
     type: part
     sell_price: 70
     sell_tax: 8
-    stock_price: 40
+    stock_price: 640
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 16
 - model: store.product
   pk: 17
   fields:
@@ -183,8 +200,9 @@
     type: part
     sell_price: 500
     sell_tax: 8
-    stock_price: 305
+    stock_price: 5490
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 18
 - model: store.product
   pk: 18
   fields:
@@ -194,8 +212,9 @@
     type: part
     sell_price: 30
     sell_tax: 8
-    stock_price: 15
+    stock_price: 285
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 19
 - model: store.product
   pk: 19
   fields:
@@ -205,8 +224,9 @@
     type: part
     sell_price: 20
     sell_tax: 8
-    stock_price: 10
+    stock_price: 190
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 19
 - model: store.product
   pk: 20
   fields:
@@ -216,8 +236,9 @@
     type: part
     sell_price: 40
     sell_tax: 8
-    stock_price: 20
+    stock_price: 380
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 19
 - model: store.product
   pk: 21
   fields:
@@ -227,8 +248,10 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 48
+    stock_price: 52
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 52
+    quantity_min: 80
 - model: store.product
   pk: 22
   fields:
@@ -238,8 +261,9 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 2
+    stock_price: 196
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 98
 - model: store.product
   pk: 23
   fields:
@@ -249,8 +273,9 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 20
+    stock_price: 180
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 9
 - model: store.product
   pk: 24
   fields:
@@ -260,8 +285,9 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 1
+    stock_price: 70
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 70
 - model: store.product
   pk: 25
   fields:
@@ -271,8 +297,10 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 1
+    stock_price: 46
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 46
+    quantity_min: 50
 - model: store.product
   pk: 26
   fields:
@@ -282,8 +310,10 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 1
+    stock_price: 35
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 35
+    quantity_min: 50
 - model: store.product
   pk: 27
   fields:
@@ -293,8 +323,9 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 2
+    stock_price: 190
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 95
 - model: store.product
   pk: 28
   fields:
@@ -304,8 +335,9 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 3
+    stock_price: 261
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 87
 - model: store.product
   pk: 29
   fields:
@@ -315,8 +347,9 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 3
+    stock_price: 252
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 84
 - model: store.product
   pk: 30
   fields:
@@ -326,8 +359,9 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 4.3
+    stock_price: 365.5
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 85
 - model: store.product
   pk: 31
   fields:
@@ -337,8 +371,9 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 7
+    stock_price: 644
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 92
 - model: store.product
   pk: 32
   fields:
@@ -348,5 +383,6 @@
     type: consumable
     sell_price: 0
     sell_tax: 8
-    stock_price: 2
+    stock_price: 196
     created_date: 2022-10-15 23:08:18.454262+00:00
+    quantity: 98
