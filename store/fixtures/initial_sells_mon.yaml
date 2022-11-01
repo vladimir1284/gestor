@@ -1,0 +1,9 @@
+- model: store.order
+  pk: 3
+  fields:
+    type: sell
+    status: complete
+    concept: Mantenimiento 1
+    note: 'Esta orden con un mantenimiento para el ejemplo'
+    created_date: 2022-10-21 09:28:18.454262+00:00
+    associated: 2

@@ -1,93 +1,3 @@
-- model: store.associated
-  pk: 1
-  fields:
-    name: papa
-    company: Ventas
-    address: rgytyjjh
-    note: tttttt
-    email: vladimir.rodriguezdiez@viep.com.mx
-    created_date: 2022-10-15
-    avatar: images/avatars/bosque.jpg
-    phone_number: '+12125552368'
-    type: supplier
-- model: store.associated
-  pk: 2
-  fields:
-    name: perfect client
-    company: Renta
-    address: wwwww
-    note: fvfg
-    email: vladimir.rodriguezdiez@viep.com.mx
-    created_date: 2022-10-15
-    avatar: images/avatars/51NaIeqZXyL.jpg
-    phone_number: '+12125552368'
-    type: client
-
-- model: store.productcategory
-  pk: 1
-  fields:
-    name: Frenos
-- model: store.productcategory
-  pk: 2
-  fields:
-    name: Electricidad
-- model: store.productcategory
-  pk: 3
-  fields:
-    name: Ruedas
-- model: store.productcategory
-  pk: 4
-  fields:
-    name: Suspensión
-- model: store.productcategory
-  pk: 5
-  fields:
-    name: Cadenas y Correas
-- model: store.productcategory
-  pk: 6
-  fields:
-    name: Filtros
-- model: store.productcategory
-  pk: 7
-  fields:
-    name: Metal
-- model: store.productcategory
-  pk: 8
-  fields:
-    name: Medios de protección
-- model: store.productcategory
-  pk: 9
-  fields:
-    name: Productos de limpieza
-- model: store.productcategory
-  pk: 10
-  fields:
-    name: Pintura
-- model: store.productcategory
-  pk: 11
-  fields:
-    name: Lubricantes
-
-- model: store.unit
-  pk: 1
-  fields:
-    name: m
-    factor: 1
-    magnitude: distance
-- model: store.unit
-  pk: 2
-  fields:
-    name: unidad
-    factor: 1
-    magnitude: count
-- model: store.unit
-  pk: 3
-  fields:
-    name: docena
-    factor: 12
-    magnitude: count
-
-
 - model: store.product
   pk: 1
   fields:
@@ -375,7 +285,7 @@
     stock_price: 1
     created_date: 2022-10-15 23:08:18.454262+00:00
 - model: store.product
-  pk: 26
+  pk: 27
   fields:
     name: Oxig Acetileno
     unit: 2
@@ -386,7 +296,7 @@
     stock_price: 2
     created_date: 2022-10-15 23:08:18.454262+00:00
 - model: store.product
-  pk: 27
+  pk: 28
   fields:
     name: Brake cleanner
     unit: 2
@@ -397,7 +307,7 @@
     stock_price: 3
     created_date: 2022-10-15 23:08:18.454262+00:00
 - model: store.product
-  pk: 28
+  pk: 29
   fields:
     name: Papel 
     unit: 2
@@ -408,7 +318,7 @@
     stock_price: 3
     created_date: 2022-10-15 23:08:18.454262+00:00
 - model: store.product
-  pk: 29
+  pk: 30
   fields:
     name: Grasa 
     unit: 2
@@ -419,7 +329,7 @@
     stock_price: 4.3
     created_date: 2022-10-15 23:08:18.454262+00:00
 - model: store.product
-  pk: 30
+  pk: 31
   fields:
     name: Pintura Negra 
     unit: 2
@@ -430,7 +340,7 @@
     stock_price: 7
     created_date: 2022-10-15 23:08:18.454262+00:00
 - model: store.product
-  pk: 31
+  pk: 32
   fields:
     name: Tape
     unit: 2
@@ -440,60 +350,3 @@
     sell_tax: 8
     stock_price: 2
     created_date: 2022-10-15 23:08:18.454262+00:00
-
-
-- model: store.order
-  pk: 3
-  fields:
-    type: purchase
-    status: pending
-    concept: Initial
-    note: ''
-    created_date: 2022-10-15 23:08:18.454262+00:00
-    associated: 1
-- model: store.order
-  pk: 4
-  fields:
-    type: purchase
-    status: pending
-    concept: Initial
-    note: ''
-    created_date: 2022-10-15 23:11:33.591166+00:00
-    associated: 1
-- model: store.order
-  pk: 5
-  fields:
-    type: purchase
-    status: pending
-    concept: Initial
-    note: ''
-    created_date: 2022-10-15 23:13:50.185590+00:00
-    associated: 1
-- model: store.order
-  pk: 6
-  fields:
-    type: purchase
-    status: pending
-    concept: Initial
-    note: ''
-    created_date: 2022-10-15 23:18:00.123290+00:00
-    associated: 1
-- model: store.order
-  pk: 7
-  fields:
-    type: purchase
-    status: pending
-    concept: Initial
-    note: ''
-    created_date: 2022-10-16 00:10:12.875767+00:00
-    associated: 1
-- model: store.transaction
-  pk: 1
-  fields:
-    order: 7
-    note: ''
-    product: 1
-    tax: 12.0
-    price: 23.0
-    quantity: 345.0
-    unit: 1

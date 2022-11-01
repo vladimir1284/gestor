@@ -1,0 +1,44 @@
+- model: store.productcategory
+  pk: 1
+  fields:
+    name: Frenos
+- model: store.productcategory
+  pk: 2
+  fields:
+    name: Electricidad
+- model: store.productcategory
+  pk: 3
+  fields:
+    name: Ruedas
+- model: store.productcategory
+  pk: 4
+  fields:
+    name: Suspensión
+- model: store.productcategory
+  pk: 5
+  fields:
+    name: Cadenas y Correas
+- model: store.productcategory
+  pk: 6
+  fields:
+    name: Filtros
+- model: store.productcategory
+  pk: 7
+  fields:
+    name: Metal
+- model: store.productcategory
+  pk: 8
+  fields:
+    name: Medios de protección
+- model: store.productcategory
+  pk: 9
+  fields:
+    name: Productos de limpieza
+- model: store.productcategory
+  pk: 10
+  fields:
+    name: Pintura
+- model: store.productcategory
+  pk: 11
+  fields:
+    name: Lubricantes

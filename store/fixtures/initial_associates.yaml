@@ -1,0 +1,79 @@
+- model: store.associated
+  pk: 1
+  fields:
+    name: Suministrador Ejemplo
+    company: Ventas
+    address: En algún lugar
+    note: Este suministrador es solo para el ejemplo
+    email: suministros.generales@gmail.com
+    created_date: 2022-10-15
+    avatar: images/avatars/bosque.jpg
+    phone_number: '+12125552368'
+    type: supplier
+- model: store.associated
+  pk: 2
+  fields:
+    name: Cliente1 Ejemplo
+    company: Renta
+    address: wwwww
+    note: Este es un cliente para ejemplos
+    email: cliente.1@gmail.com
+    created_date: 2022-10-15
+    avatar: images/avatars/51NaIeqZXyL.jpg
+    phone_number: '+12125552368'
+    type: client
+- model: store.associated
+  pk: 3
+  fields:
+    name: Cliente2 Ejemplo
+    company: Renta
+    address: wwwww
+    note: Este es un cliente para ejemplos
+    email: cliente.2@gmail.com
+    created_date: 2022-10-15
+    phone_number: '+12125552368'
+    type: client
+- model: store.associated
+  pk: 4
+  fields:
+    name: Cliente3 Ejemplo
+    company: Renta
+    address: wwwww
+    note: Este es un cliente para ejemplos
+    email: cliente.3@gmail.com
+    created_date: 2022-10-15
+    phone_number: '+12125552368'
+    type: client
+- model: store.associated
+  pk: 5
+  fields:
+    name: Cliente4 Ejemplo
+    company: Renta
+    address: wwwww
+    note: Este es un cliente para ejemplos
+    email: cliente.4@gmail.com
+    created_date: 2022-10-15
+    phone_number: '+12125552368'
+    type: client
+- model: store.associated
+  pk: 6
+  fields:
+    name: Cliente5 Ejemplo
+    company: Renta
+    address: wwwww
+    note: Este es un cliente para ejemplos
+    email: cliente.5@gmail.com
+    created_date: 2022-10-15
+    phone_number: '+12125552368'
+    type: client
+- model: store.associated
+  pk: 7
+  fields:
+    name: Cliente6 Ejemplo
+    company: Renta
+    address: wwwww
+    note: Este es un cliente para ejemplos
+    email: cliente.6@gmail.com
+    created_date: 2022-10-15
+    phone_number: '+12125552368'
+    type: client
