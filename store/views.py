@@ -244,3 +244,29 @@ def create_associated(request):
 def list_unit(request):
     units = Unit.objects.all()
     return render(request, 'store/unit_list.html', {'units': units})
+
+
+@login_required
+def list_category(request):
+    categories = ProductCategory.objects.all()
+    return render(request, 'store/category_list.html', {'categories': categories})
+
+
+@login_required
+def list_product(request):
+    products = Product.objects.all()
+    consumable_alerts = 0
+    part_alerts = 0
+    for product in products:
+        product.average_cost = 0
+        if product.quantity > 0:
+            product.average_cost = product.stock_price/product.quantity
+        if product.quantity < product.quantity_min:
+            if product.type == 'part':
+                part_alerts += 1
+            if product.type == 'consumable':
+                consumable_alerts += 1
+
+    return render(request, 'store/product_list.html', {'products': products,
+                                                       'consumable_alerts': consumable_alerts,
+                                                       'part_alerts': part_alerts})
