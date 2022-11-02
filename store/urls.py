@@ -5,6 +5,7 @@ from .views import (
     create_product,
     create_associated,
     create_order,
+    list_unit,
 )
 
 
@@ -14,4 +15,5 @@ urlpatterns = [
     path('create-product/', create_product, name='create-product'),
     path('create-category/', create_category, name='create-category'),
     path('create-order/', create_order, name='create-order'),
+    path('list-unit/', list_unit, name='list-unit'),
 ]

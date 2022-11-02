@@ -1,0 +1,41 @@
+{% extends 'base/base.html' %}
+{% block title %}
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="card">
+        <h5 class="card-header">
+            {% block Ttitle %}
+            {% endblock Ttitle %}
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        {% block Theader %}
+                        {% endblock Theader %}
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% block Tbody %}
+                    {% endblock Tbody %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <a href= {% block createUrl %} {% endblock createUrl %}>
+        <button type="button" class="btn rounded-pill btn-primary add">
+            <b>+</b>
+        </button>
+    </a>
+    <style>
+        .add {
+            position: fixed;
+            font-size: 24px;
+            bottom: 3rem;
+            right: 1.625rem;
+            z-index: 999999;
+            box-shadow: 0 1px 20px 1px #696cff;
+        }
+    </style>
+{% endblock content %}

@@ -238,3 +238,9 @@ def create_associated(request):
         'form': form
     }
     return render(request, 'store/addAssociated.html', context)
+
+
+@login_required
+def list_unit(request):
+    units = Unit.objects.all()
+    return render(request, 'store/unit_list.html', {'units': units})
