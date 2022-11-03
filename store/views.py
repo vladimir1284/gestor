@@ -23,6 +23,8 @@ from .forms import (
     OrderCreateForm,
     TransactionFormset
 )
+CAT_COLORS = ['secondary', 'success', 'danger',
+              'warning', 'info', 'dark', 'primary']
 
 
 class DifferentMagnitudeUnitsError(BaseException):
@@ -257,8 +259,14 @@ def list_product(request):
     products = Product.objects.all()
     consumable_alerts = 0
     part_alerts = 0
+    category_names = []
+    categories = []
     for product in products:
         product.average_cost = 0
+        if product.category.name not in category_names:
+            category_names.append(product.category.name)
+            categories.append({'name': product.category.name,
+                               'color': CAT_COLORS[len(categories) % len(CAT_COLORS)]})
         if product.quantity > 0:
             product.average_cost = product.stock_price/product.quantity
         if product.quantity < product.quantity_min:
@@ -269,4 +277,5 @@ def list_product(request):
 
     return render(request, 'store/product_list.html', {'products': products,
                                                        'consumable_alerts': consumable_alerts,
-                                                       'part_alerts': part_alerts})
+                                                       'part_alerts': part_alerts,
+                                                       'categories': categories})

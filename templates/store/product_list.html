@@ -4,43 +4,59 @@
 {% endblock title %}
 {% block card %}
     <h5 class="card-header">Products</h5>
-    <div class="nav-align-top mb-4">
-        <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
-            <li class="nav-item">
-                <button type="button"
-                        class="nav-link active"
-                        role="tab"
-                        data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-justified-home"
-                        aria-controls="navs-pills-justified-home"
-                        aria-selected="true">
-                    <i class="tf-icons bx bx-repost"></i> Parts
-                    {% if part_alerts > 0 %}
-                        <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ part_alerts }}</span>
-                    {% endif %}
+    <div class="card-body">
+        <div class="demo-inline-spacing">
+            <button onClick="filterTag('all')"
+                    type="button"
+                    class="btn rounded-pill btn-primary">All</button>
+            {% for category in categories %}
+                <button onClick="filterTag('{{ category.name }}')"
+                        type="button"
+                        class="btn rounded-pill btn-{{ category.color }}">
+                    {{ category.name }}
                 </button>
-            </li>
-            <li class="nav-item">
-                <button type="button"
-                        class="nav-link"
-                        role="tab"
-                        data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-justified-profile"
-                        aria-controls="navs-pills-justified-profile"
-                        aria-selected="false">
-                    <i class="tf-icons bx bx-archive"></i> Consumables
-                    {% if consumable_alerts > 0 %}
-                        <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ consumable_alerts }}</span>
-                    {% endif %}
-                </button>
-            </li>
-        </ul>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="nav-align-top mb-4">
+            <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+                <li class="nav-item">
+                    <button type="button"
+                            class="nav-link active"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#navs-pills-justified-home"
+                            aria-controls="navs-pills-justified-home"
+                            aria-selected="true">
+                        <i class="tf-icons bx bx-repost"></i> Parts
+                        {% if part_alerts > 0 %}
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ part_alerts }}</span>
+                        {% endif %}
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button type="button"
+                            class="nav-link"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#navs-pills-justified-profile"
+                            aria-controls="navs-pills-justified-profile"
+                            aria-selected="false">
+                        <i class="tf-icons bx bx-archive"></i> Consumables
+                        {% if consumable_alerts > 0 %}
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ consumable_alerts }}</span>
+                        {% endif %}
+                    </button>
+                </li>
+            </ul>
+        </div>
         <div class="tab-content">
             <div class="tab-pane fade active show"
                  id="navs-pills-justified-home"
                  role="tabpanel">
                 <div class="table-responsive text-nowrap">
-                    <table class="table">
+                    <table class="table" id="table_parts">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -53,7 +69,7 @@
                         <tbody class="table-border-bottom-0">
                             {% for product in products %}
                                 {% if product.type == 'part' %}
-                                    <tr>
+                                    <tr class="{{ product.category }}">
                                         <td>
                                             <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ product.name }}</strong>
                                         </td>
@@ -78,7 +94,7 @@
                  id="navs-pills-justified-profile"
                  role="tabpanel">
                 <div class="table-responsive text-nowrap">
-                    <table class="table">
+                    <table class="table" id="table_consumables">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -90,7 +106,7 @@
                         <tbody class="table-border-bottom-0">
                             {% for product in products %}
                                 {% if product.type == 'consumable' %}
-                                    <tr>
+                                    <tr class="{{ product.category }}">
                                         <td>
                                             <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ product.name }}</strong>
                                         </td>
@@ -112,6 +128,25 @@
             </div>
         </div>
     </div>
+    <script>
+        function filterTag(tagName) {
+            let i, j;
+
+            let tables = document.getElementsByTagName("tbody");
+
+            for (j = 0; j < tables.length; j++) {
+                tr = tables[j].getElementsByTagName("tr");
+
+                for (i = 0; i < tr.length; i++) {
+                    if (tr[i].classList[0] == tagName || tagName == 'all') {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }                    
+                }
+            }
+        }
+    </script>
 {% endblock card %}
 {% block createUrl %}
     {% url 'create-product' %}
