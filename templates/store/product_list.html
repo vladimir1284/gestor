@@ -3,24 +3,25 @@
     Products
 {% endblock title %}
 {% block card %}
-    <h5 class="card-header">Products</h5>
-    <div class="card-body">
-        <div class="demo-inline-spacing">
-            <button onClick="filterTag('all')"
-                    type="button"
-                    class="btn rounded-pill btn-primary">All</button>
-            {% for category in categories %}
-                <button onClick="filterTag('{{ category.name }}')"
-                        type="button"
-                        class="btn rounded-pill btn-{{ category.color }}">
-                    {{ category.name }}
-                </button>
-            {% endfor %}
-        </div>
+    <div class="demo-inline-spacing">
+        <h5 class="card-header">Products</h5>
     </div>
     <div class="card-body">
-        <div class="nav-align-top mb-4">
-            <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+        <div class="mb-2">
+            <small class="text-light fw-semibold">Category</small>
+            <select onchange="filterTag()" id="tagSelect" class="form-select">
+                <option value="all">
+                    All
+                </option>
+                {% for category in categories %}
+                    <option value="{{ category.name }}">
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="nav-align-top">
+            <ul class="nav nav-pills nav-fill" role="tablist">
                 <li class="nav-item">
                     <button type="button"
                             class="nav-link active"
@@ -129,11 +130,12 @@
         </div>
     </div>
     <script>
-        function filterTag(tagName) {
+        function filterTag() {
             let i, j;
+            let tagName = document.getElementById("tagSelect").value
 
+            // Filer objects by category
             let tables = document.getElementsByTagName("tbody");
-
             for (j = 0; j < tables.length; j++) {
                 tr = tables[j].getElementsByTagName("tr");
 
