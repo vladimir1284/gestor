@@ -141,7 +141,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 LOGIN_URL = '/users/login/'
 
 MEDIA_ROOT = 'static/'
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = '/store/dashboard/'
 

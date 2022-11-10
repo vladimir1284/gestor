@@ -53,7 +53,7 @@ class ProductCategory(models.Model):
         if img.height > self.ICON_SIZE or img.width > self.ICON_SIZE:
             output_size = (self.ICON_SIZE, self.ICON_SIZE)
             img.thumbnail(output_size)
-            img.save(self.icon.path)
+        img.save(self.icon.path)
 
     def __str__(self):
         return self.name

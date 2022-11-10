@@ -113,8 +113,8 @@
               reader.onload = function (e) {
                   var img = document.createElement("img");
                   img.onload = function (event) {
-                      var MAX_WIDTH = 300;
-                      var MAX_HEIGHT = 300;
+                      var MAX_WIDTH = 64;
+                      var MAX_HEIGHT = 64;
 
                       var width = img.width;
                       var height = img.height;
@@ -140,7 +140,7 @@
                       var ctx = canvas.getContext("2d");
 
                       // Actual resizing
-                      ctx.drawImage(img, 0, 0, 300, 300);
+                      ctx.drawImage(img, 0, 0, 64, 64);
 
                       // Show resized image in preview element
                       var dataurl = canvas.toDataURL(imageFile.type);

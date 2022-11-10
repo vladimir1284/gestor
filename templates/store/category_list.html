@@ -1,5 +1,4 @@
 {% extends 'base/base_card.html' %}
-{% load static %}
 {% block title %}
     Categorías de productos
 {% endblock title %}
@@ -8,20 +7,20 @@
 {% endblock Ctitle %}
 {% block Cards %}
     {% for category in categories %}
-        <div class="col-6 col-md-3 col-lg-2 mb-3 text-center">
+        <div class="col-6 col-md-3 mb-3 text-center">
             <div class="card h-100">
                 <img class="card-img-top"
-                     src="{% static category.icon.url %}"
+                     src="{{ category.icon.url }}"
                      alt="{{ category.name }} icon">
                 <div class="card-body">
                     <h5 class="card-title">{{ category.name }}</h5>
                     <div class="demo-inline-spacing">
-                        <a href="javascript:void(0)"
+                        <a class="btn btn-icon btn-outline-primary"
                            type="button"
-                           class="btn btn-icon btn-outline-primary">
+                           href="{% url 'update-category' category.id %}">
                             <span class="tf-icons bx bx-edit"></span>
                         </a>
-                        <a href="javascript:void(0)"
+                        <a onclick="deleteCategory({{ category.id }}, '{{ category.name }}')"
                            type="button"
                            class="btn btn-icon btn-outline-danger">
                             <span class="tf-icons bx bx-trash"></span>
@@ -31,6 +30,14 @@
             </div>
         </div>
     {% endfor %}
+    <script>
+        function deleteCategory(id, name) {
+            let confirmAction = confirm("Are you sure to delete the category " + name + "?");
+            if (confirmAction) {
+                window.location = "/store/delete-category/" + id;
+            }
+        }
+    </script>
 {% endblock Cards %}
 {% block createUrl %}
     {% url 'create-category' %}

@@ -8,6 +8,8 @@ from .views import (
     list_unit,
     list_category,
     list_product,
+    update_category,
+    delete_category,
 )
 
 
@@ -20,4 +22,6 @@ urlpatterns = [
     path('list-unit/', list_unit, name='list-unit'),
     path('list-category/', list_category, name='list-category'),
     path('list-product/', list_product, name='list-product'),
+    path('update-category/<id>', update_category, name='update-category'),
+    path('delete-category/<id>', delete_category, name='delete-category'),
 ]

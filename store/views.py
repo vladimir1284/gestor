@@ -1,4 +1,9 @@
-from django.shortcuts import render, redirect
+import os
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404,
+    HttpResponseRedirect)
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.forms import ModelForm
@@ -64,6 +69,43 @@ def create_category(request):
     context = {
         'form': form
     }
+    return render(request, 'store/addCategory.html', context)
+
+
+@login_required
+def delete_category(request, id):
+    # fetch the object related to passed id
+    obj = get_object_or_404(ProductCategory, id=id)
+    obj.delete()
+    return redirect('/store/list-category')
+
+
+@login_required
+def update_category(request, id):
+    # dictionary for initial data with
+    # field names as keys
+    context = {}
+
+    # fetch the object related to passed id
+    obj = get_object_or_404(ProductCategory, id=id)
+
+    # pass the object as instance in form
+    form = CategoryCreateForm(request.POST or None,
+                              request.FILES or None, instance=obj)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        if os.path.exists(obj.icon.path):
+            os.remove(obj.icon.path)
+        form.save()
+        return redirect('/store/list-category')
+
+    # add form dictionary to context
+    context = {
+        'form': form
+    }
+
     return render(request, 'store/addCategory.html', context)
 
 

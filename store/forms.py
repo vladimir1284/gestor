@@ -270,7 +270,13 @@ class CategoryCreateForm(forms.ModelForm):
                 ),
                 css_class="mb-3"
             ),
-            HTML('<img id="preview"></img>'),
+            #HTML('<img id="preview"></img>'),
+            HTML(
+                """<img id="preview" 
+                {% if form.icon.value %}
+                    class="img-responsive" 
+                    src="/media/{{ form.icon.value }}"
+                    {% endif %}">"""),
             Div(
                 Div(
                     Field('icon', css_class="form-select")
