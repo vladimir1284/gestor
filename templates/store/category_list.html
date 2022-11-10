@@ -1,22 +1,37 @@
-{% extends 'base/base_list.html' %}
+{% extends 'base/base_card.html' %}
+{% load static %}
 {% block title %}
     Categorías de productos
 {% endblock title %}
-{% block Ttitle %}
+{% block Ctitle %}
     Categorías de productos
-{% endblock Ttitle %}
-{% block Theader %}
-    <th>Categoría</th>
-{% endblock Theader %}
-{% block Tbody %}
+{% endblock Ctitle %}
+{% block Cards %}
     {% for category in categories %}
-        <tr>
-            <td>
-                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ category.name }}</strong>
-            </td>
-        </tr>
+        <div class="col-6 col-md-3 col-lg-2 mb-3 text-center">
+            <div class="card h-100">
+                <img class="card-img-top"
+                     src="{% static category.icon.url %}"
+                     alt="{{ category.name }} icon">
+                <div class="card-body">
+                    <h5 class="card-title">{{ category.name }}</h5>
+                    <div class="demo-inline-spacing">
+                        <a href="javascript:void(0)"
+                           type="button"
+                           class="btn btn-icon btn-outline-primary">
+                            <span class="tf-icons bx bx-edit"></span>
+                        </a>
+                        <a href="javascript:void(0)"
+                           type="button"
+                           class="btn btn-icon btn-outline-danger">
+                            <span class="tf-icons bx bx-trash"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endfor %}
-{% endblock Tbody %}
+{% endblock Cards %}
 {% block createUrl %}
     {% url 'create-category' %}
 {% endblock createUrl %}

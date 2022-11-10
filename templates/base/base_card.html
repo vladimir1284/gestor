@@ -1,0 +1,30 @@
+{% extends 'base/base.html' %}
+{% block title %}
+{% endblock title %}
+{% block page %}
+    <style>
+        .add {
+            position: fixed;
+            font-size: 27px;
+            bottom: 3rem;
+            right: 1.625rem;
+            z-index: 999999;
+            box-shadow: 0 1px 20px 1px #696cff;
+        }
+    </style>
+{% endblock page %}
+{% block content %}
+    <h4 class="fw-bold py-3 mb-4">
+        {% block Ctitle %}
+        {% endblock Ctitle %}
+    </h4>
+    <div class="row mb-5">
+        {% block Cards %}
+        {% endblock Cards %}
+    </div>
+    <a href= {% block createUrl %} {% endblock createUrl %}>
+        <button type="button" class="btn rounded-pill btn-primary add">
+            <b>+</b>
+        </button>
+    </a>
+{% endblock content %}

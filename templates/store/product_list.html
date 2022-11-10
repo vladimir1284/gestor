@@ -1,24 +1,26 @@
 {% extends 'base/base_list.html' %}
+{% load static %}
 {% block title %}
     Products
 {% endblock title %}
 {% block card %}
     <div class="demo-inline-spacing">
-        <h5 class="card-header">Products</h5>
+        <h5 class="card-header">
+            Products <spam id="filter_tag"></spam>
+        </h5>
     </div>
     <div class="card-body">
-        <div class="mb-2">
-            <small class="text-light fw-semibold">Category</small>
-            <select onchange="filterTag()" id="tagSelect" class="form-select">
-                <option value="all">
-                    All
-                </option>
-                {% for category in categories %}
-                    <option value="{{ category.name }}">
-                        {{ category.name }}
-                    </option>
-                {% endfor %}
-            </select>
+        <div class="demo-inline-spacing mb-2">
+            <button onClick="filterTag('all')"
+                    type="button"
+                    class="btn btn-icon btn-primary">all</button>
+            {% for category in categories %}
+                <button onClick="filterTag('{{ category.name }}')"
+                        type="button"
+                        class="btn btn-icon btn-outline-primary">
+                    <img class="w-px-30 h-auto" src="{% static category.icon.url %}" alt="">
+                </button>
+            {% endfor %}
         </div>
         <div class="nav-align-top">
             <ul class="nav nav-pills nav-fill" role="tablist">
@@ -130,11 +132,16 @@
         </div>
     </div>
     <script>
-        function filterTag() {
+        function filterTag(tagName) {
             let i, j;
-            let tagName = document.getElementById("tagSelect").value
 
-            // Filer objects by category
+            let title_tag = document.getElementById("filter_tag");
+            if(tagName == 'all'){
+                title_tag.innerHTML = "";
+            } else {
+                title_tag.innerHTML = "("+tagName+")";
+            }
+
             let tables = document.getElementsByTagName("tbody");
             for (j = 0; j < tables.length; j++) {
                 tr = tables[j].getElementsByTagName("tr");

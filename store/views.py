@@ -55,10 +55,11 @@ def convertUnit(input_unit, output_unit, value):
 def create_category(request):
     form = CategoryCreateForm()
     if request.method == 'POST':
-        form = CategoryCreateForm(request.POST)
+        form = CategoryCreateForm(request.POST, request.FILES)
         if form.is_valid():
             name = form.cleaned_data['name']
-            ProductCategory.objects.create(name=name)
+            icon = form.cleaned_data['icon']
+            ProductCategory.objects.create(name=name, icon=icon)
             return redirect('/store/list-category')
     context = {
         'form': form
@@ -265,8 +266,7 @@ def list_product(request):
         product.average_cost = 0
         if product.category.name not in category_names:
             category_names.append(product.category.name)
-            categories.append({'name': product.category.name,
-                               'color': CAT_COLORS[len(categories) % len(CAT_COLORS)]})
+            categories.append(product.category)
         if product.quantity > 0:
             product.average_cost = product.stock_price/product.quantity
         if product.quantity < product.quantity_min:

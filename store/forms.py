@@ -249,7 +249,7 @@ class CategoryCreateForm(forms.ModelForm):
 
     class Meta:
         model = ProductCategory
-        fields = ('name',)
+        fields = ('name', 'icon',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -267,6 +267,13 @@ class CategoryCreateForm(forms.ModelForm):
             Div(
                 Div(
                     Field('name')
+                ),
+                css_class="mb-3"
+            ),
+            HTML('<img id="preview"></img>'),
+            Div(
+                Div(
+                    Field('icon', css_class="form-select")
                 ),
                 css_class="mb-3"
             ),
