@@ -343,11 +343,9 @@ class ProductCreateForm(forms.ModelForm):
                   'unit',
                   'category',
                   'type',
-                  'sell_price',
                   'sell_tax',
-                  'sell_price_min',
-                  'sell_price_max',
-                  'image',
+                  'suggested_price',
+                  'max_price',
                   'quantity_min')
 
     def __init__(self, *args, **kwargs):
@@ -397,18 +395,6 @@ class ProductCreateForm(forms.ModelForm):
                             ),
                             css_class="mb-3"
                         ),
-                        Div(
-                            Div(
-                                Field('quantity_min', css_class="form-select")
-                            ),
-                            css_class="mb-3"
-                        ),
-                        Div(
-                            Div(
-                                Field('image', css_class="form-select")
-                            ),
-                            css_class="mb-3"
-                        ),
                         css_class="card-body"
                     ),
                     css_class="card mb-4"
@@ -419,11 +405,17 @@ class ProductCreateForm(forms.ModelForm):
             Div(
                 Div(
                     Fieldset(
-                        _("Sell Price"),
+                        _("Advance configuration"),
+                        Div(
+                            Div(
+                                Field('quantity_min', css_class="form-select")
+                            ),
+                            css_class="mb-3"
+                        ),
                         Div(
                             Div(
                                 Field(
-                                    PrependedText('sell_price', '$')
+                                    AppendedText('suggested_price', '%')
                                 )
                             ),
                             css_class="mb-3"
@@ -431,15 +423,7 @@ class ProductCreateForm(forms.ModelForm):
                         Div(
                             Div(
                                 Field(
-                                    PrependedText('sell_price_min', '$')
-                                )
-                            ),
-                            css_class="mb-3"
-                        ),
-                        Div(
-                            Div(
-                                Field(
-                                    PrependedText('sell_price_max', '$')
+                                    AppendedText('max_price', '%')
                                 )
                             ),
                             css_class="mb-3"

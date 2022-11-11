@@ -88,12 +88,9 @@ class Product(models.Model):
     )
     type = models.CharField(
         max_length=20, choices=TYPE_CHOICE, default='consumable')
-    sell_price = models.FloatField(blank=True, default=0)
-    sell_tax = models.FloatField(blank=True, default=0)
-    sell_price_min = models.FloatField(blank=True, default=0)
-    sell_price_max = models.FloatField(blank=True, default=0)
-    image = models.ImageField(upload_to='images/products',
-                              blank=True)
+    sell_tax = models.FloatField(blank=True, default=8.25)
+    suggested_price = models.FloatField(blank=True, default=30)
+    max_price = models.FloatField(blank=True, default=50)
     quantity = models.FloatField(blank=True, default=0)
     stock_price = models.FloatField(blank=True, default=0)
     quantity_min = models.FloatField(blank=True, default=0)

@@ -220,6 +220,41 @@ def create_unit(request):
 
 
 @login_required
+def delete_product(request, id):
+    # fetch the object related to passed id
+    obj = get_object_or_404(Product, id=id)
+    obj.delete()
+    return redirect('/store/list-product')
+
+
+@login_required
+def update_product(request, id):
+    # dictionary for initial data with
+    # field names as keys
+    context = {}
+
+    # fetch the object related to passed id
+    obj = get_object_or_404(Product, id=id)
+
+    # pass the object as instance in form
+    form = CategoryCreateForm(request.POST or None,
+                              request.FILES or None, instance=obj)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        form.save()
+        return redirect('/store/list-product')
+
+    # add form dictionary to context
+    context = {
+        'form': form
+    }
+
+    return render(request, 'store/addProduct.html', context)
+
+
+@login_required
 def create_product(request):
     form = ProductCreateForm()
     if request.method == 'POST':
@@ -311,6 +346,8 @@ def list_product(request):
             categories.append(product.category)
         if product.quantity > 0:
             product.average_cost = product.stock_price/product.quantity
+        product.sell_price = product.average_cost * \
+            (1 + product.suggested_price/100)
         if product.quantity < product.quantity_min:
             if product.type == 'part':
                 part_alerts += 1

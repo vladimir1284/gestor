@@ -1,5 +1,4 @@
 {% extends 'base/base_list.html' %}
-{% load static %}
 {% block title %}
     Products
 {% endblock title %}
@@ -18,7 +17,7 @@
                 <button onClick="filterTag('{{ category.name }}')"
                         type="button"
                         class="btn btn-icon btn-outline-primary">
-                    <img class="w-px-30 h-auto" src="{% static category.icon.url %}" alt="">
+                    <img class="w-px-30 h-auto" src="{{ category.icon.url }}" alt="">
                 </button>
             {% endfor %}
         </div>
@@ -72,7 +71,7 @@
                         <tbody class="table-border-bottom-0">
                             {% for product in products %}
                                 {% if product.type == 'part' %}
-                                    <tr class="{{ product.category }}">
+                                    <tr data-tag="{{ product.category }}">
                                         <td>
                                             <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ product.name }}</strong>
                                         </td>
@@ -109,7 +108,7 @@
                         <tbody class="table-border-bottom-0">
                             {% for product in products %}
                                 {% if product.type == 'consumable' %}
-                                    <tr class="{{ product.category }}">
+                                    <tr data-tag="{{ product.category }}">
                                         <td>
                                             <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ product.name }}</strong>
                                         </td>
@@ -145,9 +144,8 @@
             let tables = document.getElementsByTagName("tbody");
             for (j = 0; j < tables.length; j++) {
                 tr = tables[j].getElementsByTagName("tr");
-
                 for (i = 0; i < tr.length; i++) {
-                    if (tr[i].classList[0] == tagName || tagName == 'all') {
+                    if (tr[i].dataset['tag'] == tagName || tagName == 'all') {
                         tr[i].style.display = "";
                     } else {
                         tr[i].style.display = "none";
