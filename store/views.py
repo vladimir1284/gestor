@@ -62,10 +62,8 @@ def create_category(request):
     if request.method == 'POST':
         form = CategoryCreateForm(request.POST, request.FILES)
         if form.is_valid():
-            name = form.cleaned_data['name']
-            icon = form.cleaned_data['icon']
-            ProductCategory.objects.create(name=name, icon=icon)
-            return redirect('/store/list-category')
+            form.save()
+            return redirect('list-category')
     context = {
         'form': form
     }
@@ -116,19 +114,15 @@ def create_order(request):
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
-            concept = form.cleaned_data['concept']
-            type = form.cleaned_data['type']
-            note = form.cleaned_data['note']
-            associated = form.cleaned_data['associated']
-            order = Order.objects.create(concept=concept,
-                                         type=type,
-                                         associated=associated,
-                                         note=note)
+            order = form.save()
             formset = TransactionFormset(request.POST)
             for form in formset:
                 if form.is_valid():
-                    handle_transaction(form, order)
-            return redirect('/store/list-order')
+                    transaction = form.save(commit=False)
+                    transaction.order = order
+                    transaction.save()
+                    handle_transaction(transaction, order)
+            return redirect('list-order')
     context = {
         'form': form,
         'formset': formset,
@@ -136,29 +130,20 @@ def create_order(request):
     return render(request, 'store/addOrder.html', context)
 
 
-def handle_transaction(form: ModelForm, order: Order):
-    note = form.cleaned_data.get('note')
-    product: Product = form.cleaned_data.get('product')
-    tax = form.cleaned_data.get('tax')
-    price = form.cleaned_data.get('price')
-    unit = form.cleaned_data.get('unit')
-    order_quantity = form.cleaned_data.get('quantity')
-    Transaction.objects.create(order=order,
-                               product=product,
-                               unit=unit,
-                               tax=tax,
-                               price=price,
-                               note=note,
-                               quantity=order_quantity)
+def handle_transaction(transaction: Transaction, order: Order):
+    product = transaction.product
     # To be used in the rest of the system
     product = Product.objects.get(id=product.id)
     product_quantity = convertUnit(
-        input_unit=unit, output_unit=product.unit, value=order_quantity)
+        input_unit=transaction.unit,
+        output_unit=product.unit,
+        value=transaction.quantity)
 
     # TODO study taxes handling on sales to improve these formula
     if (order.type == 'sell'):
         # Generate profit
-        income = price*(1 - tax/100.)*order_quantity  # Take off taxes
+        income = transaction.price * \
+            (1 - transaction.tax/100.)*transaction.quantity  # Take off taxes
         if (product_quantity > product.quantity):
             raise NotEnoughStockError
 
@@ -191,7 +176,7 @@ def handle_transaction(form: ModelForm, order: Order):
         product.save()
     elif (order.type == 'purchase'):
         # Generate stock
-        cost = price*(1 + tax/100.)  # Add on taxes
+        cost = transaction.price*(1 + transaction.tax/100.)  # Add on taxes
         Stock.objects.create(product=product,
                              quantity=product_quantity,
                              cost=cost)
@@ -206,13 +191,8 @@ def create_unit(request):
     if request.method == 'POST':
         form = UnitCreateForm(request.POST)
         if form.is_valid():
-            name = form.cleaned_data['name']
-            factor = form.cleaned_data['factor']
-            magnitude = form.cleaned_data['magnitude']
-            Unit.objects.create(name=name,
-                                factor=factor,
-                                magnitude=magnitude)
-            return redirect('/store/list-unit')
+            form.save()
+            return redirect('list-unit')
     context = {
         'form': form
     }
@@ -224,7 +204,7 @@ def delete_product(request, id):
     # fetch the object related to passed id
     obj = get_object_or_404(Product, id=id)
     obj.delete()
-    return redirect('/store/list-product')
+    return redirect('list-product')
 
 
 @login_required
@@ -244,7 +224,7 @@ def update_product(request, id):
     # redirect to detail_view
     if form.is_valid():
         form.save()
-        return redirect('/store/list-product')
+        return redirect('list-product')
 
     # add form dictionary to context
     context = {
@@ -260,30 +240,8 @@ def create_product(request):
     if request.method == 'POST':
         form = ProductCreateForm(request.POST, request.FILES)
         if form.is_valid():
-            name = form.cleaned_data['name']
-            description = form.cleaned_data['description']
-            unit = form.cleaned_data['unit']
-            category = form.cleaned_data['category']
-            type = form.cleaned_data['type']
-            sell_price = form.cleaned_data['sell_price']
-            sell_tax = form.cleaned_data['sell_tax']
-            sell_price_min = form.cleaned_data['sell_price_min']
-            sell_price_max = form.cleaned_data['sell_price_max']
-            quantity_min = form.cleaned_data['quantity_min']
-            image = form.cleaned_data['image']
-            Product.objects.create(name=name,
-                                   description=description,
-                                   unit=unit,
-                                   category=category,
-                                   type=type,
-                                   sell_price=sell_price,
-                                   sell_tax=sell_tax,
-                                   sell_price_min=sell_price_min,
-                                   sell_price_max=sell_price_max,
-                                   quantity_min=quantity_min,
-                                   image=image
-                                   )
-            return redirect('/store/list-product')
+            form.save()
+            return redirect('list-product')
     context = {
         'form': form
     }
@@ -296,24 +254,8 @@ def create_associated(request):
     if request.method == 'POST':
         form = AssociatedCreateForm(request.POST, request.FILES)
         if form.is_valid():
-            name = form.cleaned_data['name']
-            company = form.cleaned_data['company']
-            address = form.cleaned_data['address']
-            note = form.cleaned_data['note']
-            email = form.cleaned_data['email']
-            phone_number = form.cleaned_data['phone_number']
-            type = form.cleaned_data['type']
-            avatar = form.cleaned_data['avatar']
-            Associated.objects.create(name=name,
-                                      company=company,
-                                      address=address,
-                                      note=note,
-                                      email=email,
-                                      phone_number=phone_number,
-                                      type=type,
-                                      avatar=avatar
-                                      )
-            return redirect('/store/list-associated')
+            form.save()
+            return redirect('list-associated')
     context = {
         'form': form
     }
@@ -330,6 +272,18 @@ def list_unit(request):
 def list_category(request):
     categories = ProductCategory.objects.all()
     return render(request, 'store/category_list.html', {'categories': categories})
+
+
+@login_required
+def list_associated(request):
+    associates = Associated.objects.all()
+    return render(request, 'store/associated_list.html', {'associates': associates})
+
+
+@login_required
+def list_order(request):
+    orders = Associated.objects.all()
+    return render(request, 'store/order_list.html', {'orders': orders})
 
 
 @login_required

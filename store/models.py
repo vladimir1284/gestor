@@ -47,13 +47,15 @@ class ProductCategory(models.Model):
 
     def save(self, *args, **kwargs):
         super(ProductCategory, self).save(*args, **kwargs)
+        try:
+            img = Image.open(self.icon.path)
 
-        img = Image.open(self.icon.path)
-
-        if img.height > self.ICON_SIZE or img.width > self.ICON_SIZE:
-            output_size = (self.ICON_SIZE, self.ICON_SIZE)
-            img.thumbnail(output_size)
-        img.save(self.icon.path)
+            if img.height > self.ICON_SIZE or img.width > self.ICON_SIZE:
+                output_size = (self.ICON_SIZE, self.ICON_SIZE)
+                img.thumbnail(output_size)
+            img.save(self.icon.path)
+        except Exception as error:
+            print(error)
 
     def __str__(self):
         return self.name
