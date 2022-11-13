@@ -221,22 +221,24 @@ def detail_order(request, id):
 # -------------------- Transaction ----------------------------
 
 @login_required
-def create_transaction(request, order_id):
+def create_transaction(request, order_id, product_id):
     order = Order.objects.get(id=order_id)
-    form = TransactionCreateForm()
+    product = Product.objects.get(id=product_id)
+    form = TransactionCreateForm(initial={'unit': product.unit})
     if request.method == 'POST':
         form = TransactionCreateForm(request.POST)
         if form.is_valid():
             trans = form.save(commit=False)
             trans.order = order
+            trans.product = product
             trans.save()
             return redirect('detail-order', id=order_id)
     context = {
-        'form': form
+        'form': form,
+        'product': product,
+        'order_id': order_id,
     }
     return render(request, 'store/addTransaction.html', context)
-
-    return redirect()
 
 
 @login_required
@@ -329,7 +331,7 @@ def list_unit(request):
 def create_product(request):
     form = ProductCreateForm()
     if request.method == 'POST':
-        form = ProductCreateForm(request.POST, request.FILES)
+        form = ProductCreateForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('list-product')
@@ -346,7 +348,7 @@ def update_product(request, id):
     obj = get_object_or_404(Product, id=id)
 
     # pass the object as instance in form
-    form = CategoryCreateForm(request.POST or None, instance=obj)
+    form = ProductCreateForm(request.POST or None, instance=obj)
 
     # save the data from the form and
     # redirect to detail_view
@@ -362,8 +364,7 @@ def update_product(request, id):
     return render(request, 'store/addProduct.html', context)
 
 
-@login_required
-def list_product(request):
+def prepare_product_list():
     products = Product.objects.all()
     consumable_alerts = 0
     part_alerts = 0
@@ -384,10 +385,40 @@ def list_product(request):
             if product.type == 'consumable':
                 consumable_alerts += 1
 
-    return render(request, 'store/product_list.html', {'products': products,
-                                                       'consumable_alerts': consumable_alerts,
-                                                       'part_alerts': part_alerts,
-                                                       'categories': categories})
+    return {'products': products,
+            'consumable_alerts': consumable_alerts,
+            'part_alerts': part_alerts,
+            'categories': categories}
+
+
+@login_required
+def list_product(request):
+    response = prepare_product_list()
+    return render(request, 'store/product_list.html', response)
+
+
+@login_required
+def select_product(request, next, order_id):
+    response = prepare_product_list()
+    response.setdefault("next", next)
+    response.setdefault("order_id", order_id)
+    return render(request, 'store/product_select.html', response)
+
+
+@login_required
+def select_new_product(request, next, order_id):
+    form = ProductCreateForm()
+    if request.method == 'POST':
+        form = ProductCreateForm(request.POST)
+        if form.is_valid():
+            product = form.save()
+            return redirect(next, order_id=order_id, product_id=product.id)
+    context = {
+        'form': form,
+        'next': next,
+        'order_id': order_id,
+    }
+    return render(request, 'store/addProduct.html', context)
 
 
 @login_required

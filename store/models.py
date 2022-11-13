@@ -132,7 +132,7 @@ class Transaction(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     note = models.TextField(blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    tax = models.FloatField()
+    tax = models.FloatField(default=8.25)
     price = models.FloatField()
     quantity = models.FloatField()
     # As used in the transaction

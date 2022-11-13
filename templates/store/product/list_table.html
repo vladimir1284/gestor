@@ -1,0 +1,36 @@
+<thead>
+    <tr>
+        <th>Name</th>
+        <th>Stock</th>
+        <th>Unit</th>
+        {% if type == 'part' %}<th>Price</th>{% endif %}
+        <th>Cost</th>
+        <th>
+            <i class="bx bx-cog"></i>
+        </th>
+    </tr>
+</thead>
+<tbody class="table-border-bottom-0">
+    {% for product in products %}
+        {% if product.type == type %}
+            <tr data-tag="{{ product.category }}">
+                <td>
+                    <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ product.name }}</strong>
+                </td>
+                <td>
+                    {% if product.quantity_min > 0 and product.quantity < product.quantity_min %}
+                        <spam class="alert-danger">{{ product.quantity|floatformat:"-2" }}</spam>
+                    {% else %}
+                        {{ product.quantity|floatformat:"-2" }}
+                    {% endif %}
+                </td>
+                <td>{{ product.unit }}</td>
+                {% if type == 'part' %}<td>${{ product.sell_price|floatformat:"-2" }}</td>{% endif %}
+                <td>${{ product.average_cost|floatformat:"-2" }}</td>
+                <td>
+                    <a href={% url 'update-product' product.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+</tbody>

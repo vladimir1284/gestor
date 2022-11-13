@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block Ttitle %}
     <div class="card-body">
-        <h5 class="card-title">{{ order.concept }} (${{ order.amount }})</h5>
+        <h5 class="card-title">{{ order.concept }} (${{ order.amount|floatformat:"2" }})</h5>
         <div class="card-subtitle text-muted mb-3">
             {{ order.associated }} - {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
         </div>
@@ -55,5 +55,5 @@
     {% endfor %}
 {% endblock Tbody %}
 {% block createUrl %}
-    {% url 'create-transaction' order.id %}
+    {% url 'select-product' 'create-transaction' order.id %}
 {% endblock createUrl %}

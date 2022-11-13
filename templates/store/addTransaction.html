@@ -12,7 +12,19 @@
             </div>
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}
-                <div class="card-body">{% crispy form %}</div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            Product: <b>{{ product.name }}</b>
+                            <a class="btn btn-icon btn-outline-primary float-end"
+                               type="button"
+                               href="{% url 'detail-order' order_id %}">
+                                <span class="tf-icons bx bx-edit"></span>
+                            </a>
+                        </div>
+                    </div>
+                    {% crispy form %}
+                </div>
             </form>
         </div>
     </div>

@@ -189,13 +189,12 @@ class TestStockFIFO(TestCase):
         }
         self.client.post('/store/create-order/', form_data)
         form_data = {
-            'product': 1,
             'tax': 0,
             'price': 12,
             'unit': 1,
             'quantity': 100,
         }
-        self.client.post('/store/create-transaction/1', form_data)
+        self.client.post('/store/create-transaction/1/1', form_data)
         trans = Transaction.objects.get(product=1)
         print(trans)
         self.client.post('/store/finish-order/1')
@@ -219,7 +218,7 @@ class TestStockFIFO(TestCase):
             'unit': 1,
             'quantity': 200,
         }
-        self.client.post('/store/create-transaction/2', form_data)
+        self.client.post('/store/create-transaction/2/1', form_data)
         self.client.post('/store/finish-order/2')
         trans = Transaction.objects.get(price=14.25)
         print(trans)
@@ -243,7 +242,7 @@ class TestStockFIFO(TestCase):
             'unit': 1,
             'quantity': 150,
         }
-        self.client.post('/store/create-transaction/3', form_data)
+        self.client.post('/store/create-transaction/3/1', form_data)
         self.client.post('/store/finish-order/3')
         trans = Transaction.objects.get(price=20)
         print(trans)
@@ -270,7 +269,7 @@ class TestStockFIFO(TestCase):
             'unit': 1,
             'quantity': 225,
         }
-        self.client.post('/store/create-transaction/4', form_data)
+        self.client.post('/store/create-transaction/4/1', form_data)
         self.client.post('/store/finish-order/4')
         trans = Transaction.objects.get(price=15)
         print(trans)
@@ -294,7 +293,7 @@ class TestStockFIFO(TestCase):
             'unit': 1,
             'quantity': 75,
         }
-        self.client.post('/store/create-transaction/5', form_data)
+        self.client.post('/store/create-transaction/5/1', form_data)
         self.client.post('/store/finish-order/5')
         trans = Transaction.objects.get(price=30)
         print(trans)

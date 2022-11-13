@@ -172,7 +172,6 @@ class TransactionCreateForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = (
-            'product',
             'price',
             'note',
             'quantity',
@@ -198,23 +197,15 @@ class TransactionCreateForm(forms.ModelForm):
             Div(
                 Div(
                     Field(
-                        PrependedText('product',
-                                      '<i class="bx bx-package"></i>',
-                                      css_class="form-select")
+                        PrependedText('price', '$')
                     ),
                     css_class="col-6"
                 ),
                 Div(
-                    Field(
-                        PrependedText('price', '$')
-                    ),
-                    css_class="col-3"
-                ),
-                Div(
                     Div(
-                        Field('tax')
+                        AppendedText('tax', '%')
                     ),
-                    css_class="col-3"
+                    css_class="col-6"
                 ),
                 css_class="row mb-3"
             ),
@@ -222,14 +213,14 @@ class TransactionCreateForm(forms.ModelForm):
                 Div(
                     Field('quantity'
                           ),
-                    css_class="col-6"
+                    css_class="col-4"
                 ),
                 Div(
                     Div(
                         Field('unit',
                               css_class="form-select")
                     ),
-                    css_class="col-6"
+                    css_class="col-8"
                 ),
                 css_class="row mb-3"
             ),
@@ -270,13 +261,15 @@ class CategoryCreateForm(forms.ModelForm):
                 ),
                 css_class="mb-3"
             ),
-            #HTML('<img id="preview"></img>'),
             HTML(
-                """<img id="preview" 
+                """
+                <img id="preview" 
                 {% if form.icon.value %}
                     class="img-responsive" 
                     src="/media/{{ form.icon.value }}"
-                    {% endif %}">"""),
+                {% endif %}">
+                """
+            ),
             Div(
                 Div(
                     Field('icon', css_class="form-select")

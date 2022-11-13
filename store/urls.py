@@ -19,6 +19,8 @@ from .views import (
     detail_transaction,
     create_transaction,
     finish_order,
+    select_product,
+    select_new_product,
 )
 
 
@@ -28,7 +30,7 @@ urlpatterns = [
     path('create-product/', create_product, name='create-product'),
     path('create-category/', create_category, name='create-category'),
     path('create-order/', create_order, name='create-order'),
-    path('create-transaction/<order_id>',
+    path('create-transaction/<order_id>/<product_id>',
          create_transaction, name='create-transaction'),
     path('list-unit/', list_unit, name='list-unit'),
     path('list-category/', list_category, name='list-category'),
@@ -40,6 +42,10 @@ urlpatterns = [
     path('update-order/<id>', update_order, name='update-order'),
     path('delete-category/<id>', delete_category, name='delete-category'),
     path('delete-product/<id>', delete_product, name='delete-product'),
+    path('select-product/<next>/<order_id>',
+         select_product, name='select-product'),
+    path('select-new-product/<next>/<order_id>',
+         select_new_product, name='select-new-product'),
     path('detail-order/<id>', detail_order, name='detail-order'),
     path('finish-order/<id>', finish_order, name='finish-order'),
     path('detail-transaction/<id>', detail_transaction, name='detail-transaction'),
