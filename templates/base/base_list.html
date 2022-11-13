@@ -11,8 +11,12 @@
             z-index: 999999;
             box-shadow: 0 1px 20px 1px #696cff;
         }
-        .card-body {
+        .tabs {
             padding-top: 0;
+        }
+        html {
+            height: 110%;
+            margin-bottom: 0.01em;
         }
     </style>
 {% endblock page %}
@@ -20,10 +24,8 @@
     <!-- Basic with Icons -->
     <div class="card">
         {% block card %}
-            <h5 class="card-header">
-                {% block Ttitle %}
-                {% endblock Ttitle %}
-            </h5>
+            {% block Ttitle %}
+            {% endblock Ttitle %}
             <div class="table-responsive text-nowrap">
                 <table class="table">
                     <thead>
@@ -40,9 +42,35 @@
             </div>
         {% endblock card %}
     </div>
-    <a href= {% block createUrl %} {% endblock createUrl %}>
+    <a href={% block createUrl %} {% endblock createUrl %}>
         <button type="button" class="btn rounded-pill btn-primary add">
             <b>+</b>
         </button>
     </a>
 {% endblock content %}
+{% block scripts %}
+    <script>
+    function filterTag(tagName) {
+        let i, j;
+
+        let title_tag = document.getElementById("filter_tag");
+        if(tagName == 'all'){
+            title_tag.innerHTML = "";
+        } else {
+            title_tag.innerHTML = "("+tagName+")";
+        }
+
+        let tables = document.getElementsByTagName("tbody");
+        for (j = 0; j < tables.length; j++) {
+            tr = tables[j].getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                if (tr[i].dataset['tag'] == tagName || tagName == 'all') {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }                    
+            }
+        }
+    }
+    </script>
+{% endblock scripts %}

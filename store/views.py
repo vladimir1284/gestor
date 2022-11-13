@@ -26,7 +26,7 @@ from .forms import (
     CategoryCreateForm,
     AssociatedCreateForm,
     OrderCreateForm,
-    TransactionFormset
+    TransactionCreateForm,
 )
 CAT_COLORS = ['secondary', 'success', 'danger',
               'warning', 'info', 'dark', 'primary']
@@ -56,6 +56,8 @@ def convertUnit(input_unit, output_unit, value):
     return value*iu.factor/ou.factor
 
 
+# -------------------- Category ----------------------------
+
 @login_required
 def create_category(request):
     form = CategoryCreateForm()
@@ -71,19 +73,7 @@ def create_category(request):
 
 
 @login_required
-def delete_category(request, id):
-    # fetch the object related to passed id
-    obj = get_object_or_404(ProductCategory, id=id)
-    obj.delete()
-    return redirect('/store/list-category')
-
-
-@login_required
 def update_category(request, id):
-    # dictionary for initial data with
-    # field names as keys
-    context = {}
-
     # fetch the object related to passed id
     obj = get_object_or_404(ProductCategory, id=id)
 
@@ -108,29 +98,155 @@ def update_category(request, id):
 
 
 @login_required
+def list_category(request):
+    categories = ProductCategory.objects.all()
+    return render(request, 'store/category_list.html', {'categories': categories})
+
+
+@login_required
+def delete_category(request, id):
+    # fetch the object related to passed id
+    obj = get_object_or_404(ProductCategory, id=id)
+    obj.delete()
+    return redirect('/store/list-category')
+
+
+@login_required
+def update_category(request, id):
+    # fetch the object related to passed id
+    obj = get_object_or_404(ProductCategory, id=id)
+
+    # pass the object as instance in form
+    form = CategoryCreateForm(request.POST or None,
+                              request.FILES or None, instance=obj)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        if os.path.exists(obj.icon.path):
+            os.remove(obj.icon.path)
+        form.save()
+        return redirect('/store/list-category')
+
+    # add form dictionary to context
+    context = {
+        'form': form
+    }
+
+    return render(request, 'store/addCategory.html', context)
+
+
+# -------------------- Order ----------------------------
+
+@login_required
 def create_order(request):
     form = OrderCreateForm()
-    formset = TransactionFormset()
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
             order = form.save()
-            formset = TransactionFormset(request.POST)
-            for form in formset:
-                if form.is_valid():
-                    transaction = form.save(commit=False)
-                    transaction.order = order
-                    transaction.save()
-                    handle_transaction(transaction, order)
-            return redirect('list-order')
+            return redirect('detail-order', id=order.id)
     context = {
-        'form': form,
-        'formset': formset,
+        'form': form
     }
     return render(request, 'store/addOrder.html', context)
 
 
+@login_required
+def update_order(request, id):
+    # fetch the object related to passed id
+    obj = get_object_or_404(Order, id=id)
+
+    # pass the object as instance in form
+    form = OrderCreateForm(request.POST or None, instance=obj)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        order = form.save()
+        return redirect('detail-order', id=order.id)
+
+    # add form dictionary to context
+    context = {
+        'form': form
+    }
+
+    return render(request, 'store/addOrder.html', context)
+
+
+@login_required
+def finish_order(request, id):
+    order = get_object_or_404(Order, id=id)
+    transactions = Transaction.objects.filter(order=order)
+    for transaction in transactions:
+        handle_transaction(transaction, order)
+    return redirect('list-order')
+
+
+@login_required
+def list_order(request):
+    orders = Order.objects.filter(
+        type='purchase').order_by('-created_date')
+    statuses = set()
+    for order in orders:
+        statuses.add(order.status)
+        transactions = Transaction.objects.filter(order=order)
+        amount = 0
+        for transaction in transactions:
+            amount += transaction.quantity * \
+                transaction.price*(1 + transaction.tax/100.)
+        order.amount = amount
+    return render(request, 'store/order_list.html', {'orders': orders,
+                                                     'statuses': statuses})
+
+
+@login_required
+def detail_order(request, id):
+    order = Order.objects.get(id=id)
+    transactions = Transaction.objects.filter(order=order)
+    # Compute amount
+    amount = 0
+    for transaction in transactions:
+        transaction.amount = transaction.quantity * \
+            transaction.price*(1 + transaction.tax/100.)
+        amount += transaction.amount
+    order.amount = amount
+    # Order by amount
+    transactions = list(transactions)
+    transactions.sort(key=lambda trans: trans.amount, reverse=True)
+    return render(request, 'store/order_detail.html', {'order': order,
+                                                       'transactions': transactions})
+
+
+# -------------------- Transaction ----------------------------
+
+@login_required
+def create_transaction(request, order_id):
+    order = Order.objects.get(id=order_id)
+    form = TransactionCreateForm()
+    if request.method == 'POST':
+        form = TransactionCreateForm(request.POST)
+        if form.is_valid():
+            trans = form.save(commit=False)
+            trans.order = order
+            trans.save()
+            return redirect('detail-order', id=order_id)
+    context = {
+        'form': form
+    }
+    return render(request, 'store/addTransaction.html', context)
+
+    return redirect()
+
+
+@login_required
+def detail_transaction(request, id):
+    transaction = Transaction.objects.get(id=id)
+    return render(request, 'store/order_detail.html', {'transaction': transaction})
+
+
 def handle_transaction(transaction: Transaction, order: Order):
+    #  To be performed on complete orders
     product = transaction.product
     # To be used in the rest of the system
     product = Product.objects.get(id=product.id)
@@ -185,6 +301,8 @@ def handle_transaction(transaction: Transaction, order: Order):
         product.save()
 
 
+# -------------------- Unit ----------------------------
+
 @login_required
 def create_unit(request):
     form = UnitCreateForm()
@@ -200,39 +318,12 @@ def create_unit(request):
 
 
 @login_required
-def delete_product(request, id):
-    # fetch the object related to passed id
-    obj = get_object_or_404(Product, id=id)
-    obj.delete()
-    return redirect('list-product')
+def list_unit(request):
+    units = Unit.objects.all()
+    return render(request, 'store/unit_list.html', {'units': units})
 
 
-@login_required
-def update_product(request, id):
-    # dictionary for initial data with
-    # field names as keys
-    context = {}
-
-    # fetch the object related to passed id
-    obj = get_object_or_404(Product, id=id)
-
-    # pass the object as instance in form
-    form = CategoryCreateForm(request.POST or None,
-                              request.FILES or None, instance=obj)
-
-    # save the data from the form and
-    # redirect to detail_view
-    if form.is_valid():
-        form.save()
-        return redirect('list-product')
-
-    # add form dictionary to context
-    context = {
-        'form': form
-    }
-
-    return render(request, 'store/addProduct.html', context)
-
+# -------------------- Product ----------------------------
 
 @login_required
 def create_product(request):
@@ -249,41 +340,26 @@ def create_product(request):
 
 
 @login_required
-def create_associated(request):
-    form = AssociatedCreateForm()
-    if request.method == 'POST':
-        form = AssociatedCreateForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('list-associated')
+def update_product(request, id):
+
+    # fetch the object related to passed id
+    obj = get_object_or_404(Product, id=id)
+
+    # pass the object as instance in form
+    form = CategoryCreateForm(request.POST or None, instance=obj)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        form.save()
+        return redirect('list-product')
+
+    # add form dictionary to context
     context = {
         'form': form
     }
-    return render(request, 'store/addAssociated.html', context)
 
-
-@login_required
-def list_unit(request):
-    units = Unit.objects.all()
-    return render(request, 'store/unit_list.html', {'units': units})
-
-
-@login_required
-def list_category(request):
-    categories = ProductCategory.objects.all()
-    return render(request, 'store/category_list.html', {'categories': categories})
-
-
-@login_required
-def list_associated(request):
-    associates = Associated.objects.all()
-    return render(request, 'store/associated_list.html', {'associates': associates})
-
-
-@login_required
-def list_order(request):
-    orders = Associated.objects.all()
-    return render(request, 'store/order_list.html', {'orders': orders})
+    return render(request, 'store/addProduct.html', context)
 
 
 @login_required
@@ -312,3 +388,33 @@ def list_product(request):
                                                        'consumable_alerts': consumable_alerts,
                                                        'part_alerts': part_alerts,
                                                        'categories': categories})
+
+
+@login_required
+def delete_product(request, id):
+    # fetch the object related to passed id
+    obj = get_object_or_404(Product, id=id)
+    obj.delete()
+    return redirect('list-product')
+
+# -------------------- Associated ----------------------------
+
+
+@login_required
+def create_associated(request):
+    form = AssociatedCreateForm()
+    if request.method == 'POST':
+        form = AssociatedCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('list-associated')
+    context = {
+        'form': form
+    }
+    return render(request, 'store/addAssociated.html', context)
+
+
+@login_required
+def list_associated(request):
+    associates = Associated.objects.all()
+    return render(request, 'store/associated_list.html', {'associates': associates})

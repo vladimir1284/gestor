@@ -8,7 +8,7 @@
             Products <spam id="filter_tag"></spam>
         </h5>
     </div>
-    <div class="card-body">
+    <div class="card-body tabs">
         <div class="demo-inline-spacing mb-2">
             <button onClick="filterTag('all')"
                     type="button"
@@ -130,30 +130,6 @@
             </div>
         </div>
     </div>
-    <script>
-        function filterTag(tagName) {
-            let i, j;
-
-            let title_tag = document.getElementById("filter_tag");
-            if(tagName == 'all'){
-                title_tag.innerHTML = "";
-            } else {
-                title_tag.innerHTML = "("+tagName+")";
-            }
-
-            let tables = document.getElementsByTagName("tbody");
-            for (j = 0; j < tables.length; j++) {
-                tr = tables[j].getElementsByTagName("tr");
-                for (i = 0; i < tr.length; i++) {
-                    if (tr[i].dataset['tag'] == tagName || tagName == 'all') {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }                    
-                }
-            }
-        }
-    </script>
 {% endblock card %}
 {% block createUrl %}
     {% url 'create-product' %}

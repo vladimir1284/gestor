@@ -1,14 +1,14 @@
 {% extends 'base/base_form.html' %}
 {% load crispy_forms_tags %}
 {% block title %}
-    Añadir Orden
+    Añadir Transacción
 {% endblock title %}
 {% block content %}
     <!-- Basic with Icons -->
     <div class="col-xxl">
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">Crear nueva orden</h5>
+                <h5 class="mb-0">Crear nueva transacción</h5>
             </div>
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}

@@ -1,68 +1,56 @@
-{% extends 'base/base.html' %}
-
-{% block title %}Order List{% endblock title %}
-
-{% block content %}
-<h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Tables /</span> Basic Tables</h4>
-
-<div class="card">
+{% extends 'base/base_list.html' %}
+{% block title %}
+    Orders
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">
+        Orders <spam id="filter_tag"></spam>
+    </h5>
     <div class="card-body">
-        <h4 class="box-title">Order List </h4>
+        <div class="demo-inline-spacing">
+            <button onClick="filterTag('all')"
+                    type="button"
+                    class="btn rounded-pill btn-primary">all</button>
+            {% for status in statuses %}
+                <button onClick="filterTag('{{ status }}')"
+                        type="button"
+                        class="btn rounded-pill btn-outline-{% if status == 'processing' %}primary{% elif status == 'complete' %}success{% elif status == 'pending' %}warning{% elif status == 'approved' %}info{% elif status == 'decline' %}danger{% endif %}">
+                    {{ status }}
+                </button>
+            {% endfor %}
+        </div>
     </div>
-    <div class="card-body--">
-        <div class="table-responsive text-nowrap">
-            <table class="table ">
-                <thead>
-                    <tr>
-                        <th class="serial">#</th>
-                        <th>Associated</th>
-                        <th>Product</th>
-                        <th>Design</th>
-                        <th>Color</th>
-                        <th>Buyer</th>
-                        <th>Season</th>
-                        <th>Category</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if order %}
-                    {% for order in order %}
-                    <tr>
-                        <td class="serial">{{ forloop.counter }}</td>
-                        <td>{{ order.associated }}</td>
-                        <td>{{ order.product }}</td>
-                        <td>{{ order.design }}</td>
-                        <td>{{ order.color }}</td>
-                        <td>{{ order.buyer }}</td>
-                        <td>{{ order.season }}</td>
-                        <td>{{ order.drop }}</td>
-                        <td>{{ order.created_date }}</td>
-                        <td>
-                            {% if order.status == 'pending' %}
-                                <a class="btn btn-warning" href="">{{ order.status }}</a>
-                            {% elif order.status == 'decline' %}
-                                <a class="btn btn-danger" href="">{{ order.status }}</a>
-                            {% elif order.status == 'complete' %}
-                                <a class="btn btn-success" href="">{{ order.status }}</a>
-                            {% elif order.status == 'approved' %}
-                                <a class="btn btn-primary" href="">{{ order.status }}</a>
-                            {% elif order.status == 'bulk' %}
-                                <a class="btn btn-secondary" href="">{{ order.status }}</a>
-                            {% else %}
-                                <a class="btn btn-info" href="">{{ order.status }}</a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% else %}
-                        <tr><td>No Order Data</td></tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div> <!-- /.table-stats -->
-    </div>
-</div> <!-- /.card -->
-    
-{% endblock content %}
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>Concept</th>
+    <th>Date</th>
+    <th>Status</th>
+    <th>Provider</th>
+    <th>Amount</th>
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for order in orders %}
+        <tr data-tag="{{ order.status }}">
+            <td>
+                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ order.concept }}</strong>
+            </td>
+            <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
+            <td>
+                <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
+                    {{ order.status }}
+                </span>
+            </td>
+            <td>{{ order.associated }}</td>
+            <td>${{ order.amount|floatformat:"2" }}</td>
+            <td>
+                <a href={% url 'detail-order' order.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'create-order' %}
+{% endblock createUrl %}

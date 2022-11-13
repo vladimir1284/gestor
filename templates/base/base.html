@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <!-- =========================================================
 * Sneat - Bootstrap 5 HTML Admin Template - Pro | v1.0.0
@@ -11,6 +10,7 @@
 
 =========================================================
  -->
+{% load static %}
 <!-- beautify ignore:start -->
 <html lang="es"
       class="light-style layout-menu-fixed"
@@ -63,17 +63,17 @@
       <!-- Layout wrapper -->
       <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
-          {% include 'base/menu.html' %}
+          {% include "base/menu.html" %}
           <!-- Layout container -->
           <div class="layout-page">
-            {% include 'base/navbar.html' %}
+            {% include "base/navbar.html" %}
             <!-- Content wrapper -->
             <div class="content-wrapper">
               <div class="container-xxl flex-grow-1 container-p-y">
                 {% block content %}
                 {% endblock content %}
               </div>
-              {% include 'base/footer.html' %}
+              {% include "base/footer.html" %}
               <div class="content-backdrop fade"></div>
             </div>
             <!-- Content wrapper -->
@@ -98,10 +98,10 @@
       <script src="{% static 'assets/js/main.js' %}"></script>
       <!-- Page JS -->
       <script src="{% static 'assets/js/dashboards-analytics.js' %}"></script>
-      <!-- Place this tag in your head or just before your close body tag. -->
-      <script async defer src="https://buttons.github.io/buttons.js"></script>
     {% endblock body %}
     {% block scripts %}
     {% endblock scripts %}
+    <!-- Place this tag in your head or just before your close body tag.
+    <script async defer src="https://buttons.github.io/buttons.js"></script>-->
   </body>
 </html>
