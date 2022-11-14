@@ -4,7 +4,12 @@
 {% endblock title %}
 {% block Ttitle %}
     <div class="card-body">
-        <h5 class="card-title">{{ order.concept }} (${{ order.amount|floatformat:"2" }})</h5>
+        <h5 class="card-title">
+            {{ order.concept }} (${{ order.amount|floatformat:"2" }})
+            <span class="badge float-end bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
+                {{ order.status }}
+            </span>
+        </h5>
         <div class="card-subtitle text-muted mb-3">
             {{ order.associated }} - {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
         </div>

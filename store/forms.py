@@ -342,6 +342,12 @@ class ProductCreateForm(forms.ModelForm):
                   'quantity_min')
 
     def __init__(self, *args, **kwargs):
+        if 'title' in kwargs:
+            self.title = kwargs['title']
+            kwargs.pop('title')
+        else:
+            self.title = _("Create Product")
+
         super().__init__(*args, **kwargs)
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
@@ -357,7 +363,7 @@ class ProductCreateForm(forms.ModelForm):
             Div(
                 Div(
                     Fieldset(
-                        _("Create Product"),
+                        self.title,
                         Div(
                             Div(
                                 Field('name')

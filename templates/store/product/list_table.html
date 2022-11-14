@@ -28,7 +28,7 @@
                 {% if type == 'part' %}<td>${{ product.sell_price|floatformat:"-2" }}</td>{% endif %}
                 <td>${{ product.average_cost|floatformat:"-2" }}</td>
                 <td>
-                    <a href={% url 'update-product' product.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                    <a href={% url 'detail-product' product.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
                 </td>
             </tr>
         {% endif %}

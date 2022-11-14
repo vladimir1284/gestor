@@ -28,8 +28,7 @@ from .forms import (
     OrderCreateForm,
     TransactionCreateForm,
 )
-CAT_COLORS = ['secondary', 'success', 'danger',
-              'warning', 'info', 'dark', 'primary']
+from django.utils.translation import gettext_lazy as _
 
 
 class DifferentMagnitudeUnitsError(BaseException):
@@ -348,7 +347,8 @@ def update_product(request, id):
     obj = get_object_or_404(Product, id=id)
 
     # pass the object as instance in form
-    form = ProductCreateForm(request.POST or None, instance=obj)
+    form = ProductCreateForm(request.POST or None,
+                             instance=obj, title=_("Update Product"))
 
     # save the data from the form and
     # redirect to detail_view
@@ -419,6 +419,27 @@ def select_new_product(request, next, order_id):
         'order_id': order_id,
     }
     return render(request, 'store/addProduct.html', context)
+
+
+@login_required
+def detail_product(request, id):
+    # fetch the object related to passed id
+    product = get_object_or_404(Product, id=id)
+    product.average_cost = 0
+    if product.quantity > 0:
+        product.average_cost = product.stock_price/product.quantity
+    product.sell_price = product.average_cost * \
+        (1 + product.suggested_price/100)
+    product.sell_max = product.average_cost * \
+        (1 + product.max_price/100)
+
+    stocks = Stock.objects.filter(product=product).order_by('-created_date')
+    purchases = Transaction.objects.filter(
+        product=product, order__type='purchase').order_by('-order__created_date')
+    return render(request, 'store/product-detail.html', {'product': product,
+                                                         'stocks': stocks,
+                                                         'purchases': purchases,
+                                                         'latest_order': purchases[0].order})
 
 
 @login_required
