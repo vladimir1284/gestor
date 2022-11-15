@@ -40,11 +40,18 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-10">
+                <div class="col-2">
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"
                        href="{% url 'update-product' product.id %}">
                         <span class="tf-icons bx bx-edit"></span>
+                    </a>
+                </div>
+                <div class="col-8">
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'create-order' product.id %}">
+                        <span class="tf-icons bx bx-cart"></span>
                     </a>
                 </div>
                 <div class="col-2">
@@ -121,7 +128,9 @@
     </div>
     <hr class="my-2">
     <div class="card">
-        <h5 class="card-header">Purchases</h5>
+        <h5 class="card-header">
+            Purchases
+        </h5>
         <div class="card-body">
             <div class="card-subtitle text-muted mb-3">
                 {{ latest_order.associated }}

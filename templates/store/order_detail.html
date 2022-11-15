@@ -27,7 +27,7 @@
             </a>
             <a onclick="deleteOrder({{ order.id }}, '{{ order.concept }}')"
                type="button"
-               class="btn btn-icon btn-outline-danger">
+               class="btn btn-icon btn-outline-danger float-end">
                 <span class="tf-icons bx bx-trash"></span>
             </a>
         </div>
@@ -54,7 +54,7 @@
             <td>${{ trans.price|floatformat:"2" }}</td>
             <td>${{ trans.amount|floatformat:"2" }}</td>
             <td>
-                <a href={% url 'detail-transaction' trans.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                <a href={% url 'update-transaction' trans.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
         </tr>
     {% endfor %}

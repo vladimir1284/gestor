@@ -1,54 +1,72 @@
 from django.urls import path
 from .views import (
-    create_unit,
+    # ---- Category -------
     create_category,
-    create_product,
-    create_associated,
-    create_order,
-    list_unit,
-    list_category,
-    list_product,
-    list_associated,
-    list_order,
     update_category,
-    update_product,
-    update_order,
+    list_category,
     delete_category,
-    delete_product,
+    # ---- Order ----------
+    create_order,
+    update_order,
     detail_order,
-    detail_transaction,
-    detail_product,
-    create_transaction,
+    list_order,
     finish_order,
+    # ---- Transaction ----
+    create_transaction,
+    create_transaction_new_order,
+    update_transaction,
+    delete_transaction,
+    # ---- Unit ----------
+    create_unit,
+    list_unit,
+    # ---- Associated -------
+    create_associated,
+    list_associated,
+    # ---- Product -------
+    create_product,
+    update_product,
+    list_product,
+    detail_product,
     select_product,
     select_new_product,
+    delete_product,
 )
 
 
 urlpatterns = [
-    path('create-unit/', create_unit, name='create-unit'),
-    path('create-associated/', create_associated, name='create-associated'),
-    path('create-product/', create_product, name='create-product'),
+    # -------------------- Category ----------------------------
     path('create-category/', create_category, name='create-category'),
+    path('update-category/<id>', update_category, name='update-category'),
+    path('list-category/', list_category, name='list-category'),
+    path('delete-category/<id>', delete_category, name='delete-category'),
+    # -------------------- Order ----------------------------
     path('create-order/', create_order, name='create-order'),
+    path('create-order/<product_id>', create_order, name='create-order'),
+    path('update-order/<id>', update_order, name='update-order'),
+    path('detail-order/<id>', detail_order, name='detail-order'),
+    path('list-order/', list_order, name='list-order'),
+    path('finish-order/<id>', finish_order, name='finish-order'),
+    # -------------------- Transaction ----------------------------
     path('create-transaction/<order_id>/<product_id>',
          create_transaction, name='create-transaction'),
+    path('create-transaction-new-order/<product_id>',
+         create_transaction_new_order, name='create-transaction-new-order'),
+    path('update-transaction/<id>', update_transaction, name='update-transaction'),
+    path('delete-transaction/<id>', delete_transaction, name='delete-transaction'),
+    # -------------------- Unit ----------------------------
+    path('create-unit/', create_unit, name='create-unit'),
     path('list-unit/', list_unit, name='list-unit'),
-    path('list-category/', list_category, name='list-category'),
-    path('list-product/', list_product, name='list-product'),
-    path('list-associated/', list_associated, name='list-associated'),
-    path('list-order/', list_order, name='list-order'),
-    path('update-category/<id>', update_category, name='update-category'),
+    # -------------------- Product ----------------------------
+    path('create-product/', create_product, name='create-product'),
     path('update-product/<id>', update_product, name='update-product'),
-    path('update-order/<id>', update_order, name='update-order'),
-    path('delete-category/<id>', delete_category, name='delete-category'),
-    path('delete-product/<id>', delete_product, name='delete-product'),
+    path('detail-product/<id>', detail_product, name='detail-product'),
+    path('list-product/', list_product, name='list-product'),
     path('select-product/<next>/<order_id>',
          select_product, name='select-product'),
     path('select-new-product/<next>/<order_id>',
          select_new_product, name='select-new-product'),
-    path('detail-order/<id>', detail_order, name='detail-order'),
-    path('detail-product/<id>', detail_product, name='detail-product'),
-    path('finish-order/<id>', finish_order, name='finish-order'),
-    path('detail-transaction/<id>', detail_transaction, name='detail-transaction'),
+    path('delete-product/<id>', delete_product, name='delete-product'),
+    # -------------------- Associated ----------------------------
+    path('create-associated/', create_associated, name='create-associated'),
+    path('list-associated/', list_associated, name='list-associated'),
 ]

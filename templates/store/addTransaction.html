@@ -8,7 +8,7 @@
     <div class="col-xxl">
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">Crear nueva transacción</h5>
+                <h5 class="mb-0">{{ title }}</h5>
             </div>
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}
@@ -16,10 +16,10 @@
                     <div class="row mb-3">
                         <div class="col-12">
                             Product: <b>{{ product.name }}</b>
-                            <a class="btn btn-icon btn-outline-primary float-end"
+                            <a {% if form.instance.id %}onclick="deleteTransaction({{ form.instance.id }}, '{{ product.name }}')"{% endif %}
                                type="button"
-                               href="{% url 'detail-order' order_id %}">
-                                <span class="tf-icons bx bx-edit"></span>
+                               class="btn btn-icon btn-outline-danger float-end">
+                                <span class="tf-icons bx bx-trash"></span>
                             </a>
                         </div>
                     </div>
@@ -28,4 +28,12 @@
             </form>
         </div>
     </div>
+    <script>
+        function deleteTransaction(id, name) {
+            let confirmAction = confirm("Are you sure to delete the product " + name + " from this order?");
+            if (confirmAction) {
+                window.location = "/store/delete-transaction/" + id;
+            }
+        }
+    </script>
 {% endblock content %}

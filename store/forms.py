@@ -167,33 +167,9 @@ class OrderCreateForm(forms.ModelForm):
         )
 
 
-class TransactionCreateForm(forms.ModelForm):
-
-    class Meta:
-        model = Transaction
-        fields = (
-            'price',
-            'note',
-            'quantity',
-            'unit',
-            'tax'
-        )
-
+class CommonTransactionLayout(Layout):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Focus on form field whenever error occurred
-        errorList = list(self.errors)
-        for item in errorList:
-            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
-            break
-
-        self.helper = FormHelper()
-        self.helper.form_tag = False  # Don't render form tag
-        self.helper.disable_csrf = True  # Don't render CSRF token
-        self.helper.label_class = 'form-label'
-        self.helper.add_input(Submit("submit", "Save"))
-        #self.helper.template = 'bootstrap/table_inline_formset.html'
-        self.helper.layout = Layout(
+        super().__init__(
             Div(
                 Div(
                     Field(
@@ -233,7 +209,58 @@ class TransactionCreateForm(forms.ModelForm):
         )
 
 
-TransactionFormset = formset_factory(TransactionCreateForm, extra=1)
+class TransactionCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Transaction
+        fields = (
+            'price',
+            'note',
+            'quantity',
+            'unit',
+            'tax'
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.add_input(Submit("submit", "Save"))
+        self.helper.layout = Layout(CommonTransactionLayout())
+
+
+class TransactionProviderCreateForm(TransactionCreateForm):
+    associated = forms.fields_for_model(Order)['associated']
+
+    class Meta:
+        model = Transaction
+        fields = (
+            'price',
+            'note',
+            'quantity',
+            'unit',
+            'tax',
+            'associated'
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper.layout = Layout(
+            CommonTransactionLayout(),
+            Div(
+                Field('associated',
+                      css_class="form-select")
+            )
+        )
 
 
 class CategoryCreateForm(forms.ModelForm):

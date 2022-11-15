@@ -27,6 +27,7 @@ from .forms import (
     AssociatedCreateForm,
     OrderCreateForm,
     TransactionCreateForm,
+    TransactionProviderCreateForm,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -86,7 +87,7 @@ def update_category(request, id):
         if os.path.exists(obj.icon.path):
             os.remove(obj.icon.path)
         form.save()
-        return redirect('/store/list-category')
+        return redirect('list-category')
 
     # add form dictionary to context
     context = {
@@ -107,7 +108,7 @@ def delete_category(request, id):
     # fetch the object related to passed id
     obj = get_object_or_404(ProductCategory, id=id)
     obj.delete()
-    return redirect('/store/list-category')
+    return redirect('list-category')
 
 
 @login_required
@@ -125,7 +126,7 @@ def update_category(request, id):
         if os.path.exists(obj.icon.path):
             os.remove(obj.icon.path)
         form.save()
-        return redirect('/store/list-category')
+        return redirect('list-category')
 
     # add form dictionary to context
     context = {
@@ -149,6 +150,23 @@ def create_order(request):
         'form': form
     }
     return render(request, 'store/addOrder.html', context)
+
+
+@login_required
+def create_order(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    last_purchase = Transaction.objects.filter(order__type='purchase',
+                                               product=product).order_by('-id').first()
+    if last_purchase:
+        last_provider = last_purchase.order.associated
+        # Search for a pending order from the same provider
+        pending_order = Order.objects.filter(associated=last_provider,
+                                             status='pending').first()
+        if pending_order:
+            return redirect('create-transaction', pending_order.id, product_id)
+
+    # Create new order from the
+    return redirect('create-transaction-new-order', product_id)
 
 
 @login_required
@@ -219,6 +237,24 @@ def detail_order(request, id):
 
 # -------------------- Transaction ----------------------------
 
+def getNewOrder(associated: Associated, product: Product):
+    return Order.objects.create(concept="Restock of {}".format(product.name),
+                                note="Automatically created for the purchase of product {}. Please, check all details!".format(
+        product.name),
+        type='purchase',
+        associated=associated)
+
+
+def renderCreateTransaction(request, form, product, order_id):
+    context = {
+        'form': form,
+        'product': product,
+        'order_id': order_id,
+        'title': _("Create Transaction")
+    }
+    return render(request, 'store/addTransaction.html', context)
+
+
 @login_required
 def create_transaction(request, order_id, product_id):
     order = Order.objects.get(id=order_id)
@@ -232,18 +268,63 @@ def create_transaction(request, order_id, product_id):
             trans.product = product
             trans.save()
             return redirect('detail-order', id=order_id)
-    context = {
-        'form': form,
-        'product': product,
-        'order_id': order_id,
-    }
-    return render(request, 'store/addTransaction.html', context)
+    return renderCreateTransaction(request, form, product, order_id)
 
 
 @login_required
-def detail_transaction(request, id):
-    transaction = Transaction.objects.get(id=id)
-    return render(request, 'store/order_detail.html', {'transaction': transaction})
+def create_transaction_new_order(request, product_id):
+    product = Product.objects.get(id=product_id)
+    initial = {'unit': product.unit}
+    last_purchase = Transaction.objects.filter(order__type='purchase',
+                                               product=product).order_by('-id').first()
+    order_id = -1
+    if last_purchase:
+        last_provider = last_purchase.order.associated
+        order = getNewOrder(last_provider, product)
+        order_id = order.id
+        form = TransactionCreateForm(initial=initial)
+    else:
+        form = TransactionProviderCreateForm(initial=initial)
+    if request.method == 'POST':
+        if last_purchase:
+            form = TransactionCreateForm(request.POST)
+        else:
+            form = TransactionProviderCreateForm(request.POST)
+        if form.is_valid():
+            if not last_purchase:
+                order = getNewOrder(form.cleaned_data['associated'], product)
+            trans = form.save(commit=False)
+            trans.order = order
+            trans.product = product
+            trans.save()
+            return redirect('detail-order', id=order.id)
+    return renderCreateTransaction(request, form, product, order_id)
+
+
+@login_required
+def update_transaction(request, id):
+    # fetch the object related to passed id
+    transaction = get_object_or_404(Transaction, id=id)
+
+    # pass the object as instance in form
+    form = TransactionCreateForm(request.POST or None,
+                                 instance=transaction)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        form.save()
+        return redirect('detail-order', id=transaction.order.id)
+
+    # add form dictionary to context
+    context = {
+        'form': form,
+        'product': transaction.product,
+        'order_id': transaction.order.id,
+        'title': _("Update Transaction")
+    }
+
+    return render(request, 'store/addTransaction.html', context)
 
 
 def handle_transaction(transaction: Transaction, order: Order):
@@ -302,6 +383,14 @@ def handle_transaction(transaction: Transaction, order: Order):
         product.save()
 
 
+@login_required
+def delete_transaction(request, id):
+    # fetch the object related to passed id
+    transaction = get_object_or_404(Transaction, id=id)
+    transaction.delete()
+    return redirect('detail-order', id=transaction.order.id)
+
+
 # -------------------- Unit ----------------------------
 
 @login_required
@@ -342,7 +431,6 @@ def create_product(request):
 
 @login_required
 def update_product(request, id):
-
     # fetch the object related to passed id
     obj = get_object_or_404(Product, id=id)
 
@@ -436,10 +524,14 @@ def detail_product(request, id):
     stocks = Stock.objects.filter(product=product).order_by('-created_date')
     purchases = Transaction.objects.filter(
         product=product, order__type='purchase').order_by('-order__created_date')
+    latest_purchase = purchases.first()
+    latest_order = None
+    if latest_purchase:
+        latest_order = latest_purchase.order
     return render(request, 'store/product-detail.html', {'product': product,
                                                          'stocks': stocks,
                                                          'purchases': purchases,
-                                                         'latest_order': purchases[0].order})
+                                                         'latest_order': latest_order})
 
 
 @login_required
