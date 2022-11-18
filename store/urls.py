@@ -41,7 +41,8 @@ urlpatterns = [
     path('delete-category/<id>', delete_category, name='delete-category'),
     # -------------------- Order ----------------------------
     path('create-order/', create_order, name='create-order'),
-    path('create-order/<product_id>', create_order, name='create-order'),
+    path('create-order/<product_id>', create_order,
+         name='create-order-from-product'),
     path('update-order/<id>', update_order, name='update-order'),
     path('detail-order/<id>', detail_order, name='detail-order'),
     path('list-order/', list_order, name='list-order'),

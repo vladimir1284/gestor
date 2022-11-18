@@ -139,34 +139,32 @@ def update_category(request, id):
 # -------------------- Order ----------------------------
 
 @login_required
-def create_order(request):
-    form = OrderCreateForm()
-    if request.method == 'POST':
-        form = OrderCreateForm(request.POST)
-        if form.is_valid():
-            order = form.save()
-            return redirect('detail-order', id=order.id)
-    context = {
-        'form': form
-    }
-    return render(request, 'store/addOrder.html', context)
+def create_order(request, product_id=None):
+    if product_id:
+        product = get_object_or_404(Product, id=product_id)
+        last_purchase = Transaction.objects.filter(order__type='purchase',
+                                                   product=product).order_by('-id').first()
+        if last_purchase:
+            last_provider = last_purchase.order.associated
+            # Search for a pending order from the same provider
+            pending_order = Order.objects.filter(associated=last_provider,
+                                                 status='pending').first()
+            if pending_order:
+                return redirect('create-transaction', pending_order.id, product_id)
 
-
-@login_required
-def create_order(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    last_purchase = Transaction.objects.filter(order__type='purchase',
-                                               product=product).order_by('-id').first()
-    if last_purchase:
-        last_provider = last_purchase.order.associated
-        # Search for a pending order from the same provider
-        pending_order = Order.objects.filter(associated=last_provider,
-                                             status='pending').first()
-        if pending_order:
-            return redirect('create-transaction', pending_order.id, product_id)
-
-    # Create new order from the
-    return redirect('create-transaction-new-order', product_id)
+        # Create new order from the
+        return redirect('create-transaction-new-order', product_id)
+    else:
+        form = OrderCreateForm()
+        if request.method == 'POST':
+            form = OrderCreateForm(request.POST)
+            if form.is_valid():
+                order = form.save()
+                return redirect('detail-order', id=order.id)
+        context = {
+            'form': form
+        }
+        return render(request, 'store/addOrder.html', context)
 
 
 @login_required

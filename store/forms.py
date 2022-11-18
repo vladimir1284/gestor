@@ -135,6 +135,28 @@ class OrderCreateForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
+                    Field(
+                        PrependedText('associated',
+                                      '<i class="bx bx-user-circle"></i>',
+                                      css_class="form-select")
+                    ),
+                    css_class="col-10"
+                ),
+                Div(
+                    HTML(
+                        """
+                    <a class="btn btn-icon btn-outline-primary position-absolute bottom-0"
+                       type="button"
+                       href="{% url 'create-associated' %}">
+                        <span class="tf-icons bx bx-plus"></span>
+                    </a>
+                    """),
+                    css_class="col-2 position-relative"
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Div(
                     Field('concept')
                 ),
                 css_class="mb-3"
@@ -152,14 +174,6 @@ class OrderCreateForm(forms.ModelForm):
                     Field('note', rows='2')
                 ),
                 css_class="mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('associated',
-                                  '<i class="bx bx-user-circle"></i>',
-                                  css_class="form-select")
-                ),
-                css_class="row mb-3"
             ),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
