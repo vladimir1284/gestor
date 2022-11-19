@@ -197,7 +197,7 @@ class TestStockFIFO(TestCase):
         self.client.post('/store/create-transaction/1/1', form_data)
         trans = Transaction.objects.get(product=1)
         print(trans)
-        self.client.post('/store/finish-order/1')
+        self.client.post('/store/update-order-status/1/complete')
         product = Product.objects.get(id=1)
         self.assertEqual(product.quantity, 100)
         self.assertEqual(product.stock_price, 1200)
@@ -219,7 +219,7 @@ class TestStockFIFO(TestCase):
             'quantity': 200,
         }
         self.client.post('/store/create-transaction/2/1', form_data)
-        self.client.post('/store/finish-order/2')
+        self.client.post('/store/update-order-status/2/complete')
         trans = Transaction.objects.get(price=14.25)
         print(trans)
         product = Product.objects.get(id=1)
@@ -243,7 +243,7 @@ class TestStockFIFO(TestCase):
             'quantity': 150,
         }
         self.client.post('/store/create-transaction/3/1', form_data)
-        self.client.post('/store/finish-order/3')
+        self.client.post('/store/update-order-status/3/complete')
         trans = Transaction.objects.get(price=20)
         print(trans)
         product = Product.objects.get(id=1)
@@ -270,7 +270,7 @@ class TestStockFIFO(TestCase):
             'quantity': 225,
         }
         self.client.post('/store/create-transaction/4/1', form_data)
-        self.client.post('/store/finish-order/4')
+        self.client.post('/store/update-order-status/4/complete')
         trans = Transaction.objects.get(price=15)
         print(trans)
         product = Product.objects.get(id=1)
@@ -294,7 +294,7 @@ class TestStockFIFO(TestCase):
             'quantity': 75,
         }
         self.client.post('/store/create-transaction/5/1', form_data)
-        self.client.post('/store/finish-order/5')
+        self.client.post('/store/update-order-status/5/complete')
         trans = Transaction.objects.get(price=30)
         print(trans)
         product = Product.objects.get(id=1)

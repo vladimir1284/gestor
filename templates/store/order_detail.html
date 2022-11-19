@@ -6,9 +6,32 @@
     <div class="card-body">
         <h5 class="card-title">
             {{ order.concept }} (${{ order.amount|floatformat:"2" }})
-            <span class="badge float-end bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
-                {{ order.status }}
-            </span>
+            <button type="button"
+                    class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                {{ order.get_status_display }}
+            </button>
+            <ul class="dropdown-menu">
+                {% if order.status != 'pending' %}
+                    <li>
+                        <button class="dropdown-item badge bg-warning"
+                                onclick="updateStatus({{ order.id }}, 'pending')">Pending</button>
+                    </li>
+                {% endif %}
+                {% if order.status != 'processing' %}
+                    <li>
+                        <button class="dropdown-item badge bg-primary"
+                                onclick="updateStatus({{ order.id }}, 'processing')">Processing</button>
+                    </li>
+                {% endif %}
+                {% if order.status != 'complete' %}
+                    <li>
+                        <a class="dropdown-item badge bg-success"
+                           onclick="updateStatus({{ order.id }}, 'complete')">Complete</a>
+                    </li>
+                {% endif %}
+            </ul>
         </h5>
         <div class="card-subtitle text-muted mb-3">
             {{ order.associated }} - {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
@@ -25,7 +48,7 @@
                href="{% url 'update-order' order.id %}">
                 <span class="tf-icons bx bx-edit"></span>
             </a>
-            <a onclick="deleteOrder({{ order.id }}, '{{ order.concept }}')"
+            <a onclick="updateStatus({{ order.id }}, 'decline')"
                type="button"
                class="btn btn-icon btn-outline-danger float-end">
                 <span class="tf-icons bx bx-trash"></span>
@@ -58,6 +81,14 @@
             </td>
         </tr>
     {% endfor %}
+    <script>
+        function updateStatus(id, status) {
+            let confirmAction = confirm("Are you sure change the order status to " + status + "?");
+            if (confirmAction) {
+                window.location = "/store/update-order-status/" + id + "/" + status;
+            }
+        }
+    </script>
 {% endblock Tbody %}
 {% block createUrl %}
     {% url 'select-product' 'create-transaction' order.id %}

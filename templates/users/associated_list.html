@@ -1,0 +1,30 @@
+{% extends 'base/base_list.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">{{ title }}</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>Name</th>
+    <th>note</th>
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for associated in associateds %}
+        <tr>
+            <td>
+                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ associated.name }}</strong>
+            </td>
+            <td>{{ associated.note|truncatechars:30 }}</td>
+            <td>
+                <a href={% url 'update-associated' associated.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'create-associated' %}
+{% endblock createUrl %}

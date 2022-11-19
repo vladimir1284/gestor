@@ -148,3 +148,106 @@ class LoginForm(forms.Form):
         'placeholder': 'Password',
         'type': 'password'
     }))
+
+
+class AssociatedCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Associated
+        fields = (
+            'name',
+            'company',
+            'address',
+            'note',
+            'email',
+            'avatar',
+            'phone_number',
+            'type'
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.fields['address'].widget.attrs = {'rows': 2}
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    """
+                {% load static %}
+                <img id="uploadedAvatar" 
+                alt="user-avatar" 
+                class="d-block rounded" 
+                height="100" width="100"
+                {% if form.icon.value %}
+                    src="/media/{{ form.icon.value }}"
+                {% else %}  
+                    src="{% static 'images/icons/client.png' %}"
+                {% endif %}>
+                """
+                ),
+                css_class="d-flex align-items-start align-items-sm-center gap-4"
+            ),
+            Div(
+                Div(
+                    Field('avatar')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('name',
+                                  '<i class="bx bx-user-circle"></i>')
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('phone_number',
+                                  '<i class="bx bx-phone"></i>')
+                ),
+                css_class="row"
+            ),
+            Div(
+                Field(
+                    PrependedAppendedText('email',
+                                          '<i class="bx bx-envelope"></i>',
+                                          '@ejemplo.com')
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('company',
+                                  '<i class="bx bx-buildings"></i>'),
+                    css_class='form-control'
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('address',
+                                  '<i class="bx bx-building-house"></i>'),
+                    css_class='form-control'
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Div(
+                    Field('note', rows='2')
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )

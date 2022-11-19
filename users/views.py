@@ -1,10 +1,25 @@
-from django.shortcuts import render, redirect, HttpResponseRedirect
+import os
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404,
+    HttpResponseRedirect)
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 
-from .forms import LoginForm, UserProfileForm, UserCreateForm
-from .models import User, UserProfile
+from .forms import (
+    LoginForm,
+    UserProfileForm,
+    UserCreateForm,
+    AssociatedCreateForm,
+)
+
+from .models import (
+    User,
+    UserProfile,
+    Associated,
+)
 
 
 def login_page(request):
@@ -60,3 +75,73 @@ def create_user(request):
         'user_form': userCform
     }
     return render(request, 'users/addUser.html', context)
+
+# -------------------- Associated ----------------------------
+
+
+@login_required
+def create_provider(request):
+    return create_associated(request, 'provider')
+
+
+def create_associated(request, type):
+    initial = {'type': type}
+    if request.method == 'GET':
+        request.session['previous'] = request.META.get('HTTP_REFERER', '/')
+    form = AssociatedCreateForm(initial=initial)
+    if request.method == 'POST':
+        form = AssociatedCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(request.session['previous'])
+    context = {
+        'form': form
+    }
+    return render(request, 'users/addAssociated.html', context)
+
+
+@login_required
+def update_associated(request, id):
+    # fetch the object related to passed id
+    obj = get_object_or_404(Associated, id=id)
+
+    # pass the object as instance in form
+    form = AssociatedCreateForm(request.POST or None,
+                                request.FILES or None, instance=obj)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        if os.path.exists(obj.icon.path):
+            os.remove(obj.icon.path)
+        form.save()
+        return redirect('list-category')
+
+    # add form dictionary to context
+    context = {
+        'form': form
+    }
+
+    return render(request, 'users/addAssociated.html', context)
+
+
+@login_required
+def list_provider(request):
+    return list_associated(request, 'supplier')
+
+
+@login_required
+def list_client(request):
+    return list_associated(request, 'client')
+
+
+@login_required
+def detail_associated(request, id):
+    # fetch the object related to passed id
+    associated = get_object_or_404(Associated, id=id)
+    return render(request, 'users/associated_detail.html', {'associated': associated})
+
+
+def list_associated(request, type):
+    associateds = Associated.objects.filter(type=type)
+    return render(request, 'users/associated_list.html', {'associateds': associateds})

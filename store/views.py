@@ -8,9 +8,11 @@ from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.forms import ModelForm
 
-from users.models import User
-from .models import (
+from users.models import (
     Associated,
+)
+
+from .models import (
     Product,
     Unit,
     Order,
@@ -24,7 +26,6 @@ from .forms import (
     UnitCreateForm,
     ProductCreateForm,
     CategoryCreateForm,
-    AssociatedCreateForm,
     OrderCreateForm,
     TransactionCreateForm,
     TransactionProviderCreateForm,
@@ -190,12 +191,17 @@ def update_order(request, id):
 
 
 @login_required
-def finish_order(request, id):
+def update_order_status(request, id, status):
     order = get_object_or_404(Order, id=id)
-    transactions = Transaction.objects.filter(order=order)
-    for transaction in transactions:
-        handle_transaction(transaction, order)
-    return redirect('list-order')
+    if status == 'complete':
+        transactions = Transaction.objects.filter(order=order)
+        for transaction in transactions:
+            handle_transaction(transaction, order)
+        return redirect('list-order')
+    else:
+        order.status = status
+        order.save()
+        return redirect('detail-order', id=order.id)
 
 
 @login_required
@@ -277,9 +283,6 @@ def create_transaction_new_order(request, product_id):
                                                product=product).order_by('-id').first()
     order_id = -1
     if last_purchase:
-        last_provider = last_purchase.order.associated
-        order = getNewOrder(last_provider, product)
-        order_id = order.id
         form = TransactionCreateForm(initial=initial)
     else:
         form = TransactionProviderCreateForm(initial=initial)
@@ -289,8 +292,12 @@ def create_transaction_new_order(request, product_id):
         else:
             form = TransactionProviderCreateForm(request.POST)
         if form.is_valid():
-            if not last_purchase:
-                order = getNewOrder(form.cleaned_data['associated'], product)
+            if last_purchase:
+                last_provider = last_purchase.order.associated
+            else:
+                last_provider = form.cleaned_data['associated']
+
+            order = getNewOrder(last_provider, product)
             trans = form.save(commit=False)
             trans.order = order
             trans.product = product
@@ -538,25 +545,3 @@ def delete_product(request, id):
     obj = get_object_or_404(Product, id=id)
     obj.delete()
     return redirect('list-product')
-
-# -------------------- Associated ----------------------------
-
-
-@login_required
-def create_associated(request):
-    form = AssociatedCreateForm()
-    if request.method == 'POST':
-        form = AssociatedCreateForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('list-associated')
-    context = {
-        'form': form
-    }
-    return render(request, 'store/addAssociated.html', context)
-
-
-@login_required
-def list_associated(request):
-    associates = Associated.objects.all()
-    return render(request, 'store/associated_list.html', {'associates': associates})

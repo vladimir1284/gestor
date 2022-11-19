@@ -1,4 +1,4 @@
-- model: store.associated
+- model: users.associated
   pk: 1
   fields:
     name: Suministrador Ejemplo
@@ -10,7 +10,7 @@
     avatar: images/avatars/bosque.jpg
     phone_number: '+12125552368'
     type: supplier
-- model: store.associated
+- model: users.associated
   pk: 2
   fields:
     name: Cliente1 Ejemplo
@@ -22,7 +22,7 @@
     avatar: images/avatars/51NaIeqZXyL.jpg
     phone_number: '+12125552368'
     type: client
-- model: store.associated
+- model: users.associated
   pk: 3
   fields:
     name: Cliente2 Ejemplo
@@ -33,7 +33,7 @@
     created_date: 2022-10-15
     phone_number: '+12125552368'
     type: client
-- model: store.associated
+- model: users.associated
   pk: 4
   fields:
     name: Cliente3 Ejemplo
@@ -44,7 +44,7 @@
     created_date: 2022-10-15
     phone_number: '+12125552368'
     type: client
-- model: store.associated
+- model: users.associated
   pk: 5
   fields:
     name: Cliente4 Ejemplo
@@ -55,7 +55,7 @@
     created_date: 2022-10-15
     phone_number: '+12125552368'
     type: client
-- model: store.associated
+- model: users.associated
   pk: 6
   fields:
     name: Cliente5 Ejemplo
@@ -66,7 +66,7 @@
     created_date: 2022-10-15
     phone_number: '+12125552368'
     type: client
-- model: store.associated
+- model: users.associated
   pk: 7
   fields:
     name: Cliente6 Ejemplo

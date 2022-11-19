@@ -10,7 +10,7 @@ from .views import (
     update_order,
     detail_order,
     list_order,
-    finish_order,
+    update_order_status,
     # ---- Transaction ----
     create_transaction,
     create_transaction_new_order,
@@ -19,9 +19,6 @@ from .views import (
     # ---- Unit ----------
     create_unit,
     list_unit,
-    # ---- Associated -------
-    create_associated,
-    list_associated,
     # ---- Product -------
     create_product,
     update_product,
@@ -46,7 +43,8 @@ urlpatterns = [
     path('update-order/<id>', update_order, name='update-order'),
     path('detail-order/<id>', detail_order, name='detail-order'),
     path('list-order/', list_order, name='list-order'),
-    path('finish-order/<id>', finish_order, name='finish-order'),
+    path('update-order-status/<id>/<status>',
+         update_order_status, name='update-order-status'),
     # -------------------- Transaction ----------------------------
     path('create-transaction/<order_id>/<product_id>',
          create_transaction, name='create-transaction'),
@@ -67,7 +65,4 @@ urlpatterns = [
     path('select-new-product/<next>/<order_id>',
          select_new_product, name='select-new-product'),
     path('delete-product/<id>', delete_product, name='delete-product'),
-    # -------------------- Associated ----------------------------
-    path('create-associated/', create_associated, name='create-associated'),
-    path('list-associated/', list_associated, name='list-associated'),
 ]

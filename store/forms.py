@@ -1,6 +1,5 @@
 from django import forms
 from .models import (
-    Associated,
     Product,
     Unit,
     Order,
@@ -8,105 +7,14 @@ from .models import (
     StoreLocations,
     ProductCategory,
 )
+from users.models import (
+    Associated,
+)
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
 from crispy_forms.bootstrap import PrependedText, AppendedText, PrependedAppendedText
 from django.forms import formset_factory
 from django.utils.translation import gettext_lazy as _
-
-
-class AssociatedCreateForm(forms.ModelForm):
-
-    class Meta:
-        model = Associated
-        fields = (
-            'name',
-            'company',
-            'address',
-            'note',
-            'email',
-            'avatar',
-            'phone_number',
-            'type'
-        )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Focus on form field whenever error occurred
-        errorList = list(self.errors)
-        for item in errorList:
-            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
-            break
-
-        self.fields['address'].widget.attrs = {'rows': 2}
-
-        self.helper = FormHelper()
-        self.helper.form_tag = False  # Don't render form tag
-        self.helper.disable_csrf = True  # Don't render CSRF token
-        self.helper.label_class = 'form-label'
-        self.helper.layout = Layout(
-            Div(
-                Field(
-                    PrependedText('name',
-                                  '<i class="bx bx-user-circle"></i>')
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('type',
-                                  '<i class="bx bx-certification"></i>',
-                                  css_class="form-select")
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('phone_number',
-                                  '<i class="bx bx-phone"></i>')
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedAppendedText('email',
-                                          '<i class="bx bx-envelope"></i>',
-                                          '@ejemplo.com')
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('company',
-                                  '<i class="bx bx-buildings"></i>'),
-                    css_class='form-control'
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('address',
-                                  '<i class="bx bx-building-house"></i>'),
-                    css_class='form-control'
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Div(
-                    Field('note', rows='2')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    Field('avatar')
-                ),
-                css_class="mb-3"
-            ),
-            ButtonHolder(
-                Submit('submit', 'Enviar', css_class='btn btn-success')
-            )
-        )
 
 
 class OrderCreateForm(forms.ModelForm):
@@ -271,9 +179,27 @@ class TransactionProviderCreateForm(TransactionCreateForm):
         self.helper.layout = Layout(
             CommonTransactionLayout(),
             Div(
-                Field('associated',
-                      css_class="form-select")
-            )
+                Div(
+                    Field(
+                        PrependedText('associated',
+                                      '<i class="bx bx-user-circle"></i>',
+                                      css_class="form-select")
+                    ),
+                    css_class="col-10"
+                ),
+                Div(
+                    HTML(
+                        """
+                    <a class="btn btn-icon btn-outline-primary position-absolute bottom-0"
+                       type="button"
+                       href="{% url 'create-associated' %}">
+                        <span class="tf-icons bx bx-plus"></span>
+                    </a>
+                    """),
+                    css_class="col-2 position-relative"
+                ),
+                css_class="row mb-3"
+            ),
         )
 
 
