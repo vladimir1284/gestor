@@ -9,22 +9,11 @@
         </h5>
     </div>
     <div class="card-body tabs">
-        <div class="demo-inline-spacing mb-2">
-            <button onClick="filterTag('all')"
-                    type="button"
-                    class="btn btn-icon btn-primary">all</button>
-            {% for category in categories %}
-                <button onClick="filterTag('{{ category.name }}')"
-                        type="button"
-                        class="btn btn-icon btn-outline-primary">
-                    <img class="w-px-30 h-auto" src="{{ category.icon.url }}" alt="">
-                </button>
-            {% endfor %}
-        </div>
         <div class="nav-align-top">
             <ul class="nav nav-pills nav-fill" role="tablist">
                 <li class="nav-item">
                     <button type="button"
+                            onClick="filterTag('all')"
                             class="nav-link active"
                             role="tab"
                             data-bs-toggle="tab"
@@ -39,6 +28,7 @@
                 </li>
                 <li class="nav-item">
                     <button type="button"
+                            onClick="filterTag('all')"
                             class="nav-link"
                             role="tab"
                             data-bs-toggle="tab"
@@ -57,6 +47,7 @@
             <div class="tab-pane fade active show"
                  id="navs-pills-justified-home"
                  role="tabpanel">
+                {% include "./filter_category.html" with categories=part_categories %}
                 <div class="table-responsive text-nowrap">
                     <table class="table" id="table_parts">
                         {% block tableParts %}
@@ -67,6 +58,7 @@
             <div class="tab-pane fade"
                  id="navs-pills-justified-profile"
                  role="tabpanel">
+                {% include "./filter_category.html" with categories=consumable_categories %}
                 <div class="table-responsive text-nowrap">
                     <table class="table" id="table_consumables">
                         {% block tableConsumables %}

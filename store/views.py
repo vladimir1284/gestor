@@ -1,4 +1,5 @@
 import os
+from typing import List
 from django.shortcuts import (
     render,
     redirect,
@@ -474,31 +475,39 @@ def update_product(request, id):
     return render(request, 'store/addProduct.html', context)
 
 
-def prepare_product_list():
-    products = Product.objects.all()
-    consumable_alerts = 0
-    part_alerts = 0
+def product_list_metadata(type, products: List[Product]):
     category_names = []
     categories = []
+    alerts = 0
     for product in products:
-        product.average_cost = 0
-        if product.category.name not in category_names:
-            category_names.append(product.category.name)
-            categories.append(product.category)
-        if product.quantity > 0:
-            product.average_cost = product.stock_price/product.quantity
-        product.sell_price = product.average_cost * \
-            (1 + product.suggested_price/100)
-        if product.quantity < product.quantity_min:
-            if product.type == 'part':
-                part_alerts += 1
-            if product.type == 'consumable':
-                consumable_alerts += 1
+        if product.type == type:
+            # Average cost
+            product.average_cost = 0
+            if product.quantity > 0:
+                product.average_cost = product.stock_price/product.quantity
+            product.sell_price = product.average_cost * \
+                (1 + product.suggested_price/100)
+            # Categories
+            if product.category.name not in category_names:
+                category_names.append(product.category.name)
+                categories.append(product.category)
+            # Alerts
+            if product.quantity < product.quantity_min:
+                alerts += 1
+    return (categories, alerts)
+
+
+def prepare_product_list():
+    products = Product.objects.all()
+    (consumable_categories, consumable_alerts) = product_list_metadata(
+        'consumable', products)
+    (part_categories, part_alerts) = product_list_metadata('part', products)
 
     return {'products': products,
             'consumable_alerts': consumable_alerts,
+            'consumable_categories': consumable_categories,
             'part_alerts': part_alerts,
-            'categories': categories}
+            'part_categories': part_categories}
 
 
 @login_required
