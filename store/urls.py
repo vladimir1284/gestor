@@ -16,6 +16,7 @@ from .views import (
     create_transaction_new_order,
     update_transaction,
     delete_transaction,
+    detail_transaction,
     # ---- Unit ----------
     create_unit,
     list_unit,
@@ -51,6 +52,7 @@ urlpatterns = [
     path('create-transaction-new-order/<product_id>',
          create_transaction_new_order, name='create-transaction-new-order'),
     path('update-transaction/<id>', update_transaction, name='update-transaction'),
+    path('detail-transaction/<id>', detail_transaction, name='detail-transaction'),
     path('delete-transaction/<id>', delete_transaction, name='delete-transaction'),
     # -------------------- Unit ----------------------------
     path('create-unit/', create_unit, name='create-unit'),

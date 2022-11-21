@@ -1,0 +1,75 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}
+    {{ transaction.product.name }}
+{% endblock title %}
+{% block content %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">
+                {{ transaction.product.name }} ({{ transaction.quantity|floatformat:"-2" }} {{ transaction.product.unit }})
+            </h5>
+            <div class="card-subtitle text-muted mb-3">
+                {{ transaction.order.concept }} - {{ transaction.order.created_date|date:"SHORT_DATE_FORMAT" }}
+            </div>
+            <p class="card-text">{{ transaction.note }}</p>
+            <ul class="p-0 m-0">
+                <li class="d-flex mb-4 pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <img src="{% static 'assets/img/icons/unicons/price.png' %}"
+                             alt="price"
+                             class="rounded">
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="me-2">
+                            <h6 class="mb-0">Price</h6>
+                        </div>
+                        <div class="user-progress d-flex align-items-center gap-1">
+                            <h6 class="mb-0">{{ transaction.price|floatformat:"2" }}</h6>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="d-flex mb-4 pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <img src="{% static 'assets/img/icons/unicons/tax.png' %}"
+                             alt="User"
+                             class="rounded">
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="me-2">
+                            <h6 class="mb-0">Tax</h6>
+                        </div>
+                        <div class="user-progress d-flex align-items-center gap-1">
+                            <h6 class="mb-0">{{ transaction.tax|floatformat:"-2" }}</h6>
+                            <span class="text-muted">%</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="d-flex mb-4 pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <img src="{% static 'assets/img/icons/unicons/amount.png' %}"
+                             alt="User"
+                             class="rounded">
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="me-2">
+                            <h6 class="mb-0">Cost</h6>
+                        </div>
+                        <div class="user-progress d-flex align-items-center gap-1">
+                            <h6 class="mb-0">{{ amount|floatformat:"2" }}</h6>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="demo-inline-spacing">
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'detail-order' transaction.order.id %}">
+                    <span class="tf-icons bx bx-arrow-back"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

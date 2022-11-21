@@ -214,8 +214,7 @@ def list_order(request):
         transactions = Transaction.objects.filter(order=order)
         amount = 0
         for transaction in transactions:
-            amount += transaction.quantity * \
-                transaction.price*(1 + transaction.tax/100.)
+            amount += getTransactionAmount(transaction)
         order.amount = amount
     return render(request, 'store/order_list.html', {'orders': orders,
                                                      'statuses': statuses})
@@ -235,8 +234,11 @@ def detail_order(request, id):
     # Order by amount
     transactions = list(transactions)
     transactions.sort(key=lambda trans: trans.amount, reverse=True)
+    # Terminated order
+    terminated = order.status in ['decline', 'complete']
     return render(request, 'store/order_detail.html', {'order': order,
-                                                       'transactions': transactions})
+                                                       'transactions': transactions,
+                                                       'terminated': terminated})
 
 
 # -------------------- Transaction ----------------------------
@@ -330,6 +332,19 @@ def update_transaction(request, id):
     }
 
     return render(request, 'store/addTransaction.html', context)
+
+
+@login_required
+def detail_transaction(request, id):
+    # fetch the object related to passed id
+    transaction = get_object_or_404(Transaction, id=id)
+    return render(request, 'store/transaction_detail.html', {'transaction': transaction,
+                                                             'amount': getTransactionAmount(transaction)})
+
+
+def getTransactionAmount(transaction: Transaction):
+    return transaction.quantity * \
+        transaction.price*(1 + transaction.tax/100.)
 
 
 def handle_transaction(transaction: Transaction, order: Order):
@@ -535,7 +550,7 @@ def detail_product(request, id):
     latest_order = None
     if latest_purchase:
         latest_order = latest_purchase.order
-    return render(request, 'store/product-detail.html', {'product': product,
+    return render(request, 'store/product_detail.html', {'product': product,
                                                          'stocks': stocks,
                                                          'purchases': purchases,
                                                          'latest_order': latest_order})

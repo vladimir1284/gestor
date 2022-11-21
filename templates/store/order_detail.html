@@ -6,32 +6,38 @@
     <div class="card-body">
         <h5 class="card-title">
             {{ order.concept }} (${{ order.amount|floatformat:"2" }})
-            <button type="button"
-                    class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} dropdown-toggle"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                {{ order.get_status_display }}
-            </button>
-            <ul class="dropdown-menu">
-                {% if order.status != 'pending' %}
-                    <li>
-                        <button class="dropdown-item badge bg-warning"
-                                onclick="updateStatus({{ order.id }}, 'pending')">Pending</button>
-                    </li>
-                {% endif %}
-                {% if order.status != 'processing' %}
-                    <li>
-                        <button class="dropdown-item badge bg-primary"
-                                onclick="updateStatus({{ order.id }}, 'processing')">Processing</button>
-                    </li>
-                {% endif %}
-                {% if order.status != 'complete' %}
-                    <li>
-                        <a class="dropdown-item badge bg-success"
-                           onclick="updateStatus({{ order.id }}, 'complete')">Complete</a>
-                    </li>
-                {% endif %}
-            </ul>
+            {% if terminated %}
+                <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'decline' %}danger{% endif %}">
+                    {{ order.get_status_display }}
+                </span>
+            {% else %}
+                <button type="button"
+                        class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% endif %} dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    {{ order.get_status_display }}
+                </button>
+                <ul class="dropdown-menu">
+                    {% if order.status != 'pending' %}
+                        <li>
+                            <button class="dropdown-item badge bg-warning"
+                                    onclick="updateStatus({{ order.id }}, 'pending')">Pending</button>
+                        </li>
+                    {% endif %}
+                    {% if order.status != 'processing' %}
+                        <li>
+                            <button class="dropdown-item badge bg-primary"
+                                    onclick="updateStatus({{ order.id }}, 'processing')">Processing</button>
+                        </li>
+                    {% endif %}
+                    {% if order.status != 'complete' %}
+                        <li>
+                            <a class="dropdown-item badge bg-success"
+                               onclick="updateStatus({{ order.id }}, 'complete')">Complete</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            {% endif %}
         </h5>
         <div class="card-subtitle text-muted mb-3">
             {{ order.associated }} - {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
@@ -43,16 +49,18 @@
                href="{% url 'list-order' %}">
                 <span class="tf-icons bx bx-arrow-back"></span>
             </a>
-            <a class="btn btn-icon btn-outline-primary"
-               type="button"
-               href="{% url 'update-order' order.id %}">
-                <span class="tf-icons bx bx-edit"></span>
-            </a>
-            <a onclick="updateStatus({{ order.id }}, 'decline')"
-               type="button"
-               class="btn btn-icon btn-outline-danger float-end">
-                <span class="tf-icons bx bx-trash"></span>
-            </a>
+            {% if not terminated %}
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'update-order' order.id %}">
+                    <span class="tf-icons bx bx-edit"></span>
+                </a>
+                <a onclick="updateStatus({{ order.id }}, 'decline')"
+                   type="button"
+                   class="btn btn-icon btn-outline-danger float-end">
+                    <span class="tf-icons bx bx-trash"></span>
+                </a>
+            {% endif %}
         </div>
     </div>
 {% endblock Ttitle %}
@@ -72,12 +80,12 @@
             <td>
                 <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ trans.product.name }}</strong>
             </td>
-            <td>{{ trans.quantity|floatformat:"-2"  }}</td>
+            <td>{{ trans.quantity|floatformat:"-2" }}</td>
             <td>{{ trans.unit }}</td>
             <td>${{ trans.price|floatformat:"2" }}</td>
             <td>${{ trans.amount|floatformat:"2" }}</td>
             <td>
-                <a href={% url 'update-transaction' trans.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
         </tr>
     {% endfor %}
