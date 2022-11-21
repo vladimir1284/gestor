@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+<!-- Page CSS -->
+<!-- Page -->
+{% block page %}
+  <link rel="stylesheet"
+        href="{% static 'assets/vendor/css/pages/page-auth.css' %}">
+{% endblock page %}
+{% block body %}
+  <div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner">
+        <!-- Register -->
+        <div class="card">
+          <div class="card-body">
+            <!-- Logo -->
+            <div class="app-brand justify-content-center">
+              <a href="{% url 'dashboard' %}" class="app-brand-link gap-2">
+                <span class="app-brand-logo demo">
+                  <img id="logo"
+                       src="{% static 'assets/img/icons/logo.png' %}"
+                       alt="logo"
+                       width="60px"
+                       height="25px"/>
+                </span>
+                <span class="app-brand-text demo text-body fw-bolder">towit</span>
+              </a>
+            </div>
+            <!-- /Logo -->
+            {% block content %}
+            {% endblock content %}
+          </div>
+        </div>
+        <!-- /Register -->
+      </div>
+    </div>
+  </div>
+{% endblock body %}

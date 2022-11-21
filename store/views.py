@@ -193,14 +193,14 @@ def update_order(request, id):
 @login_required
 def update_order_status(request, id, status):
     order = get_object_or_404(Order, id=id)
+    order.status = status
+    order.save()
     if status == 'complete':
         transactions = Transaction.objects.filter(order=order)
         for transaction in transactions:
             handle_transaction(transaction, order)
         return redirect('list-order')
     else:
-        order.status = status
-        order.save()
         return redirect('detail-order', id=order.id)
 
 
@@ -397,6 +397,8 @@ def delete_transaction(request, id):
 
 
 # -------------------- Unit ----------------------------
+
+# TODO delete units
 
 @login_required
 def create_unit(request):

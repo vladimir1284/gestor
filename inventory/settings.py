@@ -143,10 +143,14 @@ LOGIN_URL = '/users/login/'
 MEDIA_ROOT = 'static/'
 MEDIA_URL = '/media/'
 
-LOGIN_REDIRECT_URL = '/store/dashboard/'
+LOGIN_REDIRECT_URL = '/'
 
-LOGOUT_REDIRECT_URL = '/users/login/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')

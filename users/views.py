@@ -5,11 +5,9 @@ from django.shortcuts import (
     get_object_or_404,
     HttpResponseRedirect)
 from django.core.exceptions import ValidationError
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import permission_required, login_required
 
 from .forms import (
-    LoginForm,
     UserProfileForm,
     UserCreateForm,
     AssociatedCreateForm,
@@ -20,26 +18,6 @@ from .models import (
     UserProfile,
     Associated,
 )
-
-
-def login_page(request):
-    forms = LoginForm()
-    if request.method == 'POST':
-        forms = LoginForm(request.POST)
-        if forms.is_valid():
-            username = forms.cleaned_data['username']
-            password = forms.cleaned_data['password']
-            user = authenticate(username=username, password=password)
-            if user:
-                login(request, user)
-                return HttpResponseRedirect(request.GET['next'])
-    context = {'form': forms}
-    return render(request, 'users/login.html', context)
-
-
-def logout_page(request):
-    logout(request)
-    return redirect('login')
 
 
 @permission_required('auth.user.can_add_user')
