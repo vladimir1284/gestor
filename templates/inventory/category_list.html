@@ -20,7 +20,7 @@
                            href="{% url 'update-category' category.id %}">
                             <span class="tf-icons bx bx-edit"></span>
                         </a>
-                        <a onclick="deleteCategory({{ category.id }}, '{{ category.name }}')"
+                        <a onclick="deleteCategory('{% url 'delete-category' category.id %}', '{{ category.name }}')"
                            type="button"
                            class="btn btn-icon btn-outline-danger">
                             <span class="tf-icons bx bx-trash"></span>
@@ -31,10 +31,10 @@
         </div>
     {% endfor %}
     <script>
-        function deleteCategory(id, name) {
+        function deleteCategory(url, name) {
             let confirmAction = confirm("Are you sure to delete the category " + name + "?");
             if (confirmAction) {
-                window.location = "/inventory/delete-category/" + id;
+                window.location = url;
             }
         }
     </script>

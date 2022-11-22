@@ -9,7 +9,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">Modificar unidad de medida</h5>
-                <a onclick="deleteUnit({{ form.instance.id }}, '{{ form.instance.name }}')"
+                <a onclick="deleteUnit('{% url 'delete-unit' form.instance.id %}', '{{ form.instance.name }}')"
                    type="button"
                    class="btn btn-icon btn-outline-danger float-end">
                     <span class="tf-icons bx bx-trash"></span>
@@ -24,10 +24,10 @@
         </div>
     </div>
     <script>
-        function deleteUnit(id, name) {
+        function deleteUnit(url, name) {
             let confirmAction = confirm("Are you sure to delete the unit " + name + "?");
             if (confirmAction) {
-                window.location = "/inventory/delete-unit/" + id;
+                window.location = url;
             }
         }
     </script>

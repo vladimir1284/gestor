@@ -55,7 +55,7 @@
                     </a>
                 </div>
                 <div class="col-2">
-                    <a onclick="deleteProduct({{ product.id }}, '{{ product.name }}')"
+                    <a onclick="deleteProduct('{% url 'delete-product' product.id %}', '{{ product.name }}')"
                        type="button"
                        class="btn btn-icon btn-outline-danger float-end">
                         <span class="tf-icons bx bx-trash"></span>
@@ -188,10 +188,10 @@
         </div>
     </div>
     <script>
-        function deleteProduct(id, name) {
+        function deleteProduct(url, name) {
             let confirmAction = confirm("Are you sure to delete the product " + name + "?");
             if (confirmAction) {
-                window.location = "/inventory/delete-product/" + id;
+                window.location = url;
             }
         }
     </script>

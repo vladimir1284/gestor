@@ -21,19 +21,23 @@
                     {% if order.status != 'pending' %}
                         <li>
                             <button class="dropdown-item badge bg-warning"
-                                    onclick="updateStatus({{ order.id }}, 'pending')">Pending</button>
+                                    onclick="updateStatus('{% url 'update-order-status' order.id 'pending' %}', 'pending')">
+                                Pending
+                            </button>
                         </li>
                     {% endif %}
                     {% if order.status != 'processing' %}
                         <li>
                             <button class="dropdown-item badge bg-primary"
-                                    onclick="updateStatus({{ order.id }}, 'processing')">Processing</button>
+                                    onclick="updateStatus('{% url 'update-order-status' order.id 'processing' %}', 'processing')">
+                                Processing
+                            </button>
                         </li>
                     {% endif %}
                     {% if order.status != 'complete' %}
                         <li>
                             <a class="dropdown-item badge bg-success"
-                               onclick="updateStatus({{ order.id }}, 'complete')">Complete</a>
+                               onclick="updateStatus('{% url 'update-order-status' order.id 'complete' %}', 'complete')">Complete</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -55,7 +59,7 @@
                    href="{% url 'update-order' order.id %}">
                     <span class="tf-icons bx bx-edit"></span>
                 </a>
-                <a onclick="updateStatus({{ order.id }}, 'decline')"
+                <a onclick="updateStatus('{% url 'update-order-status' order.id 'decline' %}', 'decline')"
                    type="button"
                    class="btn btn-icon btn-outline-danger float-end">
                     <span class="tf-icons bx bx-trash"></span>
@@ -90,10 +94,10 @@
         </tr>
     {% endfor %}
     <script>
-        function updateStatus(id, status) {
+        function updateStatus(url, status) {
             let confirmAction = confirm("Are you sure change the order status to " + status + "?");
             if (confirmAction) {
-                window.location = "/inventory/update-order-status/" + id + "/" + status;
+                window.location = url;
             }
         }
     </script>
