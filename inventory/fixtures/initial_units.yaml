@@ -1,0 +1,18 @@
+- model: inventory.unit
+  pk: 1
+  fields:
+    name: m
+    factor: 1
+    magnitude: distance
+- model: inventory.unit
+  pk: 2
+  fields:
+    name: unidad
+    factor: 1
+    magnitude: count
+- model: inventory.unit
+  pk: 3
+  fields:
+    name: docena
+    factor: 12
+    magnitude: count

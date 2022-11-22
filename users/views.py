@@ -59,19 +59,22 @@ def create_user(request):
 
 @login_required
 def create_provider(request):
-    return create_associated(request, 'provider')
+    return create_associated(request, 'supplier')
+
+
+@login_required
+def create_client(request):
+    return create_associated(request, 'client')
 
 
 def create_associated(request, type):
     initial = {'type': type}
-    if request.method == 'GET':
-        request.session['previous'] = request.META.get('HTTP_REFERER', '/')
     form = AssociatedCreateForm(initial=initial)
     if request.method == 'POST':
         form = AssociatedCreateForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(request.session['previous'])
+            return redirect('list-providers')
     context = {
         'form': form
     }

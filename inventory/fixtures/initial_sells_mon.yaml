@@ -1,0 +1,159 @@
+- model: inventory.order
+  pk: 3
+  fields:
+    type: sell
+    status: complete
+    concept: Mantenimiento 1
+    note: 'Esta orden cuenta como un mantenimiento para el ejemplo'
+    created_date: 2022-10-21 09:28:18.454262+00:00
+    associated: 2
+
+- model: inventory.transaction
+  pk: 33
+  fields:
+    order: 3
+    product: 1
+    tax: 0
+    price: 120
+    quantity: 2
+    unit: 2
+- model: inventory.transaction
+  pk: 34
+  fields:
+    order: 3
+    product: 2
+    tax: 0
+    price: 180
+    quantity: 2
+    unit: 2
+- model: inventory.transaction
+  pk: 35
+  fields:
+    order: 3
+    product: 8
+    tax: 0
+    price: 75
+    quantity: 2
+    unit: 2
+- model: inventory.transaction
+  pk: 36
+  fields:
+    order: 3
+    product: 4
+    tax: 0
+    price: 10
+    quantity: 2
+    unit: 2
+- model: inventory.transaction
+  pk: 37
+  fields:
+    order: 3
+    product: 21
+    tax: 0
+    price: 0
+    quantity: 16
+    unit: 2
+- model: inventory.transaction
+  pk: 38
+  fields:
+    order: 3
+    product: 6
+    tax: 0
+    price: 25
+    quantity: 2
+    unit: 2
+- model: inventory.transaction
+  pk: 39
+  fields:
+    order: 3
+    product: 24
+    tax: 0
+    price: 0
+    quantity: 3
+    unit: 2
+- model: inventory.transaction
+  pk: 40
+  fields:
+    order: 3
+    product: 25
+    tax: 0
+    price: 0
+    quantity: 2
+    unit: 2
+
+- model: inventory.order
+  pk: 4
+  fields:
+    type: sell
+    status: complete
+    concept: Mantenimiento 2
+    note: Esta orden cuenta como un mantenimiento para el ejemplo
+    created_date: 2022-10-21 12:54:18.454262+00:00
+    associated: 3
+
+- model: inventory.transaction
+  pk: 41
+  fields:
+    order: 4
+    product: 1
+    tax: 0
+    price: 120
+    quantity: 2
+    unit: 2
+- model: inventory.transaction
+  pk: 42
+  fields:
+    order: 4
+    product: 2
+    tax: 0
+    price: 180
+    quantity: 2
+    unit: 2
+- model: inventory.transaction
+  pk: 43
+  fields:
+    order: 4
+    product: 4
+    tax: 0
+    price: 10
+    quantity: 2
+    unit: 2
+- model: inventory.transaction
+  pk: 44
+  fields:
+    order: 4
+    product: 21
+    tax: 0
+    price: 0
+    quantity: 16
+    unit: 2
+- model: inventory.transaction
+  pk: 45
+  fields:
+    order: 4
+    product: 14
+    tax: 0
+    price: 25
+    quantity: 2
+    unit: 2
+- model: inventory.transaction
+  pk: 46
+  fields:
+    order: 4
+    product: 24
+    tax: 0
+    price: 0
+    quantity: 3
+    unit: 2
+- model: inventory.transaction
+  pk: 47
+  fields:
+    order: 4
+    product: 25
+    tax: 0
+    price: 0
+    quantity: 2
+    unit: 2
+
+
+

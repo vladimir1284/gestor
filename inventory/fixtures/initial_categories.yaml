@@ -1,0 +1,55 @@
+- model: inventory.productcategory
+  pk: 1
+  fields:
+    name: Frenos
+    icon: images/icons/img_330308_QmsHwlN.png
+- model: inventory.productcategory
+  pk: 2
+  fields:
+    name: Electricidad
+    icon: images/icons/6_-Dipped_Lights-_car_part_vehicle-512.png
+- model: inventory.productcategory
+  pk: 3
+  fields:
+    name: Ruedas
+    icon: images/icons/img_537354.png
+- model: inventory.productcategory
+  pk: 4
+  fields:
+    name: Suspensión
+    icon: images/icons/02_shock-absorber-512.png
+- model: inventory.productcategory
+  pk: 5
+  fields:
+    name: Cadenas y Correas
+    icon: images/icons/01-ELASTOFONT-AUTO-READY_timing-belt.png
+- model: inventory.productcategory
+  pk: 6
+  fields:
+    name: Filtros
+    icon: images/icons/229-512.png
+- model: inventory.productcategory
+  pk: 7
+  fields:
+    name: Metal
+    icon: images/icons/th.png
+- model: inventory.productcategory
+  pk: 8
+  fields:
+    name: Medios de protección
+    icon: images/icons/Webinars-Health-Safety-Icon-1024x1024.png
+- model: inventory.productcategory
+  pk: 9
+  fields:
+    name: Productos de limpieza
+    icon: images/icons/cleaning-spray-bottle_318-63443.png
+- model: inventory.productcategory
+  pk: 10
+  fields:
+    name: Pintura
+    icon: images/icons/img_462315.png
+- model: inventory.productcategory
+  pk: 11
+  fields:
+    name: Lubricantes
+    icon: images/icons/oiler-petroleum-lubricant-bottle-512.png

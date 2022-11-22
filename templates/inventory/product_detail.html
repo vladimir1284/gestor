@@ -1,0 +1,198 @@
+{% extends 'base/base.html' %}
+{% block title %}
+    Product detail
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="card">
+        <div class="card-body row g-0">
+            <div class="col-8">
+                <h5>
+                    <strong>{{ product.name }}</strong>
+                </h5>
+                <div class="card-subtitle text-muted ml-3">{{ product.get_type_display }} - {{ product.category.name }}</div>
+            </div>
+            <div class="col-4">
+                <img class="img-responsive card-img-right float-end"
+                     src="{{ product.category.icon.url }}"
+                     alt="Category icon">
+            </div>
+            <p class="card-text">{{ product.description }}</p>
+            <div class="card mb-2">
+                <div class="row">
+                    <div class="card-text col-md-6">
+                        <strong>Average cost:</strong> ${{ product.average_cost|floatformat:"2" }}
+                    </div>
+                    <div class="card-text col-md-6">
+                        <strong>Sell Tax:</strong> {{ product.sell_tax }}%
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="text-light small fw-semibold">Sell Price</div>
+                <div class="row">
+                    <div class="card-text col-md-6">
+                        <strong>Suggested:</strong> ${{ product.sell_price|floatformat:"2" }} ({{ product.suggested_price }}%)
+                    </div>
+                    <div class="card-text col-md-6">
+                        <strong>Maximum:</strong> ${{ product.sell_max|floatformat:"2" }} ({{ product.max_price }}%)
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'update-product' product.id %}">
+                        <span class="tf-icons bx bx-edit"></span>
+                    </a>
+                </div>
+                <div class="col-8">
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'create-order-from-product' product.id %}">
+                        <span class="tf-icons bx bx-cart"></span>
+                    </a>
+                </div>
+                <div class="col-2">
+                    <a onclick="deleteProduct({{ product.id }}, '{{ product.name }}')"
+                       type="button"
+                       class="btn btn-icon btn-outline-danger float-end">
+                        <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-2">
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between pb-0">
+            <div class="card-title mb-0">
+                <h5 class="m-0 me-2">Product Statistics</h5>
+                <small class="text-muted">Last month</small>
+            </div>
+            <div class="dropdown">
+                <button class="btn p-0"
+                        type="button"
+                        id="orederStatistics"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    <i class="bx bx-dots-vertical-rounded"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end"
+                     aria-labelledby="orederStatistics"
+                     style="">
+                    <a class="dropdown-item" href="javascript:void(0);">Weekly</a>
+                    <a class="dropdown-item" href="javascript:void(0);">Monthly</a>
+                    <a class="dropdown-item" href="javascript:void(0);">Yearly</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-2">
+    <div class="card">
+        <h5 class="card-header">
+            <strong>Stock:</strong>
+            {% if product.quantity_min > 0 %}
+                <span {% if product.quantity_min > product.quantity %}class="bg-label-danger"{% endif %}>{{ product.quantity|floatformat:"-2" }}</span>/{{ product.quantity_min|floatformat:"-2" }}
+            {% else %}
+                {{ product.quantity|floatformat:"-2" }}
+            {% endif %}
+            - ${{ product.stock_price|floatformat:"2" }}
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Qty</th>
+                        <th>Unit</th>
+                        <th>Date</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for stock in stocks %}
+                        <tr>
+                            <td>
+                                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ stock.quantity|floatformat:"-2"  }}</strong>
+                            </td>
+                            <td>{{ product.unit }}</td>
+                            <td>{{ stock.created_date|date:"SHORT_DATE_FORMAT" }}</td>
+                            <td>${{ stock.cost|floatformat:"2" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <hr class="my-2">
+    <div class="card">
+        <h5 class="card-header">
+            Purchases
+        </h5>
+        <div class="card-body">
+            <div class="card-subtitle text-muted mb-3">
+                {{ latest_order.associated }}
+            </div>
+            <div class="table-responsive text-nowrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                Qty
+                            </th>
+                            <th>
+                                Unit
+                            </th>
+                            <th>
+                                Date
+                            </th>
+                            <th>
+                                Price
+                            </th>
+                            <th>
+                                Tax
+                            </th>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for purchase in purchases %}
+                            <tr>
+                                <td>
+                                    <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ purchase.quantity|floatformat:"-2"  }}</strong>
+                                </td>
+                                <td>
+                                    {{ purchase.unit }}
+                                </td>
+                                <td>
+                                    {{ purchase.order.created_date|date:"SHORT_DATE_FORMAT" }}
+                                </td>
+                                <td>
+                                    ${{ purchase.price|floatformat:"2" }}
+                                </td>
+                                <td>
+                                    {{ purchase.tax }}%
+                                </td>
+                                <td>
+                                    <a href={% url 'detail-order' purchase.order.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        function deleteProduct(id, name) {
+            let confirmAction = confirm("Are you sure to delete the product " + name + "?");
+            if (confirmAction) {
+                window.location = "/inventory/delete-product/" + id;
+            }
+        }
+    </script>
+{% endblock content %}

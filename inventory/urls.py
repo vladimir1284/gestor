@@ -1,58 +1,74 @@
-"""inventory URL Configuration
+from django.urls import path
+from .views import (
+    # ---- Category -------
+    create_category,
+    update_category,
+    list_category,
+    delete_category,
+    # ---- Order ----------
+    create_order,
+    update_order,
+    detail_order,
+    list_order,
+    update_order_status,
+    # ---- Transaction ----
+    create_transaction,
+    create_transaction_new_order,
+    update_transaction,
+    delete_transaction,
+    detail_transaction,
+    # ---- Unit ----------
+    create_unit,
+    update_unit,
+    list_unit,
+    delete_unit,
+    # ---- Product -------
+    create_product,
+    update_product,
+    list_product,
+    detail_product,
+    select_product,
+    select_new_product,
+    delete_product,
+)
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
-from django.contrib.auth import views
-
-from .views import dashboard
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("login/", views.LoginView.as_view(), name="login"),
-    path("logout/", views.LogoutView.as_view(), name="logout"),
-    path(
-        "password_change/", views.PasswordChangeView.as_view(), name="password_change"
-    ),
-    path(
-        "password_change/done/",
-        views.PasswordChangeDoneView.as_view(),
-        name="password_change_done",
-    ),
-    path("password_reset/", views.PasswordResetView.as_view(), name="password_reset"),
-    path(
-        "password_reset/done/",
-        views.PasswordResetDoneView.as_view(),
-        name="password_reset_done",
-    ),
-    path(
-        "reset/<uidb64>/<token>/",
-        views.PasswordResetConfirmView.as_view(),
-        name="password_reset_confirm",
-    ),
-    path(
-        "reset/done/",
-        views.PasswordResetCompleteView.as_view(),
-        name="password_reset_complete",
-    ),
-    path('', dashboard, name='dashboard'),
-    path('users/', include('users.urls')),
-    path('store/', include('store.urls')),
+    # -------------------- Category ----------------------------
+    path('create-category/', create_category, name='create-category'),
+    path('update-category/<id>', update_category, name='update-category'),
+    path('list-category/', list_category, name='list-category'),
+    path('delete-category/<id>', delete_category, name='delete-category'),
+    # -------------------- Order ----------------------------
+    path('create-order/', create_order, name='create-order'),
+    path('create-order/<product_id>', create_order,
+         name='create-order-from-product'),
+    path('update-order/<id>', update_order, name='update-order'),
+    path('detail-order/<id>', detail_order, name='detail-order'),
+    path('list-order/', list_order, name='list-order'),
+    path('update-order-status/<id>/<status>',
+         update_order_status, name='update-order-status'),
+    # -------------------- Transaction ----------------------------
+    path('create-transaction/<order_id>/<product_id>',
+         create_transaction, name='create-transaction'),
+    path('create-transaction-new-order/<product_id>',
+         create_transaction_new_order, name='create-transaction-new-order'),
+    path('update-transaction/<id>', update_transaction, name='update-transaction'),
+    path('detail-transaction/<id>', detail_transaction, name='detail-transaction'),
+    path('delete-transaction/<id>', delete_transaction, name='delete-transaction'),
+    # -------------------- Unit ----------------------------
+    path('create-unit/', create_unit, name='create-unit'),
+    path('update-unit/<id>', update_unit, name='update-unit'),
+    path('list-unit/', list_unit, name='list-unit'),
+    path('delete-unit/<id>', delete_unit, name='delete-unit'),
+    # -------------------- Product ----------------------------
+    path('create-product/', create_product, name='create-product'),
+    path('update-product/<id>', update_product, name='update-product'),
+    path('detail-product/<id>', detail_product, name='detail-product'),
+    path('list-product/', list_product, name='list-product'),
+    path('select-product/<next>/<order_id>',
+         select_product, name='select-product'),
+    path('select-new-product/<next>/<order_id>',
+         select_new_product, name='select-new-product'),
+    path('delete-product/<id>', delete_product, name='delete-product'),
 ]
-
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
