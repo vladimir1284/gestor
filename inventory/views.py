@@ -71,7 +71,7 @@ def create_category(request):
     context = {
         'form': form
     }
-    return render(request, 'inventory/addCategory.html', context)
+    return render(request, 'inventory/category_create.html', context)
 
 
 @login_required
@@ -96,7 +96,7 @@ def update_category(request, id):
         'form': form
     }
 
-    return render(request, 'inventory/addCategory.html', context)
+    return render(request, 'inventory/category_create.html', context)
 
 
 @login_required
@@ -135,7 +135,7 @@ def update_category(request, id):
         'form': form
     }
 
-    return render(request, 'inventory/addCategory.html', context)
+    return render(request, 'inventory/category_create.html', context)
 
 
 # -------------------- Order ----------------------------
@@ -166,7 +166,7 @@ def create_order(request, product_id=None):
         context = {
             'form': form
         }
-        return render(request, 'inventory/addOrder.html', context)
+        return render(request, 'inventory/order_create.html', context)
 
 
 @login_required
@@ -188,7 +188,7 @@ def update_order(request, id):
         'form': form
     }
 
-    return render(request, 'inventory/addOrder.html', context)
+    return render(request, 'inventory/order_create.html', context)
 
 
 @login_required
@@ -259,7 +259,7 @@ def renderCreateTransaction(request, form, product, order_id):
         'order_id': order_id,
         'title': _("Create Transaction")
     }
-    return render(request, 'inventory/addTransaction.html', context)
+    return render(request, 'inventory/transaction_create.html', context)
 
 
 @login_required
@@ -332,7 +332,7 @@ def update_transaction(request, id):
         'title': _("Update Transaction")
     }
 
-    return render(request, 'inventory/addTransaction.html', context)
+    return render(request, 'inventory/transaction_create.html', context)
 
 
 @login_required
@@ -426,7 +426,7 @@ def create_unit(request):
     context = {
         'form': form
     }
-    return render(request, 'inventory/addUnit.html', context)
+    return render(request, 'inventory/unit_create.html', context)
 
 
 @login_required
@@ -449,7 +449,7 @@ def update_unit(request, id):
         'form': form,
     }
 
-    return render(request, 'inventory/updateUnit.html', context)
+    return render(request, 'inventory/unit_update.html', context)
 
 
 @login_required
@@ -479,7 +479,7 @@ def create_product(request):
     context = {
         'form': form
     }
-    return render(request, 'inventory/addProduct.html', context)
+    return render(request, 'inventory/product_create.html', context)
 
 
 @login_required
@@ -502,7 +502,7 @@ def update_product(request, id):
         'form': form
     }
 
-    return render(request, 'inventory/addProduct.html', context)
+    return render(request, 'inventory/product_create.html', context)
 
 
 def product_list_metadata(type, products: List[Product]):
@@ -567,7 +567,7 @@ def select_new_product(request, next, order_id):
         'next': next,
         'order_id': order_id,
     }
-    return render(request, 'inventory/addProduct.html', context)
+    return render(request, 'inventory/product_create.html', context)
 
 
 @login_required

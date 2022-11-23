@@ -55,7 +55,7 @@ class OrderCreateForm(forms.ModelForm):
                         """
                     <a class="btn btn-icon btn-outline-primary position-absolute bottom-0"
                        type="button"
-                       href="{% url 'create-provider' %}">
+                       href="{% url 'create-provider' %}?next={{ request.path|urlencode }}">
                         <span class="tf-icons bx bx-plus"></span>
                     </a>
                     """),
@@ -192,7 +192,7 @@ class TransactionProviderCreateForm(TransactionCreateForm):
                         """
                     <a class="btn btn-icon btn-outline-primary position-absolute bottom-0"
                        type="button"
-                       href="{% url 'create-provider' %}">
+                       href="{% url 'create-provider' %}?next={{ request.path|urlencode }}">
                         <span class="tf-icons bx bx-plus"></span>
                     </a>
                     """),

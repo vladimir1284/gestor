@@ -1,4 +1,4 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, HiddenInput
 from django import forms
 from .models import *
 from django.core.files.images import get_image_dimensions
@@ -174,6 +174,7 @@ class AssociatedCreateForm(forms.ModelForm):
             break
 
         self.fields['address'].widget.attrs = {'rows': 2}
+        self.fields['type'].widget = HiddenInput()
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
@@ -184,12 +185,12 @@ class AssociatedCreateForm(forms.ModelForm):
                 HTML(
                     """
                 {% load static %}
-                <img id="uploadedAvatar" 
+                <img id="preview" 
                 alt="user-avatar" 
                 class="d-block rounded" 
                 height="100" width="100"
-                {% if form.icon.value %}
-                    src="/media/{{ form.icon.value }}"
+                {% if form.avatar.value %}
+                    src="/media/{{ form.avatar.value }}"
                 {% else %}  
                     src="{% static 'images/icons/client.png' %}"
                 {% endif %}>
@@ -247,6 +248,7 @@ class AssociatedCreateForm(forms.ModelForm):
                 ),
                 css_class="mb-3"
             ),
+            Field('type'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

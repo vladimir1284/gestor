@@ -2,6 +2,7 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
 
 class Associated(models.Model):
@@ -12,7 +13,8 @@ class Associated(models.Model):
     note = models.TextField(blank=True)
     email = models.EmailField(blank=True)
     created_date = models.DateField(auto_now_add=True)
-    avatar = models.ImageField(upload_to='images/avatars',
+    AVATAR_SIZE = 100
+    avatar = models.ImageField(upload_to='images/avatars/',
                                blank=True)
     phone_number = PhoneNumberField(blank=True)
     TYPE_CHOICE = (
@@ -24,6 +26,18 @@ class Associated(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        super(Associated, self).save(*args, **kwargs)
+        try:
+            img = Image.open(self.avatar.path)
+
+            if img.height > self.AVATAR_SIZE or img.width > self.AVATAR_SIZE:
+                output_size = (self.AVATAR_SIZE, self.AVATAR_SIZE)
+                img.thumbnail(output_size)
+            img.save(self.avatar.path)
+        except Exception as error:
+            print(error)
 
 
 class UserProfile(models.Model):

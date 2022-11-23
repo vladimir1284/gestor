@@ -39,7 +39,6 @@
 {% block scripts %}
     <script>
     {% block img_id %}
-      const img_id = "";
     {% endblock img_id %}
     let imgInput = document.getElementById(img_id);
     imgInput.addEventListener('change', function (e) {
@@ -80,7 +79,7 @@
 
                     // Show resized image in preview element
                     var dataurl = canvas.toDataURL(imageFile.type);
-                    document.getElementById("preview").src = dataurl;
+                    document.getElementById('preview').src = dataurl;
                 }
                 img.src = e.target.result;
             }

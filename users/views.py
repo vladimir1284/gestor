@@ -52,7 +52,7 @@ def create_user(request):
         'form': forms,
         'user_form': userCform
     }
-    return render(request, 'users/addUser.html', context)
+    return render(request, 'users/user_create.html', context)
 
 # -------------------- Associated ----------------------------
 
@@ -70,15 +70,17 @@ def create_client(request):
 def create_associated(request, type):
     initial = {'type': type}
     form = AssociatedCreateForm(initial=initial)
+    next = request.GET.get('next', 'list-provider')
     if request.method == 'POST':
+        print(next)
         form = AssociatedCreateForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('list-providers')
+            return redirect(next)
     context = {
         'form': form
     }
-    return render(request, 'users/addAssociated.html', context)
+    return render(request, 'users/associated_create.html', context)
 
 
 @login_required
@@ -86,24 +88,30 @@ def update_associated(request, id):
     # fetch the object related to passed id
     obj = get_object_or_404(Associated, id=id)
 
-    # pass the object as instance in form
-    form = AssociatedCreateForm(request.POST or None,
-                                request.FILES or None, instance=obj)
+    if request.method == 'GET':
+        # pass the object as instance in form
+        form = AssociatedCreateForm(instance=obj)
+
+    if request.method == 'POST':
+        obj.avatar.storage.delete(obj.avatar.path)
+        # pass the object as instance in form
+        form = AssociatedCreateForm(request.POST, request.FILES, instance=obj)
 
     # save the data from the form and
     # redirect to detail_view
     if form.is_valid():
-        if os.path.exists(obj.icon.path):
-            os.remove(obj.icon.path)
         form.save()
-        return redirect('list-category')
+        if obj.type == 'client':
+            return redirect('list-client')
+        if obj.type == 'supplier':
+            return redirect('list-provider')
 
     # add form dictionary to context
     context = {
         'form': form
     }
 
-    return render(request, 'users/addAssociated.html', context)
+    return render(request, 'users/associated_update.html', context)
 
 
 @login_required

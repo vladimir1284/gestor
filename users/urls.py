@@ -18,6 +18,6 @@ urlpatterns = [
     path('create-client/', create_client, name='create-client'),
     path('create-provider/', create_provider, name='create-provider'),
     path('update-associated/<id>', update_associated, name='update-associated'),
-    path('list-providers/', list_provider, name='list-providers'),
+    path('list-provider/', list_provider, name='list-provider'),
     path('list-client/', list_client, name='list-client'),
 ]
