@@ -1,0 +1,12 @@
+{% extends 'base/base_form.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    Añadir Producto
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <form enctype="multipart/form-data" method="post" id="update-form">
+        {% csrf_token %}
+        {% crispy form %}
+    </form>
+{% endblock content %}

@@ -1,0 +1,10 @@
+{% extends "./product/base_product_list.html" %}
+{% block tableParts %}
+    {% include "./product/select_table.html" with type="part" %}
+{% endblock tableParts %}
+{% block tableConsumables %}
+    {% include "./product/select_table.html" with type="consumable" %}
+{% endblock tableConsumables %}
+{% block createUrl %}
+    {% url 'select-new-product' next order_id %}
+{% endblock createUrl %}

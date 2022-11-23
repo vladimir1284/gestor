@@ -79,15 +79,18 @@ def update_category(request, id):
     # fetch the object related to passed id
     obj = get_object_or_404(ProductCategory, id=id)
 
-    # pass the object as instance in form
-    form = CategoryCreateForm(request.POST or None,
-                              request.FILES or None, instance=obj)
+    if request.method == 'GET':
+        # pass the object as instance in form
+        form = CategoryCreateForm(instance=obj)
+
+    if request.method == 'POST':
+        obj.icon.storage.delete(obj.icon.path)
+        # pass the object as instance in form
+        form = CategoryCreateForm(request.POST, request.FILES, instance=obj)
 
     # save the data from the form and
     # redirect to detail_view
     if form.is_valid():
-        if os.path.exists(obj.icon.path):
-            os.remove(obj.icon.path)
         form.save()
         return redirect('list-category')
 

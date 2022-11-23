@@ -1,0 +1,45 @@
+{% extends 'base/base_list.html' %}
+{% block title %}
+    Unidades de medida
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">Unidades de medida</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>Unit</th>
+    <th>Magnitude</th>
+    <th>Value</th>
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for unit in units %}
+        <tr>
+            <td>
+                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ unit.name }}</strong>
+            </td>
+            <td>{{ unit.magnitude }}</td>
+            <td>
+                {% if unit.factor == 1 %}
+                    -
+                {% else %}
+                    {{ unit.factor|floatformat:"-3" }}
+                    {% if unit.magnitude == 'mass' %}
+                        kg
+                    {% elif unit.magnitude == 'distance' %}
+                        m
+                    {% elif unit.magnitude == 'volume' %}
+                        m<sup>3</sup>
+                    {% endif %}
+                {% endif %}
+            </td>
+            <td>
+                <a href={% url 'update-unit' unit.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'create-unit' %}
+{% endblock createUrl %}
