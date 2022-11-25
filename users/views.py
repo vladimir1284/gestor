@@ -59,7 +59,7 @@ def create_user(request):
 
 @login_required
 def create_provider(request):
-    return create_associated(request, 'supplier')
+    return create_associated(request, 'provider')
 
 
 @login_required
@@ -72,10 +72,10 @@ def create_associated(request, type):
     form = AssociatedCreateForm(initial=initial)
     next = request.GET.get('next', 'list-provider')
     if request.method == 'POST':
-        print(next)
         form = AssociatedCreateForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            associated = form.save()
+            request.session['associated_id'] = associated.id
             return redirect(next)
     context = {
         'form': form
@@ -86,24 +86,25 @@ def create_associated(request, type):
 @login_required
 def update_associated(request, id):
     # fetch the object related to passed id
-    obj = get_object_or_404(Associated, id=id)
+    associated = get_object_or_404(Associated, id=id)
 
     if request.method == 'GET':
         # pass the object as instance in form
-        form = AssociatedCreateForm(instance=obj)
+        form = AssociatedCreateForm(instance=associated)
 
     if request.method == 'POST':
-        obj.avatar.storage.delete(obj.avatar.path)
+        associated.avatar.storage.delete(associated.avatar.path)
         # pass the object as instance in form
-        form = AssociatedCreateForm(request.POST, request.FILES, instance=obj)
+        form = AssociatedCreateForm(
+            request.POST, request.FILES, instance=associated)
 
     # save the data from the form and
     # redirect to detail_view
     if form.is_valid():
         form.save()
-        if obj.type == 'client':
+        if associated.type == 'client':
             return redirect('list-client')
-        if obj.type == 'supplier':
+        if associated.type == 'provider':
             return redirect('list-provider')
 
     # add form dictionary to context
@@ -116,7 +117,7 @@ def update_associated(request, id):
 
 @login_required
 def list_provider(request):
-    return list_associated(request, 'supplier')
+    return list_associated(request, 'provider')
 
 
 @login_required
@@ -134,3 +135,12 @@ def detail_associated(request, id):
 def list_associated(request, type):
     associateds = Associated.objects.filter(type=type)
     return render(request, 'users/associated_list.html', {'associateds': associateds})
+
+
+@login_required
+def delete_associated(request, id):
+    # fetch the object related to passed id
+    associated = get_object_or_404(Associated, id=id)
+    associated.avatar.storage.delete(associated.avatar.path)
+    associated.delete()
+    return redirect('list-{}'.format(associated.type))

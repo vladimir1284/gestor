@@ -112,33 +112,9 @@ def list_category(request):
 def delete_category(request, id):
     # fetch the object related to passed id
     obj = get_object_or_404(ProductCategory, id=id)
+    obj.icon.storage.delete(obj.icon.path)
     obj.delete()
     return redirect('list-category')
-
-
-@login_required
-def update_category(request, id):
-    # fetch the object related to passed id
-    obj = get_object_or_404(ProductCategory, id=id)
-
-    # pass the object as instance in form
-    form = CategoryCreateForm(request.POST or None,
-                              request.FILES or None, instance=obj)
-
-    # save the data from the form and
-    # redirect to detail_view
-    if form.is_valid():
-        if os.path.exists(obj.icon.path):
-            os.remove(obj.icon.path)
-        form.save()
-        return redirect('list-category')
-
-    # add form dictionary to context
-    context = {
-        'form': form
-    }
-
-    return render(request, 'inventory/category_create.html', context)
 
 
 # -------------------- Order ----------------------------
@@ -160,7 +136,8 @@ def create_order(request, product_id=None):
         # Create new order from the
         return redirect('create-transaction-new-order', product_id)
     else:
-        form = OrderCreateForm()
+        initial = {'associated': request.session.get('associated_id')}
+        form = OrderCreateForm(initial=initial)
         if request.method == 'POST':
             form = OrderCreateForm(request.POST)
             if form.is_valid():

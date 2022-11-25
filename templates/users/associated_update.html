@@ -12,6 +12,11 @@
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">Editar {{ form.type.value }}</h5>
+                <a onclick="deleteAssociated('{% url 'delete-associated' form.instance.id %}', '{{ form.instance.name }}')"
+                   type="button"
+                   class="btn btn-icon btn-outline-danger float-end">
+                    <span class="tf-icons bx bx-trash"></span>
+                </a>
             </div>
             <div class="card-body">
                 <form enctype="multipart/form-data" method="post" id="update-form">
@@ -21,4 +26,12 @@
             </div>
         </div>
     </div>
+    <script>
+        function deleteAssociated(url, name) {
+            let confirmAction = confirm("Are you sure to delete the {{ form.type.value }} " + name + "?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+    </script>
 {% endblock content %}

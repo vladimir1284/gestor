@@ -6,7 +6,7 @@ from PIL import Image
 
 
 class Associated(models.Model):
-    # Either client or supplier
+    # Either client or provider
     name = models.CharField(max_length=120)
     company = models.CharField(max_length=120, blank=True)
     address = models.TextField(blank=True)
@@ -19,7 +19,7 @@ class Associated(models.Model):
     phone_number = PhoneNumberField(blank=True)
     TYPE_CHOICE = (
         ('client', _('Client')),
-        ('supplier', _('Supplier')),
+        ('provider', _('provider')),
     )
     type = models.CharField(max_length=20, choices=TYPE_CHOICE,
                             default='client')

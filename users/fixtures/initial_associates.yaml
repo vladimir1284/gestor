@@ -9,7 +9,7 @@
     created_date: 2022-10-15
     avatar: images/avatars/bosque.jpg
     phone_number: '+12125552368'
-    type: supplier
+    type: provider
 - model: users.associated
   pk: 2
   fields:

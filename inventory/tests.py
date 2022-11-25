@@ -11,7 +11,47 @@ from .models import (
     Order,
     Profit,
     Transaction)
+from users.models import (
+    Associated,
+)
 import random
+
+
+class TestPurchaseOrder(TestCase):
+    """
+    This class contains tests that manipulate Purchase orders
+    """
+
+    def setUp(self):
+        """
+        This method runs before the execution of each test case.
+        """
+        self.client = Client()
+
+        self.credentials = {
+            'username': 'myuser',
+            'password': 'mypass'}
+        User.objects.create_user(**self.credentials)
+        # send login data
+        response = self.client.post(
+            '/login/', self.credentials, follow=True)
+        # should be logged in now
+        self.assertTrue(response.context['user'].is_active)
+
+        self.provider_data = {
+            'name': "vendedor",
+        }
+
+    def test_order_create(self):
+        # Creates a new provider and redirect to create order
+        response = self.client.post(
+            '/users/create-provider/?next=/inventory/create-order/',
+            self.provider_data)
+        print(response.content)
+        self.assertInHTML(
+            self.provider_data['name'], response.content)
+        # provider = Associated.objects.get(id=1)
+        # self.assertEqual(provider.name, self.provider_data['name'])
 
 
 class TestUnitConversion(TestCase):
@@ -27,8 +67,8 @@ class TestUnitConversion(TestCase):
         self.client = Client()
 
         self.credentials = {
-            'username': 'vladimir',
-            'password': 'ganador'}
+            'username': 'myuser',
+            'password': 'mypass'}
         User.objects.create_user(**self.credentials)
         # send login data
         response = self.client.post(
@@ -149,12 +189,12 @@ class TestStockFIFO(TestCase):
         }
         self.client.post('/inventory/create-category/', food)
 
-        # supplier
-        supplier = {
+        # provider
+        provider = {
             'name': "Pedro Vendedor",
-            'type': "supplier"
+            'type': "provider"
         }
-        self.client.post('/users/create-provider/', supplier)
+        self.client.post('/users/create-provider/', provider)
 
         # client
         client = {

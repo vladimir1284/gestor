@@ -9,6 +9,7 @@ from .views import (
     list_provider,
     list_client,
     update_associated,
+    delete_associated,
 )
 
 urlpatterns = [
@@ -20,4 +21,5 @@ urlpatterns = [
     path('update-associated/<id>', update_associated, name='update-associated'),
     path('list-provider/', list_provider, name='list-provider'),
     path('list-client/', list_client, name='list-client'),
+    path('delete-associated/<id>', delete_associated, name='delete-associated'),
 ]

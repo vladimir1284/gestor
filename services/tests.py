@@ -149,12 +149,12 @@ class TestStockFIFO(TestCase):
         }
         self.client.post('/inventory/create-category/', food)
 
-        # supplier
-        supplier = {
+        # provider
+        provider = {
             'name': "Pedro Vendedor",
-            'type': "supplier"
+            'type': "provider"
         }
-        self.client.post('/users/create-provider/', supplier)
+        self.client.post('/users/create-provider/', provider)
 
         # client
         client = {
