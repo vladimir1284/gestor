@@ -3,10 +3,17 @@
     {{ title }}
 {% endblock title %}
 {% block Ttitle %}
-    <h5 class="card-header">{{ title }}</h5>
+    <h5 class="card-header">
+        {% if type == 'client' %}
+            Clients
+        {% elif type == 'provider' %}
+            Providers
+        {% endif %}
+    </h5>
 {% endblock Ttitle %}
 {% block Theader %}
     <th>Name</th>
+    <th></th>
     <th>note</th>
     <th>
         <i class="bx bx-cog"></i>
@@ -16,7 +23,14 @@
     {% for associated in associateds %}
         <tr>
             <td>
-                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ associated.name }}</strong>
+                <strong>{{ associated.name }}</strong>
+            </td>
+            <td>
+                {% if associated.avatar %}
+                    <div class="avatar avatar-xs pull-up">
+                        <img src="{{ associated.avatar.url }}" alt="Avatar" class="rounded-circle">
+                    </div>
+                {% endif %}
             </td>
             <td>{{ associated.note|truncatechars:30 }}</td>
             <td>
@@ -26,5 +40,9 @@
     {% endfor %}
 {% endblock Tbody %}
 {% block createUrl %}
-    {% url 'create-provider' %}
+    {% if type == 'client' %}
+        {% url 'create-client' %}
+    {% elif type == 'provider' %}
+        {% url 'create-provider' %}
+    {% endif %}
 {% endblock createUrl %}

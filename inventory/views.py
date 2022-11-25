@@ -77,16 +77,20 @@ def create_category(request):
 @login_required
 def update_category(request, id):
     # fetch the object related to passed id
-    obj = get_object_or_404(ProductCategory, id=id)
+    category = get_object_or_404(ProductCategory, id=id)
 
     if request.method == 'GET':
         # pass the object as instance in form
-        form = CategoryCreateForm(instance=obj)
+        form = CategoryCreateForm(instance=category)
 
     if request.method == 'POST':
-        obj.icon.storage.delete(obj.icon.path)
+        try:
+            category.icon.storage.delete(category.icon.path)
+        except Exception as error:
+            print(error)
         # pass the object as instance in form
-        form = CategoryCreateForm(request.POST, request.FILES, instance=obj)
+        form = CategoryCreateForm(
+            request.POST, request.FILES, instance=category)
 
     # save the data from the form and
     # redirect to detail_view
@@ -111,9 +115,12 @@ def list_category(request):
 @login_required
 def delete_category(request, id):
     # fetch the object related to passed id
-    obj = get_object_or_404(ProductCategory, id=id)
-    obj.icon.storage.delete(obj.icon.path)
-    obj.delete()
+    category = get_object_or_404(ProductCategory, id=id)
+    try:
+        category.icon.storage.delete(category.icon.path)
+    except Exception as error:
+        print(error)
+    category.delete()
     return redirect('list-category')
 
 

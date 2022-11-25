@@ -70,7 +70,7 @@ def create_client(request):
 def create_associated(request, type):
     initial = {'type': type}
     form = AssociatedCreateForm(initial=initial)
-    next = request.GET.get('next', 'list-provider')
+    next = request.GET.get('next', 'list-{}'.format(type))
     if request.method == 'POST':
         form = AssociatedCreateForm(request.POST, request.FILES)
         if form.is_valid():
@@ -93,7 +93,10 @@ def update_associated(request, id):
         form = AssociatedCreateForm(instance=associated)
 
     if request.method == 'POST':
-        associated.avatar.storage.delete(associated.avatar.path)
+        try:
+            associated.avatar.storage.delete(associated.avatar.path)
+        except Exception as error:
+            print(error)
         # pass the object as instance in form
         form = AssociatedCreateForm(
             request.POST, request.FILES, instance=associated)
@@ -134,13 +137,17 @@ def detail_associated(request, id):
 
 def list_associated(request, type):
     associateds = Associated.objects.filter(type=type)
-    return render(request, 'users/associated_list.html', {'associateds': associateds})
+    return render(request, 'users/associated_list.html', {'associateds': associateds,
+                                                          'type': type})
 
 
 @login_required
 def delete_associated(request, id):
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
-    associated.avatar.storage.delete(associated.avatar.path)
+    try:
+        associated.avatar.storage.delete(associated.avatar.path)
+    except Exception as error:
+        print(error)
     associated.delete()
     return redirect('list-{}'.format(associated.type))
