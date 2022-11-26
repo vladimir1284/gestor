@@ -132,7 +132,8 @@ def list_client(request):
 def detail_associated(request, id):
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
-    return render(request, 'users/associated_detail.html', {'associated': associated})
+    return render(request, 'users/associated_detail.html', {'associated': associated,
+                                                            'title': 'Associated detail'})
 
 
 def list_associated(request, type):

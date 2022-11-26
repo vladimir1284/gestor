@@ -1,0 +1,16 @@
+{% extends 'base/base_card.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ctitle %}
+    <h5 class="card-header">
+        {% if type == 'client' %}
+            Client
+        {% elif type == 'provider' %}
+            Provider
+        {% endif %}
+    </h5>
+{% endblock Ctitle %}
+{% block Cards %}
+    {% include "./associated_card.html" with update=1 %}
+{% endblock Cards %}

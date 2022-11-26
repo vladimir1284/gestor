@@ -6,7 +6,13 @@
     {% for category in categories %}
         <button onClick="filterTag('{{ category.name }}')"
                 type="button"
-                class="btn btn-icon btn-outline-primary">
+                class="btn btn-icon btn-outline-primary"
+                data-bs-toggle="tooltip" 
+                data-bs-offset="0,4" 
+                data-bs-placement="top" 
+                data-bs-html="true" 
+                title="" 
+                data-bs-original-title="<span>{{ category.name }}</span>">
             <img class="w-px-30 h-auto" src="{{ category.icon.url }}" alt="">
         </button>
     {% endfor %}

@@ -44,7 +44,7 @@
             {% endif %}
         </h5>
         <div class="card-subtitle text-muted mb-3">
-            {{ order.associated }} - {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
+            <a href={% url 'detail-associated' order.associated.id %}>{{ order.associated }}</a> - {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
         </div>
         <p class="card-text">{{ order.note }}</p>
         <div class="demo-inline-spacing">

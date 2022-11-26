@@ -1,8 +1,8 @@
-{% extends 'base/base_list.html' %}
+{% extends 'base/base_card.html' %}
 {% block title %}
     {{ title }}
 {% endblock title %}
-{% block Ttitle %}
+{% block Ctitle %}
     <h5 class="card-header">
         {% if type == 'client' %}
             Clients
@@ -10,35 +10,12 @@
             Providers
         {% endif %}
     </h5>
-{% endblock Ttitle %}
-{% block Theader %}
-    <th>Name</th>
-    <th></th>
-    <th>note</th>
-    <th>
-        <i class="bx bx-cog"></i>
-    </th>
-{% endblock Theader %}
-{% block Tbody %}
+{% endblock Ctitle %}
+{% block Cards %}
     {% for associated in associateds %}
-        <tr>
-            <td>
-                <strong>{{ associated.name }}</strong>
-            </td>
-            <td>
-                {% if associated.avatar %}
-                    <div class="avatar avatar-xs pull-up">
-                        <img src="{{ associated.avatar.url }}" alt="Avatar" class="rounded-circle">
-                    </div>
-                {% endif %}
-            </td>
-            <td>{{ associated.note|truncatechars:30 }}</td>
-            <td>
-                <a href={% url 'update-associated' associated.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
-            </td>
-        </tr>
+        {% include "./associated_card.html" with update=1 %}
     {% endfor %}
-{% endblock Tbody %}
+{% endblock Cards %}
 {% block createUrl %}
     {% if type == 'client' %}
         {% url 'create-client' %}

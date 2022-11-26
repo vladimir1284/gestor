@@ -50,7 +50,13 @@
                 <div class="col-8">
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"
-                       href="{% url 'create-order-from-product' product.id %}">
+                       href="{% url 'create-order-from-product' product.id %}"
+                       data-bs-toggle="tooltip"
+                       data-bs-offset="0,4"
+                       data-bs-placement="top"
+                       data-bs-html="true"
+                       title=""
+                       data-bs-original-title="<span>Restock</span>">
                         <span class="tf-icons bx bx-cart"></span>
                     </a>
                 </div>
@@ -119,7 +125,9 @@
                             </td>
                             <td>{{ product.unit }}</td>
                             <td>{{ stock.created_date|date:"SHORT_DATE_FORMAT" }}</td>
-                            <td>${{ stock.cost|floatformat:"2" }}</td>
+                            <td>
+                                ${{ stock.cost|floatformat:"2" }}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
