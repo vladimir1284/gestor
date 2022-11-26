@@ -268,7 +268,8 @@ def create_transaction(request, order_id, product_id):
 @login_required
 def create_transaction_new_order(request, product_id):
     product = Product.objects.get(id=product_id)
-    initial = {'unit': product.unit}
+    initial = {'unit': product.unit,
+               'associated': request.session.get('associated_id')}
     last_purchase = Transaction.objects.filter(order__type='purchase',
                                                product=product).order_by('-id').first()
     order_id = -1
