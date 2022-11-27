@@ -53,9 +53,16 @@
            href="javascript:void(0);"
            data-bs-toggle="dropdown">
           <div class="avatar avatar-online">
-            <img src="{{ user.profile_user.avatar.url }}"
-                 alt=""
-                 class="w-px-40 h-auto rounded-circle"/>
+            {% if user.profile_user.avatar %}
+              <img src="{{ user.profile_user.avatar.url }}"
+                   alt=""
+                   class="w-px-40 h-auto rounded-circle"/>
+            {% else %}
+              <span style="font-size:1.5em;"
+                    class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                {{ user.first_name|first }}
+              </span>
+            {% endif %}
           </div>
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
@@ -64,9 +71,16 @@
               <div class="d-flex">
                 <div class="flex-shrink-0 me-3">
                   <div class="avatar avatar-online">
-                    <img src="{{ user.profile_user.avatar.url }}"
-                         alt=""
-                         class="w-px-40 h-auto rounded-circle"/>
+                    {% if user.profile_user.avatar %}
+                      <img src="{{ user.profile_user.avatar.url }}"
+                           alt=""
+                           class="w-px-40 h-auto rounded-circle"/>
+                    {% else %}
+                      <span style="font-size:1.5em;"
+                            class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                        {{ user.first_name|first }}
+                      </span>
+                    {% endif %}
                   </div>
                 </div>
                 <div class="flex-grow-1">
@@ -104,7 +118,7 @@
             <div class="dropdown-divider"></div>
           </li>
           <li>
-            <a class="dropdown-item" href="/users/logout/">
+            <a class="dropdown-item" href="/logout/">
               <i class="bx bx-power-off me-2"></i>
               <span class="align-middle">Salir</span>
             </a>
