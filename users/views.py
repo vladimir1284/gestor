@@ -55,7 +55,7 @@ def create_user(request):
     return render(request, 'users/user_create.html', context)
 
 
-@permission_required('auth.user.can_add_user')
+@login_required
 def update_user(request, id):
     # fetch the object related to passed id
     profile = get_object_or_404(UserProfile, id=id)
@@ -81,7 +81,9 @@ def update_user(request, id):
                         print(error)
                 profile.user.save()
                 profile.save()
-                return redirect('list-user')
+                if request.user.has_perm('auth.user.can_add_user'):
+                    return redirect('list-user')
+                return redirect('/')
 
     # add form dictionary to context
     context = {

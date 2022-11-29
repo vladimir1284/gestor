@@ -30,6 +30,13 @@ class CommonUserLayout(Layout):
             ),
             Div(
                 Field(
+                    PrependedText('username',
+                                  '<i class="bx bx-user-circle"></i>')
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
                     PrependedAppendedText('email',
                                           '<i class="bx bx-envelope"></i>',
                                           '@ejemplo.com')
@@ -80,6 +87,7 @@ class UserUpdateForm(forms.ModelForm):
         model = User
         fields = ('first_name',
                   'last_name',
+                  'username',
                   'email')
 
     def __init__(self, *args, **kwargs):
@@ -126,13 +134,6 @@ class UserCreateForm(UserCreationForm):
 
         self.helper.layout = Layout(
             CommonUserLayout(),
-            Div(
-                Field(
-                    PrependedText('username',
-                                  '<i class="bx bx-user-circle"></i>')
-                ),
-                css_class="row mb-3"
-            ),
             Div(
                 Field(
                     'password1'

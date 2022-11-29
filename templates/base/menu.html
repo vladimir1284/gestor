@@ -107,11 +107,13 @@
                         <div data-i18n="Clientes">Clients</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{% url 'list-user' %}" class="menu-link">
-                        <div data-i18n="Usuarios">Staff</div>
-                    </a>
-                </li>
+                {% if perms.can_add_user %}
+                    <li class="menu-item">
+                        <a href="{% url 'list-user' %}" class="menu-link">
+                            <div data-i18n="Usuarios">Staff</div>
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </li>
         <li class="menu-item">

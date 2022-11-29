@@ -1,4 +1,5 @@
 {% extends 'base/base_card.html' %}
+{% load static %}
 {% block title %}
     Categorías de productos
 {% endblock title %}
@@ -10,7 +11,7 @@
         <div class="col-6 col-md-3 mb-3 text-center">
             <div class="card h-100">
                 <img class="card-img-top"
-                     src="{{ category.icon.url }}"
+                     {% if category.icon %} src="{{ category.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
                      alt="{{ category.name }} icon">
                 <div class="card-body">
                     <h5 class="card-title">{{ category.name }}</h5>
