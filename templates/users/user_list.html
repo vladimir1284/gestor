@@ -1,0 +1,15 @@
+{% extends 'base/base_card.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ctitle %}
+    <h5 class="card-header">Staff</h5>
+{% endblock Ctitle %}
+{% block Cards %}
+    {% for profile in profiles %}
+        {% include "./user_card.html" with update=1 %}
+    {% endfor %}
+{% endblock Cards %}
+{% block createUrl %}
+    {% url 'create-user' %}
+{% endblock createUrl %}

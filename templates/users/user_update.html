@@ -1,0 +1,38 @@
+{% extends 'base/base_form.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    Edit User
+{% endblock title %}
+{% block img_id %}
+    const img_id = "id_avatar";
+{% endblock img_id %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">Edit user</h5>
+                <a onclick="deleteUser('{% url 'delete-user' form.instance.id %}', '{{ form.instance.user.first_name }}')"
+                   type="button"
+                   class="btn btn-icon btn-outline-danger float-end">
+                    <span class="tf-icons bx bx-trash"></span>
+                </a>
+            </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                    {% crispy user_form %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function deleteUser(url, name) {
+            let confirmAction = confirm("Are you sure to delete the user " + name + "?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+    </script>
+{% endblock content %}

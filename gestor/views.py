@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from inventory.models import Product, Associated
 
 
-@login_required(login_url='login')
+@login_required
 def dashboard(request):
     total_product = Product.objects.count()
     total_associated = Associated.objects.count()

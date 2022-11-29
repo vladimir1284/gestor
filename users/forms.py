@@ -10,6 +10,93 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 
+class CommonUserLayout(Layout):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            Div(
+                Field(
+                    PrependedText('first_name',
+                                  '<i class="bx bx-user"></i>')
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('last_name',
+                                  '<i class="bx bx-user"></i>'),
+                    css_class='form-control'
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedAppendedText('email',
+                                          '<i class="bx bx-envelope"></i>',
+                                          '@ejemplo.com')
+                ),
+                css_class="row mb-3"
+            )
+        )
+
+
+class CommonProfileLayout(Layout):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            Div(
+                HTML(
+                    """
+                {% load static %}
+                <img id="preview" 
+                alt="user-avatar" 
+                class="d-block rounded" 
+                height="100" width="100"
+                {% if form.avatar.value %}
+                    src="/media/{{ form.avatar.value }}"
+                {% else %}  
+                    src="{% static 'images/icons/client.png' %}"
+                {% endif %}>
+                """
+                ),
+                css_class="d-flex align-items-start align-items-sm-center gap-4"
+            ),
+            Div(
+                Div(
+                    Field('avatar')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('phone_number',
+                                  '<i class="bx bx-phone"></i>')
+                ),
+                css_class="row"
+            )
+        )
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name',
+                  'last_name',
+                  'email')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        # self.helper.css = 'is-invalid'
+        self.helper.layout = Layout(
+            CommonUserLayout(),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
 class UserCreateForm(UserCreationForm):
 
     class Meta:
@@ -37,39 +124,12 @@ class UserCreateForm(UserCreationForm):
         self.fields['username'].widget.attrs.update(
             {'placeholder': _('john.doe')})
 
-        self.helper = FormHelper()
-        self.helper.form_tag = False  # Don't render form tag
-        self.helper.disable_csrf = True  # Don't render CSRF token
-        self.helper.label_class = 'form-label'
-        # self.helper.css = 'is-invalid'
         self.helper.layout = Layout(
+            CommonUserLayout(),
             Div(
                 Field(
                     PrependedText('username',
                                   '<i class="bx bx-user-circle"></i>')
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('first_name',
-                                  '<i class="bx bx-user"></i>')
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('last_name',
-                                  '<i class="bx bx-user"></i>'),
-                    css_class='form-control'
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedAppendedText('email',
-                                          '<i class="bx bx-envelope"></i>',
-                                          '@ejemplo.com')
                 ),
                 css_class="row mb-3"
             ),
@@ -85,6 +145,9 @@ class UserCreateForm(UserCreationForm):
                 ),
                 css_class="row mb-3"
             ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
         )
 
 
@@ -111,13 +174,7 @@ class UserProfileForm(forms.ModelForm):
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
-            Div(
-                Field(
-                    PrependedText('phone_number',
-                                  '<i class="bx bx-phone"></i>')
-                ),
-                css_class="row mb-3"
-            ),
+            CommonProfileLayout(),
             Div(
                 Field(
                     PrependedText('role',
@@ -125,29 +182,8 @@ class UserProfileForm(forms.ModelForm):
                                   css_class="form-select")
                 ),
                 css_class="row mb-3"
-            ),
-            Div(
-                Div(
-                    Field('avatar')
-                ),
-                css_class="mb-3"
-            ),
-            ButtonHolder(
-                Submit('submit', 'Enviar', css_class='btn btn-success')
             )
         )
-
-
-class LoginForm(forms.Form):
-    username = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Username',
-    }))
-    password = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Password',
-        'type': 'password'
-    }))
 
 
 class AssociatedCreateForm(forms.ModelForm):
@@ -181,42 +217,13 @@ class AssociatedCreateForm(forms.ModelForm):
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
-            Div(
-                HTML(
-                    """
-                {% load static %}
-                <img id="preview" 
-                alt="user-avatar" 
-                class="d-block rounded" 
-                height="100" width="100"
-                {% if form.avatar.value %}
-                    src="/media/{{ form.avatar.value }}"
-                {% else %}  
-                    src="{% static 'images/icons/client.png' %}"
-                {% endif %}>
-                """
-                ),
-                css_class="d-flex align-items-start align-items-sm-center gap-4"
-            ),
-            Div(
-                Div(
-                    Field('avatar')
-                ),
-                css_class="mb-3"
-            ),
+            CommonProfileLayout(),
             Div(
                 Field(
                     PrependedText('name',
                                   '<i class="bx bx-user-circle"></i>')
                 ),
                 css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('phone_number',
-                                  '<i class="bx bx-phone"></i>')
-                ),
-                css_class="row"
             ),
             Div(
                 Field(

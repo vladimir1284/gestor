@@ -1,0 +1,49 @@
+{% load static %}
+<div class="col-6 col-md-3 mb-3 text-center">
+    <div class="card text-center">
+        <div class="card-body">
+            <div class="demo-inline-spacing mb-2">
+                <img {% if profile.avatar %}src="{{ profile.avatar.url }}"{% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
+                     alt="Avatar"
+                     height="100px"
+                     width="100px"
+                     class="w-px-100 h-px-100 rounded-circle card-img-top"/>
+            </div>
+            <h5 class="card-title">{{ profile.user.first_name }} {{ profile.user.last_name }}</h5>
+            <div class="card-subtitle text-muted mb-3">{{ profile.get_role_display }}</div>
+            <p class="card-text">{{ associated.note }}</p>
+            <p class="card-text">
+                <small class="text-muted">
+                    {% if profile.user.last_login %}
+                        Last login: {{ profile.user.last_login|date:"SHORT_DATE_FORMAT" }}
+                    {% else %}
+                        Never has logged in
+                    {% endif %}
+                </small>
+            </p>
+            <div class="demo-inline-spacing">
+                {% if profile.phone_number %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="tel:{{ profile.phone_number }}">
+                        <span class="tf-icons bx bx-phone-call"></span>
+                    </a>
+                {% endif %}
+                {% if profile.user.email %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="mailto:{{ profile.user.email }}">
+                        <span class="tf-icons bx bx-mail-send"></span>
+                    </a>
+                {% endif %}
+                {% if update %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'update-user' profile.id %}">
+                        <span class="tf-icons bx bx-edit"></span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

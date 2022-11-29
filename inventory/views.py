@@ -78,25 +78,27 @@ def create_category(request):
 def update_category(request, id):
     # fetch the object related to passed id
     category = get_object_or_404(ProductCategory, id=id)
+    if category.icon:
+        path = category.icon.path
 
-    if request.method == 'GET':
-        # pass the object as instance in form
-        form = CategoryCreateForm(instance=category)
+    # pass the object as instance in form
+    form = CategoryCreateForm(instance=category)
 
     if request.method == 'POST':
-        try:
-            category.icon.storage.delete(category.icon.path)
-        except Exception as error:
-            print(error)
         # pass the object as instance in form
         form = CategoryCreateForm(
             request.POST, request.FILES, instance=category)
 
-    # save the data from the form and
-    # redirect to detail_view
-    if form.is_valid():
-        form.save()
-        return redirect('list-category')
+        # save the data from the form and
+        # redirect to detail_view
+        if form.is_valid():
+            if len(request.FILES) > 0:
+                try:
+                    category.icon.storage.delete(path)
+                except Exception as error:
+                    print(error)
+            form.save()
+            return redirect('list-category')
 
     # add form dictionary to context
     context = {

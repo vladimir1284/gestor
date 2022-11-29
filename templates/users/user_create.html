@@ -14,15 +14,8 @@
             <div class="card-body">
                 <form enctype="multipart/form-data" method="post" id="update-form">
                     {% csrf_token %}
-                    {% crispy user_form %}
-                    {% comment %} {{ user_form|as_crispy_errors }} {% endcomment %}
                     {% crispy form %}
-                    {% comment %} <div class="row mb-3">{{ user_form.first_name|as_crispy_field }}</div>
-                    <div class="row justify-content-end">
-                        <div class="col-sm-12">
-                            <button type="submit" class="btn btn-primary">Enviar</button>
-                        </div>
-                    </div> {% endcomment %}
+                    {% crispy user_form %}
                 </form>
             </div>
         </div>

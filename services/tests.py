@@ -32,7 +32,7 @@ class TestUnitConversion(TestCase):
         User.objects.create_user(**self.credentials)
         # send login data
         response = self.client.post(
-            '/login/', self.credentials, follow=True)
+            '/users/login/', self.credentials, follow=True)
         # should be logged in now
         self.assertTrue(response.context['user'].is_active)
 
@@ -130,7 +130,7 @@ class TestStockFIFO(TestCase):
         User.objects.create_user(**self.credentials)
         # send login data
         response = self.client.post(
-            '/login/', self.credentials, follow=True)
+            '/users/login/', self.credentials, follow=True)
         # should be logged in now
         self.assertTrue(response.context['user'].is_active)
 
