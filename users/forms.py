@@ -131,7 +131,10 @@ class UserCreateForm(UserCreationForm):
             {'placeholder': _('john.doe')})
         self.fields['username'].widget.attrs.update(
             {'placeholder': _('john.doe')})
-
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
             CommonUserLayout(),
             Div(

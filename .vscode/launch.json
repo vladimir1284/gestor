@@ -13,7 +13,7 @@
             "console": "internalConsole",
             "args": [
                 "test",
-                "store" //"`echo -n ${relativeFileDirname} | tr \/ .`.${fileBasenameNoExtension}"
+                "inventory" //"`echo -n ${relativeFileDirname} | tr \/ .`.${fileBasenameNoExtension}"
             ],
             "django": true,
             "justMyCode": false
