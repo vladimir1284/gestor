@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
 
     # local
+    'utils.apps.UtilsConfig',
     'inventory.apps.inventoryConfig',
     'users.apps.UsersConfig',
     'services.apps.ServicesConfig',

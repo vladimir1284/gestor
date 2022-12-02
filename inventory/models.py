@@ -1,7 +1,6 @@
-from email.policy import default
-from pyexpat import model
 from django.db import models
 
+from utils.models import Category
 from users.models import User, Associated
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
@@ -16,27 +15,8 @@ class InventoryLocations(models.Model):
         return self.name
 
 
-class ProductCategory(models.Model):
-    # Categories for products
-    name = models.CharField(max_length=120, unique=True)
-    ICON_SIZE = 64
-    icon = models.ImageField(upload_to='images/icons',
-                             blank=True)
-
-    def save(self, *args, **kwargs):
-        super(ProductCategory, self).save(*args, **kwargs)
-        try:
-            img = Image.open(self.icon.path)
-
-            if img.height > self.ICON_SIZE or img.width > self.ICON_SIZE:
-                output_size = (self.ICON_SIZE, self.ICON_SIZE)
-                img.thumbnail(output_size)
-            img.save(self.icon.path)
-        except Exception as error:
-            print(error)
-
-    def __str__(self):
-        return self.name
+class ProductCategory(Category):
+    pass
 
 
 class Unit(models.Model):
