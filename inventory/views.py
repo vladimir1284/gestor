@@ -1,11 +1,19 @@
 import os
+from django.urls import reverse_lazy
 from typing import List
+from django.views.generic.edit import (
+    UpdateView,
+    CreateView,
+    DeleteView,
+)
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.views.generic import ListView
 from django.shortcuts import (
     render,
     redirect,
     get_object_or_404,
     HttpResponseRedirect)
-from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.forms import ModelForm
 
@@ -60,68 +68,29 @@ def convertUnit(input_unit, output_unit, value):
 
 # -------------------- Category ----------------------------
 
-@login_required
-def create_category(request):
-    form = CategoryCreateForm()
-    if request.method == 'POST':
-        form = CategoryCreateForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('list-category')
-    context = {
-        'form': form
-    }
-    return render(request, 'inventory/category_create.html', context)
+class CategoryCreateView(LoginRequiredMixin, CreateView):
+    model = ProductCategory
+    form_class = CategoryCreateForm
+    template_name = 'inventory/category_create.html'
+    success_url = reverse_lazy('list-category')
 
 
-@login_required
-def update_category(request, id):
-    # fetch the object related to passed id
-    category = get_object_or_404(ProductCategory, id=id)
-    if category.icon:
-        path = category.icon.path
-
-    # pass the object as instance in form
-    form = CategoryCreateForm(instance=category)
-
-    if request.method == 'POST':
-        # pass the object as instance in form
-        form = CategoryCreateForm(
-            request.POST, request.FILES, instance=category)
-
-        # save the data from the form and
-        # redirect to detail_view
-        if form.is_valid():
-            if len(request.FILES) > 0:
-                try:
-                    category.icon.storage.delete(path)
-                except Exception as error:
-                    print(error)
-            form.save()
-            return redirect('list-category')
-
-    # add form dictionary to context
-    context = {
-        'form': form
-    }
-
-    return render(request, 'inventory/category_create.html', context)
+class CategoryUpdateView(LoginRequiredMixin, UpdateView):
+    model = ProductCategory
+    form_class = CategoryCreateForm
+    template_name = 'inventory/category_create.html'
+    success_url = reverse_lazy('list-category')
 
 
-@login_required
-def list_category(request):
-    categories = ProductCategory.objects.all()
-    return render(request, 'inventory/category_list.html', {'categories': categories})
+class CategoryListView(LoginRequiredMixin, ListView):
+    model = ProductCategory
+    template_name = 'inventory/category_list.html'
 
 
 @login_required
 def delete_category(request, id):
     # fetch the object related to passed id
     category = get_object_or_404(ProductCategory, id=id)
-    try:
-        category.icon.storage.delete(category.icon.path)
-    except Exception as error:
-        print(error)
     category.delete()
     return redirect('list-category')
 

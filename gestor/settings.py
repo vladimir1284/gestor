@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     "phonenumber_field",
+    'django_cleanup.apps.CleanupConfig',
 
     # local
     'utils.apps.UtilsConfig',

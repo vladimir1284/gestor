@@ -1,10 +1,10 @@
 from django.urls import path
 from .views import (
     # ---- Category -------
-    create_category,
-    update_category,
-    list_category,
+    CategoryListView,
     delete_category,
+    CategoryUpdateView,
+    CategoryCreateView,
     # ---- Order ----------
     create_order,
     update_order,
@@ -35,9 +35,10 @@ from .views import (
 
 urlpatterns = [
     # -------------------- Category ----------------------------
-    path('create-category/', create_category, name='create-category'),
-    path('update-category/<id>', update_category, name='update-category'),
-    path('list-category/', list_category, name='list-category'),
+    path('create-category/', CategoryCreateView.as_view(), name='create-category'),
+    path('update-category/<pk>', CategoryUpdateView.as_view(),
+         name='update-category'),
+    path('list-category/', CategoryListView.as_view(), name='list-category'),
     path('delete-category/<id>', delete_category, name='delete-category'),
     # -------------------- Order ----------------------------
     path('create-order/', create_order, name='create-order'),

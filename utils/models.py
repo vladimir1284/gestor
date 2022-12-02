@@ -14,6 +14,13 @@ def thumbnailField(image_field: models.ImageField, icon_size: int):
         print(error)
 
 
+def deleteImage(image_field: models.ImageField):
+    try:
+        image_field.storage.delete(image_field.path)
+    except Exception as error:
+        print(error)
+
+
 class Category(models.Model):
     class Meta:
         abstract = True
@@ -27,6 +34,10 @@ class Category(models.Model):
     def save(self, *args, **kwargs):
         super(Category, self).save(*args, **kwargs)
         thumbnailField(self.icon, self.ICON_SIZE)
+
+    # def delete(self, using=None, keep_parents=False):
+    #     deleteImage(self.icon)
+    #     super(Category, self).delete(using=None, keep_parents=False)
 
     def __str__(self):
         return self.name
