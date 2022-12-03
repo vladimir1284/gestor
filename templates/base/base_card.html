@@ -23,8 +23,23 @@
         {% endblock Cards %}
     </div>
     <a href= {% block createUrl %} {% endblock createUrl %}>
-        <button type="button" class="btn rounded-pill btn-primary add">
+        <button type="button"
+                class="btn rounded-pill btn-primary add"
+                data-bs-toggle="tooltip"
+                data-bs-offset="0,4"
+                data-bs-placement="left"
+                data-bs-html="true"
+                title=""
+                data-bs-original-title="{% block help %} {% endblock help %}">
             <b>+</b>
         </button>
     </a>
 {% endblock content %}
+{% block scripts %}
+    <script>
+    window.onload = function(){  
+            add = document.getElementsByClassName("add")[0];  
+            $(add).tooltip('show'); 
+            }  
+    </script>
+{% endblock scripts %}

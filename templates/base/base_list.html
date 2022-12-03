@@ -11,6 +11,9 @@
             z-index: 999999;
             box-shadow: 0 1px 20px 1px #696cff;
         }
+        .add .tooltip{
+            opacity: 1;
+        }
         .tabs {
             padding-top: 0;
         }
@@ -46,13 +49,24 @@
         {% endblock card %}
     </div>
     <a href={% block createUrl %} {% endblock createUrl %}>
-        <button type="button" class="btn rounded-pill btn-primary add">
+        <button type="button"
+                class="btn rounded-pill btn-primary add"
+                data-bs-toggle="tooltip"
+                data-bs-offset="0,4"
+                data-bs-placement="left"
+                data-bs-html="true"
+                title=""
+                data-bs-original-title="{% block help %} {% endblock help %}">
             <b>+</b>
         </button>
     </a>
 {% endblock content %}
 {% block scripts %}
     <script>
+    window.onload = function(){  
+            add = document.getElementsByClassName("add")[0];  
+            $(add).tooltip('show'); 
+            }  
     function filterTag(tagName) {
         let i, j;
 

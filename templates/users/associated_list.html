@@ -23,3 +23,10 @@
         {% url 'create-provider' %}
     {% endif %}
 {% endblock createUrl %}
+{% block help %}
+    {% if type == 'client' %}
+        Create new client
+    {% elif type == 'provider' %}
+        Create new provider
+    {% endif %}
+{% endblock help %}

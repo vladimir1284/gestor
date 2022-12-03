@@ -64,7 +64,7 @@ class Transaction(Transaction):
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{} product: {}".format(super(Transaction).__str__(), self.product.name)
+        return "{} product: {}".format(super(Transaction, self).__str__(), self.product.name)
 
 
 class Stock(models.Model):
@@ -83,4 +83,4 @@ class Profit(Profit):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{} product: {}".format(super(Profit).__str__(), self.product.name)
+        return "{} product: {}".format(super(Profit, self).__str__(), self.product.name)

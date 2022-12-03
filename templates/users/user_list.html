@@ -1,4 +1,4 @@
-{% extends 'base/base_card.html' %}
+{% extends "base/base_card.html" %}
 {% block title %}
     {{ title }}
 {% endblock title %}
@@ -13,3 +13,6 @@
 {% block createUrl %}
     {% url 'create-user' %}
 {% endblock createUrl %}
+{% block help %}
+    Create new user
+{% endblock help %}
