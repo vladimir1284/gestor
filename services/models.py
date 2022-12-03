@@ -1,5 +1,5 @@
 from email.policy import default
-from pyexpat import model
+from utils.models import Category
 from django.db import models
 
 from inventory.models import Order
@@ -8,27 +8,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 from PIL import Image
 
 
-class ServiceCategory(models.Model):
-    # Categories for products
-    name = models.CharField(max_length=120, unique=True)
-    ICON_SIZE = 64
-    icon = models.ImageField(upload_to='images/icons',
-                             blank=True)
-
-    def save(self, *args, **kwargs):
-        super(ServiceCategory, self).save(*args, **kwargs)
-        try:
-            img = Image.open(self.icon.path)
-
-            if img.height > self.ICON_SIZE or img.width > self.ICON_SIZE:
-                output_size = (self.ICON_SIZE, self.ICON_SIZE)
-                img.thumbnail(output_size)
-            img.save(self.icon.path)
-        except Exception as error:
-            print(error)
-
-    def __str__(self):
-        return self.name
+class ServiceCategory(Category):
+    pass
 
 
 class Service(models.Model):
@@ -38,8 +19,8 @@ class Service(models.Model):
     category = models.ForeignKey(
         ServiceCategory, on_delete=models.CASCADE)
     sell_tax = models.FloatField(blank=True, default=8.25)
-    suggested_price = models.FloatField(blank=True, default=30)
-    max_price = models.FloatField(blank=True, default=50)
+    suggested_price = models.FloatField(blank=True)
+    max_price = models.FloatField(blank=True)
 
     def __str__(self):
         return "{}-${}".format(self.name, self.suggested_price)

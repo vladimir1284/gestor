@@ -1,0 +1,154 @@
+- model: services.service
+  pk: 1
+  fields:
+    name: Cambio de aceite
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 7
+    sell_tax: 8.25
+    suggested_price: 180.0
+    max_price: 200.0
+- model: services.service
+  pk: 2
+  fields:
+    name: Instalación Eléctrica
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 2
+    sell_tax: 0.0
+    suggested_price: 200.0
+    max_price: 250.0
+- model: services.service
+  pk: 3
+  fields:
+    name: Soldadura Rampa
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 8
+    sell_tax: 0.0
+    suggested_price: 600.0
+    max_price: 750.0
+- model: services.service
+  pk: 4
+  fields:
+    name: Instalación de bomba
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 7
+    sell_tax: 0.0
+    suggested_price: 30.0
+    max_price: 50.0
+- model: services.service
+  pk: 5
+  fields:
+    name: Desconexión de Miler
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 1
+    sell_tax: 0.0
+    suggested_price: 40.0
+    max_price: 50.0
+- model: services.service
+  pk: 6
+  fields:
+    name: Mantenimiento de eje
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 4
+    sell_tax: 0.0
+    suggested_price: 100.0
+    max_price: 120.0
+- model: services.service
+  pk: 7
+  fields:
+    name: Instalar hoja de muelles
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 4
+    sell_tax: 0.0
+    suggested_price: 100.0
+    max_price: 120.0
+- model: services.service
+  pk: 8
+  fields:
+    name: Rectificar tambora
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 1
+    sell_tax: 0.0
+    suggested_price: 100.0
+    max_price: 120.0
+- model: services.service
+  pk: 9
+  fields:
+    name: Montaje de goma
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 3
+    sell_tax: 0.0
+    suggested_price: 10.0
+    max_price: 20.0
+- model: services.service
+  pk: 10
+  fields:
+    name: Engrase de rodamientos
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 7
+    sell_tax: 0.0
+    suggested_price: 50.0
+    max_price: 100.0
+- model: services.service
+  pk: 11
+  fields:
+    name: Cambio de pastillas delanteras
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 1
+    sell_tax: 0.0
+    suggested_price: 150.0
+    max_price: 180.0
+- model: services.service
+  pk: 12
+  fields:
+    name: Cambio de sensor TPS
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 9
+    sell_tax: 0.0
+    suggested_price: 20.0
+    max_price: 30.0
+- model: services.service
+  pk: 13
+  fields:
+    name: Chequeo de pastillas traseras
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 1
+    sell_tax: 0.0
+    suggested_price: 20.0
+    max_price: 30.0
+- model: services.service
+  pk: 14
+  fields:
+    name: Desconexión ABS
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 1
+    sell_tax: 0.0
+    suggested_price: 100.0
+    max_price: 120.0
+- model: services.service
+  pk: 15
+  fields:
+    name: Resoldar chasis
+    description: Este es un servicio parael ejemplo
+    created_date: 2022-12-03
+    category: 8
+    sell_tax: 0.0
+    suggested_price: 800.0
+    max_price: 1000.0
+
+
+
+

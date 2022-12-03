@@ -71,20 +71,20 @@ def convertUnit(input_unit, output_unit, value):
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = ProductCategory
     form_class = CategoryCreateForm
-    template_name = 'inventory/category_create.html'
+    template_name = 'utils/category_create.html'
     success_url = reverse_lazy('list-category')
 
 
 class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = ProductCategory
     form_class = CategoryCreateForm
-    template_name = 'inventory/category_create.html'
+    template_name = 'utils/category_create.html'
     success_url = reverse_lazy('list-category')
 
 
 class CategoryListView(LoginRequiredMixin, ListView):
     model = ProductCategory
-    template_name = 'inventory/category_list.html'
+    template_name = 'utils/category_list.html'
 
 
 @login_required

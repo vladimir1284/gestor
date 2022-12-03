@@ -157,3 +157,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+# EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+# SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
+# SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+#DEFAULT_FROM_EMAIL = 'TOWIT <vladimir.rodriguezdiez@viep.com.mx>'

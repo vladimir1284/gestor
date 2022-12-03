@@ -1,0 +1,7 @@
+{% extends "./service/base_service_list.html" %}
+{% block tableParts %}
+    {% include "./service/select_table.html" with type="part" %}
+{% endblock tableParts %}
+{% block createUrl %}
+    {% url 'select-new-service' next order_id %}
+{% endblock createUrl %}
