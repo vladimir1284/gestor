@@ -47,7 +47,7 @@
             <div class="tab-pane fade active show"
                  id="navs-pills-justified-home"
                  role="tabpanel">
-                {% include "./filter_category.html" with categories=part_categories %}
+                {% include "utils/filter_category.html" with categories=part_categories %}
                 <div class="table-responsive text-nowrap">
                     <table class="table" id="table_parts">
                         {% block tableParts %}
@@ -58,7 +58,7 @@
             <div class="tab-pane fade"
                  id="navs-pills-justified-profile"
                  role="tabpanel">
-                {% include "./filter_category.html" with categories=consumable_categories %}
+                {% include "utils/filter_category.html" with categories=consumable_categories %}
                 <div class="table-responsive text-nowrap">
                     <table class="table" id="table_consumables">
                         {% block tableConsumables %}

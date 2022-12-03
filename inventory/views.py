@@ -20,11 +20,13 @@ from django.forms import ModelForm
 from users.models import (
     Associated,
 )
+from utils.models import (
+    Order,
+)
 
 from .models import (
     Product,
     Unit,
-    Order,
     Transaction,
     Stock,
     Profit,
@@ -35,9 +37,11 @@ from .forms import (
     UnitCreateForm,
     ProductCreateForm,
     CategoryCreateForm,
-    OrderCreateForm,
     TransactionCreateForm,
     TransactionProviderCreateForm,
+)
+from utils.forms import (
+    OrderCreateForm,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -119,7 +123,10 @@ def create_order(request, product_id=None):
         if request.method == 'POST':
             form = OrderCreateForm(request.POST)
             if form.is_valid():
-                order = form.save()
+                order = form.save(commit=False)
+                order.type = 'purchase'
+                order.created_by = request.user
+                order.save()
                 return redirect('detail-order', id=order.id)
         context = {
             'form': form

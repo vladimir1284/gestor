@@ -1,6 +1,9 @@
 from django.db import models
 from PIL import Image
 
+from users.models import User, Associated
+from django.utils.translation import gettext_lazy as _
+
 
 def thumbnailField(image_field: models.ImageField, icon_size: int):
     try:
@@ -10,13 +13,6 @@ def thumbnailField(image_field: models.ImageField, icon_size: int):
             output_size = (icon_size, icon_size)
             img.thumbnail(output_size)
         img.save(image_field.path)
-    except Exception as error:
-        print(error)
-
-
-def deleteImage(image_field: models.ImageField):
-    try:
-        image_field.storage.delete(image_field.path)
     except Exception as error:
         print(error)
 
@@ -35,9 +31,61 @@ class Category(models.Model):
         super(Category, self).save(*args, **kwargs)
         thumbnailField(self.icon, self.ICON_SIZE)
 
-    # def delete(self, using=None, keep_parents=False):
-    #     deleteImage(self.icon)
-    #     super(Category, self).delete(using=None, keep_parents=False)
-
     def __str__(self):
         return self.name
+
+
+class Profit(models.Model):
+    class Meta:
+        abstract = True
+
+    created_date = models.DateTimeField(auto_now_add=True)
+    # In product unit
+    quantity = models.FloatField()
+    # Calculated from sell price and inventory cost
+    profit = models.FloatField()
+
+    def __str__(self):
+        return "Qty: {} profit: ${}".format(self.quantity, self.profit)
+
+
+class Order(models.Model):
+    # There can be several products in a single order.
+    STATUS_CHOICE = (
+        ('pending', _('Pending')),
+        ('decline', _('Decline')),
+        ('approved', _('Approved')),
+        ('processing', _('Processing')),
+        ('complete', _('Complete')),
+    )
+    TYPE_CHOICE = (
+        ('sell', _('Sell')),
+        ('purchase', _('Purchase')),
+    )
+    type = models.CharField(
+        max_length=20, choices=TYPE_CHOICE, default='purchase')
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICE, default='pending')
+    concept = models.CharField(max_length=120, default='Initial')
+    note = models.TextField(blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{self.concept}  ({self.type}) {self.created_date}"
+
+
+class Transaction(models.Model):
+    class Meta:
+        abstract = True
+
+    # Single item transaction (either sell or purchase).
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    note = models.TextField(blank=True)
+    tax = models.FloatField(default=8.25)
+    price = models.FloatField()
+    quantity = models.FloatField()
+
+    def __str__(self):
+        return "{}-{}-${}".format(self.order, self.quantity, self.price)

@@ -1,0 +1,41 @@
+- model: utils.order
+  pk: 1
+  fields:
+    type: purchase
+    status: complete
+    concept: Initial Parts
+    note: 'Esta orden es para disponer de inventario para el ejemplo'
+    created_date: 2022-10-15 23:08:18.454262+00:00
+    created_by: 1
+    associated: 1
+- model: utils.order
+  pk: 2
+  fields:
+    type: purchase
+    status: complete
+    concept: Initial Consumables
+    note: 'Esta orden es para disponer de inventario para el ejemplo'
+    created_date: 2022-10-15 23:28:18.454262+00:00
+    created_by: 1
+    associated: 1
+- model: utils.order
+  pk: 3
+  fields:
+    type: sell
+    status: complete
+    concept: Mantenimiento 1
+    note: 'Esta orden cuenta como un mantenimiento para el ejemplo'
+    created_date: 2022-10-21 09:28:18.454262+00:00
+    created_by: 1
+    associated: 2
+
+- model: utils.order
+  pk: 4
+  fields:
+    type: sell
+    status: complete
+    concept: Mantenimiento 2
+    note: Esta orden cuenta como un mantenimiento para el ejemplo
+    created_date: 2022-10-21 12:54:18.454262+00:00
+    created_by: 1
+    associated: 3

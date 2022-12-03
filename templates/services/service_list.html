@@ -3,13 +3,11 @@
     Services
 {% endblock title %}
 {% block card %}
-    <div class="demo-inline-spacing">
-        <h5 class="card-header">
+    <div class="card-body">
+        <h5>
             Services <spam id="filter_tag"></spam>
         </h5>
-    </div>
-    <div class="card-body">
-        {% include "./service/filter_category.html" %}
+        {% include "utils/filter_category.html" %}
         <div class="table-responsive text-nowrap">
             <table class="table" id="table_consumables">
                 <thead>

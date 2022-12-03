@@ -2,7 +2,7 @@ from email.policy import default
 from utils.models import Category
 from django.db import models
 
-from inventory.models import Order
+from utils.models import Order
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 from PIL import Image

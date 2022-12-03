@@ -1,5 +1,5 @@
 from django import forms
-from inventory.models import (
+from utils.models import (
     Order,
 )
 from .models import (

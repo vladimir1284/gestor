@@ -1,13 +1,3 @@
-- model: inventory.order
-  pk: 3
-  fields:
-    type: sell
-    status: complete
-    concept: Mantenimiento 1
-    note: 'Esta orden cuenta como un mantenimiento para el ejemplo'
-    created_date: 2022-10-21 09:28:18.454262+00:00
-    associated: 2
-
 - model: inventory.transaction
   pk: 33
   fields:
@@ -80,17 +70,6 @@
     price: 0
     quantity: 2
     unit: 2
-
-- model: inventory.order
-  pk: 4
-  fields:
-    type: sell
-    status: complete
-    concept: Mantenimiento 2
-    note: Esta orden cuenta como un mantenimiento para el ejemplo
-    created_date: 2022-10-21 12:54:18.454262+00:00
-    associated: 3
-
 - model: inventory.transaction
   pk: 41
   fields:

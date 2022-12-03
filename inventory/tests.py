@@ -1,19 +1,13 @@
 from urllib import response
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from datetime import datetime
-from .forms import UnitCreateForm, ProductCreateForm
+from .forms import UnitCreateForm
 from .views import convertUnit, DifferentMagnitudeUnitsError
 from .models import (
     Unit,
     Product,
-    ProductCategory,
-    Order,
     Profit,
     Transaction)
-from users.models import (
-    Associated,
-)
 import random
 
 
