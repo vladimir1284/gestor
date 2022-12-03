@@ -73,7 +73,7 @@ class Order(models.Model):
     associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{self.concept}  ({self.type}) {self.created_date}"
+        return f"{self.concept}  ({self.type}) {self.created_date}"
 
 
 class Transaction(models.Model):
