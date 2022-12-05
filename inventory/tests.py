@@ -7,7 +7,7 @@ from .models import (
     Unit,
     Product,
     Profit,
-    Transaction)
+    ProductTransaction)
 import random
 
 
@@ -217,7 +217,6 @@ class TestStockFIFO(TestCase):
             'form-TOTAL_FORMS': 1,
             'form-INITIAL_FORMS': 0,
             'concept': 'inicial',
-            'type': 'purchase',
             'associated': 1,
         }
         self.client.post('/inventory/create-order/', form_data)
@@ -228,7 +227,7 @@ class TestStockFIFO(TestCase):
             'quantity': 100,
         }
         self.client.post('/inventory/create-transaction/1/1', form_data)
-        trans = Transaction.objects.get(product=1)
+        trans = ProductTransaction.objects.get(product=1)
         print(trans)
         self.client.post('/inventory/update-order-status/1/complete')
         product = Product.objects.get(id=1)
@@ -240,7 +239,6 @@ class TestStockFIFO(TestCase):
             'form-TOTAL_FORMS': 1,
             'form-INITIAL_FORMS': 0,
             'concept': 'compra',
-            'type': 'purchase',
             'associated': 1,
         }
         self.client.post('/inventory/create-order/', form_data)
@@ -253,7 +251,7 @@ class TestStockFIFO(TestCase):
         }
         self.client.post('/inventory/create-transaction/2/1', form_data)
         self.client.post('/inventory/update-order-status/2/complete')
-        trans = Transaction.objects.get(price=14.25)
+        trans = ProductTransaction.objects.get(price=14.25)
         print(trans)
         product = Product.objects.get(id=1)
         self.assertEqual(product.quantity, 300)
@@ -264,10 +262,9 @@ class TestStockFIFO(TestCase):
             'form-TOTAL_FORMS': 1,
             'form-INITIAL_FORMS': 0,
             'concept': 'venta',
-            'type': 'sell',
             'associated': 2,
         }
-        self.client.post('/inventory/create-order/', form_data)
+        self.client.post('/services/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,
@@ -276,8 +273,8 @@ class TestStockFIFO(TestCase):
             'quantity': 150,
         }
         self.client.post('/inventory/create-transaction/3/1', form_data)
-        self.client.post('/inventory/update-order-status/3/complete')
-        trans = Transaction.objects.get(price=20)
+        self.client.post('/services/update-order-status/3/complete')
+        trans = ProductTransaction.objects.get(price=20)
         print(trans)
         product = Product.objects.get(id=1)
         self.assertEqual(product.quantity, 150)
@@ -291,7 +288,6 @@ class TestStockFIFO(TestCase):
             'form-TOTAL_FORMS': 1,
             'form-INITIAL_FORMS': 0,
             'concept': 'compra',
-            'type': 'purchase',
             'associated': 1,
         }
         self.client.post('/inventory/create-order/', form_data)
@@ -304,7 +300,7 @@ class TestStockFIFO(TestCase):
         }
         self.client.post('/inventory/create-transaction/4/1', form_data)
         self.client.post('/inventory/update-order-status/4/complete')
-        trans = Transaction.objects.get(price=15)
+        trans = ProductTransaction.objects.get(price=15)
         print(trans)
         product = Product.objects.get(id=1)
         self.assertEqual(product.quantity, 150+225)
@@ -315,10 +311,9 @@ class TestStockFIFO(TestCase):
             'form-TOTAL_FORMS': 1,
             'form-INITIAL_FORMS': 0,
             'concept': 'venta',
-            'type': 'sell',
             'associated': 2,
         }
-        self.client.post('/inventory/create-order/', form_data)
+        self.client.post('/services/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,
@@ -327,8 +322,8 @@ class TestStockFIFO(TestCase):
             'quantity': 75,
         }
         self.client.post('/inventory/create-transaction/5/1', form_data)
-        self.client.post('/inventory/update-order-status/5/complete')
-        trans = Transaction.objects.get(price=30)
+        self.client.post('/services/update-order-status/5/complete')
+        trans = ProductTransaction.objects.get(price=30)
         print(trans)
         product = Product.objects.get(id=1)
         self.assertEqual(product.quantity, 75+225)

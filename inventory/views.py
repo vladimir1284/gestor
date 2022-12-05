@@ -4,7 +4,6 @@ from typing import List
 from django.views.generic.edit import (
     UpdateView,
     CreateView,
-    DeleteView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -13,9 +12,8 @@ from django.shortcuts import (
     render,
     redirect,
     get_object_or_404,
-    HttpResponseRedirect)
+)
 from django.contrib.auth.decorators import login_required
-from django.forms import ModelForm
 
 from users.models import (
     Associated,
@@ -27,10 +25,9 @@ from utils.models import (
 from .models import (
     Product,
     Unit,
-    Transaction,
+    ProductTransaction,
     Stock,
     Profit,
-    InventoryLocations,
     ProductCategory,
 )
 from .forms import (
@@ -105,8 +102,8 @@ def delete_category(request, id):
 def create_order(request, product_id=None):
     if product_id:
         product = get_object_or_404(Product, id=product_id)
-        last_purchase = Transaction.objects.filter(order__type='purchase',
-                                                   product=product).order_by('-id').first()
+        last_purchase = ProductTransaction.objects.filter(order__type='purchase',
+                                                          product=product).order_by('-id').first()
         if last_purchase:
             last_provider = last_purchase.order.associated
             # Search for a pending order from the same provider
@@ -162,7 +159,7 @@ def update_order_status(request, id, status):
     order.status = status
     order.save()
     if status == 'complete':
-        transactions = Transaction.objects.filter(order=order)
+        transactions = ProductTransaction.objects.filter(order=order)
         for transaction in transactions:
             handle_transaction(transaction, order)
         return redirect('list-order')
@@ -177,7 +174,7 @@ def list_order(request):
     statuses = set()
     for order in orders:
         statuses.add(order.status)
-        transactions = Transaction.objects.filter(order=order)
+        transactions = ProductTransaction.objects.filter(order=order)
         amount = 0
         for transaction in transactions:
             amount += getTransactionAmount(transaction)
@@ -189,7 +186,7 @@ def list_order(request):
 @login_required
 def detail_order(request, id):
     order = Order.objects.get(id=id)
-    transactions = Transaction.objects.filter(order=order)
+    transactions = ProductTransaction.objects.filter(order=order)
     # Compute amount
     amount = 0
     for transaction in transactions:
@@ -248,8 +245,8 @@ def create_transaction_new_order(request, product_id):
     product = Product.objects.get(id=product_id)
     initial = {'unit': product.unit,
                'associated': request.session.get('associated_id')}
-    last_purchase = Transaction.objects.filter(order__type='purchase',
-                                               product=product).order_by('-id').first()
+    last_purchase = ProductTransaction.objects.filter(order__type='purchase',
+                                                      product=product).order_by('-id').first()
     order_id = -1
     if last_purchase:
         form = TransactionCreateForm(initial=initial)
@@ -278,7 +275,7 @@ def create_transaction_new_order(request, product_id):
 @login_required
 def update_transaction(request, id):
     # fetch the object related to passed id
-    transaction = get_object_or_404(Transaction, id=id)
+    transaction = get_object_or_404(ProductTransaction, id=id)
 
     # pass the object as instance in form
     form = TransactionCreateForm(request.POST or None,
@@ -304,17 +301,17 @@ def update_transaction(request, id):
 @login_required
 def detail_transaction(request, id):
     # fetch the object related to passed id
-    transaction = get_object_or_404(Transaction, id=id)
+    transaction = get_object_or_404(ProductTransaction, id=id)
     return render(request, 'inventory/transaction_detail.html', {'transaction': transaction,
                                                                  'amount': getTransactionAmount(transaction)})
 
 
-def getTransactionAmount(transaction: Transaction):
+def getTransactionAmount(transaction: ProductTransaction):
     return transaction.quantity * \
         transaction.price*(1 + transaction.tax/100.)
 
 
-def handle_transaction(transaction: Transaction, order: Order):
+def handle_transaction(transaction: ProductTransaction, order: Order):
     #  To be performed on complete orders
     product = transaction.product
     # To be used in the rest of the system
@@ -373,7 +370,7 @@ def handle_transaction(transaction: Transaction, order: Order):
 @login_required
 def delete_transaction(request, id):
     # fetch the object related to passed id
-    transaction = get_object_or_404(Transaction, id=id)
+    transaction = get_object_or_404(ProductTransaction, id=id)
     transaction.delete()
     return redirect('detail-order', id=transaction.order.id)
 
@@ -549,7 +546,7 @@ def detail_product(request, id):
         (1 + product.max_price/100)
 
     stocks = Stock.objects.filter(product=product).order_by('-created_date')
-    purchases = Transaction.objects.filter(
+    purchases = ProductTransaction.objects.filter(
         product=product, order__type='purchase').order_by('-order__created_date')
     latest_purchase = purchases.first()
     latest_order = None

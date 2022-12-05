@@ -1,10 +1,8 @@
-from email.policy import default
 from utils.models import Category
 from django.db import models
 
-from utils.models import Order
+from utils.models import Order, Profit, Transaction
 from django.utils.translation import gettext_lazy as _
-from phonenumber_field.modelfields import PhoneNumberField
 from PIL import Image
 
 
@@ -26,27 +24,15 @@ class Service(models.Model):
         return "{}-${}".format(self.name, self.suggested_price)
 
 
-class Transaction(models.Model):
-    # Single product transaction (either sell or purchase).
-    order = models.ForeignKey(
-        Order, on_delete=models.CASCADE, related_name="serviceTransaction")
-    note = models.TextField(blank=True)
+class ServiceTransaction(Transaction):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    tax = models.FloatField(default=8.25)
-    price = models.FloatField()
-    quantity = models.FloatField()
 
     def __str__(self):
-        return "{}-{}-${} service: {}".format(self.order, self.quantity, self.price, self.service.name)
+        return "{} product: {}".format(super(Transaction, self).__str__(), self.service.name)
 
 
-class Profit(models.Model):
-    created_date = models.DateTimeField(auto_now_add=True)
+class Profit(Profit):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    # In product unit
-    quantity = models.FloatField()
-    # Calculated from sell price and inventory cost
-    profit = models.FloatField()
 
     def __str__(self):
-        return "Qty: {} profit: ${} service: {}".format(self.quantity, self.profit, self.service.name)
+        return "{} service: {}".format(super(Profit, self).__str__(), self.service.name)

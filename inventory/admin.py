@@ -5,7 +5,7 @@ from .models import (
     Stock,
     Profit,
     Unit,
-    Transaction,
+    ProductTransaction,
     InventoryLocations,
     ProductCategory,
 )
@@ -13,7 +13,7 @@ from .models import (
 
 admin.site.register(Product)
 admin.site.register(Unit)
-admin.site.register(Transaction)
+admin.site.register(ProductTransaction)
 admin.site.register(InventoryLocations)
 admin.site.register(ProductCategory)
 admin.site.register(Stock)

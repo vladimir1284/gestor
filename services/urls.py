@@ -5,11 +5,11 @@ from .views import (
     delete_category,
     CategoryUpdateView,
     CategoryCreateView,
-    # ---- Transaction ----
-    create_transaction,
-    update_transaction,
-    delete_transaction,
-    detail_transaction,
+    #     # ---- Transaction ----
+    #     create_transaction,
+    #     update_transaction,
+    #     delete_transaction,
+    #     detail_transaction,
     # ------ Service ------
     create_service,
     update_service,
@@ -17,7 +17,13 @@ from .views import (
     list_service,
     select_service,
     select_new_service,
-    delete_service
+    delete_service,
+    # ---- Order ----------
+    create_order,
+    CategoryUpdateView,
+    detail_order,
+    list_order,
+    update_order_status,
 )
 
 
@@ -32,14 +38,14 @@ urlpatterns = [
     path('delete-category/<id>', delete_category,
          name='delete-service-category'),
     # -------------------- Transaction ----------------------------
-    path('create-transaction/<order_id>/<service_id>',
-         create_transaction, name='create-service-transaction'),
-    path('update-transaction/<id>', update_transaction,
-         name='update-service-transaction'),
-    path('detail-transaction/<id>', detail_transaction,
-         name='detail-service-transaction'),
-    path('delete-transaction/<id>', delete_transaction,
-         name='delete-service-transaction'),
+    #     path('create-transaction/<order_id>/<service_id>',
+    #          create_transaction, name='create-service-transaction'),
+    #     path('update-transaction/<id>', update_transaction,
+    #          name='update-service-transaction'),
+    #     path('detail-transaction/<id>', detail_transaction,
+    #          name='detail-service-transaction'),
+    #     path('delete-transaction/<id>', delete_transaction,
+    #          name='delete-service-transaction'),
     # -------------------- Service ----------------------------
     path('create-service/', create_service, name='create-service'),
     path('update-service/<id>', update_service, name='update-service'),
@@ -50,4 +56,12 @@ urlpatterns = [
     path('select-new-service/<next>/<order_id>',
          select_new_service, name='select-new-service'),
     path('delete-service/<id>', delete_service, name='delete-service'),
+    # -------------------- Order ----------------------------
+    path('create-order/', create_order, name='create-service-order'),
+    path('update-order/<id>', CategoryUpdateView.as_view(),
+         name='update-service-order'),
+    path('detail-order/<id>', detail_order, name='detail-service-order'),
+    path('list-order/', list_order, name='list-service-order'),
+    path('update-order-status/<id>/<status>',
+         update_order_status, name='update-service-order-status'),
 ]

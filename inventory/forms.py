@@ -2,7 +2,7 @@ from django import forms
 from .models import (
     Product,
     Unit,
-    Transaction,
+    ProductTransaction,
     InventoryLocations,
     ProductCategory,
 )
@@ -65,7 +65,7 @@ class CommonTransactionLayout(Layout):
 class TransactionCreateForm(forms.ModelForm):
 
     class Meta:
-        model = Transaction
+        model = ProductTransaction
         fields = (
             'price',
             'note',
@@ -94,7 +94,7 @@ class TransactionProviderCreateForm(TransactionCreateForm):
     associated = forms.fields_for_model(Order)['associated']
 
     class Meta:
-        model = Transaction
+        model = ProductTransaction
         fields = (
             'price',
             'note',

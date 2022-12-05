@@ -4,7 +4,7 @@ from utils.models import (
 )
 from .models import (
     Service,
-    Transaction,
+    ServiceTransaction,
     ServiceCategory,
 )
 from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
@@ -59,7 +59,7 @@ class CommonTransactionLayout(Layout):
 class TransactionCreateForm(forms.ModelForm):
 
     class Meta:
-        model = Transaction
+        model = ServiceTransaction
         fields = (
             'price',
             'note',
@@ -87,7 +87,7 @@ class TransactionProviderCreateForm(TransactionCreateForm):
     associated = forms.fields_for_model(Order)['associated']
 
     class Meta:
-        model = Transaction
+        model = ServiceTransaction
         fields = (
             'price',
             'note',

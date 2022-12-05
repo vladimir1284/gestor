@@ -58,7 +58,7 @@ class Product(models.Model):
         return "{}-{}-${}".format(self.name, self.quantity, self.stock_price)
 
 
-class Transaction(Transaction):
+class ProductTransaction(Transaction):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     # As used in the transaction
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)

@@ -3,14 +3,13 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import (
     UpdateView,
     CreateView,
-    DeleteView,
 )
 from typing import List
 from django.shortcuts import (
     render,
     redirect,
     get_object_or_404,
-    HttpResponseRedirect)
+)
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from django.forms import ModelForm
@@ -18,9 +17,16 @@ from django.forms import ModelForm
 from users.models import (
     Associated,
 )
+from inventory.models import (
+    ProductTransaction,
+)
+from utils.forms import (
+    OrderCreateForm,
+)
 
 from inventory.views import (
     getTransactionAmount,
+    handle_transaction,
     DifferentMagnitudeUnitsError,
     NotEnoughStockError,
 )
@@ -31,7 +37,7 @@ from services.models import (
 
 from .models import (
     Service,
-    Transaction,
+    ServiceTransaction,
     Profit,
     ServiceCategory,
 )
@@ -76,76 +82,76 @@ def delete_category(request, id):
 # -------------------- Transaction ----------------------------
 
 
-def renderCreateTransaction(request, form, service, order_id):
-    context = {
-        'form': form,
-        'service': service,
-        'order_id': order_id,
-        'title': _("Create Transaction")
-    }
-    return render(request, 'services/transaction_create.html', context)
+# def renderCreateTransaction(request, form, service, order_id):
+#     context = {
+#         'form': form,
+#         'service': service,
+#         'order_id': order_id,
+#         'title': _("Create Transaction")
+#     }
+#     return render(request, 'services/transaction_create.html', context)
 
 
-@login_required
-def create_transaction(request, order_id, service_id):
-    order = Order.objects.get(id=order_id)
-    service = Service.objects.get(id=service_id)
-    form = TransactionCreateForm(initial={'unit': service.unit})
-    if request.method == 'POST':
-        form = TransactionCreateForm(request.POST)
-        if form.is_valid():
-            trans = form.save(commit=False)
-            trans.order = order
-            trans.service = service
-            trans.save()
-            return redirect('detail-order', id=order_id)
-    return renderCreateTransaction(request, form, service, order_id)
+# @login_required
+# def create_transaction(request, order_id, service_id):
+#     order = Order.objects.get(id=order_id)
+#     service = Service.objects.get(id=service_id)
+#     form = TransactionCreateForm()
+#     if request.method == 'POST':
+#         form = TransactionCreateForm(request.POST)
+#         if form.is_valid():
+#             trans = form.save(commit=False)
+#             trans.order = order
+#             trans.service = service
+#             trans.save()
+#             return redirect('detail-order', id=order_id)
+#     return renderCreateTransaction(request, form, service, order_id)
 
 
-@login_required
-def update_transaction(request, id):
-    # fetch the object related to passed id
-    transaction = get_object_or_404(Transaction, id=id)
+# @login_required
+# def update_transaction(request, id):
+#     # fetch the object related to passed id
+#     transaction = get_object_or_404(Transaction, id=id)
 
-    # pass the object as instance in form
-    form = TransactionCreateForm(request.POST or None,
-                                 instance=transaction)
+#     # pass the object as instance in form
+#     form = TransactionCreateForm(request.POST or None,
+#                                  instance=transaction)
 
-    # save the data from the form and
-    # redirect to detail_view
-    if form.is_valid():
-        form.save()
-        return redirect('detail-order', id=transaction.order.id)
+#     # save the data from the form and
+#     # redirect to detail_view
+#     if form.is_valid():
+#         form.save()
+#         return redirect('detail-order', id=transaction.order.id)
 
-    # add form dictionary to context
-    context = {
-        'form': form,
-        'service': transaction.service,
-        'order_id': transaction.order.id,
-        'title': _("Update Transaction")
-    }
+#     # add form dictionary to context
+#     context = {
+#         'form': form,
+#         'service': transaction.service,
+#         'order_id': transaction.order.id,
+#         'title': _("Update Transaction")
+#     }
 
-    return render(request, 'services/transaction_create.html', context)
-
-
-@login_required
-def detail_transaction(request, id):
-    # fetch the object related to passed id
-    transaction = get_object_or_404(Transaction, id=id)
-    return render(request, 'services/transaction_detail.html', {'transaction': transaction,
-                                                                'amount': getTransactionAmount(transaction)})
+#     return render(request, 'services/transaction_create.html', context)
 
 
-def handle_transaction(transaction: Transaction, order: Order):
-    pass
+# @login_required
+# def detail_transaction(request, id):
+#     # fetch the object related to passed id
+#     transaction = get_object_or_404(Transaction, id=id)
+#     return render(request, 'services/transaction_detail.html', {'transaction': transaction,
+#                                                                 'amount': getTransactionAmount(transaction)})
 
 
-@login_required
-def delete_transaction(request, id):
-    # fetch the object related to passed id
-    transaction = get_object_or_404(Transaction, id=id)
-    transaction.delete()
-    return redirect('detail-order', id=transaction.order.id)
+# def handle_transaction(transaction: Transaction, order: Order):
+#     pass
+
+
+# @login_required
+# def delete_transaction(request, id):
+#     # fetch the object related to passed id
+#     transaction = get_object_or_404(Transaction, id=id)
+#     transaction.delete()
+#     return redirect('detail-order', id=transaction.order.id)
 
 
 # -------------------- Service ----------------------------
@@ -239,14 +245,14 @@ def select_new_service(request, next, order_id):
 def detail_service(request, id):
     # fetch the object related to passed id
     service = get_object_or_404(Service, id=id)
-    purchases = Transaction.objects.filter(
-        service=service, order__type='purchase').order_by('-order__created_date')
-    latest_purchase = purchases.first()
+    sells = ServiceTransaction.objects.filter(
+        service=service).order_by('-order__created_date')
+    latest_sell = sells.first()
     latest_order = None
-    if latest_purchase:
-        latest_order = latest_purchase.order
+    if latest_sell:
+        latest_order = latest_sell.order
     return render(request, 'services/service_detail.html', {'service': service,
-                                                            'purchases': purchases,
+                                                            'sells': sells,
                                                             'latest_order': latest_order})
 
 
@@ -256,3 +262,90 @@ def delete_service(request, id):
     obj = get_object_or_404(Service, id=id)
     obj.delete()
     return redirect('list-service')
+
+# -------------------- Order ----------------------------
+
+
+@login_required
+def create_order(request):
+    initial = {'associated': request.session.get('associated_id')}
+    form = OrderCreateForm(initial=initial)
+    if request.method == 'POST':
+        form = OrderCreateForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.type = 'sell'
+            order.created_by = request.user
+            order.save()
+            return redirect('detail-service-order', id=order.id)
+    context = {
+        'form': form
+    }
+    return render(request, 'services/order_create.html', context)
+
+
+class CategoryUpdateView(LoginRequiredMixin, UpdateView):
+    model = Order
+    form_class = OrderCreateForm
+    template_name = 'services/order_create.html'
+    success_url = reverse_lazy('detail-order')
+
+
+@login_required
+def update_order_status(request, id, status):
+    order = get_object_or_404(Order, id=id)
+    order.status = status
+    order.save()
+    if status == 'complete':
+        transactions = ProductTransaction.objects.filter(order=order)
+        for transaction in transactions:
+            handle_transaction(transaction, order)
+        return redirect('list-service-order')
+    else:
+        return redirect('detail-service-order', id=order.id)
+
+
+@login_required
+def list_order(request):
+    orders = Order.objects.filter(
+        type='purchase').order_by('-created_date')
+    statuses = set()
+    for order in orders:
+        statuses.add(order.status)
+        transactions = ProductTransaction.objects.filter(order=order)
+        amount = 0
+        # TODO compute services
+        for transaction in transactions:
+            amount += getTransactionAmount(transaction)
+        order.amount = amount
+    return render(request, 'inventory/order_list.html', {'orders': orders,
+                                                         'statuses': statuses})
+
+
+@login_required
+def detail_order(request, id):
+    order = Order.objects.get(id=id)
+    transactions = ProductTransaction.objects.filter(order=order)
+    services = ServiceTransaction.objects.filter(order=order)
+    # Compute amount
+    amount = 0
+    for transaction in transactions:
+        transaction.amount = transaction.quantity * \
+            transaction.price*(1 + transaction.tax/100.)
+        amount += transaction.amount
+    for service in services:
+        service.amount = service.quantity * \
+            service.price*(1 + transaction.tax/100.)
+        amount += service.amount
+    order.amount = amount
+    # Order by amount
+    transactions = list(transactions)
+    transactions.sort(key=lambda trans: trans.amount, reverse=True)
+    services = list(services)
+    services.sort(key=lambda serv: serv.amount, reverse=True)
+    # Terminated order
+    terminated = order.status in ['decline', 'complete']
+    return render(request, 'inventory/order_detail.html', {'order': order,
+                                                           'services': services,
+                                                           'transactions': transactions,
+                                                           'terminated': terminated})
