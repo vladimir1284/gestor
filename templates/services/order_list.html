@@ -46,7 +46,7 @@
             <td>{{ order.associated }}</td>
             <td>${{ order.amount|floatformat:"2" }}</td>
             <td>
-                <a href={% url 'detail-order' order.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                <a href={% url 'detail-service-order' order.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
         </tr>
     {% endfor %}

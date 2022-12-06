@@ -2,7 +2,7 @@
   pk: 1
   fields:
     name: Frenos
-    icon: images/icons/img_330308_QmsHwlN.png
+    icon: images/icons/img_330308_jfcRqQi.png
 - model: inventory.productcategory
   pk: 2
   fields:

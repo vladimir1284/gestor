@@ -102,6 +102,9 @@
         }
     </script>
 {% endblock Tbody %}
+{% block add %}
+    {% if terminated %}hidden{% endif %}
+{% endblock add %}
 {% block createUrl %}
     {% url 'select-product' 'create-transaction' order.id %}
 {% endblock createUrl %}

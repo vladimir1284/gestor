@@ -284,11 +284,11 @@ def create_order(request):
     return render(request, 'services/order_create.html', context)
 
 
-class CategoryUpdateView(LoginRequiredMixin, UpdateView):
+class OrderUpdateView(LoginRequiredMixin, UpdateView):
     model = Order
     form_class = OrderCreateForm
     template_name = 'services/order_create.html'
-    success_url = reverse_lazy('detail-order')
+    success_url = reverse_lazy('detail-service-order')
 
 
 @login_required
@@ -308,7 +308,7 @@ def update_order_status(request, id, status):
 @login_required
 def list_order(request):
     orders = Order.objects.filter(
-        type='purchase').order_by('-created_date')
+        type='sell').order_by('-created_date')
     statuses = set()
     for order in orders:
         statuses.add(order.status)
@@ -318,8 +318,8 @@ def list_order(request):
         for transaction in transactions:
             amount += getTransactionAmount(transaction)
         order.amount = amount
-    return render(request, 'inventory/order_list.html', {'orders': orders,
-                                                         'statuses': statuses})
+    return render(request, 'services/order_list.html', {'orders': orders,
+                                                        'statuses': statuses})
 
 
 @login_required
@@ -345,7 +345,7 @@ def detail_order(request, id):
     services.sort(key=lambda serv: serv.amount, reverse=True)
     # Terminated order
     terminated = order.status in ['decline', 'complete']
-    return render(request, 'inventory/order_detail.html', {'order': order,
-                                                           'services': services,
-                                                           'transactions': transactions,
-                                                           'terminated': terminated})
+    return render(request, 'services/order_detail.html', {'order': order,
+                                                          'services': services,
+                                                          'transactions': transactions,
+                                                          'terminated': terminated})

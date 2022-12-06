@@ -50,7 +50,7 @@
         <div class="demo-inline-spacing">
             <a class="btn btn-icon btn-outline-primary"
                type="button"
-               href="{% url 'list-order' %}">
+               href="{% url 'list-service-order' %}">
                 <span class="tf-icons bx bx-arrow-back"></span>
             </a>
             {% if not terminated %}
@@ -102,6 +102,9 @@
         }
     </script>
 {% endblock Tbody %}
+{% block add %}
+    {% if terminated %}hidden{% endif %}
+{% endblock add %}
 {% block createUrl %}
     {% url 'select-product' 'create-transaction' order.id %}
 {% endblock createUrl %}

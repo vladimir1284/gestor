@@ -87,7 +87,7 @@
                 </li>
                 <li class="menu-item">
                     <a href="{% url 'list-order' %}" class="menu-link">
-                        <div data-i18n="órdenes">Órdenes</div>
+                        <div data-i18n="Purchases">Órdenes</div>
                     </a>
                 </li>
             </ul>
@@ -103,17 +103,20 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
+                    <a href="{% url 'list-service-order' %}" class="menu-link">
+                        <div data-i18n="Sells">Órdenes</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{% url 'list-service' %}" class="menu-link">
+                        <div data-i18n="Usuarios">Servicios</div>
+                    </a>
+                </li>
+                <li class="menu-item">
                     <a href="{% url 'list-service-category' %}" class="menu-link">
                         <div data-i18n="Clientes">Categorías</div>
                     </a>
                 </li>
-                {% if perms.can_add_user %}
-                    <li class="menu-item">
-                        <a href="{% url 'list-service' %}" class="menu-link">
-                            <div data-i18n="Usuarios">Servicios</div>
-                        </a>
-                    </li>
-                {% endif %}
             </ul>
         </li>
         <li class="menu-item">
@@ -127,11 +130,13 @@
                         <div data-i18n="Clientes">Clientes</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{% url 'list-user' %}" class="menu-link">
-                        <div data-i18n="Usuarios">Operarios</div>
-                    </a>
-                </li>
+                {% if perms.can_add_user %}
+                    <li class="menu-item">
+                        <a href="{% url 'list-user' %}" class="menu-link">
+                            <div data-i18n="Usuarios">Operarios</div>
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </li>
     </ul>
