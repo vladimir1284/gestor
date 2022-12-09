@@ -2,13 +2,13 @@
   function filterText() {
       let i, j;
       let text = document.getElementById("search").value;
-      // Filer objects by category
+      // Filer objects by text
       let tables = document.getElementsByTagName("tbody");
       for (j = 0; j < tables.length; j++) {
           tr = tables[j].getElementsByTagName("tr");
           for (i = 0; i < tr.length; i++) {
-            let td = tr[i].getElementsByTagName("td"); // For each row
-            let name = td[0].getElementsByTagName("strong")[0].innerHTML.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            let td = tr[i].getElementsByTagName("strong"); // For each row
+            let name = td[0].innerHTML.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             if (name.toUpperCase().search(text.toUpperCase()) != -1 || text == '') {
                 tr[i].style.display = "";
             } else {

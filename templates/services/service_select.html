@@ -1,10 +1,16 @@
 {% extends "./service/base_service_list.html" %}
+{% block tableServices %}
+    {% include "./service/select_table.html" with type="service" %}
+{% endblock tableServices %}
 {% block tableParts %}
-    {% include "./service/select_table.html" with type="part" %}
+    {% include "inventory/product/select_table.html" with type="part" %}
 {% endblock tableParts %}
+{% block tableConsumables %}
+    {% include "inventory/product/select_table.html" with type="consumable" %}
+{% endblock tableConsumables %}
 {% block createUrl %}
     {% url 'select-new-service' next order_id %}
 {% endblock createUrl %}
 {% block help %}
-    Create new service to add
+    Create new service
 {% endblock help %}

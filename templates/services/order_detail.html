@@ -2,7 +2,7 @@
 {% block title %}
     {{ order.concept }}
 {% endblock title %}
-{% block Ttitle %}
+{% block card %}
     <div class="card-body">
         <h5 class="card-title">
             {{ order.concept }} (${{ order.amount|floatformat:"2" }})
@@ -67,32 +67,80 @@
             {% endif %}
         </div>
     </div>
-{% endblock Ttitle %}
-{% block Theader %}
-    <th>Product</th>
-    <th>Qty</th>
-    <th>Unit</th>
-    <th>Price</th>
-    <th>Amount</th>
-    <th>
-        <i class="bx bx-cog"></i>
-    </th>
-{% endblock Theader %}
-{% block Tbody %}
-    {% for trans in transactions %}
-        <tr data-tag="{{ trans.product.name }}">
-            <td>
-                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ trans.product.name }}</strong>
-            </td>
-            <td>{{ trans.quantity|floatformat:"-2" }}</td>
-            <td>{{ trans.unit }}</td>
-            <td>${{ trans.price|floatformat:"2" }}</td>
-            <td>${{ trans.amount|floatformat:"2" }}</td>
-            <td>
-                <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
-            </td>
-        </tr>
-    {% endfor %}
+    <div class="card-body">
+        <h5 class="card-title">Products</h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Unit</th>
+                        <th>Price</th>
+                        <th>Amount</th>
+                        <th>
+                            <i class="bx bx-cog"></i>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for trans in transactions %}
+                        <tr data-tag="{{ trans.product.name }}">
+                            <td>
+                                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ trans.product.name }}</strong>
+                            </td>
+                            <td>{{ trans.quantity|floatformat:"-2" }}</td>
+                            <td>{{ trans.unit }}</td>
+                            <td>${{ trans.price|floatformat:"2" }}</td>
+                            <td>${{ trans.amount|floatformat:"2" }}</td>
+                            <td>
+                                <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Services</h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Amount</th>
+                        <th>
+                            <i class="bx bx-cog"></i>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for service in services %}
+                        <tr data-tag="{{ service.product.name }}">
+                            <td>
+                                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ service.service.name }}</strong>
+                            </td>
+                            <td>
+                                {{ service.quantity|floatformat:"-2" }}
+                            </td>
+                            <td>
+                                ${{ service.price|floatformat:"2" }}
+                            </td>
+                            <td>
+                                ${{ service.amount|floatformat:"2" }}
+                            </td>
+                            <td>
+                                {% comment %} <a href="{% if terminated %} {% url 'detail-service-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a> {% endcomment %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
     <script>
         function updateStatus(url, status) {
             let confirmAction = confirm("Are you sure change the order status to " + status + "?");
@@ -101,12 +149,12 @@
             }
         }
     </script>
-{% endblock Tbody %}
+{% endblock card %}
 {% block add %}
     {% if terminated %}hidden{% endif %}
 {% endblock add %}
 {% block createUrl %}
-    {% url 'select-product' 'create-transaction' order.id %}
+    {% url 'select-service' 'create-service-transaction' order.id %}
 {% endblock createUrl %}
 {% block help %}
     Add part or service

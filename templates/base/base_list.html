@@ -76,6 +76,8 @@
         let title_tag = document.getElementById("filter_tag");
         if(tagName == 'all'){
             title_tag.innerHTML = "";
+                search = document.getElementById("search");
+                search.value="";
         } else {
             title_tag.innerHTML = "("+tagName+")";
         }

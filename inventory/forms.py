@@ -191,6 +191,7 @@ class ProductCreateForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ('name',
+                  'image',
                   'description',
                   'unit',
                   'category',
@@ -226,6 +227,21 @@ class ProductCreateForm(forms.ModelForm):
                         Div(
                             Div(
                                 Field('name')
+                            ),
+                            css_class="mb-3"
+                        ),
+                        HTML(
+                            """
+                            <img id="preview" 
+                            {% if form.image.value %}
+                                class="img-responsive" 
+                                src="/media/{{ form.image.value }}"
+                            {% endif %}">
+                            """
+                        ),
+                        Div(
+                            Div(
+                                Field('image', css_class="form-select")
                             ),
                             css_class="mb-3"
                         ),

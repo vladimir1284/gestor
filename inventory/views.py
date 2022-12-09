@@ -431,41 +431,18 @@ def delete_unit(request, id):
 
 # -------------------- Product ----------------------------
 
-@login_required
-def create_product(request):
-    form = ProductCreateForm()
-    if request.method == 'POST':
-        form = ProductCreateForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('list-product')
-    context = {
-        'form': form
-    }
-    return render(request, 'inventory/product_create.html', context)
+class ProductCreateView(LoginRequiredMixin, CreateView):
+    model = Product
+    form_class = ProductCreateForm
+    template_name = 'inventory/product_create.html'
+    success_url = reverse_lazy('list-product')
 
 
-@login_required
-def update_product(request, id):
-    # fetch the object related to passed id
-    obj = get_object_or_404(Product, id=id)
-
-    # pass the object as instance in form
-    form = ProductCreateForm(request.POST or None,
-                             instance=obj, title=_("Update Product"))
-
-    # save the data from the form and
-    # redirect to detail_view
-    if form.is_valid():
-        form.save()
-        return redirect('list-product')
-
-    # add form dictionary to context
-    context = {
-        'form': form
-    }
-
-    return render(request, 'inventory/product_create.html', context)
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
+    model = Product
+    form_class = ProductCreateForm
+    template_name = 'inventory/product_create.html'
+    success_url = reverse_lazy('list-product')
 
 
 def product_list_metadata(type, products: List[Product]):

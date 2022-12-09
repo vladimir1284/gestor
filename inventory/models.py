@@ -36,6 +36,9 @@ class Unit(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=120, unique=True)
+    IMAGE_SIZE = 500
+    image = models.ImageField(upload_to='images/products',
+                              blank=True)
     description = models.TextField(blank=True)
     created_date = models.DateField(auto_now_add=True)
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
@@ -56,6 +59,18 @@ class Product(models.Model):
 
     def __str__(self):
         return "{}-{}-${}".format(self.name, self.quantity, self.stock_price)
+
+    def save(self, *args, **kwargs):
+        super(Product, self).save(*args, **kwargs)
+        try:
+            img = Image.open(self.image.path)
+
+            if img.height > self.IMAGE_SIZE or img.width > self.IMAGE_SIZE:
+                output_size = (self.IMAGE_SIZE, self.IMAGE_SIZE)
+                img.thumbnail(output_size)
+            img.save(self.image.path)
+        except Exception as error:
+            print(error)
 
 
 class ProductTransaction(Transaction):

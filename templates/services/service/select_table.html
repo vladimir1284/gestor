@@ -4,33 +4,19 @@
             <i class="bx bx-cart"></i>
         </th>
         <th>Name</th>
-        <th>Stock</th>
-        <th>Unit</th>
-        {% if type == 'part' %}<th>Price</th>{% endif %}
         <th>Cost</th>
     </tr>
 </thead>
 <tbody class="table-border-bottom-0">
     {% for service in services %}
-        {% if service.type == type %}
-            <tr data-tag="{{ service.category }}">
-                <td>
-                    <a href={% url next order_id service.id %}><i class="bx bx-plus"></i></a>
-                </td>
-                <td class="pl-0">
-                    <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ service.name }}</strong>
-                </td>
-                <td>
-                    {% if service.quantity_min > 0 and service.quantity < service.quantity_min %}
-                        <spam class="alert-danger">{{ service.quantity|floatformat:"-2" }}</spam>
-                    {% else %}
-                        {{ service.quantity|floatformat:"-2" }}
-                    {% endif %}
-                </td>
-                <td>{{ service.unit }}</td>
-                {% if type == 'part' %}<td>${{ service.sell_price|floatformat:"-2" }}</td>{% endif %}
-                <td>${{ service.average_cost|floatformat:"-2" }}</td>
-            </tr>
-        {% endif %}
+        <tr data-tag="{{ service.category }}">
+            <td>
+                <a href={% url next order_id service.id %}><i class="bx bx-plus"></i></a>
+            </td>
+            <td class="pl-0">
+                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ service.name }}</strong>
+            </td>
+            <td>${{ service.suggested_price|floatformat:"-2" }}</td>
+        </tr>
     {% endfor %}
 </tbody>

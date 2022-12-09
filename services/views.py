@@ -29,6 +29,7 @@ from inventory.views import (
     handle_transaction,
     DifferentMagnitudeUnitsError,
     NotEnoughStockError,
+    prepare_product_list,
 )
 
 from services.models import (
@@ -82,76 +83,76 @@ def delete_category(request, id):
 # -------------------- Transaction ----------------------------
 
 
-# def renderCreateTransaction(request, form, service, order_id):
-#     context = {
-#         'form': form,
-#         'service': service,
-#         'order_id': order_id,
-#         'title': _("Create Transaction")
-#     }
-#     return render(request, 'services/transaction_create.html', context)
+def renderCreateTransaction(request, form, service, order_id):
+    context = {
+        'form': form,
+        'service': service,
+        'order_id': order_id,
+        'title': _("Create Transaction")
+    }
+    return render(request, 'services/transaction_create.html', context)
 
 
-# @login_required
-# def create_transaction(request, order_id, service_id):
-#     order = Order.objects.get(id=order_id)
-#     service = Service.objects.get(id=service_id)
-#     form = TransactionCreateForm()
-#     if request.method == 'POST':
-#         form = TransactionCreateForm(request.POST)
-#         if form.is_valid():
-#             trans = form.save(commit=False)
-#             trans.order = order
-#             trans.service = service
-#             trans.save()
-#             return redirect('detail-order', id=order_id)
-#     return renderCreateTransaction(request, form, service, order_id)
+@login_required
+def create_transaction(request, order_id, service_id):
+    order = Order.objects.get(id=order_id)
+    service = Service.objects.get(id=service_id)
+    form = TransactionCreateForm()
+    if request.method == 'POST':
+        form = TransactionCreateForm(request.POST)
+        if form.is_valid():
+            trans = form.save(commit=False)
+            trans.order = order
+            trans.service = service
+            trans.save()
+            return redirect('detail-service-order', id=order_id)
+    return renderCreateTransaction(request, form, service, order_id)
 
 
-# @login_required
-# def update_transaction(request, id):
-#     # fetch the object related to passed id
-#     transaction = get_object_or_404(Transaction, id=id)
+@login_required
+def update_transaction(request, id):
+    # fetch the object related to passed id
+    transaction = get_object_or_404(ServiceTransaction, id=id)
 
-#     # pass the object as instance in form
-#     form = TransactionCreateForm(request.POST or None,
-#                                  instance=transaction)
+    # pass the object as instance in form
+    form = TransactionCreateForm(request.POST or None,
+                                 instance=transaction)
 
-#     # save the data from the form and
-#     # redirect to detail_view
-#     if form.is_valid():
-#         form.save()
-#         return redirect('detail-order', id=transaction.order.id)
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        form.save()
+        return redirect('detail-service-order', id=transaction.order.id)
 
-#     # add form dictionary to context
-#     context = {
-#         'form': form,
-#         'service': transaction.service,
-#         'order_id': transaction.order.id,
-#         'title': _("Update Transaction")
-#     }
+    # add form dictionary to context
+    context = {
+        'form': form,
+        'service': transaction.service,
+        'order_id': transaction.order.id,
+        'title': _("Update Transaction")
+    }
 
-#     return render(request, 'services/transaction_create.html', context)
-
-
-# @login_required
-# def detail_transaction(request, id):
-#     # fetch the object related to passed id
-#     transaction = get_object_or_404(Transaction, id=id)
-#     return render(request, 'services/transaction_detail.html', {'transaction': transaction,
-#                                                                 'amount': getTransactionAmount(transaction)})
+    return render(request, 'services/transaction_create.html', context)
 
 
-# def handle_transaction(transaction: Transaction, order: Order):
-#     pass
+@login_required
+def detail_transaction(request, id):
+    # fetch the object related to passed id
+    transaction = get_object_or_404(ServiceTransaction, id=id)
+    return render(request, 'services/transaction_detail.html', {'transaction': transaction,
+                                                                'amount': getTransactionAmount(transaction)})
 
 
-# @login_required
-# def delete_transaction(request, id):
-#     # fetch the object related to passed id
-#     transaction = get_object_or_404(Transaction, id=id)
-#     transaction.delete()
-#     return redirect('detail-order', id=transaction.order.id)
+def handle_transaction(transaction: ServiceTransaction, order: Order):
+    pass
+
+
+@login_required
+def delete_transaction(request, id):
+    # fetch the object related to passed id
+    transaction = get_object_or_404(ServiceTransaction, id=id)
+    transaction.delete()
+    return redirect('detail-service-order', id=transaction.order.id)
 
 
 # -------------------- Service ----------------------------
@@ -206,9 +207,10 @@ def service_list_metadata(services: List[Service]):
 
 def prepare_service_list():
     services = Service.objects.all()
-
-    return {'services': services,
-            'categories': service_list_metadata(services)}
+    context = prepare_product_list()
+    context.setdefault('services', services)
+    context.setdefault('categories', service_list_metadata(services))
+    return context
 
 
 @login_required
@@ -335,7 +337,7 @@ def detail_order(request, id):
         amount += transaction.amount
     for service in services:
         service.amount = service.quantity * \
-            service.price*(1 + transaction.tax/100.)
+            service.price*(1 + service.tax/100.)
         amount += service.amount
     order.amount = amount
     # Order by amount

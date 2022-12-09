@@ -23,8 +23,8 @@ from .views import (
     list_unit,
     delete_unit,
     # ---- Product -------
-    create_product,
-    update_product,
+    ProductCreateView,
+    ProductUpdateView,
     list_product,
     detail_product,
     select_product,
@@ -63,8 +63,8 @@ urlpatterns = [
     path('list-unit/', list_unit, name='list-unit'),
     path('delete-unit/<id>', delete_unit, name='delete-unit'),
     # -------------------- Product ----------------------------
-    path('create-product/', create_product, name='create-product'),
-    path('update-product/<id>', update_product, name='update-product'),
+    path('create-product/', ProductCreateView.as_view(), name='create-product'),
+    path('update-product/<pk>', ProductUpdateView.as_view(), name='update-product'),
     path('detail-product/<id>', detail_product, name='detail-product'),
     path('list-product/', list_product, name='list-product'),
     path('select-product/<next>/<order_id>',

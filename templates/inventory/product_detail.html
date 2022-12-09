@@ -1,45 +1,48 @@
 {% extends 'base/base.html' %}
+{% load static %}
 {% block title %}
     Product detail
 {% endblock title %}
 {% block content %}
     <!-- Basic with Icons -->
     <div class="card">
-        <div class="card-body row g-0">
-            <div class="col-8">
-                <h5>
-                    <strong>{{ product.name }}</strong>
-                </h5>
-                <div class="card-subtitle text-muted ml-3">{{ product.get_type_display }} - {{ product.category.name }}</div>
+        <div class="row g-0">
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5>
+                        <strong>{{ product.name }}</strong>
+                    </h5>
+                    <div class="card-subtitle text-muted ml-3">{{ product.get_type_display }} - {{ product.category.name }}</div>
+                    <p class="card-text">{{ product.description }}</p>
+                    <div class="card mb-2">
+                        <div class="row">
+                            <div class="card-text col-md-6">
+                                <strong>Average cost:</strong> ${{ product.average_cost|floatformat:"2" }}
+                            </div>
+                            <div class="card-text col-md-6">
+                                <strong>Sell Tax:</strong> {{ product.sell_tax }}%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="text-light small fw-semibold">Sell Price</div>
+                        <div class="row">
+                            <div class="card-text col-md-6">
+                                <strong>Suggested:</strong> ${{ product.sell_price|floatformat:"2" }} ({{ product.suggested_price }}%)
+                            </div>
+                            <div class="card-text col-md-6">
+                                <strong>Maximum:</strong> ${{ product.sell_max|floatformat:"2" }} ({{ product.max_price }}%)
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-4">
-                <img class="img-responsive card-img-right float-end"
-                     src="{{ product.category.icon.url }}"
+            <div class="col-md-4 mb-3">
+                <img class="card-img card-img-right"
+                     src="{% if product.image %} {{ product.image.url }} {% else %} {% static 'images/icons/no_image.jpg' %} {% endif %}"
                      alt="Category icon">
             </div>
-            <p class="card-text">{{ product.description }}</p>
-            <div class="card mb-2">
-                <div class="row">
-                    <div class="card-text col-md-6">
-                        <strong>Average cost:</strong> ${{ product.average_cost|floatformat:"2" }}
-                    </div>
-                    <div class="card-text col-md-6">
-                        <strong>Sell Tax:</strong> {{ product.sell_tax }}%
-                    </div>
-                </div>
-            </div>
-            <div class="card mb-4">
-                <div class="text-light small fw-semibold">Sell Price</div>
-                <div class="row">
-                    <div class="card-text col-md-6">
-                        <strong>Suggested:</strong> ${{ product.sell_price|floatformat:"2" }} ({{ product.suggested_price }}%)
-                    </div>
-                    <div class="card-text col-md-6">
-                        <strong>Maximum:</strong> ${{ product.sell_max|floatformat:"2" }} ({{ product.max_price }}%)
-                    </div>
-                </div>
-            </div>
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col-2">
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"
