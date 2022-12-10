@@ -8,10 +8,20 @@ from .models import (
     ServiceCategory,
 )
 from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
+from utils.forms import OrderCreateForm as BaseOrderCreateForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
 from crispy_forms.bootstrap import PrependedText, AppendedText, PrependedAppendedText
 from django.utils.translation import gettext_lazy as _
+
+
+class OrderCreateForm(BaseOrderCreateForm):
+    href = "{% url 'select-service-client' %}"
+    tooltip = "Modify client"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['associated'].label = _("Client")
 
 
 class CategoryCreateForm(BaseCategoryCreateForm):

@@ -66,6 +66,9 @@ class OrderCreateForm(forms.ModelForm):
             'associated'
         )
 
+    href = "{% url 'create-provider' %}?next={{ request.path|urlencode }}"
+    tooltip = "Modify provider"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Focus on form field whenever error occurred
@@ -90,10 +93,16 @@ class OrderCreateForm(forms.ModelForm):
                 ),
                 Div(
                     HTML(
-                        """
+                        F"""
                     <a class="btn btn-icon btn-outline-primary position-absolute bottom-0"
                        type="button"
-                       href="{% url 'create-provider' %}?next={{ request.path|urlencode }}">
+                       href="{self.href}"
+                       data-bs-toggle="tooltip"
+                       data-bs-offset="0,4"
+                       data-bs-placement="left"
+                       data-bs-html="true"
+                       title=""
+                       data-bs-original-title="<span>{self.tooltip}</span>">
                         <span class="tf-icons bx bx-plus"></span>
                     </a>
                     """),

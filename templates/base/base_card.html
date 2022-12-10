@@ -37,9 +37,24 @@
 {% endblock content %}
 {% block scripts %}
     <script>
-    window.onload = function(){  
+        window.onload = function(){  
             add = document.getElementsByClassName("add")[0];  
             $(add).tooltip('show'); 
-            }  
+        }  
+        filterText = function () {
+            let j;
+            let text = document.getElementById("search").value;
+            // Filer objects by text
+            let cards = document.getElementsByClassName("infocard");
+            for (j = 0; j < cards.length; j++) {
+                let title = cards[j].getElementsByClassName("card-title")[0];
+                let name = title.innerHTML.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (name.toUpperCase().search(text.toUpperCase()) != -1 || text == '') {
+                    cards[j].style.display = "";
+                } else {
+                    cards[j].style.display = "none";
+                }    
+            }
+          }
     </script>
 {% endblock scripts %}

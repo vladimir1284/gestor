@@ -20,9 +20,6 @@ from users.models import (
 from inventory.models import (
     ProductTransaction,
 )
-from utils.forms import (
-    OrderCreateForm,
-)
 
 from inventory.views import (
     getTransactionAmount,
@@ -47,6 +44,7 @@ from .forms import (
     ServiceCreateForm,
     CategoryCreateForm,
     TransactionCreateForm,
+    OrderCreateForm,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -290,7 +288,8 @@ def create_order(request, client_id):
 
 @login_required
 def select_client(request):
-    associateds = Associated.objects.filter(type='client')
+    associateds = Associated.objects.filter(
+        type='client').order_by("-created_date")
     return render(request, 'services/client_list.html', {'associateds': associateds})
 
 

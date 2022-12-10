@@ -11,7 +11,7 @@
     {% endfor %}
 {% endblock Cards %}
 {% block createUrl %}
-    {% url 'create-client' %}
+    {% url 'create-client' %}?next={{ request.path|urlencode }}
 {% endblock createUrl %}
 {% block help %}
     Create new client
