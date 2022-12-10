@@ -160,6 +160,9 @@
                                 Date
                             </th>
                             <th>
+                                Provider
+                            </th>
+                            <th>
                                 Price
                             </th>
                             <th>
@@ -181,6 +184,9 @@
                                 </td>
                                 <td>
                                     {{ purchase.order.created_date|date:"SHORT_DATE_FORMAT" }}
+                                </td>
+                                <td>
+                                    <a href={% url 'detail-associated' purchase.order.associated.id %}>{{ purchase.order.associated }}</a>
                                 </td>
                                 <td>
                                     ${{ purchase.price|floatformat:"2" }}

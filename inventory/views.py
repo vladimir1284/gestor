@@ -526,7 +526,8 @@ def detail_product(request, id):
 
     stocks = Stock.objects.filter(product=product).order_by('-created_date')
     purchases = ProductTransaction.objects.filter(
-        product=product, order__type='purchase').order_by('-order__created_date')
+        product=product, order__type='purchase',
+        order__status='complete').order_by('-order__created_date')
     latest_purchase = purchases.first()
     latest_order = None
     if latest_purchase:
