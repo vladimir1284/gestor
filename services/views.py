@@ -269,8 +269,10 @@ def delete_service(request, id):
 
 
 @login_required
-def create_order(request):
-    initial = {'associated': request.session.get('associated_id')}
+def create_order(request, client_id):
+    client = get_object_or_404(Associated, id=client_id)
+    initial = {'created_by': request.session.get('associated_id'),
+               'associated': client}
     form = OrderCreateForm(initial=initial)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
@@ -284,6 +286,12 @@ def create_order(request):
         'form': form
     }
     return render(request, 'services/order_create.html', context)
+
+
+@login_required
+def select_client(request):
+    associateds = Associated.objects.filter(type='client')
+    return render(request, 'services/client_list.html', {'associateds': associateds})
 
 
 class OrderUpdateView(LoginRequiredMixin, UpdateView):

@@ -1,0 +1,18 @@
+{% extends 'base/base_card.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ctitle %}
+    <h5 class="card-header">Clients</h5>
+{% endblock Ctitle %}
+{% block Cards %}
+    {% for associated in associateds %}
+        {% include "./client_card.html" %}
+    {% endfor %}
+{% endblock Cards %}
+{% block createUrl %}
+    {% url 'create-client' %}
+{% endblock createUrl %}
+{% block help %}
+    Create new client
+{% endblock help %}
