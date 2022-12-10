@@ -1,0 +1,10 @@
+- model: users.company
+  pk: 1
+  fields:
+    name: Ventas
+    created_date: 2022-10-15
+- model: users.company
+  pk: 2
+  fields:
+    name: Renta
+    created_date: 2022-10-15

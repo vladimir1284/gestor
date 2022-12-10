@@ -2,7 +2,7 @@
   pk: 1
   fields:
     name: Suministrador Ejemplo
-    company: Ventas
+    company: 1
     address: En algún lugar
     note: Este suministrador es solo para el ejemplo
     email: suministros.generales@gmail.com
@@ -14,7 +14,7 @@
   pk: 2
   fields:
     name: Cliente1 Ejemplo
-    company: Renta
+    company: 2
     address: wwwww
     note: Este es un cliente para ejemplos
     email: cliente.1@gmail.com
@@ -26,7 +26,7 @@
   pk: 3
   fields:
     name: Cliente2 Ejemplo
-    company: Renta
+    company: 2
     address: wwwww
     note: Este es un cliente para ejemplos
     email: cliente.2@gmail.com
@@ -37,7 +37,7 @@
   pk: 4
   fields:
     name: Cliente3 Ejemplo
-    company: Renta
+    company: 2
     address: wwwww
     note: Este es un cliente para ejemplos
     email: cliente.3@gmail.com
@@ -48,7 +48,7 @@
   pk: 5
   fields:
     name: Cliente4 Ejemplo
-    company: Renta
+    company: 2
     address: wwwww
     note: Este es un cliente para ejemplos
     email: cliente.4@gmail.com
@@ -59,7 +59,7 @@
   pk: 6
   fields:
     name: Cliente5 Ejemplo
-    company: Renta
+    company: 2
     address: wwwww
     note: Este es un cliente para ejemplos
     email: cliente.5@gmail.com
@@ -70,7 +70,7 @@
   pk: 7
   fields:
     name: Cliente6 Ejemplo
-    company: Renta
+    company: 2
     address: wwwww
     note: Este es un cliente para ejemplos
     email: cliente.6@gmail.com

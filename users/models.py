@@ -3,12 +3,15 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
+import uuid
 
 
-class Associated(models.Model):
-    # Either client or provider
+class Contact(models.Model):
+    class Meta:
+        abstract = True
+
     name = models.CharField(max_length=120)
-    company = models.CharField(max_length=120, blank=True)
+    active = models.BooleanField(default=True)
     address = models.TextField(blank=True)
     note = models.TextField(blank=True)
     email = models.EmailField(blank=True)
@@ -17,18 +20,9 @@ class Associated(models.Model):
     avatar = models.ImageField(upload_to='images/avatars/',
                                blank=True)
     phone_number = PhoneNumberField(blank=True)
-    TYPE_CHOICE = (
-        ('client', _('Client')),
-        ('provider', _('provider')),
-    )
-    type = models.CharField(max_length=20, choices=TYPE_CHOICE,
-                            default='client')
-
-    def __str__(self):
-        return self.name
 
     def save(self, *args, **kwargs):
-        super(Associated, self).save(*args, **kwargs)
+        super(Contact, self).save(*args, **kwargs)
         try:
             img = Image.open(self.avatar.path)
 
@@ -38,6 +32,28 @@ class Associated(models.Model):
             img.save(self.avatar.path)
         except Exception as error:
             print(error)
+
+    def __str__(self):
+        return self.name
+
+
+class Company(Contact):
+    class Meta:
+        abstract = False
+    id = models.SlugField(primary_key=True, unique=True, default=uuid.uuid1)
+
+
+class Associated(Contact):
+    # Either client or provider
+    company = models.ForeignKey(Company,
+                                on_delete=models.SET_NULL,
+                                blank=True, null=True)
+    TYPE_CHOICE = (
+        ('client', _('Client')),
+        ('provider', _('provider')),
+    )
+    type = models.CharField(max_length=20, choices=TYPE_CHOICE,
+                            default='client')
 
 
 class UserProfile(models.Model):
