@@ -36,8 +36,6 @@ from .forms import (
     CategoryCreateForm,
     TransactionCreateForm,
     TransactionProviderCreateForm,
-)
-from utils.forms import (
     OrderCreateForm,
 )
 from django.utils.translation import gettext_lazy as _
@@ -99,7 +97,7 @@ def delete_category(request, id):
 # -------------------- Order ----------------------------
 
 @login_required
-def create_order(request, product_id=None):
+def create_order(request, provider_id, product_id=None):
     if product_id:
         product = get_object_or_404(Product, id=product_id)
         last_purchase = ProductTransaction.objects.filter(order__type='purchase',
@@ -115,7 +113,9 @@ def create_order(request, product_id=None):
         # Create new order from the
         return redirect('create-transaction-new-order', product_id)
     else:
-        initial = {'associated': request.session.get('associated_id')}
+        provider = get_object_or_404(Associated, id=provider_id)
+        initial = {'created_by': request.session.get('associated_id'),
+                   'associated': provider}
         form = OrderCreateForm(initial=initial)
         if request.method == 'POST':
             form = OrderCreateForm(request.POST)
@@ -129,6 +129,13 @@ def create_order(request, product_id=None):
             'form': form
         }
         return render(request, 'inventory/order_create.html', context)
+
+
+@login_required
+def select_provider(request):
+    associateds = Associated.objects.filter(
+        type='provider').order_by("-created_date")
+    return render(request, 'inventory/provider_list.html', {'associateds': associateds})
 
 
 @login_required
@@ -246,7 +253,7 @@ def create_transaction(request, order_id, product_id):
 def create_transaction_new_order(request, product_id):
     product = Product.objects.get(id=product_id)
     initial = {'unit': product.unit,
-               'associated': request.session.get('associated_id')}
+               'created_by': request.session.get('associated_id')}
     last_purchase = ProductTransaction.objects.filter(order__type='purchase',
                                                       product=product).order_by('-id').first()
     order_id = -1
@@ -324,49 +331,14 @@ def handle_transaction(transaction: ProductTransaction, order: Order):
         value=transaction.quantity)
 
     # TODO study taxes handling on sales to improve these formula
-    if (order.type == 'sell'):
-        # Generate profit
-        income = transaction.price * \
-            (1 - transaction.tax/100.)*transaction.quantity  # Take off taxes
-        if (product_quantity > product.quantity):
-            raise NotEnoughStockError
-
-        # Implementing FIFO method
-        stock_cost = 0
-        pending = product_quantity
-        stock_array = Stock.objects.filter(
-            product=product).order_by('created_date')
-        for stock in stock_array:
-            if (pending < stock.quantity):
-                stock_cost += pending * stock.cost
-                stock.quantity -= pending
-                stock.save()
-                break
-            elif (pending == stock.quantity):
-                stock_cost += stock.quantity * stock.cost
-                stock.delete()
-                break
-            else:
-                stock_cost += stock.quantity * stock.cost
-                pending -= stock.quantity
-                stock.delete()
-
-        profit = income - stock_cost
-        Profit.objects.create(product=product,
-                              quantity=product_quantity,
-                              profit=profit)
-        product.quantity -= product_quantity
-        product.stock_price -= stock_cost
-        product.save()
-    elif (order.type == 'purchase'):
-        # Generate stock
-        cost = transaction.price*(1 + transaction.tax/100.)  # Add on taxes
-        Stock.objects.create(product=product,
-                             quantity=product_quantity,
-                             cost=cost)
-        product.quantity += product_quantity
-        product.stock_price += product_quantity * cost
-        product.save()
+    # Generate stock
+    cost = transaction.price*(1 + transaction.tax/100.)  # Add on taxes
+    Stock.objects.create(product=product,
+                         quantity=product_quantity,
+                         cost=cost)
+    product.quantity += product_quantity
+    product.stock_price += product_quantity * cost
+    product.save()
 
 
 @login_required

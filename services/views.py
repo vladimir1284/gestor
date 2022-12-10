@@ -19,25 +19,26 @@ from users.models import (
 )
 from inventory.models import (
     ProductTransaction,
+    Product,
+    Profit as ProductProfit,
+    Stock,
 )
-
 from inventory.views import (
     getTransactionAmount,
-    handle_transaction,
+    convertUnit,
     DifferentMagnitudeUnitsError,
     NotEnoughStockError,
     prepare_product_list,
 )
-
-from services.models import (
-    Order,
+from utils.models import (
+    Transaction,
 )
-
 from .models import (
     Service,
     ServiceTransaction,
-    Profit,
+    Profit as ServiceProfit,
     ServiceCategory,
+    Order,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import (
@@ -141,8 +142,51 @@ def detail_transaction(request, id):
                                                                 'amount': getTransactionAmount(transaction)})
 
 
-def handle_transaction(transaction: ServiceTransaction, order: Order):
-    pass
+def handle_transaction(transaction: Transaction, order: Order):
+    #  To be performed on complete orders
+    if isinstance(transaction, ProductTransaction):
+        product = transaction.product
+        # To be used in the rest of the system
+        product = Product.objects.get(id=product.id)
+        product_quantity = convertUnit(
+            input_unit=transaction.unit,
+            output_unit=product.unit,
+            value=transaction.quantity)
+        # Generate profit
+        income = transaction.price * \
+            (1 - transaction.tax/100.)*transaction.quantity  # Take off taxes
+        if (product_quantity > product.quantity):
+            raise NotEnoughStockError
+
+        # Implementing FIFO method
+        stock_cost = 0
+        pending = product_quantity
+        stock_array = Stock.objects.filter(
+            product=product).order_by('created_date')
+        for stock in stock_array:
+            if (pending < stock.quantity):
+                stock_cost += pending * stock.cost
+                stock.quantity -= pending
+                stock.save()
+                break
+            elif (pending == stock.quantity):
+                stock_cost += stock.quantity * stock.cost
+                stock.delete()
+                break
+            else:
+                stock_cost += stock.quantity * stock.cost
+                pending -= stock.quantity
+                stock.delete()
+
+        profit = income - stock_cost
+        ProductProfit.objects.create(product=product,
+                                     quantity=product_quantity,
+                                     profit=profit)
+        product.quantity -= product_quantity
+        product.stock_price -= stock_cost
+        product.save()
+    if isinstance(transaction, ServiceTransaction):
+        pass
 
 
 @login_required

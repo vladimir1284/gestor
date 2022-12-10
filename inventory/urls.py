@@ -10,6 +10,7 @@ from .views import (
     update_order,
     detail_order,
     list_order,
+    select_provider,
     update_order_status,
     # ---- Transaction ----
     create_transaction,
@@ -41,7 +42,8 @@ urlpatterns = [
     path('list-category/', CategoryListView.as_view(), name='list-category'),
     path('delete-category/<id>', delete_category, name='delete-category'),
     # -------------------- Order ----------------------------
-    path('create-order/', create_order, name='create-order'),
+    path('select-provider/', select_provider, name='select-provider'),
+    path('create-order/<provider_id>', create_order, name='create-order'),
     path('create-order/<product_id>', create_order,
          name='create-order-from-product'),
     path('update-order/<id>', update_order, name='update-order'),

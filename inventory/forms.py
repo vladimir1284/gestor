@@ -7,6 +7,7 @@ from .models import (
     ProductCategory,
 )
 from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
+from utils.forms import OrderCreateForm as BaseOrderCreateForm
 
 from users.models import (
     Associated,
@@ -18,6 +19,15 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
 from crispy_forms.bootstrap import PrependedText, AppendedText, PrependedAppendedText
 from django.utils.translation import gettext_lazy as _
+
+
+class OrderCreateForm(BaseOrderCreateForm):
+    href = "{% url 'select-provider' %}"
+    tooltip = "Modify provider"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['associated'].label = _("Provider")
 
 
 class CommonTransactionLayout(Layout):
