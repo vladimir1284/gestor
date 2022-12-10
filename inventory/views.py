@@ -199,9 +199,11 @@ def detail_order(request, id):
     transactions.sort(key=lambda trans: trans.amount, reverse=True)
     # Terminated order
     terminated = order.status in ['decline', 'complete']
+    empty = len(transactions) == 0
     return render(request, 'inventory/order_detail.html', {'order': order,
                                                            'transactions': transactions,
-                                                           'terminated': terminated})
+                                                           'terminated': terminated,
+                                                           'empty': empty})
 
 
 # -------------------- Transaction ----------------------------

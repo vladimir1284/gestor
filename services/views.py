@@ -354,7 +354,9 @@ def detail_order(request, id):
     services.sort(key=lambda serv: serv.amount, reverse=True)
     # Terminated order
     terminated = order.status in ['decline', 'complete']
+    empty = (len(services) + len(transactions)) == 0
     return render(request, 'services/order_detail.html', {'order': order,
                                                           'services': services,
                                                           'transactions': transactions,
-                                                          'terminated': terminated})
+                                                          'terminated': terminated,
+                                                          'empty': empty})

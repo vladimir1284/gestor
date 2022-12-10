@@ -6,8 +6,8 @@
     <div class="card-body">
         <h5 class="card-title">
             {{ order.concept }} (${{ order.amount|floatformat:"2" }})
-            {% if terminated %}
-                <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'decline' %}danger{% endif %}">
+            {% if terminated or empty %}
+                <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' %}danger{% endif %}">
                     {{ order.get_status_display }}
                 </span>
             {% else %}
