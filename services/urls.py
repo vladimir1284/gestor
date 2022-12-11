@@ -21,7 +21,7 @@ from .views import (
     # ---- Order ----------
     create_order,
     select_client,
-    CategoryUpdateView,
+    update_order,
     detail_order,
     list_order,
     update_order_status,
@@ -59,9 +59,8 @@ urlpatterns = [
     path('delete-service/<id>', delete_service, name='delete-service'),
     # -------------------- Order ----------------------------
     path('select-client/', select_client, name='select-service-client'),
-    path('create-order/<client_id>', create_order, name='create-service-order'),
-    path('update-order/<id>', CategoryUpdateView.as_view(),
-         name='update-service-order'),
+    path('create-order/', create_order, name='create-service-order'),
+    path('update-order/<id>', update_order, name='update-service-order'),
     path('detail-order/<id>', detail_order, name='detail-service-order'),
     path('list-order/', list_order, name='list-service-order'),
     path('update-order-status/<id>/<status>',

@@ -32,11 +32,18 @@
                         <span class="tf-icons bx bx-mail-send"></span>
                     </a>
                 {% endif %}
-                <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'create-service-order' associated.id %}">
-                    <span class="tf-icons bx bx-check"></span>
-                </a>
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    <div>
+                        <input type="hidden" name="next" value="{{ next }}" />
+                    </div>
+                    <div>
+                        <input type="hidden" name="id" value="{{ associated.id }}" />
+                    </div>
+                    <button class="btn btn-icon btn-outline-primary" type="submit">
+                        <span class="tf-icons bx bx-check"></span>
+                    </button>
+                </form>
             </div>
         </div>
     </div>

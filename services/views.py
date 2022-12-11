@@ -309,9 +309,10 @@ def delete_service(request, id):
 
 
 @login_required
-def create_order(request, client_id):
-    client = get_object_or_404(Associated, id=client_id)
-    initial = {'associated': client}  # request.session.get('associated_id')
+def create_order(request):
+    associated_id = request.session.get('associated_id')
+    if associated_id is not None:
+        initial = {'associated': associated_id}
     form = OrderCreateForm(initial=initial)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
@@ -329,16 +330,43 @@ def create_order(request, client_id):
 
 @login_required
 def select_client(request):
+    if request.method == 'POST':
+        next = request.GET.get('next', 'create-service-order')
+        client = get_object_or_404(Associated, id=request.POST.get('id'))
+        request.session['associated_id'] = client.id
+        return redirect(next)
     associateds = Associated.objects.filter(
         type='client', active=True).order_by("-created_date")
     return render(request, 'services/client_list.html', {'associateds': associateds})
 
 
-class OrderUpdateView(LoginRequiredMixin, UpdateView):
-    model = Order
-    form_class = OrderCreateForm
-    template_name = 'services/order_create.html'
-    success_url = reverse_lazy('detail-service-order')
+@login_required
+def update_order(request, id):
+    # fetch the object related to passed id
+    order = get_object_or_404(Order, id=id)
+    associated_id = request.session.get('associated_id')
+    if associated_id is not None:
+        associated = get_object_or_404(Associated, id=associated_id)
+        order.associated = associated
+    # pass the object as instance in form
+    form = OrderCreateForm(instance=order)
+
+    if request.method == 'POST':
+        # pass the object as instance in form
+        form = OrderCreateForm(request.POST, instance=order)
+
+        # save the data from the form and
+        # redirect to detail_view
+        if form.is_valid():
+            form.save()
+            return redirect('detail-service-order', id)
+
+    # add form dictionary to context
+    context = {
+        'form': form
+    }
+
+    return render(request, 'services/order_create.html', context)
 
 
 @login_required

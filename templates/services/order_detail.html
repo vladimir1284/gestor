@@ -21,7 +21,7 @@
                     {% if order.status != 'pending' %}
                         <li>
                             <button class="dropdown-item badge bg-warning"
-                                    onclick="updateStatus('{% url 'update-order-status' order.id 'pending' %}', 'pending')">
+                                    onclick="updateStatus('{% url 'update-service-order-status' order.id 'pending' %}', 'pending')">
                                 Pending
                             </button>
                         </li>
@@ -29,7 +29,7 @@
                     {% if order.status != 'processing' %}
                         <li>
                             <button class="dropdown-item badge bg-primary"
-                                    onclick="updateStatus('{% url 'update-order-status' order.id 'processing' %}', 'processing')">
+                                    onclick="updateStatus('{% url 'update-service-order-status' order.id 'processing' %}', 'processing')">
                                 Processing
                             </button>
                         </li>
@@ -37,7 +37,7 @@
                     {% if order.status != 'complete' %}
                         <li>
                             <a class="dropdown-item badge bg-success"
-                               onclick="updateStatus('{% url 'update-order-status' order.id 'complete' %}', 'complete')">Complete</a>
+                               onclick="updateStatus('{% url 'update-service-order-status' order.id 'complete' %}', 'complete')">Complete</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -56,10 +56,10 @@
             {% if not terminated %}
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
-                   href="{% url 'update-order' order.id %}">
+                   href="{% url 'update-service-order' order.id %}">
                     <span class="tf-icons bx bx-edit"></span>
                 </a>
-                <a onclick="updateStatus('{% url 'update-order-status' order.id 'decline' %}', 'decline')"
+                <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')"
                    type="button"
                    class="btn btn-icon btn-outline-danger float-end">
                     <span class="tf-icons bx bx-trash"></span>
@@ -94,7 +94,7 @@
                             <td>${{ trans.price|floatformat:"2" }}</td>
                             <td>${{ trans.amount|floatformat:"2" }}</td>
                             <td>
-                                <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                                <a href="{% if terminated %} {% url 'detail-service-transaction' trans.id %} {% else %} {% url 'update-service-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -133,7 +133,7 @@
                                 ${{ service.amount|floatformat:"2" }}
                             </td>
                             <td>
-                                {% comment %} <a href="{% if terminated %} {% url 'detail-service-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a> {% endcomment %}
+                                {% comment %} <a href="{% if terminated %} {% url 'detail-service-transaction' trans.id %} {% else %} {% url 'update-service-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a> {% endcomment %}
                             </td>
                         </tr>
                     {% endfor %}

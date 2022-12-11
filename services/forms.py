@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class OrderCreateForm(BaseOrderCreateForm):
-    href = "{% url 'select-service-client' %}"
+    href = "{% url 'select-service-client' %}?next={{ request.path|urlencode }}"
     tooltip = "Modify client"
 
     def __init__(self, *args, **kwargs):
