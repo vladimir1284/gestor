@@ -46,6 +46,42 @@ class CommonUserLayout(Layout):
         )
 
 
+class CommonContactLayout(Layout):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            CommonProfileLayout(),
+            Div(
+                Field(
+                    PrependedText('name',
+                                  '<i class="bx bx-user-circle"></i>')
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedAppendedText('email',
+                                          '<i class="bx bx-envelope"></i>',
+                                          '@ejemplo.com')
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field(
+                    PrependedText('address',
+                                  '<i class="bx bx-building-house"></i>'),
+                    css_class='form-control'
+                ),
+                css_class="row mb-3"
+            ),
+            Div(
+                Div(
+                    Field('note', rows='2')
+                ),
+                css_class="mb-3"
+            )
+        )
+
+
 class CommonProfileLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
@@ -221,45 +257,71 @@ class AssociatedCreateForm(forms.ModelForm):
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
-            CommonProfileLayout(),
-            Div(
-                Field(
-                    PrependedText('name',
-                                  '<i class="bx bx-user-circle"></i>')
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedAppendedText('email',
-                                          '<i class="bx bx-envelope"></i>',
-                                          '@ejemplo.com')
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('company',
-                                  '<i class="bx bx-buildings"></i>'),
-                    css_class='form-control'
-                ),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('address',
-                                  '<i class="bx bx-building-house"></i>'),
-                    css_class='form-control'
-                ),
-                css_class="row mb-3"
-            ),
+            CommonContactLayout(),
             Div(
                 Div(
-                    Field('note', rows='2')
+                    Field(
+                        PrependedText('company',
+                                      '<i class="bx bx-user-buildings"></i>',
+                                      css_class="form-select")
+                    ),
+                    css_class="col-10"
                 ),
-                css_class="mb-3"
+                Div(
+                    HTML(
+                        """
+                    <a class="btn btn-icon btn-outline-primary position-absolute bottom-0"
+                       type="button"
+                       href="{% url 'select-company' %}?next={{ request.path|urlencode }}"
+                       data-bs-toggle="tooltip"
+                       data-bs-offset="0,4"
+                       data-bs-placement="left"
+                       data-bs-html="true"
+                       title=""
+                       data-bs-original-title="<span>Modify company</span>">
+                        <span class="tf-icons bx bx-plus"></span>
+                    </a>
+                    """),
+                    css_class="col-2 position-relative"
+                ),
+                css_class="row mb-3"
             ),
             Field('type'),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class CompanyCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Company
+        fields = (
+            'name',
+            'address',
+            'note',
+            'email',
+            'avatar',
+            'phone_number'
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.fields['address'].widget.attrs = {'rows': 2}
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            CommonContactLayout(),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

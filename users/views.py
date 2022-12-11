@@ -1,4 +1,10 @@
 import os
+from django.urls import reverse_lazy
+from django.views.generic.edit import (
+    UpdateView,
+    CreateView,
+)
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import (
     render,
     redirect,
@@ -12,12 +18,14 @@ from .forms import (
     UserCreateForm,
     AssociatedCreateForm,
     UserUpdateForm,
+    CompanyCreateForm,
 )
 
 from .models import (
     User,
     UserProfile,
     Associated,
+    Company,
 )
 
 
@@ -121,12 +129,14 @@ def create_provider(request):
 
 
 @login_required
-def create_client(request):
-    return create_associated(request, 'client')
+def create_client(request, company_id=None):
+    return create_associated(request, 'client', company_id)
 
 
-def create_associated(request, type):
+def create_associated(request, type, company_id=None):
     initial = {'type': type}
+    if company_id is not None:
+        initial.setdefault('company', company_id)
     form = AssociatedCreateForm(initial=initial)
     next = request.GET.get('next', 'list-{}'.format(type))
     if request.method == 'POST':
@@ -196,7 +206,7 @@ def detail_associated(request, id):
 
 
 def list_associated(request, type):
-    associateds = Associated.objects.filter(type=type)
+    associateds = Associated.objects.filter(type=type, active=True)
     return render(request, 'users/associated_list.html', {'associateds': associateds,
                                                           'type': type})
 
@@ -205,9 +215,52 @@ def list_associated(request, type):
 def delete_associated(request, id):
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
-    try:
-        associated.avatar.storage.delete(associated.avatar.path)
-    except Exception as error:
-        print(error)
-    associated.delete()
+    associated.active = False
+    associated.save()
     return redirect('list-{}'.format(associated.type))
+
+
+# -------------------- Company ----------------------------
+
+@login_required
+def create_company(request):
+    form = CompanyCreateForm()
+    next = request.GET.get('next', 'list-company')
+    if request.method == 'POST':
+        form = CompanyCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            company = form.save()
+            request.session['company_id'] = company.id
+            return redirect(next)
+    context = {
+        'form': form
+    }
+    return render(request, 'users/company_create.html', context)
+
+
+class CompanyUpdateView(LoginRequiredMixin, UpdateView):
+    model = Company
+    form_class = CompanyCreateForm
+    template_name = 'users/company_create.html'
+    success_url = reverse_lazy('list-company')
+
+
+@login_required
+def select_company(request):
+    companies = Company.objects.filter(active=True).order_by("-created_date")
+    return render(request, 'users/company_select.html', {'companies': companies})
+
+
+@login_required
+def list_company(request):
+    companies = Company.objects.filter(active=True).order_by("-created_date")
+    return render(request, 'users/company_list.html', {'companies': companies})
+
+
+@login_required
+def delete_company(request, id):
+    # fetch the object related to passed id
+    company = get_object_or_404(Company, id=id)
+    company.active = False
+    company.save()
+    return redirect('list-company')

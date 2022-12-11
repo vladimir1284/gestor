@@ -3,7 +3,6 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
-import uuid
 
 
 class Contact(models.Model):
@@ -40,7 +39,6 @@ class Contact(models.Model):
 class Company(Contact):
     class Meta:
         abstract = False
-    id = models.SlugField(primary_key=True, unique=True, default=uuid.uuid1)
 
 
 class Associated(Contact):

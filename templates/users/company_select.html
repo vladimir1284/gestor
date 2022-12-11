@@ -1,0 +1,18 @@
+{% extends 'base/base_card.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ctitle %}
+    <h5 class="card-header">Companies</h5>
+{% endblock Ctitle %}
+{% block Cards %}
+    {% for company in companies %}
+        {% include "./company/select_card.html" %}
+    {% endfor %}
+{% endblock Cards %}
+{% block createUrl %}
+    {% url 'create-company' %}?next={{ request.path|urlencode }}
+{% endblock createUrl %}
+{% block help %}
+    Create new company
+{% endblock help %}

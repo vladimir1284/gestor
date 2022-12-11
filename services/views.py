@@ -12,8 +12,6 @@ from django.shortcuts import (
 )
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
-from django.forms import ModelForm
-
 from users.models import (
     Associated,
 )
@@ -313,8 +311,7 @@ def delete_service(request, id):
 @login_required
 def create_order(request, client_id):
     client = get_object_or_404(Associated, id=client_id)
-    initial = {'created_by': request.session.get('associated_id'),
-               'associated': client}
+    initial = {'associated': client}  # request.session.get('associated_id')
     form = OrderCreateForm(initial=initial)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
@@ -333,7 +330,7 @@ def create_order(request, client_id):
 @login_required
 def select_client(request):
     associateds = Associated.objects.filter(
-        type='client').order_by("-created_date")
+        type='client', active=True).order_by("-created_date")
     return render(request, 'services/client_list.html', {'associateds': associateds})
 
 

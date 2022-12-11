@@ -15,6 +15,11 @@ from .views import (
     update_associated,
     delete_associated,
     detail_associated,
+    # ---- Company -------
+    create_company,
+    list_company,
+    select_company,
+    delete_company,
 )
 
 urlpatterns = [
@@ -50,10 +55,16 @@ urlpatterns = [
     path('delete-user/<id>', delete_user, name='delete-user'),
     # -------------------- Associated ----------------------------
     path('create-client/', create_client, name='create-client'),
+    path('create-client/<client_id>', create_client, name='create-client'),
     path('create-provider/', create_provider, name='create-provider'),
     path('update-associated/<id>', update_associated, name='update-associated'),
     path('detail-associated/<id>', detail_associated, name='detail-associated'),
     path('list-provider/', list_provider, name='list-provider'),
     path('list-client/', list_client, name='list-client'),
     path('delete-associated/<id>', delete_associated, name='delete-associated'),
+    # ----------------------- Company -------------------------------
+    path('select-company/', select_company, name='select-company'),
+    path('create-company/', create_company, name='create-company'),
+    path('list-company/', list_company, name='list-company'),
+    path('delete-company/<id>', delete_company, name='delete-company'),
 ]

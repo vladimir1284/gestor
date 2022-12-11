@@ -114,8 +114,8 @@ def create_order(request, provider_id, product_id=None):
         return redirect('create-transaction-new-order', product_id)
     else:
         provider = get_object_or_404(Associated, id=provider_id)
-        initial = {'created_by': request.session.get('associated_id'),
-                   'associated': provider}
+        # request.session.get('associated_id')
+        initial = {'associated': provider}
         form = OrderCreateForm(initial=initial)
         if request.method == 'POST':
             form = OrderCreateForm(request.POST)
@@ -134,7 +134,7 @@ def create_order(request, provider_id, product_id=None):
 @login_required
 def select_provider(request):
     associateds = Associated.objects.filter(
-        type='provider').order_by("-created_date")
+        type='provider', active=True).order_by("-created_date")
     return render(request, 'inventory/provider_list.html', {'associateds': associateds})
 
 
