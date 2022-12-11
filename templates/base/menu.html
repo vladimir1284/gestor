@@ -130,6 +130,11 @@
                         <div data-i18n="Clientes">Clientes</div>
                     </a>
                 </li>
+                <li class="menu-item">
+                    <a href="{% url 'list-company' %}" class="menu-link">
+                        <div data-i18n="Companies">Compañías</div>
+                    </a>
+                </li>
                 {% if perms.can_add_user %}
                     <li class="menu-item">
                         <a href="{% url 'list-user' %}" class="menu-link">

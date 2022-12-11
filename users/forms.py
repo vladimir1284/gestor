@@ -257,12 +257,11 @@ class AssociatedCreateForm(forms.ModelForm):
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
-            CommonContactLayout(),
             Div(
                 Div(
                     Field(
                         PrependedText('company',
-                                      '<i class="bx bx-user-buildings"></i>',
+                                      '<i class="bx bx-buildings"></i>',
                                       css_class="form-select")
                     ),
                     css_class="col-10"
@@ -286,6 +285,7 @@ class AssociatedCreateForm(forms.ModelForm):
                 ),
                 css_class="row mb-3"
             ),
+            CommonContactLayout(),
             Field('type'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')

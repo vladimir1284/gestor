@@ -31,13 +31,18 @@
                         <span class="tf-icons bx bx-mail-send"></span>
                     </a>
                 {% endif %}
-                {% if update %}
-                    <a class="btn btn-icon btn-outline-primary"
-                       type="button"
-                       href="{% url 'create-client' company.id %}">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    <div>
+                        <input type="hidden" name="next" value="{{ next }}" />
+                    </div>
+                    <div>
+                        <input type="hidden" name="id" value="{{ company.id }}" />
+                    </div>
+                    <button class="btn btn-icon btn-outline-primary" type="submit">
                         <span class="tf-icons bx bx-check"></span>
-                    </a>
-                {% endif %}
+                    </button>
+                </form>
             </div>
         </div>
     </div>

@@ -82,11 +82,6 @@ def update_user(request, id):
             # save the data from the form and
             # redirect to detail_view
             if form.is_valid():
-                if len(request.FILES) > 0:
-                    try:
-                        profile.avatar.storage.delete(path)
-                    except Exception as error:
-                        print(error)
                 profile.user.save()
                 profile.save()
                 if request.user.has_perm('auth.user.can_add_user'):
@@ -113,10 +108,6 @@ def list_user(request):
 def delete_user(request, id):
     # fetch the object related to passed id
     profile = get_object_or_404(UserProfile, id=id)
-    try:
-        profile.avatar.storage.delete(profile.avatar.path)
-    except Exception as error:
-        print(error)
     profile.user.delete()  # Profile is deleted by cascade behavior
     return redirect('list-user')
 
@@ -129,12 +120,13 @@ def create_provider(request):
 
 
 @login_required
-def create_client(request, company_id=None):
-    return create_associated(request, 'client', company_id)
+def create_client(request):
+    return create_associated(request, 'client')
 
 
-def create_associated(request, type, company_id=None):
+def create_associated(request, type):
     initial = {'type': type}
+    company_id = request.session.get('company_id')
     if company_id is not None:
         initial.setdefault('company', company_id)
     form = AssociatedCreateForm(initial=initial)
@@ -155,8 +147,10 @@ def create_associated(request, type, company_id=None):
 def update_associated(request, id):
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
-    if associated.avatar:
-        path = associated.avatar.path
+    company_id = request.session.get('company_id')
+    if company_id is not None:
+        company = get_object_or_404(Company, id=company_id)
+        associated.company = company
     # pass the object as instance in form
     form = AssociatedCreateForm(instance=associated)
 
@@ -168,11 +162,6 @@ def update_associated(request, id):
         # save the data from the form and
         # redirect to detail_view
         if form.is_valid():
-            if len(request.FILES) > 0:
-                try:
-                    associated.avatar.storage.delete(path)
-                except Exception as error:
-                    print(error)
             form.save()
             if associated.type == 'client':
                 return redirect('list-client')
@@ -247,6 +236,11 @@ class CompanyUpdateView(LoginRequiredMixin, UpdateView):
 
 @login_required
 def select_company(request):
+    if request.method == 'POST':
+        next = request.GET.get('next', 'list-company')
+        company = get_object_or_404(Company, id=request.POST.get('id'))
+        request.session['company_id'] = company.id
+        return redirect(next)
     companies = Company.objects.filter(active=True).order_by("-created_date")
     return render(request, 'users/company_select.html', {'companies': companies})
 
