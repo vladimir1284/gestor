@@ -97,7 +97,7 @@ def delete_category(request, id):
 # -------------------- Order ----------------------------
 
 @login_required
-def create_order(request, provider_id, product_id=None):
+def create_order(request, product_id=None):
     if product_id:
         product = get_object_or_404(Product, id=product_id)
         last_purchase = ProductTransaction.objects.filter(order__type='purchase',
@@ -113,9 +113,9 @@ def create_order(request, provider_id, product_id=None):
         # Create new order from the
         return redirect('create-transaction-new-order', product_id)
     else:
-        provider = get_object_or_404(Associated, id=provider_id)
-        # request.session.get('associated_id')
-        initial = {'associated': provider}
+        associated_id = request.session.get('associated_id')
+        if associated_id is not None:
+            initial = {'associated': associated_id}
         form = OrderCreateForm(initial=initial)
         if request.method == 'POST':
             form = OrderCreateForm(request.POST)
@@ -133,6 +133,11 @@ def create_order(request, provider_id, product_id=None):
 
 @login_required
 def select_provider(request):
+    if request.method == 'POST':
+        next = request.GET.get('next', 'create-order')
+        provider = get_object_or_404(Associated, id=request.POST.get('id'))
+        request.session['associated_id'] = provider.id
+        return redirect(next)
     associateds = Associated.objects.filter(
         type='provider', active=True).order_by("-created_date")
     return render(request, 'inventory/provider_list.html', {'associateds': associateds})
@@ -141,16 +146,23 @@ def select_provider(request):
 @login_required
 def update_order(request, id):
     # fetch the object related to passed id
-    obj = get_object_or_404(Order, id=id)
-
+    order = get_object_or_404(Order, id=id)
+    associated_id = request.session.get('associated_id')
+    if associated_id is not None:
+        associated = get_object_or_404(Associated, id=associated_id)
+        order.associated = associated
     # pass the object as instance in form
-    form = OrderCreateForm(request.POST or None, instance=obj)
+    form = OrderCreateForm(instance=order)
 
-    # save the data from the form and
-    # redirect to detail_view
-    if form.is_valid():
-        order = form.save()
-        return redirect('detail-order', id=order.id)
+    if request.method == 'POST':
+        # pass the object as instance in form
+        form = OrderCreateForm(request.POST, instance=order)
+
+        # save the data from the form and
+        # redirect to detail_view
+        if form.is_valid():
+            form.save()
+            return redirect('detail-order', id)
 
     # add form dictionary to context
     context = {
@@ -169,9 +181,7 @@ def update_order_status(request, id, status):
         transactions = ProductTransaction.objects.filter(order=order)
         for transaction in transactions:
             handle_transaction(transaction, order)
-        return redirect('list-order')
-    else:
-        return redirect('detail-order', id=order.id)
+    return redirect('list-order')
 
 
 @login_required

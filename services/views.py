@@ -378,9 +378,7 @@ def update_order_status(request, id, status):
         transactions = ProductTransaction.objects.filter(order=order)
         for transaction in transactions:
             handle_transaction(transaction, order)
-        return redirect('list-service-order')
-    else:
-        return redirect('detail-service-order', id=order.id)
+    return redirect('list-service-order')
 
 
 @login_required

@@ -7,7 +7,7 @@
 {% endblock Ctitle %}
 {% block Cards %}
     {% for associated in associateds %}
-        {% include "./client_card.html" %}
+        {% include "users/associated_select_card.html" %}
     {% endfor %}
 {% endblock Cards %}
 {% block createUrl %}

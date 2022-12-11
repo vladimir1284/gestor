@@ -22,7 +22,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class OrderCreateForm(BaseOrderCreateForm):
-    href = "{% url 'select-provider' %}"
+    href = "{% url 'select-provider' %}?next={{ request.path|urlencode }}"
     tooltip = "Modify provider"
 
     def __init__(self, *args, **kwargs):

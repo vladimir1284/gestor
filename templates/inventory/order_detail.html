@@ -5,7 +5,7 @@
 {% block Ttitle %}
     <div class="card-body">
         <h5 class="card-title">
-            {{ order.concept }} (${{ order.amount|floatformat:"2" }})
+            Purchase order: <b>{{ order.concept }}</b> (${{ order.amount|floatformat:"2" }})
             {% if terminated or empty %}
                 <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' %}danger{% endif %}">
                     {{ order.get_status_display }}
