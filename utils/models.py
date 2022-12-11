@@ -85,7 +85,7 @@ class Transaction(models.Model):
     note = models.TextField(blank=True)
     tax = models.FloatField(default=8.25)
     price = models.FloatField()
-    quantity = models.FloatField()
+    quantity = models.FloatField(default=1)
 
     def __str__(self):
         return "{}-{}-${}".format(self.order, self.quantity, self.price)

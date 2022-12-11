@@ -129,6 +129,7 @@ def create_associated(request, type):
     company_id = request.session.get('company_id')
     if company_id is not None:
         initial.setdefault('company', company_id)
+        request.session['company_id'] = None
     form = AssociatedCreateForm(initial=initial)
     next = request.GET.get('next', 'list-{}'.format(type))
     if request.method == 'POST':
@@ -151,6 +152,7 @@ def update_associated(request, id):
     if company_id is not None:
         company = get_object_or_404(Company, id=company_id)
         associated.company = company
+        request.session['company_id'] = None
     # pass the object as instance in form
     form = AssociatedCreateForm(instance=associated)
 

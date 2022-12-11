@@ -94,7 +94,8 @@ def renderCreateTransaction(request, form, service, order_id):
 def create_transaction(request, order_id, service_id):
     order = Order.objects.get(id=order_id)
     service = Service.objects.get(id=service_id)
-    form = TransactionCreateForm()
+    initial = {'price': service.suggested_price}
+    form = TransactionCreateForm(initial=initial)
     if request.method == 'POST':
         form = TransactionCreateForm(request.POST)
         if form.is_valid():

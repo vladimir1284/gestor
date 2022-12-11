@@ -39,7 +39,7 @@ class TestPurchaseOrder(TestCase):
     def test_order_create(self):
         # Creates a new provider and redirect to create order
         response = self.client.post(
-            '/users/create-provider/?next=/inventory/create-order/1',
+            '/users/create-provider/?next=/inventory/create-order/',
             self.provider_data)
         # print(response.content)
         # self.assertInHTML(
@@ -219,7 +219,7 @@ class TestStockFIFO(TestCase):
             'concept': 'inicial',
             'associated': 1,
         }
-        self.client.post('/inventory/create-order/1', form_data)
+        self.client.post('/inventory/create-order/', form_data)
         form_data = {
             'tax': 0,
             'price': 12,
@@ -241,7 +241,7 @@ class TestStockFIFO(TestCase):
             'concept': 'compra',
             'associated': 1,
         }
-        self.client.post('/inventory/create-order/1', form_data)
+        self.client.post('/inventory/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,
@@ -264,7 +264,7 @@ class TestStockFIFO(TestCase):
             'concept': 'venta',
             'associated': 2,
         }
-        self.client.post('/services/create-order/1', form_data)
+        self.client.post('/services/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,
@@ -290,7 +290,7 @@ class TestStockFIFO(TestCase):
             'concept': 'compra',
             'associated': 1,
         }
-        self.client.post('/inventory/create-order/1', form_data)
+        self.client.post('/inventory/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,
@@ -313,7 +313,7 @@ class TestStockFIFO(TestCase):
             'concept': 'venta',
             'associated': 2,
         }
-        self.client.post('/services/create-order/1', form_data)
+        self.client.post('/services/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,

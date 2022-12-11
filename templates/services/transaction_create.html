@@ -15,8 +15,8 @@
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-12">
-                            Product: <b>{{ product.name }}</b>
-                            <a {% if form.instance.id %}onclick="deleteTransaction('{% url 'delete-transaction' form.instance.id %}', '{{ product.name }}')"{% endif %}
+                            Service: <b>{{ service.name }}</b>
+                            <a {% if form.instance.id %}onclick="deleteTransaction('{% url 'delete-service-transaction' form.instance.id %}', '{{ service.name }}')"{% endif %}
                                type="button"
                                class="btn btn-icon btn-outline-danger float-end">
                                 <span class="tf-icons bx bx-trash"></span>
@@ -30,7 +30,7 @@
     </div>
     <script>
         function deleteTransaction(url, name) {
-            let confirmAction = confirm("Are you sure to delete the product " + name + " from this order?");
+            let confirmAction = confirm("Are you sure to delete the service " + name + " from this order?");
             if (confirmAction) {
                 window.location = url;
             }

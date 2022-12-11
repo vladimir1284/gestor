@@ -104,7 +104,7 @@
         <h5 class="card-header">
             <div class="mb-2">
                 <strong>Stock:</strong>
-                - ${{ product.stock_price|floatformat:"2" }}
+                ${{ product.stock_price|floatformat:"2" }}
             </div>
             <div class="row">
                 <div class="d-flex col-md-4 mb-2">
@@ -115,7 +115,7 @@
                         <div class="me-2">
                             <h6 class="mb-0 {% if product.quantity_min > product.quantity %}bg-label-danger{% endif %}">
                                 {% if product.quantity_min > 0 %}
-                                    {{ product.quantity|floatformat:"-2" }} (min: {{ product.quantity_min|floatformat:"-2" }})
+                                    {{ product.quantity|floatformat:"-2" }} (> {{ product.quantity_min|floatformat:"-2" }})
                                 {% else %}
                                     {{ product.quantity|floatformat:"-2" }}
                                 {% endif %}
