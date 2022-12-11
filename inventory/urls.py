@@ -25,7 +25,7 @@ from .views import (
     delete_unit,
     # ---- Product -------
     ProductCreateView,
-    ProductUpdateView,
+    update_product,
     list_product,
     detail_product,
     select_product,
@@ -66,7 +66,7 @@ urlpatterns = [
     path('delete-unit/<id>', delete_unit, name='delete-unit'),
     # -------------------- Product ----------------------------
     path('create-product/', ProductCreateView.as_view(), name='create-product'),
-    path('update-product/<pk>', ProductUpdateView.as_view(), name='update-product'),
+    path('update-product/<id>', update_product, name='update-product'),
     path('detail-product/<id>', detail_product, name='detail-product'),
     path('list-product/', list_product, name='list-product'),
     path('select-product/<next>/<order_id>',

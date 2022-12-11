@@ -225,12 +225,13 @@ def detail_order(request, id):
 
 # -------------------- Transaction ----------------------------
 
-def getNewOrder(associated: Associated, product: Product):
+def getNewOrder(associated: Associated, product: Product, user):
     return Order.objects.create(concept="Restock of {}".format(product.name),
                                 note="Automatically created for the purchase of product {}. Please, check all details!".format(
         product.name),
         type='purchase',
-        associated=associated)
+        associated=associated,
+        created_by=user)
 
 
 def renderCreateTransaction(request, form, product, order_id):
@@ -262,8 +263,7 @@ def create_transaction(request, order_id, product_id):
 @login_required
 def create_transaction_new_order(request, product_id):
     product = Product.objects.get(id=product_id)
-    initial = {'unit': product.unit,
-               'created_by': request.session.get('associated_id')}
+    initial = {'unit': product.unit}
     last_purchase = ProductTransaction.objects.filter(order__type='purchase',
                                                       product=product).order_by('-id').first()
     order_id = -1
@@ -282,7 +282,7 @@ def create_transaction_new_order(request, product_id):
             else:
                 last_provider = form.cleaned_data['associated']
 
-            order = getNewOrder(last_provider, product)
+            order = getNewOrder(last_provider, product, request.user)
             trans = form.save(commit=False)
             trans.order = order
             trans.product = product
@@ -422,11 +422,28 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('list-product')
 
 
-class ProductUpdateView(LoginRequiredMixin, UpdateView):
-    model = Product
-    form_class = ProductCreateForm
-    template_name = 'inventory/product_create.html'
-    success_url = reverse_lazy('list-product')
+@login_required
+def update_product(request, id):
+    # fetch the object related to passed id
+    product = get_object_or_404(Product, id=id)
+
+    # pass the object as instance in form
+    form = ProductCreateForm(request.POST or None,
+                             request.FILES or None,
+                             instance=product)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        form.save()
+        return redirect('detail-product', id)
+
+    # add form dictionary to context
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'inventory/product_create.html', context)
 
 
 def product_list_metadata(type, products: List[Product]):
@@ -451,11 +468,29 @@ def product_list_metadata(type, products: List[Product]):
     return (categories, alerts)
 
 
+def computeTransactionProducts(product, status):
+    quantity = 0
+    transactions = ProductTransaction.objects.filter(
+        product=product, order__status=status)
+    for transaction in transactions:
+        quantity += transaction.quantity
+    return quantity
+
+
 def prepare_product_list():
     products = Product.objects.all()
     (consumable_categories, consumable_alerts) = product_list_metadata(
         'consumable', products)
     (part_categories, part_alerts) = product_list_metadata('part', products)
+    for product in products:
+        # Pending quantity
+        pending = computeTransactionProducts(product, 'pending')
+        if pending > 0:
+            product.pending = pending
+        # Processing quantity
+        processing = computeTransactionProducts(product, 'processing')
+        if processing > 0:
+            product.processing = processing
 
     return {'products': products,
             'consumable_alerts': consumable_alerts,
@@ -514,6 +549,14 @@ def detail_product(request, id):
     latest_order = None
     if latest_purchase:
         latest_order = latest_purchase.order
+    # Pending quantity
+    pending = computeTransactionProducts(product, 'pending')
+    if pending > 0:
+        product.pending = pending
+    # Processing quantity
+    processing = computeTransactionProducts(product, 'processing')
+    if processing > 0:
+        product.processing = processing
     return render(request, 'inventory/product_detail.html', {'product': product,
                                                              'stocks': stocks,
                                                              'purchases': purchases,
