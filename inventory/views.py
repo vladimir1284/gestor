@@ -248,7 +248,14 @@ def renderCreateTransaction(request, form, product, order_id):
 def create_transaction(request, order_id, product_id):
     order = Order.objects.get(id=order_id)
     product = Product.objects.get(id=product_id)
-    form = TransactionCreateForm(initial={'unit': product.unit})
+
+    average_cost = 0
+    if product.quantity > 0:
+        average_cost = product.stock_price/product.quantity
+    sell_price = average_cost * (1 + product.suggested_price/100)
+
+    form = TransactionCreateForm(initial={'unit': product.unit,
+                                          'price': sell_price})
     if request.method == 'POST':
         form = TransactionCreateForm(request.POST)
         if form.is_valid():
@@ -256,7 +263,10 @@ def create_transaction(request, order_id, product_id):
             trans.order = order
             trans.product = product
             trans.save()
-            return redirect('detail-order', id=order_id)
+            if order.type == 'sell':
+                return redirect('detail-service-order', id=order_id)
+            if order.type == 'purchase':
+                return redirect('detail-order', id=order_id)
     return renderCreateTransaction(request, form, product, order_id)
 
 
@@ -304,7 +314,10 @@ def update_transaction(request, id):
     # redirect to detail_view
     if form.is_valid():
         form.save()
-        return redirect('detail-order', id=transaction.order.id)
+        if transaction.order.type == 'sell':
+            return redirect('detail-service-order', id=transaction.order.id)
+        if transaction.order.type == 'purchase':
+            return redirect('detail-order', id=transaction.order.id)
 
     # add form dictionary to context
     context = {

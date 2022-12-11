@@ -15,7 +15,7 @@
         {% if product.type == type %}
             <tr data-tag="{{ product.category }}">
                 <td>
-                    <a href={% url next order_id product.id %}><i class="bx bx-plus"></i></a>
+                    <a href={% url 'create-transaction' order_id product.id %}><i class="bx bx-plus"></i></a>
                 </td>
                 <td class="pl-0">
                     <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ product.name }}</strong>
