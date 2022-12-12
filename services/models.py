@@ -2,6 +2,7 @@ from utils.models import Category
 from django.db import models
 
 from utils.models import Order, Profit, Transaction
+from users.models import Associated
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
@@ -22,6 +23,18 @@ class Service(models.Model):
 
     def __str__(self):
         return "{}-${}".format(self.name, self.suggested_price)
+
+
+class Expense(models.Model):
+    concept = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+    associated = models.ForeignKey(Associated, blank=True, null=True,
+                                   on_delete=models.SET_NULL)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    cost = models.FloatField(blank=True)
+
+    def __str__(self):
+        return "{}-${}".format(self.concept, self.cost)
 
 
 class ServiceTransaction(Transaction):

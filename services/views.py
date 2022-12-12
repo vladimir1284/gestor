@@ -37,6 +37,7 @@ from .models import (
     Profit as ServiceProfit,
     ServiceCategory,
     Order,
+    Expense,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import (
@@ -44,6 +45,7 @@ from .forms import (
     CategoryCreateForm,
     TransactionCreateForm,
     OrderCreateForm,
+    ExpenseCreateForm,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -312,8 +314,10 @@ def delete_service(request, id):
 @login_required
 def create_order(request):
     associated_id = request.session.get('associated_id')
+    initial = {}
     if associated_id is not None:
         initial = {'associated': associated_id}
+        request.session['associated_id'] = None
     form = OrderCreateForm(initial=initial)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
@@ -349,6 +353,7 @@ def update_order(request, id):
     if associated_id is not None:
         associated = get_object_or_404(Associated, id=associated_id)
         order.associated = associated
+        request.session['associated_id'] = None
     # pass the object as instance in form
     form = OrderCreateForm(instance=order)
 
@@ -404,6 +409,7 @@ def detail_order(request, id):
     order = Order.objects.get(id=id)
     transactions = ProductTransaction.objects.filter(order=order)
     services = ServiceTransaction.objects.filter(order=order)
+    expenses = Expense.objects.filter(order=order)
     # Compute amount
     amount = 0
     for transaction in transactions:
@@ -425,6 +431,60 @@ def detail_order(request, id):
     empty = (len(services) + len(transactions)) == 0
     return render(request, 'services/order_detail.html', {'order': order,
                                                           'services': services,
+                                                          'expenses': expenses,
                                                           'transactions': transactions,
                                                           'terminated': terminated,
                                                           'empty': empty})
+
+# -------------------- Expense ----------------------------
+
+
+@login_required
+def create_expense(request, order_id):
+    associated_id = request.session.get('associated_id')
+    initial = {}
+    if associated_id is not None:
+        initial = {'associated': associated_id}
+        request.session['associated_id'] = None
+    form = ExpenseCreateForm(initial=initial)
+    if request.method == 'POST':
+        form = ExpenseCreateForm(request.POST)
+        if form.is_valid():
+            expense = form.save(commit=False)
+            expense.order = get_object_or_404(Order, id=order_id)
+            expense.save()
+            return redirect('detail-service-order', order_id)
+    context = {
+        'form': form
+    }
+    return render(request, 'services/expense_create.html', context)
+
+
+@login_required
+def update_expense(request, id):
+    # fetch the object related to passed id
+    expense = get_object_or_404(Expense, id=id)
+    associated_id = request.session.get('associated_id')
+    if associated_id is not None:
+        associated = get_object_or_404(Associated, id=associated_id)
+        expense.associated = associated
+        request.session['associated_id'] = None
+    # pass the object as instance in form
+    form = ExpenseCreateForm(instance=expense)
+
+    if request.method == 'POST':
+        # pass the object as instance in form
+        form = ExpenseCreateForm(request.POST, instance=expense)
+
+        # save the data from the form and
+        # redirect to detail_view
+        if form.is_valid():
+            form.save()
+            return redirect('detail-service-order', expense.order.id)
+
+    # add form dictionary to context
+    context = {
+        'form': form
+    }
+
+    return render(request, 'services/expense_create.html', context)
