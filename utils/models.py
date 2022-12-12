@@ -35,20 +35,6 @@ class Category(models.Model):
         return self.name
 
 
-class Profit(models.Model):
-    class Meta:
-        abstract = True
-
-    created_date = models.DateTimeField(auto_now_add=True)
-    # In product unit
-    quantity = models.FloatField()
-    # Calculated from sell price and inventory cost
-    profit = models.FloatField()
-
-    def __str__(self):
-        return "Qty: {} profit: ${}".format(self.quantity, self.profit)
-
-
 class Order(models.Model):
     # There can be several products in a single order.
     STATUS_CHOICE = (

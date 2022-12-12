@@ -1,6 +1,6 @@
-import datetime
 import os
 from django.urls import reverse_lazy
+from django.utils import timezone
 from typing import List
 from django.views.generic.edit import (
     UpdateView,
@@ -28,7 +28,6 @@ from .models import (
     Unit,
     ProductTransaction,
     Stock,
-    Profit,
     ProductCategory,
 )
 from .forms import (
@@ -115,6 +114,7 @@ def create_order(request, product_id=None):
         return redirect('create-transaction-new-order', product_id)
     else:
         associated_id = request.session.get('associated_id')
+        initial = {}
         if associated_id is not None:
             initial = {'associated': associated_id}
         form = OrderCreateForm(initial=initial)
@@ -179,8 +179,8 @@ def update_order_status(request, id, status):
     if status == 'complete':
         transactions = ProductTransaction.objects.filter(order=order)
         for transaction in transactions:
-            handle_transaction(transaction, order)
-        order.terminated_date = datetime.datetime.now
+            handle_transaction(transaction)
+        order.terminated_date = timezone.now()
     order.status = status
     order.save()
     return redirect('list-order')
@@ -345,7 +345,7 @@ def getTransactionAmount(transaction: ProductTransaction):
         transaction.price*(1 + transaction.tax/100.)
 
 
-def handle_transaction(transaction: ProductTransaction, order: Order):
+def handle_transaction(transaction: ProductTransaction):
     #  To be performed on complete orders
     product = transaction.product
     # To be used in the rest of the system

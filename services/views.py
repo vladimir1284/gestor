@@ -1,6 +1,6 @@
-import datetime
 import os
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic.edit import (
     UpdateView,
     CreateView,
@@ -19,7 +19,6 @@ from users.models import (
 from inventory.models import (
     ProductTransaction,
     Product,
-    Profit as ProductProfit,
     Stock,
 )
 from inventory.views import (
@@ -35,7 +34,6 @@ from utils.models import (
 from .models import (
     Service,
     ServiceTransaction,
-    Profit as ServiceProfit,
     ServiceCategory,
     Order,
     Expense,
@@ -144,7 +142,7 @@ def detail_transaction(request, id):
                                                                 'amount': getTransactionAmount(transaction)})
 
 
-def handle_transaction(transaction: Transaction, order: Order):
+def handle_transaction(transaction: Transaction):
     #  To be performed on complete orders
     if isinstance(transaction, ProductTransaction):
         product = transaction.product
@@ -154,8 +152,7 @@ def handle_transaction(transaction: Transaction, order: Order):
             input_unit=transaction.unit,
             output_unit=product.unit,
             value=transaction.quantity)
-        # Generate profit
-        income = transaction.price * transaction.quantity
+
         if (product_quantity > product.quantity):
             raise NotEnoughStockError
 
@@ -178,11 +175,9 @@ def handle_transaction(transaction: Transaction, order: Order):
                 stock_cost += stock.quantity * stock.cost
                 pending -= stock.quantity
                 stock.delete()
+        transaction.cost = stock_cost
+        transaction.save()
 
-        profit = income - stock_cost
-        ProductProfit.objects.create(product=product,
-                                     quantity=product_quantity,
-                                     profit=profit)
         product.quantity -= product_quantity
         product.stock_price -= stock_cost
         product.save()
@@ -380,8 +375,8 @@ def update_order_status(request, id, status):
         if status == 'complete':
             transactions = ProductTransaction.objects.filter(order=order)
             for transaction in transactions:
-                handle_transaction(transaction, order)
-            order.terminated_date = datetime.datetime.now
+                handle_transaction(transaction)
+            order.terminated_date = timezone.now()
         order.status = status
         order.save()
     except NotEnoughStockError as error:

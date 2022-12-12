@@ -6,7 +6,6 @@ from .views import convertUnit, DifferentMagnitudeUnitsError
 from .models import (
     Unit,
     Product,
-    Profit,
     ProductTransaction)
 import random
 
@@ -279,9 +278,8 @@ class TestStockFIFO(TestCase):
         product = Product.objects.get(id=1)
         self.assertEqual(product.quantity, 150)
         self.assertEqual(product.stock_price, 2137.5)
-        profit = Profit.objects.all().order_by('-created_date')[0]
-        print(profit)
-        self.assertEqual(profit.profit, 1087.5)
+        profit = trans.price*trans.quantity-trans.cost
+        self.assertEqual(profit, 1087.5)
 
         # 12 de enero compra
         form_data = {
@@ -328,6 +326,5 @@ class TestStockFIFO(TestCase):
         product = Product.objects.get(id=1)
         self.assertEqual(product.quantity, 75+225)
         self.assertEqual(product.stock_price, 1068.75+3375)
-        profit = Profit.objects.all().order_by('-created_date')[0]
-        print(profit)
-        self.assertEqual(profit.profit, 1181.25)
+        profit = trans.price*trans.quantity-trans.cost
+        self.assertEqual(profit, 1181.25)

@@ -1,140 +1,49 @@
 {% extends 'base/base.html' %}
-
-{% block title %}Dashboard{% endblock title %}
-
+{% block title %}
+    Dashboard
+{% endblock title %}
 {% block content %}
-    <!-- Widgets  -->
-    <div class="row">
-        <div class="col-lg-3 col-md-6">
-            <div class="card">
-                <div class="card-body" style="background-color: blue">
-                    <div class="stat-widget-five">
-                        <div class="stat-icon dib flat-color-1">
-                            <i class="fa fa-shopping-cart"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="text-left dib">
-                                <div class="stat-text"><span class="count" style="color: white">{{ order }}</span></div>
-                                <div class="stat-heading" style="color: white">Order</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6">
-            <div class="card">
-                <div class="card-body" style="background-color: green">
-                    <div class="stat-widget-five">
-                        <div class="stat-icon dib flat-color-2">
-                            <i class="fa fa-list"></i>
-                        </div>
-                        <div class="stat-content" >
-                            <div class="text-left dib">
-                                <div class="stat-text" style="color: white"><span class="count">{{ product }}</span></div>
-                                <div class="stat-heading" style="color: white">Product</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6">
-            <div class="card">
-                <div class="card-body" style="background-color: red">
-                    <div class="stat-widget-five">
-                        <div class="stat-icon dib flat-color-3">
-                            <i class="fa fa-user"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="text-left dib">
-                                <div class="stat-text"><span class="count" style="color: white">{{ associated }}</span></div>
-                                <div class="stat-heading" style="color: white">Associated</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6">
-            <div class="card">
-                <div class="card-body" style="background-color: orchid">
-                    <div class="stat-widget-five">
-                        <div class="stat-icon dib flat-color-4">
-                            <i class="fa fa-users"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="text-left dib">
-                                <div class="stat-text"><span class="count" style="color: white">{{ buyer }}</span></div>
-                                <div class="stat-heading" style="color: white">Buyer</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="card">
+        <h5 class="card-header">Service incomes</h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>date</th>
+                        <th>Parts</th>
+                        <th>Services</th>
+                        <th>Consumables</th>
+                        <th>Third party</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>
+                                <strong>{{ order.associated }}</strong>
+                            </td>
+                            <td>{{ order.terminated_date|date:"D, d" }}</td>
+                            <td>${{ order.parts|floatformat:"2" }}</td>
+                            <td>${{ order.service|floatformat:"2" }}</td>
+                            <td>${{ order.consumable|floatformat:"2" }}</td>
+                            <td>${{ order.third_party|floatformat:"2" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-border-bottom-0">
+                    <tr>
+                        <th></th>
+                        <th>
+                            <strong>Total =</strong>
+                        </th>
+                        <th>${{ parts|floatformat:"2" }}</th>
+                        <th>${{ service|floatformat:"2" }}</th>
+                        <th>${{ consumable|floatformat:"2" }}</th>
+                        <th>${{ third_party|floatformat:"2" }}</th>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
     </div>
-    <!-- /Widgets -->
-    
-    <div class="clearfix"></div>
-    <!-- Basic Bootstrap Table -->
-    <div class="card">
-        <h5 class="card-header">Table Basic</h5>
-        <div class="table-responsive text-nowrap">
-          <table class="table">
-            <thead>
-              <tr>
-                <th class="serial">#</th>
-                <th>Associated</th>
-                <th>Product</th>
-                <th>Design</th>
-                <th>Color</th>
-                <th>Buyer</th>
-                <th>Season</th>
-                <th>Category</th>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody class="table-border-bottom-0">
-                {% if orders %}
-                {% for order in orders %}
-                <tr>
-                    <td class="serial">{{ forloop.counter }}</td>
-                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ order.associated }}</strong></td>
-                    <td>{{ order.product }}</td>
-                    <td>{{ order.design }}</td>
-                    <td>{{ order.color }}</td>
-                    <td>{{ order.buyer }}</td>
-                    <td>{{ order.season }}</td>
-                    <td>{{ order.drop }}</td>
-                    <td>{{ order.created_date }}</td>
-                    <td>
-                        {% if order.status == 'pending' %}
-                            <a class="btn btn-warning" href="">{{ order.status }}</a>
-                        {% elif order.status == 'decline' %}
-                            <a class="btn btn-danger" href="">{{ order.status }}</a>
-                        {% elif order.status == 'complete' %}
-                            <a class="btn btn-success" href="">{{ order.status }}</a>
-                        {% elif order.status == 'approved' %}
-                            <a class="btn btn-primary" href="">{{ order.status }}</a>
-                        {% elif order.status == 'bulk' %}
-                            <a class="btn btn-secondary" href="">{{ order.status }}</a>
-                        {% else %}
-                            <a class="btn btn-info" href="">{{ order.status }}</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-                {% else %}
-                    <tr><td>No Order Data</td></tr>
-                {% endif %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <!--/ Basic Bootstrap Table -->
 {% endblock content %}

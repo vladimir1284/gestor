@@ -1,7 +1,7 @@
 from utils.models import Category
 from django.db import models
 
-from utils.models import Order, Profit, Transaction
+from utils.models import Order, Transaction
 from users.models import Associated
 from django.utils.translation import gettext_lazy as _
 from PIL import Image

@@ -1,6 +1,6 @@
 from django.db import models
 
-from utils.models import Category, Profit, Transaction
+from utils.models import Category, Transaction
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 from PIL import Image
@@ -75,6 +75,7 @@ class Product(models.Model):
 
 class ProductTransaction(Transaction):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    cost = models.FloatField(blank=True, null=True)
     # As used in the transaction
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
 
@@ -92,10 +93,3 @@ class Stock(models.Model):
 
     def __str__(self):
         return "{}-{}-${}".format(self.product.name, self.quantity, self.cost)
-
-
-class Profit(Profit):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return "{} product: {}".format(super(Profit, self).__str__(), self.product.name)
