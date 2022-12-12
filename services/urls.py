@@ -28,6 +28,7 @@ from .views import (
     # ---- Expense ----------
     create_expense,
     update_expense,
+    delete_expense,
 )
 
 
@@ -71,4 +72,5 @@ urlpatterns = [
     # -------------------- Expense ----------------------------
     path('create-expense/<order_id>', create_expense, name='create-expense'),
     path('update-expense/<id>', update_expense, name='update-expense'),
+    path('delete-expense/<id>', delete_expense, name='delete-expense'),
 ]

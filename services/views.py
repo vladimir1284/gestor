@@ -457,7 +457,8 @@ def create_expense(request, order_id):
             expense.save()
             return redirect('detail-service-order', order_id)
     context = {
-        'form': form
+        'form': form,
+        'title': _("Add third party expense")
     }
     return render(request, 'services/expense_create.html', context)
 
@@ -486,7 +487,17 @@ def update_expense(request, id):
 
     # add form dictionary to context
     context = {
-        'form': form
+        'form': form,
+        'expense': expense,
+        'title': _("Update third party expense")
     }
 
     return render(request, 'services/expense_create.html', context)
+
+
+@login_required
+def delete_expense(request, id):
+    # fetch the object related to passed id
+    expense = get_object_or_404(Expense, id=id)
+    expense.delete()
+    return redirect('detail-service-order', expense.order.id)

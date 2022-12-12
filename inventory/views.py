@@ -371,7 +371,10 @@ def delete_transaction(request, id):
     # fetch the object related to passed id
     transaction = get_object_or_404(ProductTransaction, id=id)
     transaction.delete()
-    return redirect('detail-order', id=transaction.order.id)
+    if transaction.order.type == 'sell':
+        return redirect('detail-service-order', id=transaction.order_id)
+    if transaction.order.type == 'purchase':
+        return redirect('detail-order', id=transaction.order_id)
 
 
 # -------------------- Unit ----------------------------

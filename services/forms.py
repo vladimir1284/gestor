@@ -247,11 +247,6 @@ class ExpenseCreateForm(forms.ModelForm):
                   'associated',)
 
     def __init__(self, *args, **kwargs):
-        if 'title' in kwargs:
-            self.title = kwargs['title']
-            kwargs.pop('title')
-        else:
-            self.title = _("Create Third Party Expense")
 
         super().__init__(*args, **kwargs)
         # Focus on form field whenever error occurred
@@ -266,56 +261,49 @@ class ExpenseCreateForm(forms.ModelForm):
         self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
             Div(
-                Fieldset(
-                    self.title,
-                    Div(
-                        Div(
-                            Field(
-                                PrependedText('associated',
-                                              '<i class="bx bx-user-circle"></i>',
-                                              css_class="form-select")
-                            ),
-                            css_class="col-10"
-                        ),
-                        Div(
-                            HTML(
-                                """
+                Div(
+                    Field(
+                        PrependedText('associated',
+                                      '<i class="bx bx-user-circle"></i>',
+                                      css_class="form-select")
+                    ),
+                    css_class="col-10"
+                ),
+                Div(
+                    HTML(
+                        """
                                 <a class="btn btn-icon btn-outline-primary position-absolute bottom-0"
                                 type="button"
                                 href="{% url 'select-provider' %}?next={{ request.path|urlencode }}">
                                     <span class="tf-icons bx bx-plus"></span>
                                 </a>
                                 """),
-                            css_class="col-2 position-relative"
-                        ),
-                        css_class="row mb-3"
-                    ),
-                    Div(
-                        Div(
-                            Field('concept')
-                        ),
-                        css_class="mb-3"
-                    ),
-                    Div(
-                        Div(
-                            Field('description', rows='2')
-                        ),
-                        css_class="mb-3"
-                    ),
-                    Div(
-                        Div(
-                            Field(
-                                PrependedText('cost', '$')
-                            )
-                        ),
-                        css_class="mb-3"
-                    ),
-                    ButtonHolder(
-                        Submit('submit', 'Enviar',
-                               css_class='btn btn-success')
-                    ),
-                    css_class="card-body"
+                    css_class="col-2 position-relative"
                 ),
-                css_class="card mb-4"
+                css_class="row mb-3"
+            ),
+            Div(
+                Div(
+                    Field('concept')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('description', rows='2')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field(
+                        PrependedText('cost', '$')
+                    )
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar',
+                       css_class='btn btn-success')
             )
         )
