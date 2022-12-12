@@ -71,6 +71,7 @@ class Order(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    terminated_date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.concept}  ({self.type}) {self.created_date}"

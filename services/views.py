@@ -1,3 +1,4 @@
+import datetime
 import os
 from django.urls import reverse_lazy
 from django.views.generic.edit import (
@@ -154,8 +155,7 @@ def handle_transaction(transaction: Transaction, order: Order):
             output_unit=product.unit,
             value=transaction.quantity)
         # Generate profit
-        income = transaction.price * \
-            (1 - transaction.tax/100.)*transaction.quantity  # Take off taxes
+        income = transaction.price * transaction.quantity
         if (product_quantity > product.quantity):
             raise NotEnoughStockError
 
@@ -186,8 +186,6 @@ def handle_transaction(transaction: Transaction, order: Order):
         product.quantity -= product_quantity
         product.stock_price -= stock_cost
         product.save()
-    if isinstance(transaction, ServiceTransaction):
-        pass
 
 
 @login_required
@@ -378,12 +376,16 @@ def update_order(request, id):
 @login_required
 def update_order_status(request, id, status):
     order = get_object_or_404(Order, id=id)
-    order.status = status
-    order.save()
-    if status == 'complete':
-        transactions = ProductTransaction.objects.filter(order=order)
-        for transaction in transactions:
-            handle_transaction(transaction, order)
+    try:
+        if status == 'complete':
+            transactions = ProductTransaction.objects.filter(order=order)
+            for transaction in transactions:
+                handle_transaction(transaction, order)
+            order.terminated_date = datetime.datetime.now
+        order.status = status
+        order.save()
+    except NotEnoughStockError as error:
+        print(error)
     return redirect('list-service-order')
 
 

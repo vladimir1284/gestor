@@ -42,10 +42,3 @@ class ServiceTransaction(Transaction):
 
     def __str__(self):
         return "{} product: {}".format(super(Transaction, self).__str__(), self.service.name)
-
-
-class Profit(Profit):
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return "{} service: {}".format(super(Profit, self).__str__(), self.service.name)
