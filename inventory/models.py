@@ -1,4 +1,5 @@
 from django.db import models
+import math
 
 from utils.models import Category, Transaction
 from django.utils.translation import gettext_lazy as _
@@ -52,10 +53,26 @@ class Product(models.Model):
         max_length=20, choices=TYPE_CHOICE, default='consumable')
     sell_tax = models.FloatField(blank=True, default=8.25)
     suggested_price = models.FloatField(blank=True, default=30)
-    max_price = models.FloatField(blank=True, default=50)
+    min_price = models.FloatField(blank=True, default=0)
     quantity = models.FloatField(blank=True, default=0)
     stock_price = models.FloatField(blank=True, default=0)
     quantity_min = models.FloatField(blank=True, default=0)
+
+    def getSuggestedPrice(self):
+        if self.quantity > 0:
+            average_cost = self.stock_price/self.quantity
+            suggested = average_cost*(1+self.suggested_price/100)
+            if suggested < self.min_price:
+                return self.min_price
+            else:
+                if suggested < 20:
+                    # Round to the nearest integer
+                    return math.ceil(suggested)
+                else:
+                    # Round to the nearest greater multiple of 5
+                    return math.ceil(suggested/5)*5
+        else:
+            return self.min_price
 
     def __str__(self):
         return "{}-{}-${}".format(self.name, self.quantity, self.stock_price)

@@ -208,7 +208,7 @@ class ProductCreateForm(forms.ModelForm):
                   'type',
                   'sell_tax',
                   'suggested_price',
-                  'max_price',
+                  'min_price',
                   'quantity_min')
 
     def __init__(self, *args, **kwargs):
@@ -307,7 +307,7 @@ class ProductCreateForm(forms.ModelForm):
                         Div(
                             Div(
                                 Field(
-                                    AppendedText('max_price', '%')
+                                    PrependedText('min_price', '$')
                                 )
                             ),
                             css_class="mb-3"

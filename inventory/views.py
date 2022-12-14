@@ -496,7 +496,7 @@ def computeTransactionProducts(product, status):
 
 
 def prepare_product_list():
-    products = Product.objects.all()
+    products = Product.objects.all().order_by('name')
     (consumable_categories, consumable_alerts) = product_list_metadata(
         'consumable', products)
     (part_categories, part_alerts) = product_list_metadata('part', products)
@@ -548,16 +548,25 @@ def select_new_product(request, next, order_id):
 
 
 @login_required
+def duplicate_product(request, id):
+    product = get_object_or_404(Product, id=id)
+    product.pk = None
+    product.name += " (copy)"
+    product.stock_price = 0
+    product.quantity = 0
+    product._state.adding = True
+    product.save()
+    return redirect('detail-product', product.pk)
+
+
+@ login_required
 def detail_product(request, id):
     # fetch the object related to passed id
     product = get_object_or_404(Product, id=id)
     product.average_cost = 0
     if product.quantity > 0:
         product.average_cost = product.stock_price/product.quantity
-    product.sell_price = product.average_cost * \
-        (1 + product.suggested_price/100)
-    product.sell_max = product.average_cost * \
-        (1 + product.max_price/100)
+    product.sell_price = product.getSuggestedPrice()
 
     stocks = Stock.objects.filter(product=product).order_by('-created_date')
     purchases = ProductTransaction.objects.filter(
@@ -581,7 +590,7 @@ def detail_product(request, id):
                                                              'latest_order': latest_order})
 
 
-@login_required
+@ login_required
 def delete_product(request, id):
     # fetch the object related to passed id
     obj = get_object_or_404(Product, id=id)

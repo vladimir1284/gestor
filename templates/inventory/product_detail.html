@@ -31,7 +31,7 @@
                                 <strong>Suggested:</strong> ${{ product.sell_price|floatformat:"2" }} ({{ product.suggested_price }}%)
                             </div>
                             <div class="card-text col-md-6">
-                                <strong>Maximum:</strong> ${{ product.sell_max|floatformat:"2" }} ({{ product.max_price }}%)
+                                <strong>Minimum:</strong> ${{ product.min_price|floatformat:"2" }}
                             </div>
                         </div>
                     </div>
@@ -50,7 +50,7 @@
                         <span class="tf-icons bx bx-edit"></span>
                     </a>
                 </div>
-                <div class="col-8">
+                <div class="col-4">
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"
                        href="{% url 'create-order-from-product' product.id %}"
@@ -61,6 +61,19 @@
                        title=""
                        data-bs-original-title="<span>Restock</span>">
                         <span class="tf-icons bx bx-cart"></span>
+                    </a>
+                </div>
+                <div class="col-4">
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'duplicate-product' product.id %}"
+                       data-bs-toggle="tooltip"
+                       data-bs-offset="0,4"
+                       data-bs-placement="top"
+                       data-bs-html="true"
+                       title=""
+                       data-bs-original-title="<span>Duplicate</span>">
+                        <span class="tf-icons bx bx-duplicate"></span>
                     </a>
                 </div>
                 <div class="col-2">
@@ -157,8 +170,12 @@
                 <thead>
                     <tr>
                         <th>Qty</th>
-                        <th>Unit</th>
-                        <th>Date</th>
+                        <th>
+                            Unit
+                        </th>
+                        <th>
+                            Date
+                        </th>
                         <th>
                             Cost
                         </th>
