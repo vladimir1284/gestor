@@ -1,20 +1,26 @@
 {% extends 'base/base.html' %}
+{% load tz %}
 {% block title %}
     Dashboard
 {% endblock title %}
 {% block content %}
-    <div class="card">
-        <h5 class="card-header">Service incomes</h5>
+    {% localtime on %}
+    <div class="card mb-3">
+        <h5 class="card-header">
+            Service incomes - <b>${{ total.net|floatformat:"2" }}</b>
+        </h5>
         <div class="table-responsive text-nowrap">
             <table class="table">
                 <thead>
                     <tr>
                         <th>Client</th>
                         <th>date</th>
+                        <th>Gross incomes</th>
+                        <th>Net incomes</th>
                         <th>Parts</th>
-                        <th>Services</th>
-                        <th>Consumables</th>
+                        <th>Supplies</th>
                         <th>Third party</th>
+                        <th>Tax</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,10 +30,14 @@
                                 <strong>{{ order.associated }}</strong>
                             </td>
                             <td>{{ order.terminated_date|date:"D, d" }}</td>
+                            <td>${{ order.amount|floatformat:"2" }}</td>
+                            <td>
+                                <strong>${{ order.net|floatformat:"2" }}</strong>
+                            </td>
                             <td>${{ order.parts|floatformat:"2" }}</td>
-                            <td>${{ order.service|floatformat:"2" }}</td>
                             <td>${{ order.consumable|floatformat:"2" }}</td>
                             <td>${{ order.third_party|floatformat:"2" }}</td>
+                            <td>${{ order.tax|floatformat:"2" }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -37,13 +47,102 @@
                         <th>
                             <strong>Total =</strong>
                         </th>
-                        <th>${{ parts|floatformat:"2" }}</th>
-                        <th>${{ service|floatformat:"2" }}</th>
-                        <th>${{ consumable|floatformat:"2" }}</th>
-                        <th>${{ third_party|floatformat:"2" }}</th>
+                        <th>${{ total.gross|floatformat:"2" }}</th>
+                        <th>${{ total.net|floatformat:"2" }}</th>
+                        <th>${{ total.parts|floatformat:"2" }}</th>
+                        <th>${{ total.consumable|floatformat:"2" }}</th>
+                        <th>${{ total.third_party|floatformat:"2" }}</th>
+                        <th>${{ total.tax|floatformat:"2" }}</th>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
+    <div class="card mb-3">
+        <h5 class="card-header">
+            Parts net incomes - <b>${{ parts_profit|floatformat:"2" }}</b>
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>
+                            Unit
+                        </th>
+                        <th>
+                            Profit
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for part in products %}
+                        {% if part.type == 'part' %}
+                            <tr>
+                                <td>
+                                    <strong>{{ part.name }}</strong>
+                                </td>
+                                <td>
+                                    {{ part.quantity|floatformat:"-2" }}
+                                </td>
+                                <td>
+                                    {{ part.unit }}
+                                </td>
+                                <td>
+                                    ${{ part.profit|floatformat:"2" }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <h5 class="card-header">
+            Supplies expenses - <b>${{ consumables_profit|floatformat:"2" }}</b>
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            Quantity
+                        </th>
+                        <th>
+                            Unit
+                        </th>
+                        <th>
+                            Cost
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for part in products %}
+                        {% if part.type == 'consumable' %}
+                            <tr>
+                                <td>
+                                    <strong>{{ part.name }}</strong>
+                                </td>
+                                <td>
+                                    {{ part.quantity|floatformat:"-2" }}
+                                </td>
+                                <td>
+                                    {{ part.unit }}
+                                </td>
+                                <td>
+                                    ${{ part.profit|floatformat:"2" }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endlocaltime %}
 {% endblock content %}

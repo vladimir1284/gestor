@@ -110,15 +110,66 @@
     </div>
     <div class="card mb-3">
         <div class="card-body">
-            <h5 class="card-title">Consumables</h5>
+            <h5 class="card-title">Services</h5>
             <div class="table-responsive text-nowrap">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Product</th>
+                            <th>Service</th>
                             <th>Qty</th>
-                            <th>Unit</th>
                             <th>Price</th>
+                            <th>Amount</th>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for service in services %}
+                            <tr data-tag="{{ service.product.name }}">
+                                <td>
+                                    <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ service.service.name }}</strong>
+                                </td>
+                                <td>
+                                    {{ service.quantity|floatformat:"-2" }}
+                                </td>
+                                <td>
+                                    ${{ service.price|floatformat:"2" }}
+                                </td>
+                                <td>
+                                    ${{ service.amount|floatformat:"2" }}
+                                </td>
+                                <td>
+                                    <a href="{% if terminated %} {% url 'detail-service-transaction' service.id %} {% else %} {% url 'update-service-transaction' service.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">
+                Consumables
+            </h5>
+            <div class="table-responsive text-nowrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                Product
+                            </th>
+                            <th>
+                                Qty
+                            </th>
+                            <th>
+                                Unit
+                            </th>
+                            <th>
+                                Price
+                            </th>
                             <th>
                                 Amount
                             </th>
@@ -151,57 +202,6 @@
                                     </td>
                                 </tr>
                             {% endif %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">
-                Services
-            </h5>
-            <div class="table-responsive text-nowrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>
-                                Service
-                            </th>
-                            <th>
-                                Qty
-                            </th>
-                            <th>
-                                Price
-                            </th>
-                            <th>
-                                Amount
-                            </th>
-                            <th>
-                                <i class="bx bx-cog"></i>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        {% for service in services %}
-                            <tr data-tag="{{ service.product.name }}">
-                                <td>
-                                    <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ service.service.name }}</strong>
-                                </td>
-                                <td>
-                                    {{ service.quantity|floatformat:"-2" }}
-                                </td>
-                                <td>
-                                    ${{ service.price|floatformat:"2" }}
-                                </td>
-                                <td>
-                                    ${{ service.amount|floatformat:"2" }}
-                                </td>
-                                <td>
-                                    <a href="{% if terminated %} {% url 'detail-service-transaction' service.id %} {% else %} {% url 'update-service-transaction' service.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
-                                </td>
-                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -256,7 +256,7 @@
                                     ${{ expense.cost|floatformat:"2" }}
                                 </td>
                                 <td>
-                                    <a href="{% if terminated %} {% url 'detail-expense' expense.id %} {% else %} {% url 'update-expense' expense.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                                    <a href="{% url 'update-expense' expense.id %}"><i class="bx bx-dots-vertical-rounded"></i></a>
                                 </td>
                             </tr>
                         {% endfor %}

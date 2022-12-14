@@ -392,32 +392,48 @@ def list_order(request):
     for order in orders:
         statuses.add(order.status)
         transactions = ProductTransaction.objects.filter(order=order)
-        amount = 0
-        # TODO compute services
-        for transaction in transactions:
-            amount += getTransactionAmount(transaction)
-        order.amount = amount
+        computeOrderAmount(order)
     return render(request, 'services/order_list.html', {'orders': orders,
                                                         'statuses': statuses})
+
+
+def computeOrderAmount(order: Order):
+    transactions = ProductTransaction.objects.filter(order=order)
+    services = ServiceTransaction.objects.filter(order=order)
+    # Compute amount
+    amount = 0
+    tax = 0
+    for transaction in transactions:
+        if transaction.product.type == "part":
+            transaction.amount = computeTransactionAmount(transaction)
+            amount += transaction.amount
+            tax += computeTransactionTax(transaction)
+        if transaction.product.type == "consumable":
+            transaction.amount = transaction.cost
+    for service in services:
+        service.amount = computeTransactionAmount(service)
+        amount += service.amount
+        tax += computeTransactionTax(service)
+    order.amount = amount
+    order.tax = tax
+    return (transactions, services)
+
+
+def computeTransactionTax(transaction: Transaction):
+    return transaction.quantity * transaction.price*transaction.tax/100.
+
+
+def computeTransactionAmount(transaction: Transaction):
+    return transaction.quantity * transaction.price*(1 + transaction.tax/100.)
 
 
 @login_required
 def detail_order(request, id):
     order = Order.objects.get(id=id)
-    transactions = ProductTransaction.objects.filter(order=order)
-    services = ServiceTransaction.objects.filter(order=order)
+    # transactions = ProductTransaction.objects.filter(order=order)
+    # services = ServiceTransaction.objects.filter(order=order)
     expenses = Expense.objects.filter(order=order)
-    # Compute amount
-    amount = 0
-    for transaction in transactions:
-        transaction.amount = transaction.quantity * \
-            transaction.price*(1 + transaction.tax/100.)
-        amount += transaction.amount
-    for service in services:
-        service.amount = service.quantity * \
-            service.price*(1 + service.tax/100.)
-        amount += service.amount
-    order.amount = amount
+    (transactions, services) = computeOrderAmount(order)
     # Order by amount
     transactions = list(transactions)
     transactions.sort(key=lambda trans: trans.amount, reverse=True)
