@@ -29,6 +29,9 @@ from .models import (
     ProductTransaction,
     Stock,
     ProductCategory,
+    convertUnit,
+    DifferentMagnitudeUnitsError,
+
 )
 from .forms import (
     UnitCreateForm,
@@ -41,28 +44,12 @@ from .forms import (
 from django.utils.translation import gettext_lazy as _
 
 
-class DifferentMagnitudeUnitsError(BaseException):
-    """
-    Raised when the input and output units
-    doesn't measure the same magnitude
-    """
-    pass
-
-
 class NotEnoughStockError(BaseException):
     """
     Raised when the input and output units
     doesn't measure the same magnitude
     """
     pass
-
-
-def convertUnit(input_unit, output_unit, value):
-    iu = Unit.objects.get(name=input_unit)
-    ou = Unit.objects.get(name=output_unit)
-    if (iu.magnitude != ou.magnitude):
-        raise DifferentMagnitudeUnitsError
-    return value*iu.factor/ou.factor
 
 
 # -------------------- Category ----------------------------
@@ -251,15 +238,12 @@ def create_transaction(request, order_id, product_id):
     order = Order.objects.get(id=order_id)
     product = Product.objects.get(id=product_id)
 
-    average_cost = 0
-    if product.quantity > 0:
-        average_cost = product.stock_price/product.quantity
-    sell_price = average_cost * (1 + product.suggested_price/100)
-
     form = TransactionCreateForm(initial={'unit': product.unit,
-                                          'price': sell_price})
+                                          'price': product.getSuggestedPrice()},
+                                 product=product)
     if request.method == 'POST':
-        form = TransactionCreateForm(request.POST)
+        form = TransactionCreateForm(
+            request.POST, product=product, order=order)
         if form.is_valid():
             trans = form.save(commit=False)
             trans.order = order
@@ -285,16 +269,17 @@ def create_transaction_new_order(request, product_id):
         form = TransactionProviderCreateForm(initial=initial)
     if request.method == 'POST':
         if last_purchase:
-            form = TransactionCreateForm(request.POST)
+            last_provider = last_purchase.order.associated
         else:
-            form = TransactionProviderCreateForm(request.POST)
+            last_provider = form.cleaned_data['associated']
+        order = getNewOrder(last_provider, product, request.user)
+        if last_purchase:
+            form = TransactionCreateForm(
+                request.POST, product=product, order=order)
+        else:
+            form = TransactionProviderCreateForm(
+                request.POST, product=product, order=order)
         if form.is_valid():
-            if last_purchase:
-                last_provider = last_purchase.order.associated
-            else:
-                last_provider = form.cleaned_data['associated']
-
-            order = getNewOrder(last_provider, product, request.user)
             trans = form.save(commit=False)
             trans.order = order
             trans.product = product
@@ -310,7 +295,9 @@ def update_transaction(request, id):
 
     # pass the object as instance in form
     form = TransactionCreateForm(request.POST or None,
-                                 instance=transaction)
+                                 instance=transaction,
+                                 product=transaction.product,
+                                 order=transaction.order)
 
     # save the data from the form and
     # redirect to detail_view
@@ -474,8 +461,7 @@ def product_list_metadata(type, products: List[Product]):
             product.average_cost = 0
             if product.quantity > 0:
                 product.average_cost = product.stock_price/product.quantity
-            product.sell_price = product.average_cost * \
-                (1 + product.suggested_price/100)
+            product.sell_price = product.getSuggestedPrice()
             # Categories
             if product.category.name not in category_names:
                 category_names.append(product.category.name)

@@ -1,6 +1,8 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import (
     Product,
+    convertUnit,
     Unit,
     ProductTransaction,
     InventoryLocations,
@@ -84,13 +86,39 @@ class TransactionCreateForm(forms.ModelForm):
             'tax'
         )
 
+    def clean_price(self):
+        price = self.cleaned_data['price']
+        if self.order.type == "sell":
+            error_msg = ""
+            unit = Unit.objects.get(id=int(self.data['unit']))
+            # Compute the price in product unit
+            product_cost = price / convertUnit(unit, self.product.unit, 1)
+            if unit != self.product.unit:
+                error_msg += F'${price:.2f} for one {unit} implies ${product_cost:.2f} each {self.product.unit}. '
+            if product_cost < self.product.min_price:
+                error_msg += F'The price cannot be lower than ${self.product.min_price:.2f}.'
+                raise ValidationError(error_msg)
+        return price
+
     def __init__(self, *args, **kwargs):
+        if 'product' in kwargs:
+            self.product = kwargs['product']
+            kwargs.pop('product')
+        else:
+            self.product = None
+        if 'order' in kwargs:
+            self.order = kwargs['order']
+            kwargs.pop('order')
+        else:
+            self.order = None
         super().__init__(*args, **kwargs)
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
         for item in errorList:
             self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
             break
+
+        self.fields['price'].help_text = F"Minimum: ${self.product.min_price:.2f}/{self.product.unit}."
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag

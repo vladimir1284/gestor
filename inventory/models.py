@@ -3,8 +3,23 @@ import math
 
 from utils.models import Category, Transaction
 from django.utils.translation import gettext_lazy as _
-from phonenumber_field.modelfields import PhoneNumberField
 from PIL import Image
+
+
+class DifferentMagnitudeUnitsError(BaseException):
+    """
+    Raised when the input and output units
+    doesn't measure the same magnitude
+    """
+    pass
+
+
+def convertUnit(input_unit, output_unit, value):
+    iu = Unit.objects.get(name=input_unit)
+    ou = Unit.objects.get(name=output_unit)
+    if (iu.magnitude != ou.magnitude):
+        raise DifferentMagnitudeUnitsError
+    return value*iu.factor/ou.factor
 
 
 class InventoryLocations(models.Model):
