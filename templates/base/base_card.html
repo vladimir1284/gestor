@@ -11,6 +11,9 @@
             z-index: 999999;
             box-shadow: 0 1px 20px 1px #696cff;
         }
+        .tooltip-inner{
+            font-size: 10px;
+        }
     </style>
 {% endblock page %}
 {% block content %}
@@ -24,7 +27,7 @@
     </div>
     <a href= {% block createUrl %} {% endblock createUrl %}>
         <button type="button"
-                class="btn rounded-pill btn-primary add"
+                class="btn rounded-pill btn-primary btn-icon add"
                 data-bs-toggle="tooltip"
                 data-bs-offset="0,4"
                 data-bs-placement="left"

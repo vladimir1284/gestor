@@ -22,20 +22,23 @@
     </div>
 {% endblock Ttitle %}
 {% block Theader %}
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
     <th>Concept</th>
     <th>Date</th>
     <th>Status</th>
     <th>Provider</th>
     <th>Amount</th>
-    <th>
-        <i class="bx bx-cog"></i>
-    </th>
 {% endblock Theader %}
 {% block Tbody %}
     {% for order in orders %}
         <tr data-tag="{{ order.status }}">
             <td>
-                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ order.concept }}</strong>
+                <a href={% url 'detail-order' order.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+            <td>
+                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ order.concept }}</strong>
             </td>
             <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
             <td>
@@ -47,9 +50,6 @@
                 <a href={% url 'detail-associated' order.associated.id %}>{{ order.associated }}</a>
             </td>
             <td>${{ order.amount|floatformat:"2" }}</td>
-            <td>
-                <a href={% url 'detail-order' order.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
-            </td>
         </tr>
     {% endfor %}
 {% endblock Tbody %}
@@ -57,5 +57,5 @@
     {% url 'select-provider' %}
 {% endblock createUrl %}
 {% block help %}
-    Create new order
+    New order
 {% endblock help %}

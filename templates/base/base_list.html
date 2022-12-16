@@ -14,6 +14,9 @@
         .add .tooltip{
             opacity: 1;
         }
+        .tooltip-inner{
+            font-size: 10px;
+        }
         .tabs {
             padding-top: 0;
         }
@@ -54,7 +57,7 @@
     <a href="{% block createUrl %} {% endblock createUrl %}">
         <button type="button"
                 style="visibility: {% block add %}{% endblock add %};"
-                class="btn rounded-pill btn-primary add"
+                class="btn rounded-pill btn-primary btn-icon add"
                 data-bs-toggle="tooltip"
                 data-bs-offset="0,4"
                 data-bs-placement="left"

@@ -6,18 +6,21 @@
     <h5 class="card-header">Unidades de medida</h5>
 {% endblock Ttitle %}
 {% block Theader %}
-    <th>Unit</th>
-    <th>Magnitude</th>
-    <th>Value</th>
     <th>
         <i class="bx bx-cog"></i>
     </th>
+    <th>Unit</th>
+    <th>Magnitude</th>
+    <th>Value</th>
 {% endblock Theader %}
 {% block Tbody %}
     {% for unit in units %}
         <tr>
             <td>
-                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ unit.name }}</strong>
+                <a href={% url 'update-unit' unit.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+            <td>
+                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ unit.name }}</strong>
             </td>
             <td>{{ unit.magnitude }}</td>
             <td>
@@ -34,9 +37,6 @@
                     {% endif %}
                 {% endif %}
             </td>
-            <td>
-                <a href={% url 'update-unit' unit.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
-            </td>
         </tr>
     {% endfor %}
 {% endblock Tbody %}
@@ -44,5 +44,5 @@
     {% url 'create-unit' %}
 {% endblock createUrl %}
 {% block help %}
-    Create new unit
+    New unit
 {% endblock help %}
