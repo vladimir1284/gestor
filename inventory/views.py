@@ -264,14 +264,17 @@ def create_transaction_new_order(request, product_id):
                                                       product=product).order_by('-id').first()
     order_id = -1
     if last_purchase:
-        form = TransactionCreateForm(initial=initial)
+        form = TransactionCreateForm(
+            initial=initial, product=product)
     else:
-        form = TransactionProviderCreateForm(initial=initial)
+        form = TransactionProviderCreateForm(
+            initial=initial, product=product)
     if request.method == 'POST':
         if last_purchase:
             last_provider = last_purchase.order.associated
         else:
-            last_provider = form.cleaned_data['associated']
+            last_provider = Associated.objects.get(
+                id=int(request.POST['associated']))
         order = getNewOrder(last_provider, product, request.user)
         if last_purchase:
             form = TransactionCreateForm(
@@ -385,6 +388,8 @@ def create_unit(request):
 def update_unit(request, id):
     # fetch the object related to passed id
     unit = get_object_or_404(Unit, id=id)
+    if not Product.objects.filter(unit=unit):
+        unit.can_delete = True
 
     # pass the object as instance in form
     form = UnitCreateForm(request.POST or None,

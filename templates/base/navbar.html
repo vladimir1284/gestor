@@ -2,6 +2,15 @@
   function filterText() {
       let i, j;
       let text = document.getElementById("search").value;
+      const headings = document.getElementsByClassName("list-head");
+      for(i=0; i < headings.length; i++) {
+        head = headings[i];
+        if (text == '') {
+          head.style.display = "";
+        } else {
+          head.style.display = "none";
+        } 
+      }
       // Filer objects by text
       let tables = document.getElementsByTagName("tbody");
       for (j = 0; j < tables.length; j++) {

@@ -52,14 +52,15 @@ class Unit(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=120, unique=True)
+    active = models.BooleanField(default=True)
     IMAGE_SIZE = 500
     image = models.ImageField(upload_to='images/products',
                               blank=True)
     description = models.TextField(blank=True)
     created_date = models.DateField(auto_now_add=True)
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
-    category = models.ForeignKey(
-        ProductCategory, on_delete=models.CASCADE)
+    category = models.ForeignKey(ProductCategory, blank=True, null=True,
+                                 on_delete=models.SET_NULL)
     TYPE_CHOICE = (
         ('part', _('Part')),
         ('consumable', _('Consumable')),

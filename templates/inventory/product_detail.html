@@ -53,19 +53,6 @@
                 <div class="col-4">
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"
-                       href="{% url 'create-order-from-product' product.id %}"
-                       data-bs-toggle="tooltip"
-                       data-bs-offset="0,4"
-                       data-bs-placement="top"
-                       data-bs-html="true"
-                       title=""
-                       data-bs-original-title="<span>Restock</span>">
-                        <span class="tf-icons bx bx-cart"></span>
-                    </a>
-                </div>
-                <div class="col-4">
-                    <a class="btn btn-icon btn-outline-primary"
-                       type="button"
                        href="{% url 'duplicate-product' product.id %}"
                        data-bs-toggle="tooltip"
                        data-bs-offset="0,4"
@@ -77,11 +64,13 @@
                     </a>
                 </div>
                 <div class="col-2">
-                    <a onclick="deleteProduct('{% url 'delete-product' product.id %}', '{{ product.name }}')"
-                       type="button"
-                       class="btn btn-icon btn-outline-danger float-end">
-                        <span class="tf-icons bx bx-trash"></span>
-                    </a>
+                    {% if form.instance.can_delete %}
+                        <a onclick="deleteProduct('{% url 'delete-product' product.id %}', '{{ product.name }}')"
+                           type="button"
+                           class="btn btn-icon btn-outline-danger float-end">
+                            <span class="tf-icons bx bx-trash"></span>
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -118,6 +107,17 @@
             <div class="mb-2">
                 <strong>Stock:</strong>
                 ${{ product.stock_price|floatformat:"2" }}
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'create-order-from-product' product.id %}"
+                   data-bs-toggle="tooltip"
+                   data-bs-offset="0,4"
+                   data-bs-placement="top"
+                   data-bs-html="true"
+                   title=""
+                   data-bs-original-title="<span>Restock</span>">
+                    <span class="tf-icons bx bx-cart"></span>
+                </a>
             </div>
             <div class="row">
                 <div class="d-flex col-md-4 mb-2">

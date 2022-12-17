@@ -9,11 +9,13 @@
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">Modificar unidad de medida</h5>
-                <a onclick="deleteUnit('{% url 'delete-unit' form.instance.id %}', '{{ form.instance.name }}')"
-                   type="button"
-                   class="btn btn-icon btn-outline-danger float-end">
-                    <span class="tf-icons bx bx-trash"></span>
-                </a>
+                {% if form.instance.can_delete %}
+                    <a onclick="deleteUnit('{% url 'delete-unit' form.instance.id %}', '{{ form.instance.name }}')"
+                       type="button"
+                       class="btn btn-icon btn-outline-danger float-end">
+                        <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                {% endif %}
             </div>
             <div class="card-body">
                 <form enctype="multipart/form-data" method="post" id="update-form">
