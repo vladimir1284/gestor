@@ -2,14 +2,13 @@ import os
 from django.urls import reverse_lazy
 from django.views.generic.edit import (
     UpdateView,
-    CreateView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import (
     render,
     redirect,
     get_object_or_404,
-    HttpResponseRedirect)
+)
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import permission_required, login_required
 
@@ -27,6 +26,7 @@ from .models import (
     Associated,
     Company,
 )
+from utils.models import Order
 
 
 @permission_required('auth.user.can_add_user')
@@ -250,10 +250,15 @@ def select_company(request):
 @login_required
 def list_company(request):
     companies = Company.objects.filter(active=True).order_by("-created_date")
+    for company in companies:
+        last_order = Order.objects.filter(
+            associated__company=company).order_by("-created_date").first()
+        if last_order:
+            company.last_order = last_order
     return render(request, 'users/company_list.html', {'companies': companies})
 
 
-@login_required
+@ login_required
 def delete_company(request, id):
     # fetch the object related to passed id
     company = get_object_or_404(Company, id=id)
