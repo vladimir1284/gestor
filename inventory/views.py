@@ -541,6 +541,7 @@ def select_new_product(request, next, order_id):
 @login_required
 def duplicate_product(request, id):
     product = get_object_or_404(Product, id=id)
+    product.image = None
     product.pk = None
     product.name += " (copy)"
     product.stock_price = 0
