@@ -53,7 +53,7 @@
                 <div class="col-4">
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"
-                       href="{% url 'duplicate-product' product.id %}"
+                       onclick="duplicateProduct('{% url 'duplicate-product' product.id %}', '{{ product.name }}')"
                        data-bs-toggle="tooltip"
                        data-bs-offset="0,4"
                        data-bs-placement="top"
@@ -64,7 +64,7 @@
                     </a>
                 </div>
                 <div class="col-2">
-                    {% if form.instance.can_delete %}
+                    {% if product.can_delete %}
                         <a onclick="deleteProduct('{% url 'delete-product' product.id %}', '{{ product.name }}')"
                            type="button"
                            class="btn btn-icon btn-outline-danger float-end">
@@ -272,6 +272,12 @@
     <script>
         function deleteProduct(url, name) {
             let confirmAction = confirm("Are you sure to delete the product " + name + "?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+        function duplicateProduct(url, name) {
+            let confirmAction = confirm("Do you want to duplicate the product " + name + "?");
             if (confirmAction) {
                 window.location = url;
             }

@@ -555,6 +555,8 @@ def duplicate_product(request, id):
 def detail_product(request, id):
     # fetch the object related to passed id
     product = get_object_or_404(Product, id=id)
+    if not ProductTransaction.objects.filter(product=product):
+        product.can_delete = True
     product.average_cost = 0
     if product.quantity > 0:
         product.average_cost = product.stock_price/product.quantity
