@@ -82,7 +82,7 @@
     {% for trans in transactions %}
         <tr data-tag="{{ trans.product.name }}">
             <td>
-                <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ trans.product.name }}</strong>
+                <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
             </td>
             <td>{{ trans.quantity|floatformat:"-2" }}</td>
             <td>{{ trans.unit }}</td>

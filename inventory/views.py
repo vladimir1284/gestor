@@ -225,13 +225,15 @@ def getNewOrder(associated: Associated, product: Product, user):
 
 
 def renderCreateTransaction(request, form, product, order_id):
+    price_references = PriceReference.objects.filter(product=product)
     context = {
         'form': form,
         'product': product,
         'order_id': order_id,
+        'price_references': price_references,
         'title': _("Create Transaction")
     }
-    return render(request, 'inventory/transaction_create.html', context)
+    return context
 
 
 @login_required
@@ -254,7 +256,8 @@ def create_transaction(request, order_id, product_id):
                 return redirect('detail-service-order', id=order_id)
             if order.type == 'purchase':
                 return redirect('detail-order', id=order_id)
-    return renderCreateTransaction(request, form, product, order_id)
+    context = renderCreateTransaction(request, form, product, order_id)
+    return render(request, 'inventory/transaction_create.html', context)
 
 
 @login_required
@@ -289,7 +292,8 @@ def create_transaction_new_order(request, product_id):
             trans.product = product
             trans.save()
             return redirect('detail-order', id=order.id)
-    return renderCreateTransaction(request, form, product, order_id)
+    context = renderCreateTransaction(request, form, product, order_id)
+    return render(request, 'inventory/transaction_create.html', context)
 
 
 @login_required
@@ -313,12 +317,9 @@ def update_transaction(request, id):
             return redirect('detail-order', id=transaction.order.id)
 
     # add form dictionary to context
-    context = {
-        'form': form,
-        'product': transaction.product,
-        'order_id': transaction.order.id,
-        'title': _("Update Transaction")
-    }
+    context = renderCreateTransaction(request, form, transaction.product,
+                                      transaction.order.id)
+    context['title'] = _("Update Transaction")
 
     return render(request, 'inventory/transaction_create.html', context)
 
@@ -466,6 +467,14 @@ def update_price(request, id):
     }
 
     return render(request, 'inventory/price_create.html', context)
+
+
+@login_required
+def delete_price(request, id):
+    # fetch the object related to passed id
+    price = get_object_or_404(PriceReference, id=id)
+    price.delete()
+    return redirect('detail-product', price.product.id)
 
 # -------------------- Product ----------------------------
 

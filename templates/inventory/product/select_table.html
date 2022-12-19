@@ -18,7 +18,7 @@
                     <a href={% url 'create-transaction' order_id product.id %}><i class="bx bx-plus"></i></a>
                 </td>
                 <td class="pl-0">
-                    <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ product.name }}</strong>
+                    <strong>{{ product.name }}</strong>
                 </td>
                 <td>
                     {% if product.quantity_min > 0 and product.quantity < product.quantity_min %}

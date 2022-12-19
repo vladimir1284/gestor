@@ -9,6 +9,13 @@
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">Create new price reference</h5>
+                {% if form.instance.id %}
+                    <a onclick="deletePrice('{% url 'delete-price' form.instance.id %}')"
+                       type="button"
+                       class="btn btn-icon btn-outline-danger float-end">
+                        <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                {% endif %}
             </div>
             <div class="card-body">
                 <form enctype="multipart/form-data" method="post" id="update-form">
@@ -18,4 +25,12 @@
             </div>
         </div>
     </div>
+    <script>
+        function deletePrice(url) {
+            let confirmAction = confirm("Are you sure to delete this price reference?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+    </script>
 {% endblock content %}

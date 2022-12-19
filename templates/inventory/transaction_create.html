@@ -7,13 +7,13 @@
     <!-- Basic with Icons -->
     <div class="col-xxl">
         <div class="card mb-4">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header">
                 <h5 class="mb-0">{{ title }}</h5>
             </div>
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}
                 <div class="card-body">
-                    <div class="row mb-3">
+                    <div class="row">
                         <div class="col-12">
                             Product: <b>{{ product.name }}</b>
                             <a {% if form.instance.id %}onclick="deleteTransaction('{% url 'delete-transaction' form.instance.id %}', '{{ product.name }}')"{% endif %}
@@ -23,6 +23,16 @@
                             </a>
                         </div>
                     </div>
+                    {% if price_references %}
+                        <div class="demo-inline-spacing mb-3">
+                            {% for price in price_references %}
+                                <a type="button"
+                                   class="btn rounded-pill btn-outline-primary"
+                                   target="blank"
+                                   href="{{ price.url }}">{{ price.store }}  (${{ price.price|floatformat:"-1" }})</a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     {% crispy form %}
                 </div>
             </form>

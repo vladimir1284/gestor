@@ -35,6 +35,7 @@ from .views import (
     # ------ Price -------
     create_price,
     update_price,
+    delete_price,
 )
 
 
@@ -82,4 +83,5 @@ urlpatterns = [
     # -------------------- Price Reference ---------------------
     path('create-price/<product_id>', create_price, name='create-price'),
     path('update-price/<id>', update_price, name='update-price'),
+    path('delete-price/<id>', delete_price, name='delete-price'),
 ]

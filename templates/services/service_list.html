@@ -24,7 +24,7 @@
                         {% if service.type == type %}
                             <tr data-tag="{{ service.category }}">
                                 <td>
-                                    <i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{ service.name }}</strong>
+                                    <strong>{{ service.name }}</strong>
                                 </td>
                                 <td>${{ service.suggested_price|floatformat:"-2" }}</td>
                                 <td>
