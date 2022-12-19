@@ -47,7 +47,7 @@
   $checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='#{$checked-color}'/></svg>");
 
   .form-switch {
-    .form-check-input {
+    .checkboxinput {
       &:focus {
         background-image: escape-svg($focus-bg-image);
       }
@@ -79,14 +79,14 @@
   $color: if($color, $color, color-contrast($background));
   $focus-border: $background;
 
-  #{$parent} .form-check-input {
+  #{$parent} .checkboxinput {
     &:focus {
       border-color: $focus-border;
       box-shadow: 0 2px 4px 0 rgba($background, 0.4);
     }
 
     &:disabled {
-      background-color: $form-check-input-disabled-bg;
+      background-color: $checkboxinput-disabled-bg;
     }
 
     &:checked,
@@ -217,7 +217,7 @@
     }
   }
 
-  .form-check-input {
+  .checkboxinput {
     @include form-validation-state-selector($state) {
       border-color: $color;
 
@@ -236,7 +236,7 @@
       }
     }
   }
-  .form-check-inline .form-check-input {
+  .form-check-inline .checkboxinput {
     ~ .#{$state}-feedback {
       @include ltr-style {
         margin-left: 0.5em;

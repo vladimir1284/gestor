@@ -315,14 +315,14 @@ button.list-group-item-primary.active {
   border-color: #696cff;
 }
 
-.form-check-input:focus {
+.checkboxinput:focus {
   border-color: #696cff;
   box-shadow: 0 2px 4px 0 rgba(105, 108, 255, 0.4);
 }
-.form-check-input:disabled {
+.checkboxinput:disabled {
   background-color: #eceef1;
 }
-.form-check-input:checked, .form-check-input[type=checkbox]:indeterminate {
+.checkboxinput:checked, .checkboxinput[type=checkbox]:indeterminate {
   background-color: #696cff;
   border-color: #696cff;
   box-shadow: 0 2px 4px 0 rgba(105, 108, 255, 0.4);
@@ -332,10 +332,10 @@ button.list-group-item-primary.active {
   border: 1px solid #696cff;
 }
 
-.form-switch .form-check-input:focus {
+.form-switch .checkboxinput:focus {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23696cff'/%3e%3c/svg%3e");
 }
-.form-switch .form-check-input:checked {
+.form-switch .checkboxinput:checked {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
 }
 

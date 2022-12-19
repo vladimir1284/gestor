@@ -237,7 +237,8 @@ class ProductCreateForm(forms.ModelForm):
                   'sell_tax',
                   'suggested_price',
                   'min_price',
-                  'quantity_min')
+                  'quantity_min',
+                  'active')
 
     def __init__(self, *args, **kwargs):
         if 'title' in kwargs:
@@ -318,6 +319,12 @@ class ProductCreateForm(forms.ModelForm):
                 Div(
                     Fieldset(
                         _("Advance configuration"),
+                        Div(
+                            Div(
+                                Field('active')
+                            ),
+                            css_class="mb-3"
+                        ),
                         Div(
                             Div(
                                 Field('quantity_min', css_class="form-select")

@@ -446,21 +446,21 @@ $input-height-inner-lg: px-to-rem(
 // scss-docs-end form-input-variables
 
 // scss-docs-start form-check-variables
-$form-check-input-width: 1.2em !default;
-$form-datatables-check-input-size: 18px !default; // (C) For datatables with checkbox- update according to $form-check-input-width
+$checkboxinput-width: 1.2em !default;
+$form-datatables-check-input-size: 18px !default; // (C) For datatables with checkbox- update according to $checkboxinput-width
 
-$form-check-input-border: 1px solid $input-border-color !default;
+$checkboxinput-border: 1px solid $input-border-color !default;
 
 $form-check-label-disabled-color: $text-muted !default; // (C)R
 
-$form-check-input-checked-color: $component-active-color !default;
-$form-check-input-checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$form-check-input-checked-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 10l3 3l6-6'/></svg>") !default;
-$form-check-radio-checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='1.5' fill='#{$form-check-input-checked-color}'/></svg>") !default;
+$checkboxinput-checked-color: $component-active-color !default;
+$checkboxinput-checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$checkboxinput-checked-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 10l3 3l6-6'/></svg>") !default;
+$form-check-radio-checked-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='1.5' fill='#{$checkboxinput-checked-color}'/></svg>") !default;
 
-$form-check-input-indeterminate-color: $component-active-color !default;
-$form-check-input-indeterminate-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$form-check-input-indeterminate-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 10h8'/></svg>") !default;
+$checkboxinput-indeterminate-color: $component-active-color !default;
+$checkboxinput-indeterminate-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$checkboxinput-indeterminate-color}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 10h8'/></svg>") !default;
 
-$form-check-input-disabled-bg: $input-disabled-bg !default;
+$checkboxinput-disabled-bg: $input-disabled-bg !default;
 // scss-docs-end form-check-variables
 
 // scss-docs-start form-switch-variables
