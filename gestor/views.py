@@ -6,7 +6,7 @@ from inventory.models import ProductTransaction
 from services.models import Expense, ServiceTransaction
 from utils.models import Order
 from services.views import (
-    computeOrderAmount,
+    computeOrderAmount,  # TODO remove this import and make a custom function here
     computeTransactionTax,
     computeTransactionAmount,
 )

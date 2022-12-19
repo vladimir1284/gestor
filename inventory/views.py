@@ -30,12 +30,13 @@ from .models import (
     Stock,
     ProductCategory,
     convertUnit,
-    DifferentMagnitudeUnitsError,
+    PriceReference,
 
 )
 from .forms import (
     UnitCreateForm,
     ProductCreateForm,
+    PriceReferenceCreateForm,
     CategoryCreateForm,
     TransactionCreateForm,
     TransactionProviderCreateForm,
@@ -423,13 +424,64 @@ def delete_unit(request, id):
     return redirect('list-unit')
 
 
+# -------------------- Price Reference ----------------------------
+
+@login_required
+def create_price(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    form = PriceReferenceCreateForm()
+    if request.method == 'POST':
+        form = PriceReferenceCreateForm(request.POST)
+        if form.is_valid():
+            price = form.save(commit=False)
+            price.product = product
+            price.updated_date = timezone.now()
+            price.save()
+            return redirect('detail-product', product_id)
+    context = {
+        'form': form
+    }
+    return render(request, 'inventory/price_create.html', context)
+
+
+@login_required
+def update_price(request, id):
+    # fetch the object related to passed id
+    price = get_object_or_404(PriceReference, id=id)
+    price.updated_date = timezone.now()
+
+    # pass the object as instance in form
+    form = PriceReferenceCreateForm(request.POST or None,
+                                    instance=price)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        form.save()
+        return redirect('detail-product', price.product.id)
+
+    # add form dictionary to context
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'inventory/price_create.html', context)
+
 # -------------------- Product ----------------------------
 
-class ProductCreateView(LoginRequiredMixin, CreateView):
-    model = Product
-    form_class = ProductCreateForm
-    template_name = 'inventory/product_create.html'
-    success_url = reverse_lazy('list-product')
+
+@login_required
+def create_product(request):
+    form = ProductCreateForm()
+    if request.method == 'POST':
+        form = ProductCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('detail-product', id)
+    context = {
+        'form': form
+    }
+    return render(request, 'inventory/product_create.html', context)
 
 
 @login_required
@@ -578,10 +630,13 @@ def detail_product(request, id):
     processing = computeTransactionProducts(product, 'processing')
     if processing > 0:
         product.processing = processing
+    # Price references
+    price_references = PriceReference.objects.filter(product=product)
     return render(request, 'inventory/product_detail.html', {'product': product,
                                                              'stocks': stocks,
                                                              'purchases': purchases,
-                                                             'latest_order': latest_order})
+                                                             'latest_order': latest_order,
+                                                             'price_references': price_references})
 
 
 @ login_required

@@ -7,6 +7,7 @@ from .models import (
     ProductTransaction,
     InventoryLocations,
     ProductCategory,
+    PriceReference,
 )
 
 
@@ -16,3 +17,4 @@ admin.site.register(ProductTransaction)
 admin.site.register(InventoryLocations)
 admin.site.register(ProductCategory)
 admin.site.register(Stock)
+admin.site.register(PriceReference)

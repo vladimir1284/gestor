@@ -65,8 +65,7 @@ class Product(models.Model):
         ('part', _('Part')),
         ('consumable', _('Consumable')),
     )
-    type = models.CharField(
-        max_length=20, choices=TYPE_CHOICE, default='consumable')
+    type = models.CharField(max_length=20, choices=TYPE_CHOICE)
     sell_tax = models.FloatField(blank=True, default=8.25)
     suggested_price = models.FloatField(blank=True, default=30)
     min_price = models.FloatField(blank=True, default=0)
@@ -114,6 +113,18 @@ class ProductTransaction(Transaction):
 
     def __str__(self):
         return "{} product: {}".format(super(Transaction, self).__str__(), self.product.name)
+
+
+class PriceReference(models.Model):
+    # Reference link for product price
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    store = models.CharField(max_length=20)
+    url = models.URLField()
+    price = models.FloatField()
+    updated_date = models.DateField()
+
+    def __str__(self):
+        return F"{self.store} ${self.price:0.2f}"
 
 
 class Stock(models.Model):

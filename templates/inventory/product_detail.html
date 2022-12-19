@@ -269,7 +269,67 @@
             </div>
         </div>
     </div>
-    <script>
+    <hr class="my-2">
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">
+                Price references
+                <a href="{% url 'create-price' product.id %}">
+                    <button type="button"
+                            class="btn rounded-pill btn-icon btn-primary"
+                            data-bs-toggle="tooltip"
+                            data-bs-offset="0,4"
+                            data-bs-placement="top"
+                            data-bs-html="true"
+                            title=""
+                            data-bs-original-title="Add price reference">
+                        <span class="tf-icons bx bx-plus"></span>
+                    </button>
+                </a>
+            </h5>
+            {% if price_references %}
+                <div class="table-responsive text-nowrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <i class="bx bx-cog"></i>
+                                </th>
+                                <th>
+                                    Store
+                                </th>
+                                <th>
+                                    price
+                                </th>
+                                <th>
+                                    Date
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            {% for price in price_references %}
+                                <tr data-tag="{{ price.store }}">
+                                    <td>
+                                        <a href="{% url 'update-price' price.id %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ price.url }}"></i> <strong>{{ price.store }}</strong>
+                                        </td>
+                                        <td>
+                                            ${{ price.price|floatformat:"2" }}
+                                        </td>
+                                        <td>
+                                            {{ price.updated_date|date:"SHORT_DATE_FORMAT" }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <script>
         function deleteProduct(url, name) {
             let confirmAction = confirm("Are you sure to delete the product " + name + "?");
             if (confirmAction) {
@@ -282,5 +342,5 @@
                 window.location = url;
             }
         }
-    </script>
-{% endblock content %}
+        </script>
+    {% endblock content %}

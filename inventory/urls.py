@@ -24,7 +24,7 @@ from .views import (
     list_unit,
     delete_unit,
     # ---- Product -------
-    ProductCreateView,
+    create_product,
     update_product,
     list_product,
     detail_product,
@@ -32,6 +32,9 @@ from .views import (
     select_product,
     select_new_product,
     delete_product,
+    # ------ Price -------
+    create_price,
+    update_price,
 )
 
 
@@ -66,7 +69,7 @@ urlpatterns = [
     path('list-unit/', list_unit, name='list-unit'),
     path('delete-unit/<id>', delete_unit, name='delete-unit'),
     # -------------------- Product ----------------------------
-    path('create-product/', ProductCreateView.as_view(), name='create-product'),
+    path('create-product/', create_product, name='create-product'),
     path('update-product/<id>', update_product, name='update-product'),
     path('detail-product/<id>', detail_product, name='detail-product'),
     path('duplicate-product/<id>', duplicate_product, name='duplicate-product'),
@@ -76,4 +79,7 @@ urlpatterns = [
     path('select-new-product/<next>/<order_id>',
          select_new_product, name='select-new-product'),
     path('delete-product/<id>', delete_product, name='delete-product'),
+    # -------------------- Price Reference ---------------------
+    path('create-price/<product_id>', create_price, name='create-price'),
+    path('update-price/<id>', update_price, name='update-price'),
 ]

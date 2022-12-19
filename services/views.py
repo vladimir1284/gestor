@@ -24,7 +24,6 @@ from inventory.models import (
 from inventory.views import (
     getTransactionAmount,
     convertUnit,
-    DifferentMagnitudeUnitsError,
     NotEnoughStockError,
     prepare_product_list,
 )

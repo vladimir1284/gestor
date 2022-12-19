@@ -6,6 +6,7 @@ from .models import (
     Unit,
     ProductTransaction,
     InventoryLocations,
+    PriceReference,
     ProductCategory,
 )
 from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
@@ -224,6 +225,52 @@ class UnitCreateForm(forms.ModelForm):
         )
 
 
+class PriceReferenceCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = PriceReference
+        fields = ('store',
+                  'url',
+                  'price')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('store')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('url')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field(PrependedText('price', '$')
+                          ),
+                    css_class="mb-3"
+                )
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
 class ProductCreateForm(forms.ModelForm):
 
     class Meta:
@@ -271,9 +318,9 @@ class ProductCreateForm(forms.ModelForm):
                         ),
                         HTML(
                             """
-                            <img id="preview" 
+                            <img id="preview"
                             {% if form.image.value %}
-                                class="img-responsive" 
+                                class="img-responsive"
                                 src="/media/{{ form.image.value }}"
                             {% endif %}">
                             """
