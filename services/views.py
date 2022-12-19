@@ -404,12 +404,12 @@ def computeOrderAmount(order: Order):
     amount = 0
     tax = 0
     for transaction in transactions:
-        if transaction.product.type == "part":
-            transaction.amount = computeTransactionAmount(transaction)
-            amount += transaction.amount
-            tax += computeTransactionTax(transaction)
-        if transaction.product.type == "consumable":
-            transaction.amount = transaction.cost
+        # if transaction.product.type == "part":
+        transaction.amount = computeTransactionAmount(transaction)
+        amount += transaction.amount
+        tax += computeTransactionTax(transaction)
+        # if transaction.product.type == "consumable":
+        #     transaction.amount = transaction.cost
     for service in services:
         service.amount = computeTransactionAmount(service)
         amount += service.amount
@@ -430,22 +430,37 @@ def computeTransactionAmount(transaction: Transaction):
 @login_required
 def detail_order(request, id):
     order = Order.objects.get(id=id)
-    # transactions = ProductTransaction.objects.filter(order=order)
-    # services = ServiceTransaction.objects.filter(order=order)
     expenses = Expense.objects.filter(order=order)
+    expenses_amount = 0
+    for expense in expenses:
+        expenses_amount += expense.cost
     (transactions, services) = computeOrderAmount(order)
     # Order by amount
     transactions = list(transactions)
-    transactions.sort(key=lambda trans: trans.amount, reverse=True)
-    services = list(services)
-    services.sort(key=lambda serv: serv.amount, reverse=True)
+    #transactions.sort(key=lambda trans: trans.amount, reverse=True)
+    # Count consumables and parts
+    consumable_amount = 0
+    parts_amount = 0
+    for trans in transactions:
+        if (trans.product.type == 'part'):
+            parts_amount += trans.amount
+        elif (trans.product.type == 'consumable'):
+            consumable_amount += trans.amount
+    # Account services
+    service_amount = 0
+    for service in services:
+        service_amount += service.amount
     # Terminated order
     terminated = order.status in ['decline', 'complete']
     empty = (len(services) + len(transactions)) == 0
     return render(request, 'services/order_detail.html', {'order': order,
                                                           'services': services,
+                                                          'service_amount': service_amount,
                                                           'expenses': expenses,
+                                                          'expenses_amount': expenses_amount,
                                                           'transactions': transactions,
+                                                          'consumable_amount': consumable_amount,
+                                                          'parts_amount': parts_amount,
                                                           'terminated': terminated,
                                                           'empty': empty})
 

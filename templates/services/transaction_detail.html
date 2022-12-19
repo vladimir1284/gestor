@@ -6,9 +6,7 @@
 {% block content %}
     <div class="card mb-4">
         <div class="card-body">
-            <h5 class="card-title">
-                {{ transaction.product.name }} ({{ transaction.quantity|floatformat:"-2" }} {{ transaction.product.unit }})
-            </h5>
+            <h5 class="card-title">{{ transaction.service.name }} ({{ transaction.quantity|floatformat:"-2" }})</h5>
             <div class="card-subtitle text-muted mb-3">
                 {{ transaction.order.concept }} - {{ transaction.order.created_date|date:"SHORT_DATE_FORMAT" }}
             </div>
@@ -54,7 +52,7 @@
                     </div>
                     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                         <div class="me-2">
-                            <h6 class="mb-0">Cost</h6>
+                            <h6 class="mb-0">Amount</h6>
                         </div>
                         <div class="user-progress d-flex align-items-center gap-1">
                             <h6 class="mb-0">{{ amount|floatformat:"2" }}</h6>
@@ -66,7 +64,7 @@
             <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
-                   href="{% url 'detail-order' transaction.order.id %}">
+                   href="{% url 'detail-service-order' transaction.order.id %}">
                     <span class="tf-icons bx bx-arrow-back"></span>
                 </a>
             </div>
