@@ -485,8 +485,8 @@ def create_product(request):
     if request.method == 'POST':
         form = ProductCreateForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('detail-product', id)
+            product = form.save()
+            return redirect('detail-product', product.id)
     context = {
         'form': form
     }
