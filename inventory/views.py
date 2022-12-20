@@ -541,7 +541,7 @@ def product_list_metadata(type, products: List[Product]):
 def computeTransactionProducts(product, status):
     quantity = 0
     transactions = ProductTransaction.objects.filter(
-        product=product, order__status=status)
+        product=product, order__status=status, order__type='purchase')
     for transaction in transactions:
         quantity += transaction.quantity
     return quantity
