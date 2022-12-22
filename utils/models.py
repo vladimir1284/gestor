@@ -54,6 +54,7 @@ class Order(models.Model):
         max_length=20, choices=STATUS_CHOICE, default='pending')
     concept = models.CharField(max_length=120, default='Initial')
     note = models.TextField(blank=True)
+    badge = models.IntegerField(blank=True, null=True)
     created_date = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     associated = models.ForeignKey(Associated, on_delete=models.CASCADE)

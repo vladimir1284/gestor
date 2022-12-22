@@ -17,11 +17,9 @@
     </style>
 {% endblock page %}
 {% block content %}
-    <h4 class="fw-bold py-3 mb-4">
-        {% block Ctitle %}
-        {% endblock Ctitle %}
-    </h4>
-    <div class="row mb-5">
+    {% block Ctitle %}
+    {% endblock Ctitle %}
+    <div class="row">
         {% block Cards %}
         {% endblock Cards %}
     </div>

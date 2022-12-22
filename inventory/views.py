@@ -529,7 +529,7 @@ def product_list_metadata(type, products: List[Product]):
                 product.average_cost = product.stock_price/product.quantity
             product.sell_price = product.getSuggestedPrice()
             # Categories
-            if product.category.name not in category_names:
+            if product.category and product.category.name not in category_names:
                 category_names.append(product.category.name)
                 categories.append(product.category)
             # Alerts

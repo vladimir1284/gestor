@@ -1,0 +1,67 @@
+{% extends 'base/base.html' %}
+{% block title %}
+{% endblock title %}
+{% block page %}
+    <style>
+        .add {
+            position: fixed;
+            font-size: 27px;
+            bottom: 3rem;
+            right: 1.625rem;
+            z-index: 999999;
+            box-shadow: 0 1px 20px 1px #696cff;
+        }
+        .tooltip-inner{
+            font-size: 10px;
+        }
+    </style>
+{% endblock page %}
+{% block content %}
+    <div class="card">
+        <h5 class="card-header">
+            {% block Ctitle %}
+            {% endblock Ctitle %}
+            <a href={% block createUrl %} {% endblock createUrl %}>
+                <button type="button"
+                        class="btn rounded-pill btn-icon btn-primary create"
+                        data-bs-toggle="tooltip"
+                        data-bs-offset="0,4"
+                        data-bs-placement="right"
+                        data-bs-html="true"
+                        title=""
+                        data-bs-original-title="Add contact">
+                    <span class="tf-icons bx bx-plus"></span>
+                </button>
+            </a>
+        </h5>
+        <div class="card-body">
+            <div class="row">
+                {% block Cards %}
+                {% endblock Cards %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        window.onload = function(){  
+            add = document.getElementsByClassName("create")[0];  
+            $(add).tooltip('show'); 
+        }  
+        filterText = function () {
+            let j;
+            let text = document.getElementById("search").value;
+            // Filer objects by text
+            let cards = document.getElementsByClassName("infocard");
+            for (j = 0; j < cards.length; j++) {
+                let title = cards[j].getElementsByClassName("associated-data")[0];
+                let data = title.dataset['tag'].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (data.toUpperCase().search(text.toUpperCase()) != -1 || text == '') {
+                    cards[j].style.display = "";
+                } else {
+                    cards[j].style.display = "none";
+                }    
+            }
+          }
+    </script>
+{% endblock scripts %}
