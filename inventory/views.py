@@ -1,4 +1,6 @@
 import os
+import pygsheets
+from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils import timezone
 from typing import List
@@ -477,6 +479,43 @@ def delete_price(request, id):
     return redirect('detail-product', price.product.id)
 
 # -------------------- Product ----------------------------
+
+
+def populate_product(type):
+    # Header row
+    header = ['Nombre', 'Categoría', 'Unidad', 'Precio', 'Cantidad']
+    data = [header]
+    parts = Product.objects.filter(type=type).order_by("category")
+    for part in parts:
+        data.append([
+            part.name,
+            part.category.name,
+            part.unit.name,
+            part.min_price,
+            part.stock_price])
+    return data
+
+
+@login_required
+def export_inventory(request):
+    service_file = os.path.join(
+        settings.BASE_DIR, 'trailer-rental-323614-d43be7453c41.json')
+    gc = pygsheets.authorize(service_file=service_file)
+
+    # open the google spreadsheet (where 'test' is the name of my sheet)
+    sh = gc.open('Inventario')
+
+    # ------------------------------ Parts -------------------------------------
+    # select the first sheet
+    wks = sh.worksheet('title', 'partes')
+    # upload the data.
+    wks.update_values(crange="A1", values=populate_product('part'))
+
+    # --------------------------- Consumables ----------------------------------
+    wks = sh.worksheet('title', 'insumos')
+    wks.update_values(crange="A1", values=populate_product('consumable'))
+
+    return redirect('https://docs.google.com/spreadsheets/d/1P5R4KUYcrxqCN3D-nDsDbBOJaPyDjARFlI_wPabdrT8/edit?usp=sharing')
 
 
 @login_required

@@ -32,6 +32,7 @@ from .views import (
     select_product,
     select_new_product,
     delete_product,
+    export_inventory,
     # ------ Price -------
     create_price,
     update_price,
@@ -70,6 +71,7 @@ urlpatterns = [
     path('list-unit/', list_unit, name='list-unit'),
     path('delete-unit/<id>', delete_unit, name='delete-unit'),
     # -------------------- Product ----------------------------
+    path('export-inventory/', export_inventory, name='export-inventory'),
     path('create-product/', create_product, name='create-product'),
     path('update-product/<id>', update_product, name='update-product'),
     path('detail-product/<id>', detail_product, name='detail-product'),
