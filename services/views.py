@@ -1,6 +1,7 @@
 import os
 from django.urls import reverse_lazy
 from django.utils import timezone
+from weasyprint import HTML
 from django.views.generic.edit import (
     UpdateView,
     CreateView,
@@ -11,6 +12,8 @@ from django.shortcuts import (
     redirect,
     get_object_or_404,
 )
+from django.http import (JsonResponse, HttpResponse)
+from django.template.loader import render_to_string
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from users.models import (
@@ -45,6 +48,7 @@ from .forms import (
     OrderCreateForm,
     ExpenseCreateForm,
 )
+from equipment.models import Vehicle, Trailer
 from django.utils.translation import gettext_lazy as _
 
 # -------------------- Category ----------------------------
@@ -305,11 +309,15 @@ def delete_service(request, id):
 
 @login_required
 def create_order(request):
-    associated_id = request.session.get('associated_id')
-    initial = {}
-    if associated_id is not None:
-        initial = {'associated': associated_id}
-        request.session['associated_id'] = None
+    # associated_id = request.session.get('associated_id')
+    initial = {'concept': None}
+    # if associated_id is not None:
+    #     initial = {'associated': associated_id}
+    #     request.session['associated_id'] = None
+    creating_order = request.session.get('creating_order')
+    if creating_order:
+        client_id = request.session.get('client_id')
+        initial.setdefault('associated', client_id)
     form = OrderCreateForm(initial=initial)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
@@ -317,7 +325,21 @@ def create_order(request):
             order = form.save(commit=False)
             order.type = 'sell'
             order.created_by = request.user
+
+            # Link vehicle to order if exists
+            vehicle_id = request.session.get('vehicle_id')
+            if vehicle_id:
+                vehicle = Vehicle.objects.get(id=vehicle_id)
+                order.vehicle = vehicle
+
+            # Link trailer to order if exists
+            trailer_id = request.session.get('trailer_id')
+            if trailer_id:
+                trailer = Trailer.objects.get(id=trailer_id)
+                order.trailer = trailer
+
             order.save()
+            request.session['creating_order'] = None
             return redirect('detail-service-order', id=order.id)
     context = {
         'form': form
@@ -327,14 +349,20 @@ def create_order(request):
 
 @login_required
 def select_client(request):
+    if request.method == 'GET':
+        request.session['creating_order'] = True
     if request.method == 'POST':
-        next = request.GET.get('next', 'create-service-order')
         client = get_object_or_404(Associated, id=request.POST.get('id'))
-        request.session['associated_id'] = client.id
-        return redirect(next)
+        request.session['client_id'] = client.id
+        return redirect('select-equipment')
+
+    # add form dictionary to context
     associateds = Associated.objects.filter(
         type='client', active=True).order_by("-created_date")
-    return render(request, 'services/client_list.html', {'associateds': associateds})
+    context = {
+        'associateds': associateds
+    }
+    return render(request, 'services/client_list.html', context)
 
 
 @login_required
@@ -462,6 +490,42 @@ def detail_order(request, id):
                                                           'parts_amount': parts_amount,
                                                           'terminated': terminated,
                                                           'empty': empty})
+
+
+# @login_required
+# def generate_invoice(request, contract, stage):
+#     """Generate pdf."""
+#     # Rendered
+#     html = HTML(string='services/invoice_pdf.html',
+#                 base_url=request.build_absolute_uri())
+#     result = html.write_pdf()
+
+#     # Creating http response
+#     response = HttpResponse(content_type='application/pdf;')
+#     response['Content-Disposition'] = 'inline; filename=contract_for_signature.pdf'
+#     response['Content-Transfer-Encoding'] = 'binary'
+#     with tempfile.NamedTemporaryFile(delete=True) as output:
+#         output.write(result)
+#         output.flush()
+#         output = open(output.name, 'rb')
+#         response.write(output.read())
+#         # Send email
+#         output.seek(0)
+#         send_contract(contract, output.read(), 'contract_ready_for_signature')
+#         if (stage == 3):
+#             # Store file
+#             output.seek(0)
+#             cd = ContractDocument()
+#             cd.lease = contract
+#             cd.document.save("signed_contract_%s.pdf" % id, output, True)
+#             cd.save()
+#             # # Delete handwritings
+#             # for sign in signatures:
+#             #     # os.remove(os.path.join(settings.BASE_DIR, sign.img.path))
+#             #     sign.delete()
+#             createEvent(contract, cd)
+
+#     return response
 
 # -------------------- Expense ----------------------------
 

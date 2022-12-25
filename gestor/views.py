@@ -1,5 +1,9 @@
 import datetime
-from django.shortcuts import render
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404,
+)
 from django.contrib.auth.decorators import login_required
 
 from inventory.models import ProductTransaction
@@ -10,66 +14,6 @@ from services.views import (
     computeTransactionTax,
     computeTransactionAmount,
 )
-
-
-@login_required
-def dashboard(request):
-    # Prepare dashboard from last close
-    orders = Order.objects.filter(
-        status='complete',
-        type='sell',
-        terminated_date__gte=datetime.datetime(
-            2010, 1, 1, 0, 0,
-            tzinfo=datetime.timezone.utc)).order_by('-terminated_date')
-    parts = 0
-    consumable = 0
-    gross = 0
-    third_party = 0
-    net = 0
-    tax = 0
-    products = {}
-    for order in orders:
-        getOrderBalance(order, products)
-        parts += order.parts
-        consumable += order.consumable
-        gross += order.amount
-        third_party += order.third_party
-        net += order.net
-        tax += order.tax
-    total = {
-        'parts': parts,
-        'consumable': consumable,
-        'gross': gross,
-        'third_party': third_party,
-        'net': net,
-        'tax': tax,
-    }
-    # Product incomes
-    parts_profit = 0
-    consumables_profit = 0
-    for product in products.keys():
-        if product.type == "part":
-            parts_profit += products[product]['profit']
-        if product.type == "consumable":
-            consumables_profit += products[product]['profit']
-
-    context = {
-        'orders': orders,
-        'total': total,
-        'products': products.values(),
-        'parts_profit': parts_profit,
-        'consumables_profit': consumables_profit,
-    }
-    return render(request, 'dashboard.html', context)
-
-
-def computeTransactionProfit(transaction: ProductTransaction):
-    if transaction.product.type == 'part':
-        return (computeTransactionAmount(transaction)
-                - transaction.cost
-                - computeTransactionTax(transaction))
-    if transaction.product.type == 'consumable':
-        return transaction.cost
 
 
 def getOrderBalance(order: Order, products: dict):
@@ -110,3 +54,66 @@ def getOrderBalance(order: Order, products: dict):
                  - order.third_party
                  - order.tax
                  )
+
+
+@login_required
+def dashboard(request):
+    if (request.user.profile_user.role == 2):  # Mechanic
+        return redirect('list-service-order')
+    else:
+        # Prepare dashboard from last close
+        orders = Order.objects.filter(
+            status='complete',
+            type='sell',
+            terminated_date__gte=datetime.datetime(
+                2010, 1, 1, 0, 0,
+                tzinfo=datetime.timezone.utc)).order_by('-terminated_date')
+        parts = 0
+        consumable = 0
+        gross = 0
+        third_party = 0
+        net = 0
+        tax = 0
+        products = {}
+        for order in orders:
+            getOrderBalance(order, products)
+            parts += order.parts
+            consumable += order.consumable
+            gross += order.amount
+            third_party += order.third_party
+            net += order.net
+            tax += order.tax
+        total = {
+            'parts': parts,
+            'consumable': consumable,
+            'gross': gross,
+            'third_party': third_party,
+            'net': net,
+            'tax': tax,
+        }
+        # Product incomes
+        parts_profit = 0
+        consumables_profit = 0
+        for product in products.keys():
+            if product.type == "part":
+                parts_profit += products[product]['profit']
+            if product.type == "consumable":
+                consumables_profit += products[product]['profit']
+
+        context = {
+            'orders': orders,
+            'total': total,
+            'products': products.values(),
+            'parts_profit': parts_profit,
+            'consumables_profit': consumables_profit,
+        }
+        return render(request, 'dashboard.html', context)
+
+
+def computeTransactionProfit(transaction: ProductTransaction):
+    if transaction.product.type == 'part':
+        return (computeTransactionAmount(transaction)
+                - transaction.cost
+                - computeTransactionTax(transaction))
+    if transaction.product.type == 'consumable':
+        return transaction.cost

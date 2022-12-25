@@ -11,13 +11,11 @@ from crispy_forms.bootstrap import PrependedText, AppendedText, PrependedAppende
 from django.utils.translation import gettext_lazy as _
 
 
-class CategoryCreateForm(forms.ModelForm):
-
-    class Meta:
-        fields = ('name', 'icon',)
+class BaseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
         for item in errorList:
@@ -28,6 +26,15 @@ class CategoryCreateForm(forms.ModelForm):
         self.helper.form_tag = False  # Don't render form tag
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
+
+
+class CategoryCreateForm(BaseForm):
+
+    class Meta:
+        fields = ('name', 'icon',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -56,14 +63,15 @@ class CategoryCreateForm(forms.ModelForm):
         )
 
 
-class OrderCreateForm(forms.ModelForm):
+class OrderCreateForm(BaseForm):
 
     class Meta:
         model = Order
         fields = (
             'concept',
             'note',
-            'associated'
+            'associated',
+            'badge'
         )
 
     href = "{% url 'create-provider' %}?next={{ request.path|urlencode }}"
@@ -71,16 +79,6 @@ class OrderCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Focus on form field whenever error occurred
-        errorList = list(self.errors)
-        for item in errorList:
-            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
-            break
-
-        self.helper = FormHelper()
-        self.helper.form_tag = False  # Don't render form tag
-        self.helper.disable_csrf = True  # Don't render CSRF token
-        self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -113,6 +111,12 @@ class OrderCreateForm(forms.ModelForm):
             Div(
                 Div(
                     Field('concept')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('badge')
                 ),
                 css_class="mb-3"
             ),

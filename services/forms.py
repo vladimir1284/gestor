@@ -8,11 +8,27 @@ from .models import (
     ServiceCategory,
     Expense,
 )
-from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
-from utils.forms import OrderCreateForm as BaseOrderCreateForm
+from utils.forms import (
+    BaseForm,
+    CategoryCreateForm as BaseCategoryCreateForm,
+    OrderCreateForm as BaseOrderCreateForm,
+)
+
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
-from crispy_forms.bootstrap import PrependedText, AppendedText, PrependedAppendedText
+from crispy_forms.layout import (
+    Layout,
+    Fieldset,
+    ButtonHolder,
+    Submit,
+    Div,
+    HTML,
+    Field,
+)
+from crispy_forms.bootstrap import (
+    PrependedText,
+    AppendedText,
+    PrependedAppendedText,
+)
 from django.utils.translation import gettext_lazy as _
 
 
@@ -237,7 +253,7 @@ class ServiceCreateForm(forms.ModelForm):
         )
 
 
-class ExpenseCreateForm(forms.ModelForm):
+class ExpenseCreateForm(BaseForm):
 
     class Meta:
         model = Expense
@@ -247,18 +263,7 @@ class ExpenseCreateForm(forms.ModelForm):
                   'associated',)
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
-        # Focus on form field whenever error occurred
-        errorList = list(self.errors)
-        for item in errorList:
-            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
-            break
-
-        self.helper = FormHelper()
-        self.helper.form_tag = False  # Don't render form tag
-        self.helper.disable_csrf = True  # Don't render CSRF token
-        self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
             Div(
                 Div(

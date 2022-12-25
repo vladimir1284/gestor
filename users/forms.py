@@ -240,6 +240,7 @@ class AssociatedCreateForm(forms.ModelForm):
             'phone_number',
             'type'
         )
+    has_company = forms.BooleanField(label=_('Has company'), initial=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -287,6 +288,7 @@ class AssociatedCreateForm(forms.ModelForm):
             ),
             CommonContactLayout(),
             Field('type'),
+            Field('has_company'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

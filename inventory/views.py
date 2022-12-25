@@ -601,6 +601,7 @@ def select_new_product(request, next, order_id):
 
 @login_required
 def duplicate_product(request, id):
+    print("here")
     product = get_object_or_404(Product, id=id)
     product.image = None
     product.pk = None

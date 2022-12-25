@@ -121,6 +121,17 @@ def create_provider(request):
 
 @login_required
 def create_client(request):
+    if request.method == 'POST':
+        order_data = request.session.get('creating_order')
+        if order_data is not None:
+            form = AssociatedCreateForm(request.POST, request.FILES)
+            if form.is_valid():
+                client = form.save()
+                request.session['client_id'] = client.id
+                if form.cleaned_data['has_company']:
+                    return redirect('select-company')
+                else:
+                    return redirect('select-equipment')
     return create_associated(request, 'client')
 
 
@@ -221,6 +232,12 @@ def create_company(request):
         form = CompanyCreateForm(request.POST, request.FILES)
         if form.is_valid():
             company = form.save()
+            order_data = request.session.get('creating_order')
+            if order_data is not None:
+                client_id = request.session.get('client_id')
+                client = get_object_or_404(Associated, id=client_id)
+                client.company = company
+                return redirect('select-equipment')
             request.session['company_id'] = company.id
             return redirect(next)
     context = {
@@ -239,8 +256,14 @@ class CompanyUpdateView(LoginRequiredMixin, UpdateView):
 @login_required
 def select_company(request):
     if request.method == 'POST':
-        next = request.GET.get('next', 'list-company')
         company = get_object_or_404(Company, id=request.POST.get('id'))
+        order_data = request.session.get('creating_order')
+        if order_data is not None:
+            client_id = request.session.get('client_id')
+            client = get_object_or_404(Associated, id=client_id)
+            client.company = company
+            return redirect('select-equipment')
+        next = request.GET.get('next', 'list-company')
         request.session['company_id'] = company.id
         return redirect(next)
     companies = Company.objects.filter(active=True).order_by("-created_date")
