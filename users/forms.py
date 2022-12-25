@@ -232,7 +232,6 @@ class AssociatedCreateForm(forms.ModelForm):
         model = Associated
         fields = (
             'name',
-            'company',
             'address',
             'note',
             'email',
@@ -258,37 +257,12 @@ class AssociatedCreateForm(forms.ModelForm):
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
-            Div(
-                Div(
-                    Field(
-                        PrependedText('company',
-                                      '<i class="bx bx-buildings"></i>',
-                                      css_class="form-select")
-                    ),
-                    css_class="col-10"
-                ),
-                Div(
-                    HTML(
-                        """
-                    <a class="btn btn-icon btn-outline-primary position-absolute bottom-0"
-                       type="button"
-                       href="{% url 'select-company' %}?next={{ request.path|urlencode }}"
-                       data-bs-toggle="tooltip"
-                       data-bs-offset="0,4"
-                       data-bs-placement="left"
-                       data-bs-html="true"
-                       title=""
-                       data-bs-original-title="<span>Modify company</span>">
-                        <span class="tf-icons bx bx-plus"></span>
-                    </a>
-                    """),
-                    css_class="col-2 position-relative"
-                ),
-                css_class="row mb-3"
-            ),
             CommonContactLayout(),
             Field('type'),
-            Field('has_company'),
+            Div(
+                Field('has_company'),
+                css_class="row mb-3"
+            ),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

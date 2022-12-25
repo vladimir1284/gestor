@@ -27,6 +27,7 @@ from .models import (
     Company,
 )
 from utils.models import Order
+from django.utils.translation import gettext_lazy as _
 
 
 @permission_required('auth.user.can_add_user')
@@ -150,7 +151,8 @@ def create_associated(request, type):
             request.session['associated_id'] = associated.id
             return redirect(next)
     context = {
-        'form': form
+        'form': form,
+        'title': _('Create client')
     }
     return render(request, 'users/associated_create.html', context)
 
