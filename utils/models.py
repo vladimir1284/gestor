@@ -1,7 +1,7 @@
 from django.db import models
 from PIL import Image
 
-from users.models import User, Associated
+from users.models import User, Associated, Company
 from equipment.models import Vehicle, Trailer
 from django.utils.translation import gettext_lazy as _
 
@@ -62,6 +62,8 @@ class Order(models.Model):
     trailer = models.ForeignKey(Trailer, blank=True, null=True,
                                 on_delete=models.SET_NULL)
     vehicle = models.ForeignKey(Vehicle, blank=True, null=True,
+                                on_delete=models.SET_NULL)
+    company = models.ForeignKey(Company, blank=True, null=True,
                                 on_delete=models.SET_NULL)
     terminated_date = models.DateTimeField(blank=True, null=True)
 

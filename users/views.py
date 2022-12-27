@@ -150,10 +150,26 @@ def create_associated(request, type):
             associated = form.save()
             request.session['associated_id'] = associated.id
             return redirect(next)
+    title = {'client':  _('Create client'),
+             'provider':  _('Create Provider')}[type]
     context = {
         'form': form,
-        'title': _('Create client')
+        'title': title
     }
+    # Only for client
+    if (type == 'client'):
+        cities = {'texas': {'houston': 'Houston',
+                            'dallas': 'Dallas',
+                            'austin': 'Austin',
+                            'san_antonio': 'San Antonio'
+                            },
+                  'florida': {'miami': 'Miami',
+                              'tampa': 'Tampa',
+                              'orlando': 'Orlando',
+                              'jacksonville': 'Jacksonville'
+                              }
+                  }
+        context.setdefault('cities', cities)
     return render(request, 'users/associated_create.html', context)
 
 

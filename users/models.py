@@ -10,8 +10,35 @@ class Contact(models.Model):
         abstract = True
 
     name = models.CharField(max_length=120)
+    LANG_CHOICE = (
+        ('spanish', 'Spanish'),
+        ('english', 'English'),
+    )
+    language = models.CharField(
+        max_length=20, choices=LANG_CHOICE, default='spanish')
     active = models.BooleanField(default=True)
-    address = models.TextField(blank=True)
+    STATE_CHOICE = (
+        ('florida', 'Florida'),
+        ('texas', 'Texas'),
+        ('other', 'Other'),
+    )
+    state = models.CharField(
+        max_length=20, choices=STATE_CHOICE, default='texas')
+    other_state = models.CharField(_('State'), max_length=20, blank=True)
+    CITY_CHOICE = (
+        ('houston', 'Houston'),
+        ('dallas', 'Dallas'),
+        ('austin', 'Austin'),
+        ('san_antonio', 'San Antonio'),
+        ('miami', 'Miami'),
+        ('tampa', 'Tampa'),
+        ('orlando', 'Orlando'),
+        ('jacksonville', 'Jacksonville'),
+        ('other', 'Other'),
+    )
+    city = models.CharField(
+        max_length=20, choices=CITY_CHOICE, default='houston')
+    other_city = models.CharField(_('City'), max_length=20, blank=True)
     note = models.TextField(blank=True)
     email = models.EmailField(blank=True)
     created_date = models.DateField(auto_now_add=True)
@@ -39,13 +66,17 @@ class Contact(models.Model):
 class Company(Contact):
     class Meta:
         abstract = False
+    VEHICLES_CHOICE = (
+        ('1', '1'),
+        ('2-5', '2-5'),
+        ('>5', '>5'),
+    )
+    vehicles = models.CharField(_('Number of vehicles'), max_length=20,
+                                choices=VEHICLES_CHOICE, default='1')
 
 
 class Associated(Contact):
     # Either client or provider
-    company = models.ForeignKey(Company,
-                                on_delete=models.SET_NULL,
-                                blank=True, null=True)
     TYPE_CHOICE = (
         ('client', _('Client')),
         ('provider', _('provider')),

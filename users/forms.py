@@ -59,6 +59,13 @@ class CommonContactLayout(Layout):
             ),
             Div(
                 Field(
+                    PrependedText('phone_number',
+                                  '<i class="bx bx-phone"></i>')
+                ),
+                css_class="row"
+            ),
+            Div(
+                Field(
                     PrependedAppendedText('email',
                                           '<i class="bx bx-envelope"></i>',
                                           '@ejemplo.com')
@@ -66,11 +73,22 @@ class CommonContactLayout(Layout):
                 css_class="row mb-3"
             ),
             Div(
-                Field(
-                    PrependedText('address',
-                                  '<i class="bx bx-building-house"></i>'),
-                    css_class='form-control'
-                ),
+                Field('state',
+                      css_class="form-select"
+                      )
+            ),
+            Div(
+                Field('other_state'),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field('city',
+                      css_class="form-select"
+                      ),
+                css_class="row"
+            ),
+            Div(
+                Field('other_city'),
                 css_class="row mb-3"
             ),
             Div(
@@ -89,13 +107,13 @@ class CommonProfileLayout(Layout):
                 HTML(
                     """
                 {% load static %}
-                <img id="preview" 
-                alt="user-avatar" 
-                class="d-block rounded" 
+                <img id="preview"
+                alt="user-avatar"
+                class="d-block rounded"
                 height="100" width="100"
                 {% if form.avatar.value %}
                     src="/media/{{ form.avatar.value }}"
-                {% else %}  
+                {% else %}
                     src="{% static 'images/icons/client.png' %}"
                 {% endif %}>
                 """
@@ -107,13 +125,6 @@ class CommonProfileLayout(Layout):
                     Field('avatar')
                 ),
                 css_class="mb-3"
-            ),
-            Div(
-                Field(
-                    PrependedText('phone_number',
-                                  '<i class="bx bx-phone"></i>')
-                ),
-                css_class="row"
             )
         )
 
@@ -217,6 +228,13 @@ class UserProfileForm(forms.ModelForm):
             CommonProfileLayout(),
             Div(
                 Field(
+                    PrependedText('phone_number',
+                                  '<i class="bx bx-phone"></i>')
+                ),
+                css_class="row"
+            ),
+            Div(
+                Field(
                     PrependedText('role',
                                   '<i class="bx bx-certification"></i>',
                                   css_class="form-select")
@@ -232,14 +250,16 @@ class AssociatedCreateForm(forms.ModelForm):
         model = Associated
         fields = (
             'name',
-            'address',
+            'state',
+            'city',
+            'other_state',
+            'other_city',
             'note',
             'email',
             'avatar',
             'phone_number',
             'type'
         )
-    has_company = forms.BooleanField(label=_('Has company'), initial=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -249,7 +269,6 @@ class AssociatedCreateForm(forms.ModelForm):
             self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
             break
 
-        self.fields['address'].widget.attrs = {'rows': 2}
         self.fields['type'].widget = HiddenInput()
 
         self.helper = FormHelper()
@@ -259,10 +278,6 @@ class AssociatedCreateForm(forms.ModelForm):
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field('type'),
-            Div(
-                Field('has_company'),
-                css_class="row mb-3"
-            ),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )
@@ -275,7 +290,11 @@ class CompanyCreateForm(forms.ModelForm):
         model = Company
         fields = (
             'name',
-            'address',
+            'state',
+            'city',
+            'other_state',
+            'other_city',
+            'vehicles',
             'note',
             'email',
             'avatar',
@@ -298,6 +317,12 @@ class CompanyCreateForm(forms.ModelForm):
         self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
             CommonContactLayout(),
+            Div(
+                Field('vehicles',
+                      css_class="form-select"
+                      ),
+                css_class="row mb-3"
+            ),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )
