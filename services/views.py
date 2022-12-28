@@ -238,7 +238,7 @@ def service_list_metadata(services: List[Service]):
     categories = []
     for service in services:
         # Categories
-        if service.category.name not in category_names:
+        if service.category and service.category.name not in category_names:
             category_names.append(service.category.name)
             categories.append(service.category)
     return categories

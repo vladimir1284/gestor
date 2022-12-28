@@ -15,8 +15,8 @@ class Service(models.Model):
     name = models.CharField(max_length=120, unique=True)
     description = models.TextField(blank=True)
     created_date = models.DateField(auto_now_add=True)
-    category = models.ForeignKey(
-        ServiceCategory, on_delete=models.CASCADE)
+    category = models.ForeignKey(ServiceCategory, blank=True, null=True,
+                                 on_delete=models.SET_NULL)
     sell_tax = models.FloatField(blank=True, default=8.25)
     suggested_price = models.FloatField(blank=True)
     max_price = models.FloatField(blank=True)

@@ -1,7 +1,7 @@
 {% extends 'base/base_form.html' %}
 {% load crispy_forms_tags %}
 {% block title %}
-    Añadir Transacción
+    {{ title }}
 {% endblock title %}
 {% block content %}
     <!-- Basic with Icons -->
@@ -16,11 +16,13 @@
                     <div class="row mb-3">
                         <div class="col-12">
                             Service: <b>{{ service.name }}</b>
-                            <a {% if form.instance.id %}onclick="deleteTransaction('{% url 'delete-service-transaction' form.instance.id %}', '{{ service.name }}')"{% endif %}
-                               type="button"
-                               class="btn btn-icon btn-outline-danger float-end">
-                                <span class="tf-icons bx bx-trash"></span>
-                            </a>
+                            {% if form.instance.id %}
+                                <a onclick="deleteTransaction('{% url 'delete-service-transaction' form.instance.id %}', '{{ service.name }}')"
+                                   type="button"
+                                   class="btn btn-icon btn-outline-danger float-end">
+                                    <span class="tf-icons bx bx-trash"></span>
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                     {% crispy form %}
