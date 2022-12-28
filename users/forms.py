@@ -1,13 +1,14 @@
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+from crispy_forms.bootstrap import PrependedText, AppendedText, PrependedAppendedText
+from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
+from crispy_forms.helper import FormHelper
+from django.core.files.images import get_image_dimensions
+from .models import *
 from django.forms import ModelForm, HiddenInput
 from django import forms
-from .models import *
-from django.core.files.images import get_image_dimensions
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
-from crispy_forms.bootstrap import PrependedText, AppendedText, PrependedAppendedText
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from django.utils.translation import gettext_lazy as _
+from phonenumber_field.widgets import RegionalPhoneNumberWidget
 
 
 class CommonUserLayout(Layout):
@@ -49,7 +50,7 @@ class CommonUserLayout(Layout):
 class CommonContactLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
-            CommonProfileLayout(),
+            PictureLayout(),
             Div(
                 Field(
                     PrependedText('name',
@@ -63,6 +64,11 @@ class CommonContactLayout(Layout):
                                   '<i class="bx bx-phone"></i>')
                 ),
                 css_class="row"
+            ),
+            Div(
+                Field('language',
+                      css_class="form-select"
+                      )
             ),
             Div(
                 Field(
@@ -100,7 +106,7 @@ class CommonContactLayout(Layout):
         )
 
 
-class CommonProfileLayout(Layout):
+class PictureLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
             Div(
@@ -215,6 +221,8 @@ class UserProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['phone_number'].widget = RegionalPhoneNumberWidget(
+            region="US")
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
         for item in errorList:
@@ -225,7 +233,7 @@ class UserProfileForm(forms.ModelForm):
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
-            CommonProfileLayout(),
+            PictureLayout(),
             Div(
                 Field(
                     PrependedText('phone_number',
@@ -244,11 +252,10 @@ class UserProfileForm(forms.ModelForm):
         )
 
 
-class AssociatedCreateForm(forms.ModelForm):
-
+class BaseContactForm(forms.ModelForm):
     class Meta:
         model = Associated
-        fields = (
+        fields = [
             'name',
             'state',
             'city',
@@ -258,23 +265,36 @@ class AssociatedCreateForm(forms.ModelForm):
             'email',
             'avatar',
             'phone_number',
-            'type'
-        )
+            'language'
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['phone_number'].widget = RegionalPhoneNumberWidget(
+            region="US")
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
         for item in errorList:
             self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
             break
 
-        self.fields['type'].widget = HiddenInput()
-
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
+
+
+class AssociatedCreateForm(BaseContactForm):
+
+    class Meta(BaseContactForm.Meta):
+        model = Associated
+        fields = BaseContactForm.Meta.fields + ['type']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['type'].widget = HiddenInput()
+
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field('type'),
@@ -284,37 +304,14 @@ class AssociatedCreateForm(forms.ModelForm):
         )
 
 
-class CompanyCreateForm(forms.ModelForm):
+class CompanyCreateForm(BaseContactForm):
 
-    class Meta:
+    class Meta(BaseContactForm.Meta):
         model = Company
-        fields = (
-            'name',
-            'state',
-            'city',
-            'other_state',
-            'other_city',
-            'vehicles',
-            'note',
-            'email',
-            'avatar',
-            'phone_number'
-        )
+        fields = BaseContactForm.Meta.fields + ['vehicles']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Focus on form field whenever error occurred
-        errorList = list(self.errors)
-        for item in errorList:
-            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
-            break
-
-        self.fields['address'].widget.attrs = {'rows': 2}
-
-        self.helper = FormHelper()
-        self.helper.form_tag = False  # Don't render form tag
-        self.helper.disable_csrf = True  # Don't render CSRF token
-        self.helper.label_class = 'form-label'
         self.helper.layout = Layout(
             CommonContactLayout(),
             Div(

@@ -1,13 +1,18 @@
 {% load static %}
-<div class="col-6 col-md-3 mb-3 text-center">
+<div class="col-md-3 mb-3 text-center">
     <div class="card text-center">
         <div class="card-body">
-            <div class="demo-inline-spacing mb-2">
+            <div class="demo-inline-spacing mb-2 associated-pic">
                 <img {% if associated.avatar %}src="{{ associated.avatar.url }}"{% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
                      alt="Avatar"
                      height="100px"
                      width="100px"
                      class="w-px-100 h-px-100 rounded-circle card-img-top"/>
+                <img {% if associated.language == "english" %}src="{% static 'images/icons/en.png' %}"{% else %} src="{% static 'images/icons/es.png' %}" {% endif %}
+                     alt="Avatar"
+                     height="40px"
+                     width="40px"
+                     class="w-px-40 h-px-40 rounded-circle lang-flag"/>
             </div>
             <h5 class="card-title">{{ associated.name }}</h5>
             <div class="card-subtitle text-muted mb-3">{{ associated.company }}</div>

@@ -39,23 +39,10 @@ def create_user(request):
         if userCform.is_valid():
             form = UserProfileForm(request.POST, request.FILES)
             if form.is_valid():
-                username = userCform.cleaned_data['username']
-                password = userCform.cleaned_data['password1']
-                firstname = userCform.cleaned_data['first_name']
-                lastname = userCform.cleaned_data['last_name']
-                email = userCform.cleaned_data['email']
-                role = form.cleaned_data['role']
-                phone_number = form.cleaned_data['phone_number']
-                avatar = form.cleaned_data['avatar']
-                user = User.objects.create_user(username=username,
-                                                first_name=firstname,
-                                                last_name=lastname,
-                                                password=password,
-                                                email=email)
-                UserProfile.objects.create(user=user,
-                                           role=role,
-                                           avatar=avatar,
-                                           phone_number=phone_number)
+                user = userCform.save()
+                profile = form.save(commit=False)
+                profile.user = user
+                profile.save()
                 return redirect('list-user')
     context = {
         'form': form,
@@ -129,23 +116,32 @@ def create_client(request):
             if form.is_valid():
                 client = form.save()
                 request.session['client_id'] = client.id
-                if form.cleaned_data['has_company']:
-                    return redirect('select-company')
-                else:
-                    return redirect('select-equipment')
+                return redirect('select-company')
     return create_associated(request, 'client')
+
+
+def addStateCity(context):
+    cities = {'texas': {'houston': 'Houston',
+                        'dallas': 'Dallas',
+                        'austin': 'Austin',
+                        'san_antonio': 'San Antonio'
+                        },
+              'florida': {'miami': 'Miami',
+                          'tampa': 'Tampa',
+                          'orlando': 'Orlando',
+                          'jacksonville': 'Jacksonville'
+                          }
+              }
+    context.setdefault('cities', cities)
 
 
 def create_associated(request, type):
     initial = {'type': type}
-    company_id = request.session.get('company_id')
-    if company_id is not None:
-        initial.setdefault('company', company_id)
-        request.session['company_id'] = None
     form = AssociatedCreateForm(initial=initial)
     next = request.GET.get('next', 'list-{}'.format(type))
     if request.method == 'POST':
-        form = AssociatedCreateForm(request.POST, request.FILES)
+        form = AssociatedCreateForm(
+            request.POST, request.FILES, initial=initial)
         if form.is_valid():
             associated = form.save()
             request.session['associated_id'] = associated.id
@@ -156,21 +152,8 @@ def create_associated(request, type):
         'form': form,
         'title': title
     }
-    # Only for client
-    if (type == 'client'):
-        cities = {'texas': {'houston': 'Houston',
-                            'dallas': 'Dallas',
-                            'austin': 'Austin',
-                            'san_antonio': 'San Antonio'
-                            },
-                  'florida': {'miami': 'Miami',
-                              'tampa': 'Tampa',
-                              'orlando': 'Orlando',
-                              'jacksonville': 'Jacksonville'
-                              }
-                  }
-        context.setdefault('cities', cities)
-    return render(request, 'users/associated_create.html', context)
+    addStateCity(context)
+    return render(request, 'users/contact_create.html', context)
 
 
 @login_required
@@ -200,11 +183,14 @@ def update_associated(request, id):
                 return redirect('list-provider')
 
     # add form dictionary to context
+    title = {'client':  _('Update client'),
+             'provider':  _('Update Provider')}[associated.type]
     context = {
-        'form': form
+        'form': form,
+        'title': title,
     }
-
-    return render(request, 'users/associated_update.html', context)
+    addStateCity(context)
+    return render(request, 'users/contact_create.html', context)
 
 
 @login_required
@@ -259,16 +245,36 @@ def create_company(request):
             request.session['company_id'] = company.id
             return redirect(next)
     context = {
-        'form': form
+        'form': form,
+        'title': _('Create company')
     }
-    return render(request, 'users/company_create.html', context)
+    addStateCity(context)
+    return render(request, 'users/contact_create.html', context)
 
 
-class CompanyUpdateView(LoginRequiredMixin, UpdateView):
-    model = Company
-    form_class = CompanyCreateForm
-    template_name = 'users/company_create.html'
-    success_url = reverse_lazy('list-company')
+@login_required
+def update_company(request, id):
+    # fetch the object related to passed id
+    company = get_object_or_404(Company, id=id)
+
+    # pass the object as instance in form
+    form = CompanyCreateForm(request.POST or None,
+                             request.FILES or None,
+                             instance=company)
+
+    # save the data from the form and
+    # redirect to list_view
+    if form.is_valid():
+        form.save()
+        return redirect('list-company')
+
+    # add form dictionary to context
+    context = {
+        'form': form,
+        'title': _('Update company')
+    }
+    addStateCity(context)
+    return render(request, 'users/contact_create.html', context)
 
 
 @login_required
@@ -293,7 +299,7 @@ def list_company(request):
     companies = Company.objects.filter(active=True).order_by("-created_date")
     for company in companies:
         last_order = Order.objects.filter(
-            associated__company=company).order_by("-created_date").first()
+            company=company).order_by("-created_date").first()
         if last_order:
             company.last_order = last_order
     return render(request, 'users/company_list.html', {'companies': companies})
