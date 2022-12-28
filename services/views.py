@@ -468,14 +468,15 @@ def detail_order(request, id):
     (transactions, services) = computeOrderAmount(order)
     # Order by amount
     transactions = list(transactions)
-    #transactions.sort(key=lambda trans: trans.amount, reverse=True)
     # Count consumables and parts
     consumable_amount = 0
     parts_amount = 0
+    consumables = False
     for trans in transactions:
         if (trans.product.type == 'part'):
             parts_amount += trans.amount
         elif (trans.product.type == 'consumable'):
+            consumables = True
             consumable_amount += trans.amount
     # Account services
     service_amount = 0
@@ -484,16 +485,18 @@ def detail_order(request, id):
     # Terminated order
     terminated = order.status in ['decline', 'complete']
     empty = (len(services) + len(transactions)) == 0
-    return render(request, 'services/order_detail.html', {'order': order,
-                                                          'services': services,
-                                                          'service_amount': service_amount,
-                                                          'expenses': expenses,
-                                                          'expenses_amount': expenses_amount,
-                                                          'transactions': transactions,
-                                                          'consumable_amount': consumable_amount,
-                                                          'parts_amount': parts_amount,
-                                                          'terminated': terminated,
-                                                          'empty': empty})
+    context = {'order': order,
+               'services': services,
+               'service_amount': service_amount,
+               'expenses': expenses,
+               'expenses_amount': expenses_amount,
+               'transactions': transactions,
+               'consumable_amount': consumable_amount,
+               'parts_amount': parts_amount,
+               'terminated': terminated,
+               'empty': empty,
+               'consumables': consumables}
+    return render(request, 'services/order_detail.html', context)
 
 
 # @login_required

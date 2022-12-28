@@ -5,9 +5,5 @@
 {% block tableConsumables %}
     {% include "./product/select_table.html" with type="consumable" %}
 {% endblock tableConsumables %}
-{% block createUrl %}
-    {% url 'select-new-product' next order_id %}
-{% endblock createUrl %}
-{% block help %}
-    New product
-{% endblock help %}
+{% block addButton %}
+{% endblock addButton %}

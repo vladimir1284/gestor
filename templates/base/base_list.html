@@ -73,19 +73,21 @@
             </div>
         {% endblock card %}
     </div>
-    <a href="{% block createUrl %} {% endblock createUrl %}">
-        <button type="button"
-                style="visibility: {% block add %}{% endblock add %};"
-                class="btn rounded-pill btn-primary btn-icon add"
-                data-bs-toggle="tooltip"
-                data-bs-offset="0,4"
-                data-bs-placement="left"
-                data-bs-html="true"
-                title=""
-                data-bs-original-title="{% block help %} {% endblock help %}">
-            <b>+</b>
-        </button>
-    </a>
+    {% block addButton %}
+        <a href="{% block createUrl %} {% endblock createUrl %}">
+            <button type="button"
+                    style="visibility: {% block add %}{% endblock add %};"
+                    class="btn rounded-pill btn-primary btn-icon add"
+                    data-bs-toggle="tooltip"
+                    data-bs-offset="0,4"
+                    data-bs-placement="left"
+                    data-bs-html="true"
+                    title=""
+                    data-bs-original-title="{% block help %} {% endblock help %}">
+                <b>+</b>
+            </button>
+        </a>
+    {% endblock addButton %}
 {% endblock content %}
 {% block scripts %}
     <script>
