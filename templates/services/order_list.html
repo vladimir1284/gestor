@@ -1,4 +1,5 @@
 {% extends 'base/base_list.html' %}
+{% load static %}
 {% block title %}
     Service Orders
 {% endblock title %}
@@ -25,28 +26,49 @@
     <th>
         <i class="bx bx-cog"></i>
     </th>
+    <th>Client</th>
     <th>Concept</th>
     <th>Date</th>
-    <th>Status</th>
-    <th>Client</th>
     <th>Amount</th>
 {% endblock Theader %}
 {% block Tbody %}
     {% for order in orders %}
-        <tr data-tag="{{ order.status }}">
-            <td>
-                <a href={% url 'detail-service-order' order.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+        <tr data-tag="{{ order.status }}"
+            data-search="{{ order.associated.name }}{{ order.associated.phone_number }}">
+            <td class="chapilla">
+                <a href={% url 'detail-service-order' order.id %}>
+                    <img {% if order.status == 'processing' %} src="{% static 'images/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'images/icons/tag-success.png' %}" {% elif order.status == 'pending' %} src="{% static 'images/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'images/icons/tag-info.png' %}" {% elif order.status == 'decline' %} src="{% static 'images/icons/tag-danger.png' %}" {% endif %}
+                         alt="{{ order.badge }}"
+                         height="32px"
+                         width="20px"
+                         class="h-px-40 w-auto"/>
+                </a>
+                {% if order.badge %}<span>{{ order.badge }}</span>{% endif %}
+            </td>
+            <td class="d-flex pb-1">
+                <div class="avatar flex-shrink-0 me-3">
+                    <a href={% url 'detail-associated' order.associated.id %}>
+                        <span class="avatar-initial rounded-circle bg-label-primary">
+                            <img {% if order.associated.avatar %} src="{{ order.associated.avatar.url }}" {% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
+                                 alt="Avatar"
+                                 height="100px"
+                                 width="100px"
+                                 class="w-px-40 h-auto rounded-circle"/>
+                        </span>
+                    </a>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                    <div data-tag="{{ order.associated.name }}{{ order.associated.phone_number }}"
+                         class="me-2  associated-data">
+                        <h6 class="mb-0">{{ order.associated.name }}</h6>
+                        <small class="text-muted">{{ order.associated.phone_number }}</small>
+                    </div>
+                </div>
             </td>
             <td>
                 <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ order.concept }}</strong>
             </td>
             <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
-            <td>
-                <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
-                    {{ order.status }}
-                </span>
-            </td>
-            <td>{{ order.associated }}</td>
             <td>${{ order.amount|floatformat:"2" }}</td>
         </tr>
     {% endfor %}

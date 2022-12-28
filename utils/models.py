@@ -70,6 +70,11 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.concept}  ({self.type}) {self.created_date}"
 
+    def get_queryset(self, request):
+        qs = self.model._default_manager.get_queryset()
+        order = ['pending', 'processing', 'approved', 'complete', 'decline']
+        return sorted(qs, key=lambda x: order.index(x.status))
+
 
 class Transaction(models.Model):
     class Meta:

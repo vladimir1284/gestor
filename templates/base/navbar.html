@@ -16,9 +16,8 @@
       for (j = 0; j < tables.length; j++) {
           tr = tables[j].getElementsByTagName("tr");
           for (i = 0; i < tr.length; i++) {
-            let td = tr[i].getElementsByTagName("strong"); // For each row
-            let name = td[0].innerHTML.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            if (name.toUpperCase().search(text.toUpperCase()) != -1 || text == '') {
+            let data = tr[i].dataset['search'].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (data.toUpperCase().search(text.toUpperCase()) != -1 || text == '') {
                 tr[i].style.display = "";
             } else {
                 tr[i].style.display = "none";

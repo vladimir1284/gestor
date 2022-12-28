@@ -176,10 +176,14 @@ def update_order_status(request, id, status):
     return redirect('list-order')
 
 
+STATUS_ORDER = ['pending', 'processing', 'approved', 'complete', 'decline']
+
+
 @login_required
 def list_order(request):
     orders = Order.objects.filter(
         type='purchase').order_by('-created_date')
+    orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
     for order in orders:
         statuses.add(order.status)

@@ -55,7 +55,7 @@
             let cards = document.getElementsByClassName("infocard");
             for (j = 0; j < cards.length; j++) {
                 let title = cards[j].getElementsByClassName("associated-data")[0];
-                let data = title.dataset['tag'].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                let data = title.dataset['search'].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 if (data.toUpperCase().search(text.toUpperCase()) != -1 || text == '') {
                     cards[j].style.display = "";
                 } else {
