@@ -9,7 +9,7 @@
 </thead>
 <tbody class="table-border-bottom-0">
     {% for service in services %}
-        <tr data-tag="{{ service.category }}">
+        <tr data-tag="{{ service.category }}" data-search="{{ service.name }}">
             <td>
                 <a href={% url next order_id service.id %}><i class="bx bx-plus"></i></a>
             </td>

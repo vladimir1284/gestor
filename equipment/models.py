@@ -53,15 +53,16 @@ class Trailer(Equipment):
         ('other', _('Other')),
     )
     manufacturer = models.CharField(max_length=20, choices=MANUFACTURER_CHOICE)
-    AXIS_CHIOCES = [(1, 1), (2, 2)]
-    axis_number = models.IntegerField(_('Axis'), choices=AXIS_CHIOCES)
+    AXIS_CHIOCES = [(1, 1), (2, 2), (3, 3)]
+    axis_number = models.IntegerField(
+        _('Number of axles'), choices=AXIS_CHIOCES)
     LOAD_CHOICE = (
         (7, 7000),
         (8, 8000),
         (10, 10000),
         (12, 12000)
     )
-    load = models.IntegerField(_('Load Capacity'), choices=LOAD_CHOICE)
+    load = models.IntegerField(_('Axle load capacity'), choices=LOAD_CHOICE)
 
 
 class Vehicle(Equipment):

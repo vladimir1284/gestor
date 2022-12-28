@@ -6,7 +6,7 @@
     <div class="card">
         <div class="card-body">
             <h5>
-                <strong>Trailer or vehicle?</strong>
+                <strong>Type of vehicle</strong>
             </h5>
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}
@@ -35,7 +35,7 @@
                                value="vehicle"
                                id="defaultRadio2">
                         <label class="form-check-label" for="defaultRadio2">
-                            Vehicle
+                            Car
                             <img src="{% static 'images/icons/truck.jpg' %}"
                                  alt="icon"
                                  height="100px"
