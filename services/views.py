@@ -394,11 +394,11 @@ def select_client(request):
 def update_order(request, id):
     # fetch the object related to passed id
     order = get_object_or_404(Order, id=id)
-    associated_id = request.session.get('associated_id')
-    if associated_id is not None:
-        associated = get_object_or_404(Associated, id=associated_id)
-        order.associated = associated
-        request.session['associated_id'] = None
+    # associated_id = request.session.get('associated_id')
+    # if associated_id is not None:
+    #     associated = get_object_or_404(Associated, id=associated_id)
+    #     order.associated = associated
+    #     request.session['associated_id'] = None
     # pass the object as instance in form
     form = OrderCreateForm(instance=order)
 
@@ -414,8 +414,15 @@ def update_order(request, id):
 
     # add form dictionary to context
     context = {
-        'form': form
+        'form': form,
+        'client': order.associated,
     }
+    if order.trailer:
+        context.setdefault('equipment', order.trailer)
+        context.setdefault('equipment_type', 'trailer')
+    elif order.vehicle:
+        context.setdefault('equipment', order.vehicle)
+        context.setdefault('equipment_type', 'vehicle')
 
     return render(request, 'services/order_create.html', context)
 
