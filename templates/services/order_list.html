@@ -42,8 +42,8 @@
                          height="32px"
                          width="20px"
                          class="h-px-40 w-auto"/>
+                    {% if order.badge %}<span>{{ order.badge }}</span>{% endif %}
                 </a>
-                {% if order.badge %}<span>{{ order.badge }}</span>{% endif %}
             </td>
             <td class="d-flex pb-1">
                 <div class="avatar flex-shrink-0 me-3">

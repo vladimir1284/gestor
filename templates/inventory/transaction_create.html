@@ -45,5 +45,56 @@
                 window.location = url;
             }
         }
+        let helptext, unit_select, price;
+
+        // Clean select options
+        function removeAll(selectBox) {
+            while (selectBox.options.length > 0) {
+                selectBox.remove(0);
+            }
+        }
+        let minimum = {{product.min_price|stringformat:"f" }};
+        let suggested = {{product.suggested_price|stringformat:"f" }};
+        suggested = Math.max(suggested, minimum);
+        const units = {};
+        const factors = {};
+        {% for unit in units %}        
+            {% if forloop.first %}            let unit = {{unit.id}};{% endif %}
+            units.{{unit.name}} = {{unit.id}};
+            factors[{{unit.id}}]={{unit.factor|stringformat:"f"}};
+        {% endfor %}
+
+        function updateUnits(event){            
+                removeAll(unit_select);
+                // Iterate for cities in the state
+                let newOption;
+                for (const [unit, factor] of Object.entries(units)) {
+                    newOption = new Option(unit, factor);
+                    unit_select.add(newOption,undefined);
+                }
+                unit_select.add(newOption,undefined);
+            }
+        function updatePrice(event){
+            console.log(unit_select.value)
+            if (unit_select.value != unit)
+            {
+                suggested = suggested*factors[unit_select.value]/factors[unit];
+                price.value = suggested;
+
+                minimum = minimum*factors[unit_select.value]/factors[unit];
+                unit_name = unit_select.options[unit_select.selectedIndex].text;
+                helptext.innerHTML=`Minimum: \$${minimum}/${unit_name}.`
+
+                unit = unit_select.value;
+            }
+        }
+        window.addEventListener("load", (event) => {
+            unit_select = document.getElementById("id_unit");
+            helptext = document.getElementById("hint_id_price");
+            price = document.getElementById("id_price");
+            
+            unit_select.onchange = updatePrice;
+            updateUnits();
+          });
     </script>
 {% endblock content %}
