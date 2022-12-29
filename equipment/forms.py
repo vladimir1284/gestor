@@ -71,6 +71,7 @@ class TrailerCreateForm(BaseForm):
             'year',
             'cdl',
             'type',
+            'plate',
             'manufacturer',
             'axis_number',
             'load'
@@ -82,22 +83,8 @@ class TrailerCreateForm(BaseForm):
         self.helper.layout = Layout(
             PictureLayout(),
             Div(
-                Field('vin'),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field('year',
+                Field('manufacturer',
                       css_class="form-select"),
-                css_class="row mb-3"
-            ),
-            Div(
-                Div(
-                    Field('note', rows='2')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Field('cdl'),
                 css_class="row mb-3"
             ),
             Div(
@@ -106,8 +93,20 @@ class TrailerCreateForm(BaseForm):
                 css_class="row mb-3"
             ),
             Div(
-                Field('manufacturer',
+                Field('year',
                       css_class="form-select"),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field('vin'),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field('plate'),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field('cdl'),
                 css_class="row mb-3"
             ),
             Div(
@@ -119,6 +118,12 @@ class TrailerCreateForm(BaseForm):
                 Field('load',
                       css_class="form-select"),
                 css_class="row mb-3"
+            ),
+            Div(
+                Div(
+                    Field('note', rows='2')
+                ),
+                css_class="mb-3"
             ),
             ButtonHolder(
                 Submit('submit', 'Enviar',

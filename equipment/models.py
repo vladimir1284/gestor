@@ -18,6 +18,7 @@ class Equipment(models.Model):
     IMAGE_SIZE = 500
     image = models.ImageField(upload_to='images/equipment',
                               blank=True)
+    plate = models.CharField(max_length=50, blank=True)
 
     def save(self, *args, **kwargs):
         super(Equipment, self).save(*args, **kwargs)
@@ -81,4 +82,3 @@ class Vehicle(Equipment):
         ('other', _('Other')),
     )
     model = models.CharField(max_length=20, choices=MODEL_CHOICE)
-    plate = models.CharField(max_length=50, blank=True)
