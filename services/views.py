@@ -1,7 +1,6 @@
 import os
 from django.urls import reverse_lazy
 from django.utils import timezone
-from weasyprint import HTML
 from django.views.generic.edit import (
     UpdateView,
     CreateView,
@@ -12,12 +11,11 @@ from django.shortcuts import (
     redirect,
     get_object_or_404,
 )
-from django.http import (JsonResponse, HttpResponse)
-from django.template.loader import render_to_string
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from users.models import (
     Associated,
+    Company,
 )
 from inventory.models import (
     ProductTransaction,
@@ -309,15 +307,28 @@ def delete_service(request, id):
 
 @login_required
 def create_order(request):
-    # associated_id = request.session.get('associated_id')
     initial = {'concept': None}
-    # if associated_id is not None:
-    #     initial = {'associated': associated_id}
-    #     request.session['associated_id'] = None
+    context = {}
     creating_order = request.session.get('creating_order')
     if creating_order:
         client_id = request.session.get('client_id')
-        initial.setdefault('associated', client_id)
+        client = Associated.objects.get(id=client_id)
+        context = {'client': client}
+
+        vehicle_id = request.session.get('vehicle_id')
+        if vehicle_id:
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+            initial = {'concept': _('Maintenance to car')}
+            context.setdefault('equipment', vehicle)
+            context.setdefault('equipment_type', 'vehicle')
+
+        trailer_id = request.session.get('trailer_id')
+        if trailer_id:
+            trailer = Trailer.objects.get(id=trailer_id)
+            initial = {'concept': _('Maintenance to trailer')}
+            context.setdefault('equipment', trailer)
+            context.setdefault('equipment_type', 'trailer')
+
     form = OrderCreateForm(initial=initial)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
@@ -325,6 +336,11 @@ def create_order(request):
             order = form.save(commit=False)
             order.type = 'sell'
             order.created_by = request.user
+
+            # Link the client to order
+            client_id = request.session.get('client_id')
+            client = Associated.objects.get(id=client_id)
+            order.associated = client
 
             # Link vehicle to order if exists
             vehicle_id = request.session.get('vehicle_id')
@@ -338,12 +354,21 @@ def create_order(request):
                 trailer = Trailer.objects.get(id=trailer_id)
                 order.trailer = trailer
 
+            # Link company to order if exists
+            company_id = request.session.get('company_id')
+            if company_id:
+                company = Company.objects.get(id=company_id)
+                order.company = company
+
             order.save()
             request.session['creating_order'] = None
+            request.session['client_id'] = None
+            request.session['vehicle_id'] = None
+            request.session['trailer_id'] = None
+            request.session['company_id'] = None
             return redirect('detail-service-order', id=order.id)
-    context = {
-        'form': form
-    }
+
+    context.setdefault('form', form)
     return render(request, 'services/order_create.html', context)
 
 

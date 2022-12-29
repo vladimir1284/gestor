@@ -11,7 +11,6 @@ from .models import (
 from utils.forms import (
     BaseForm,
     CategoryCreateForm as BaseCategoryCreateForm,
-    OrderCreateForm as BaseOrderCreateForm,
 )
 
 from crispy_forms.helper import FormHelper
@@ -32,13 +31,40 @@ from crispy_forms.bootstrap import (
 from django.utils.translation import gettext_lazy as _
 
 
-class OrderCreateForm(BaseOrderCreateForm):
-    href = "{% url 'select-service-client' %}?next={{ request.path|urlencode }}"
-    tooltip = "Modify client"
+class OrderCreateForm(BaseForm):
+    class Meta:
+        model = Order
+        fields = (
+            'concept',
+            'note',
+            'badge'
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['associated'].label = _("Client")
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('concept')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('badge')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('note', rows='2')
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
 
 
 class CategoryCreateForm(BaseCategoryCreateForm):

@@ -84,7 +84,7 @@ def select_equipment_type(request):
 def create_trailer(request):
     form = TrailerCreateForm()
     if request.method == 'POST':
-        form = TrailerCreateForm(request.POST)
+        form = TrailerCreateForm(request.POST, request.FILES)
         if form.is_valid():
             trailer = form.save()
             order_data = request.session.get('creating_order')
@@ -141,7 +141,7 @@ def delete_trailer(request, id):
 def create_vehicle(request):
     form = VehicleCreateForm()
     if request.method == 'POST':
-        form = VehicleCreateForm(request.POST)
+        form = VehicleCreateForm(request.POST, request.FILES)
         if form.is_valid():
             vehicle = form.save()
             order_data = request.session.get('creating_order')
@@ -150,7 +150,7 @@ def create_vehicle(request):
             return redirect('create-service-order')
     context = {
         'form': form,
-        'title': _("Create Vehicle")
+        'title': _("Create Car")
     }
     return render(request, 'equipment/equipment_create.html', context)
 
@@ -177,7 +177,7 @@ def update_vehicle(request, id):
     context = {
         'form': form,
         'vehicle': vehicle,
-        'title': _("Update Vehicle")
+        'title': _("Update Car")
     }
 
     return render(request, 'equipment/equipment_create.html', context)

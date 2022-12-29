@@ -160,11 +160,7 @@ def create_associated(request, type):
 def update_associated(request, id):
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
-    company_id = request.session.get('company_id')
-    if company_id is not None:
-        company = get_object_or_404(Company, id=company_id)
-        associated.company = company
-        request.session['company_id'] = None
+
     # pass the object as instance in form
     form = AssociatedCreateForm(instance=associated)
 
@@ -283,9 +279,6 @@ def select_company(request):
         company = get_object_or_404(Company, id=request.POST.get('id'))
         order_data = request.session.get('creating_order')
         if order_data is not None:
-            client_id = request.session.get('client_id')
-            client = get_object_or_404(Associated, id=client_id)
-            client.company = company
             return redirect('select-equipment')
         next = request.GET.get('next', 'list-company')
         request.session['company_id'] = company.id

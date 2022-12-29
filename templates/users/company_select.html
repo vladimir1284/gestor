@@ -1,13 +1,16 @@
-{% extends 'base/base_card.html' %}
+{% extends 'base/base_select.html' %}
 {% block title %}
     {{ title }}
 {% endblock title %}
 {% block Ctitle %}
-    <h5 class="card-header">Companies</h5>
+    <a href="{% url 'select-equipment' %}"
+       type="button"
+       class="btn btn-outline-primary">None</a>
+    Select company
 {% endblock Ctitle %}
 {% block Cards %}
     {% for company in companies %}
-        {% include "./company/select_card.html" %}
+        <div class="col-md-6 infocard">{% include "users/company/select_card.html" %}</div>
     {% endfor %}
 {% endblock Cards %}
 {% block createUrl %}

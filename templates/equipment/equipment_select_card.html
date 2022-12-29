@@ -2,8 +2,8 @@
 <div class="d-flex pb-1">
     <div class="avatar flex-shrink-0 me-3">
         <span class="avatar-initial rounded-circle bg-label-primary">
-            <img {% if trailer %}src="{% static 'images/icons/trailer.png' %}" {% endif %}
-                 {% if vehicle %}src="{% static 'images/icons/truck.jpg' %}" {% endif %}
+            <img {% if equipment.image %} src="{{ equipment.image.url }}" {% else %} {% if trailer %} src="{% static 'images/icons/trailer.png' %}" {% else %} src="{% static 'images/icons/truck.jpg' %}" {% endif %}
+                 {% endif %}
                  alt="icon"
                  height="100px"
                  width="100px"
@@ -14,9 +14,7 @@
         <div data-tag="{{ equipment.vin }}{{ equipment.manufacturer }}"
              class="me-2  associated-data">
             <h6 class="mb-0">
-                {{ equipment.get_manufacturer_display }}
-                {% if trailer %}{{ equipment.get_type_display }}{% endif %}
-                {% if vehicle %}{{ equipment.get_model_display }}{% endif %}
+                {{ equipment.get_manufacturer_display }} {{ equipment.get_model_display }} ({{ equipment.get_year_display }})
             </h6>
             <small class="text-muted">{{ equipment.vin }}</small>
         </div>

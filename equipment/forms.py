@@ -32,7 +32,7 @@ class EquipmentTypeForm(forms.Form):
     )
 
 
-class CommonEquipmentLayout(Layout):
+class PictureLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
             Div(
@@ -40,7 +40,7 @@ class CommonEquipmentLayout(Layout):
                     """
                 {% load static %}
                 <img id="preview"
-                alt="trailer picture"
+                alt="vehicle picture"
                 class="d-block rounded"
                 height="100" width="100"
                 {% if form.image.image %}
@@ -55,21 +55,6 @@ class CommonEquipmentLayout(Layout):
             Div(
                 Div(
                     Field('image')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Field('vin'),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field('year',
-                      css_class="form-select"),
-                css_class="row mb-3"
-            ),
-            Div(
-                Div(
-                    Field('note', rows='2')
                 ),
                 css_class="mb-3"
             )
@@ -95,7 +80,22 @@ class TrailerCreateForm(BaseForm):
         super().__init__(*args, **kwargs)
 
         self.helper.layout = Layout(
-            CommonEquipmentLayout(),
+            PictureLayout(),
+            Div(
+                Field('vin'),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field('year',
+                      css_class="form-select"),
+                css_class="row mb-3"
+            ),
+            Div(
+                Div(
+                    Field('note', rows='2')
+                ),
+                css_class="mb-3"
+            ),
             Div(
                 Field('cdl'),
                 css_class="row mb-3"
@@ -144,11 +144,7 @@ class VehicleCreateForm(BaseForm):
         super().__init__(*args, **kwargs)
 
         self.helper.layout = Layout(
-            CommonEquipmentLayout(),
-            Div(
-                Field('plate'),
-                css_class="row mb-3"
-            ),
+            PictureLayout(),
             Div(
                 Field('manufacturer',
                       css_class="form-select"),
@@ -158,6 +154,25 @@ class VehicleCreateForm(BaseForm):
                 Field('model',
                       css_class="form-select"),
                 css_class="row mb-3"
+            ),
+            Div(
+                Field('year',
+                      css_class="form-select"),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field('vin'),
+                css_class="row mb-3"
+            ),
+            Div(
+                Field('plate'),
+                css_class="row mb-3"
+            ),
+            Div(
+                Div(
+                    Field('note', rows='2')
+                ),
+                css_class="mb-3"
             ),
             ButtonHolder(
                 Submit('submit', 'Enviar',
