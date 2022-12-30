@@ -2,7 +2,7 @@ import os
 import requests
 
 base_dir = "/home/vladimir/Sync/JA/ERM/"
-fname = base_dir+"static_dir_2412.txt"
+fname = base_dir+"static_dir_2912.txt"
 
 base_url = "http://towit.pythonanywhere.com/media/"
 
@@ -21,11 +21,13 @@ while lineno < len(lines):
     lineno += 2  # Skip dir size
     while (lineno < len(lines) and lines[lineno] != "\n"):
         file_name = lines[lineno].split()[-1]
-        # Download
-        print(F"downloading: {file_name}")
-        myfile = requests.get(base_url+directory+'/'+file_name)
-        open(base_dir+'img_bk/'+directory+'/' +
-             file_name, 'wb').write(myfile.content)
+        # Check if the file exists
+        file_path = base_dir+'img_bk/'+directory+'/' + file_name
+        if not os.path.exists(file_path):
+            # Download
+            print(F"downloading: {file_name}")
+            myfile = requests.get(base_url+directory+'/'+file_name)
+            open(file_path, 'wb').write(myfile.content)
 
         lineno += 1
 
