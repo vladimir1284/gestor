@@ -54,13 +54,13 @@
             }
         }
         let minimum = {{product.min_price|stringformat:"f" }};
-        let suggested = {{product.suggested_price|stringformat:"f" }};
+        let suggested = {{suggested|stringformat:"f" }};
         suggested = Math.max(suggested, minimum);
         const units = {};
         const factors = {};
         {% for unit in units %}        
             {% if forloop.first %}            let unit = {{unit.id}};{% endif %}
-            units.{{unit.name}} = {{unit.id}};
+            units["{{unit.name}}"] = {{unit.id}};
             factors[{{unit.id}}]={{unit.factor|stringformat:"f"}};
         {% endfor %}
 
@@ -79,11 +79,11 @@
             if (unit_select.value != unit)
             {
                 suggested = suggested*factors[unit_select.value]/factors[unit];
-                price.value = suggested;
+                price.value = Math.ceil(suggested*100)/100;
 
                 minimum = minimum*factors[unit_select.value]/factors[unit];
                 unit_name = unit_select.options[unit_select.selectedIndex].text;
-                helptext.innerHTML=`Minimum: \$${minimum}/${unit_name}.`
+                helptext.innerHTML=`Minimum: \$${minimum.toFixed(2)}/${unit_name}.`
 
                 unit = unit_select.value;
             }

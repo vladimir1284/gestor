@@ -240,6 +240,7 @@ def renderCreateTransaction(request, form, product: Product, order_id):
     context = {
         'form': form,
         'product': product,
+        'suggested': product.getSuggestedPrice(),
         'order_id': order_id,
         'price_references': price_references,
         'title': _("Create Transaction"),
