@@ -244,7 +244,8 @@ def service_list_metadata(services: List[Service]):
 
 def prepare_service_list():
     services = Service.objects.all()
-    context = prepare_product_list()
+    products = Product.objects.filter(quantity__gt=0).order_by('name')
+    context = prepare_product_list(products)
     context.setdefault('services', services)
     context.setdefault('categories', service_list_metadata(services))
     return context

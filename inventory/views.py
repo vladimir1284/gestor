@@ -597,8 +597,9 @@ def computeTransactionProducts(product, status):
     return quantity
 
 
-def prepare_product_list():
-    products = Product.objects.all().order_by('name')
+def prepare_product_list(products=None):
+    if products is None:
+        products = Product.objects.all().order_by('name')
     (consumable_categories, consumable_alerts) = product_list_metadata(
         'consumable', products)
     (part_categories, part_alerts) = product_list_metadata('part', products)
