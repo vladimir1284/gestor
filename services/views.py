@@ -87,7 +87,7 @@ def renderCreateTransaction(request, form, service, order_id):
         'form': form,
         'service': service,
         'order_id': order_id,
-        'title': _("Create Transaction")
+        'title': _("Add service")
     }
     return render(request, 'services/transaction_create.html', context)
 
@@ -380,7 +380,7 @@ def select_client(request):
     if request.method == 'POST':
         client = get_object_or_404(Associated, id=request.POST.get('id'))
         request.session['client_id'] = client.id
-        return redirect('select-equipment')
+        return redirect('select-company')
 
     # add form dictionary to context
     associateds = Associated.objects.filter(

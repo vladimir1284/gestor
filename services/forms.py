@@ -82,23 +82,19 @@ class CommonTransactionLayout(Layout):
                     Field(
                         PrependedText('price', '$')
                     ),
-                    css_class="col-6"
+                    css_class="col-md-4 mb-3"
                 ),
                 Div(
                     Div(
                         AppendedText('tax', '%')
                     ),
-                    css_class="col-6"
+                    css_class="col-md-4 mb-3"
                 ),
-                css_class="row mb-3"
-            ),
-            Div(
                 Div(
-                    Field('quantity'
-                          ),
-                    css_class="col-4"
+                    Field('quantity'),
+                    css_class="col-md-4 mb-3"
                 ),
-                css_class="row mb-3"
+                css_class="row"
             ),
             Div(
                 Div(

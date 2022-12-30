@@ -237,13 +237,18 @@ def renderCreateTransaction(request, form, product: Product, order_id):
         magnitude=product.unit.magnitude).exclude(id=product.unit.id)
     for unit in units_qs:
         units.append(unit)
+    title = _("Create Transaction")
+    if product.type == "part":
+        title = _("Add part")
+    if product.type == "consumable":
+        title = _("Add consumable")
     context = {
         'form': form,
         'product': product,
         'suggested': product.getSuggestedPrice(),
         'order_id': order_id,
         'price_references': price_references,
-        'title': _("Create Transaction"),
+        'title': title,
         'units': units
     }
     return context

@@ -44,9 +44,11 @@
                     </ul>
                 {% endif %}
             </h5>
-            <div class="card-subtitle text-muted mb-3">
-                {{ order.associated }} - {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
-            </div>
+            {% if order.trailer %}
+                {% include "services/order_header.html" with client=order.associated equipment=order.trailer equipment_type='trailer' %}
+            {% elif order.vehicle %}
+                {% include "services/order_header.html" with client=order.associated equipment=order.vehicle equipment_type='vehicle' %}
+            {% endif %}
             <p class="card-text">{{ order.note }}</p>
             <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
@@ -77,7 +79,7 @@
                     {% if parts_amount %}(${{ parts_amount|floatformat:"2" }}){% endif %}
                 </h5>
                 <div class="table-responsive text-nowrap">
-                    <table class="table">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th>
@@ -95,7 +97,7 @@
                                 {% if trans.product.type == 'part' %}
                                     <tr data-tag="{{ trans.product.name }}">
                                         <td>
-                                            <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                                            <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
                                         </td>
                                         <td>
                                             <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ trans.product.name }}</strong>
@@ -121,7 +123,7 @@
                     {% if service_amount %}(${{ service_amount|floatformat:"2" }}){% endif %}
                 </h5>
                 <div class="table-responsive text-nowrap">
-                    <table class="table">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th>
@@ -137,12 +139,14 @@
                             {% for service in services %}
                                 <tr data-tag="{{ service.product.name }}">
                                     <td>
-                                        <a href="{% if terminated %} {% url 'detail-service-transaction' service.id %} {% else %} {% url 'update-service-transaction' service.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                                        <a href="{% if terminated %} {% url 'detail-service-transaction' service.id %} {% else %} {% url 'update-service-transaction' service.id %} {% endif %}">${{ service.amount|floatformat:"0" }}</a>
                                     </td>
                                     <td>
                                         <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
                                     </td>
-                                    <td>{{ service.quantity|floatformat:"-2" }}</td>
+                                    <td>
+                                        {{ service.quantity|floatformat:"-2" }}
+                                    </td>
                                     <td>
                                         ${{ service.price|floatformat:"2" }}
                                     </td>
@@ -165,7 +169,7 @@
                     {% if consumable_amount %}(${{ consumable_amount|floatformat:"2" }}){% endif %}
                 </h5>
                 <div class="table-responsive text-nowrap">
-                    <table class="table">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th>
@@ -193,7 +197,7 @@
                                 {% if trans.product.type == 'consumable' %}
                                     <tr data-tag="{{ trans.product.name }}">
                                         <td>
-                                            <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                                            <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
                                         </td>
                                         <td>
                                             <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ trans.product.name }}</strong>
@@ -242,7 +246,7 @@
                 </h5>
                 {% if expenses %}
                     <div class="table-responsive text-nowrap">
-                        <table class="table">
+                        <table class="table table-sm">
                             <thead>
                                 <tr>
                                     <th>
@@ -263,7 +267,7 @@
                                 {% for expense in expenses %}
                                     <tr data-tag="{{ expense.concept }}">
                                         <td>
-                                            <a href="{% url 'update-expense' expense.id %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                                            <a href="{% url 'update-expense' expense.id %}">${{ expense.cost|floatformat:"0" }}</a>
                                         </td>
                                         <td>
                                             <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ expense.concept }}</strong>
