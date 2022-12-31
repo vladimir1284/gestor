@@ -25,6 +25,7 @@ from .views import (
     detail_order,
     list_order,
     update_order_status,
+    view_invoice,
     # ---- Expense ----------
     create_expense,
     update_expense,
@@ -66,6 +67,7 @@ urlpatterns = [
     path('create-order/', create_order, name='create-service-order'),
     path('update-order/<id>', update_order, name='update-service-order'),
     path('detail-order/<id>', detail_order, name='detail-service-order'),
+    path('service-invoice/<id>', view_invoice, name='service-invoice'),
     path('list-order/', list_order, name='list-service-order'),
     path('update-order-status/<id>/<status>',
          update_order_status, name='update-service-order-status'),

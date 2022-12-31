@@ -488,11 +488,11 @@ def computeTransactionTax(transaction: Transaction):
 
 
 def computeTransactionAmount(transaction: Transaction):
-    return transaction.quantity * transaction.price*(1 + transaction.tax/100.)
+    # *(1 + transaction.tax/100.)
+    return transaction.quantity * transaction.price
 
 
-@login_required
-def detail_order(request, id):
+def getOrderContext(id):
     order = Order.objects.get(id=id)
     expenses = Expense.objects.filter(order=order)
     expenses_amount = 0
@@ -518,19 +518,38 @@ def detail_order(request, id):
     # Terminated order
     terminated = order.status in ['decline', 'complete']
     empty = (len(services) + len(transactions)) == 0
-    context = {'order': order,
-               'services': services,
-               'service_amount': service_amount,
-               'expenses': expenses,
-               'expenses_amount': expenses_amount,
-               'transactions': transactions,
-               'consumable_amount': consumable_amount,
-               'parts_amount': parts_amount,
-               'terminated': terminated,
-               'empty': empty,
-               'consumables': consumables}
+    # Compute order total
+    order.total = order.amount+order.tax
+    # Compute tax percent
+    tax_percent = 8.25
+    if order.tax > 0:
+        tax_percent = order.tax*100/order.amount
+    # Phone number format
+    order.associated.phone_number = order.associated.phone_number.as_national
+    return {'order': order,
+            'services': services,
+            'service_amount': service_amount,
+            'expenses': expenses,
+            'expenses_amount': expenses_amount,
+            'transactions': transactions,
+            'consumable_amount': consumable_amount,
+            'parts_amount': parts_amount,
+            'terminated': terminated,
+            'empty': empty,
+            'tax_percent': tax_percent,
+            'consumables': consumables}
+
+
+@login_required
+def detail_order(request, id):
+    context = getOrderContext(id)
     return render(request, 'services/order_detail.html', context)
 
+
+@login_required
+def view_invoice(request, id):
+    context = getOrderContext(id)
+    return render(request, 'services/view_invoice.html', context)
 
 # @login_required
 # def generate_invoice(request, contract, stage):

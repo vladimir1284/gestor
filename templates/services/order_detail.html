@@ -56,6 +56,11 @@
                    href="{% url 'list-service-order' %}">
                     <span class="tf-icons bx bx-arrow-back"></span>
                 </a>
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'service-invoice' order.id %}">
+                    <span class="tf-icons bx bx-credit-card"></span>
+                </a>
                 {% if not terminated %}
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"

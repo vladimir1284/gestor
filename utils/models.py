@@ -66,6 +66,7 @@ class Order(models.Model):
     company = models.ForeignKey(Company, blank=True, null=True,
                                 on_delete=models.SET_NULL)
     terminated_date = models.DateTimeField(blank=True, null=True)
+    discount = models.FloatField(default=0)
 
     def __str__(self):
         return f"{self.concept}  ({self.type}) {self.created_date}"

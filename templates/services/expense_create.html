@@ -7,22 +7,21 @@
     <!-- Basic with Icons -->
     <div class="col-xxl">
         <div class="card mb-4">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">{{ title }}</h5>
-            </div>
-            <form enctype="multipart/form-data" method="post" id="update-form">
-                {% csrf_token %}
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            Concept: <b>{{ expense.concept }}</b>
-                            <a {% if form.instance.id %}onclick="deleteExpense('{% url 'delete-expense' form.instance.id %}', '{{ expense.concept }}')"{% endif %}
+            <div class="card-body">
+                <div class="row">
+                    <h5>
+                        {{ title }}
+                        {% if form.instance.id %}
+                            <a onclick="deleteExpense('{% url 'delete-expense' form.instance.id %}', '{{ expense.concept }}')"
                                type="button"
                                class="btn btn-icon btn-outline-danger float-end">
                                 <span class="tf-icons bx bx-trash"></span>
                             </a>
-                        </div>
-                    </div>
+                        {% endif %}
+                    </h5>
+                </div>
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
                     {% crispy form %}
                 </div>
             </form>

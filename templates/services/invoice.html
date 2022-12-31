@@ -1,0 +1,260 @@
+{% load static %}
+<style>
+    .invoice-descrpition{
+        width: 100%;
+    }
+</style>
+<div class="card-header container">
+    <div class="row mb-4">
+        <div class="col-6">
+            <h3>Invoice</h3>
+            <table class="table table-borderless">
+                <tbody class="table-border-bottom-0">
+                    <tr>
+                        <td class="pt-0 pb-1">
+                            <strong>Date</strong>
+                        </td>
+                        <td class="pt-0 pb-1 invoice-descrpition">{% now "SHORT_DATE_FORMAT" %}</td>
+                    </tr>
+                    <tr>
+                        <td class="pt-0 pb-1">
+                            <strong>Invoice&nbsp;number</strong>
+                        </td>
+                        <td class="pt-0 pb-1">{{ order.concept|upper|slice:3 }}{{ order.associated.id }}-{{ order.id|stringformat:"04i" }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6">
+            <img src="{% static 'images/icons/TOWIT.png' %}"
+                 alt="Avatar"
+                 height="60px"
+                 width="100px"
+                 class="h-px-60 w-auto float-end"/>
+        </div>
+    </div>
+</div>
+<div class="card-body">
+    <div class="pb-3">
+        <table class="table table-borderless table-sm">
+            <tbody class="table-border-bottom-0">
+                <tr>
+                    <td class="pt-0 pb-1 invoice-descrpition">
+                        <strong>TOWIT HOUSTON LLC</strong>
+                    </td>
+                    <td class="pt-0 pb-1">
+                        <strong>BILL TO</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="pt-0 pb-1">9707 SH</td>
+                    <td class="pt-0 pb-1">{{ order.associated.name }}</td>
+                </tr>
+                <tr>
+                    <td class="pt-0 pb-1">Orchard, TX 77464</td>
+                    <td class="pt-0 pb-1">{{ order.associated.phone_number }}</td>
+                </tr>
+                <tr>
+                    <td class="pt-0 pb-1">(832) 963-5145 / (305) 833-6144</td>
+                    <td class="pt-0 pb-1">{{ order.associated.email }}</td>
+                </tr>
+                <tr>
+                    <td class="pt-0 pb-1">towithouston@gmail.com</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% if services %}
+        <h5 class="card-title mt-3 mb-0">Labor</h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th class="invoice-descrpition">Description</th>
+                        <th>Qty</th>
+                        <th>Each</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for service in services %}
+                        <tr>
+                            <td>{{ service.id|stringformat:"04i" }}</td>
+                            <td>
+                                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
+                            </td>
+                            <td>
+                                <div class="float-end">{{ service.quantity|floatformat:"-2" }}</div>
+                            </td>
+                            <td>
+                                <div class="float-end">${{ service.price|floatformat:"2" }}</div>
+                            </td>
+                            <td>
+                                <div class="float-end">${{ service.amount|floatformat:"2" }}</div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td></td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <strong class="float-end">${{ service_amount|floatformat:"2" }}</strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    {% if parts_amount %}
+        <h5 class="card-title mt-3 mb-0">
+            Parts
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>
+                            Code
+                        </th>
+                        <th class="invoice-descrpition">
+                            Description
+                        </th>
+                        <th>
+                            Qty
+                        </th>
+                        <th>
+                            Each
+                        </th>
+                        <th>
+                            Amount
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for trans in transactions %}
+                        {% if trans.product.type == 'part' %}
+                            <tr>
+                                <td>
+                                    {{ trans.product.id|stringformat:"04i" }}
+                                </td>
+                                <td>
+                                    <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ trans.product.name }}</strong>
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        {{ trans.quantity|floatformat:"-2" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        ${{ trans.price|floatformat:"2" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        ${{ trans.amount|floatformat:"2" }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <strong class="float-end">${{ parts_amount|floatformat:"2" }}</strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    <div class="float-end mt-3">
+        <table class="table table-borderless">
+            <tbody class="table-border-bottom-0">
+                <tr>
+                    <td class="pt-0 pb-1">
+                        Subtotal
+                    </td>
+                    <td class="pt-0 pb-1">
+                        <div class="float-end">
+                            ${{ order.amount|floatformat:"2" }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="pt-0 pb-1">
+                        Tax ({{ tax_percent|floatformat:"-2" }}%)
+                    </td>
+                    <td class="pt-0 pb-1">
+                        <div class="float-end">
+                            ${{ order.tax|floatformat:"2" }}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-borderless">
+            <tbody class="table-border-bottom-0">
+                <hr class="m-0"/>
+                <tr>
+                    <td class="pt-0 pb-1">
+                        Total
+                    </td>
+                    <td class="pt-0 pb-1">
+                        <div class="float-end">
+                            ${{ order.total|floatformat:"2" }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="pt-0 pb-1">
+                        Discount
+                    </td>
+                    <td class="pt-0 pb-1">
+                        <div class="float-end">
+                            ${{ order.discount|floatformat:"2" }}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-borderless">
+            <tbody class="table-border-bottom-0">
+                <hr class="m-0"/>
+                <tr>
+                    <td class="pt-0 pb-1">
+                        <strong>
+                            {% if order.status == 'complete' %}
+                                Paid
+                            {% elif order.status == 'processing' %}
+                                Due
+                            {% else %}
+                                Quotation
+                            {% endif %}
+                        </strong>
+                    </td>
+                    <td class="pt-0 pb-1">
+                        <div class="float-end">
+                            <strong>
+                                ${{ order.total|floatformat:"2" }}
+                            </strong>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
