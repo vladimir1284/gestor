@@ -1,6 +1,11 @@
 import os
 from django.urls import reverse_lazy
 from django.utils import timezone
+from weasyprint import HTML
+import tempfile
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from gestor import settings
 from django.views.generic.edit import (
     UpdateView,
     CreateView,
@@ -525,7 +530,10 @@ def getOrderContext(id):
     if order.tax > 0:
         tax_percent = order.tax*100/order.amount
     # Phone number format
-    order.associated.phone_number = order.associated.phone_number.as_national
+    try:
+        order.associated.phone_number = order.associated.phone_number.as_national
+    except:
+        pass
     return {'order': order,
             'services': services,
             'service_amount': service_amount,
@@ -549,42 +557,59 @@ def detail_order(request, id):
 @login_required
 def view_invoice(request, id):
     context = getOrderContext(id)
-    return render(request, 'services/view_invoice.html', context)
+    return render(request, 'services/invoice_view.html', context)
 
-# @login_required
-# def generate_invoice(request, contract, stage):
-#     """Generate pdf."""
-#     # Rendered
-#     html = HTML(string='services/invoice_pdf.html',
-#                 base_url=request.build_absolute_uri())
-#     result = html.write_pdf()
 
-#     # Creating http response
-#     response = HttpResponse(content_type='application/pdf;')
-#     response['Content-Disposition'] = 'inline; filename=contract_for_signature.pdf'
-#     response['Content-Transfer-Encoding'] = 'binary'
-#     with tempfile.NamedTemporaryFile(delete=True) as output:
-#         output.write(result)
-#         output.flush()
-#         output = open(output.name, 'rb')
-#         response.write(output.read())
-#         # Send email
-#         output.seek(0)
-#         send_contract(contract, output.read(), 'contract_ready_for_signature')
-#         if (stage == 3):
-#             # Store file
-#             output.seek(0)
-#             cd = ContractDocument()
-#             cd.lease = contract
-#             cd.document.save("signed_contract_%s.pdf" % id, output, True)
-#             cd.save()
-#             # # Delete handwritings
-#             # for sign in signatures:
-#             #     # os.remove(os.path.join(settings.BASE_DIR, sign.img.path))
-#             #     sign.delete()
-#             createEvent(contract, cd)
+@login_required
+def html_invoice(request, id):
+    context = getOrderContext(id)
+    return render(request, 'services/invoice_pdf.html', context)
 
-#     return response
+
+@login_required
+def generate_invoice(request, id):
+    """Generate pdf."""
+    # Render
+    context = getOrderContext(id)
+    html_string = render_to_string('services/invoice_pdf.html', context)
+    html = HTML(string=html_string,
+                base_url=request.build_absolute_uri())
+    main_doc = html.render(presentational_hints=True)
+    result = main_doc.write_pdf(
+        # stylesheets=[
+        #     # Change this to suit your css path
+        #     settings.BASE_DIR + 'css/bootstrap.min.css',
+        #     settings.BASE_DIR + 'css/main.css',
+        # ],
+
+    )
+
+    # Creating http response
+    response = HttpResponse(content_type='application/pdf;')
+    response['Content-Disposition'] = 'inline; filename=invoice_towit.pdf'
+    response['Content-Transfer-Encoding'] = 'binary'
+    with tempfile.NamedTemporaryFile(delete=True) as output:
+        output.write(result)
+        output.flush()
+        output = open(output.name, 'rb')
+        response.write(output.read())
+        # # Send email
+        # output.seek(0)
+        # send_contract(contract, output.read(), 'contract_ready_for_signature')
+        # if (stage == 3):
+        #     # Store file
+        #     output.seek(0)
+        #     cd = ContractDocument()
+        #     cd.lease = contract
+        #     cd.document.save("signed_contract_%s.pdf" % id, output, True)
+        #     cd.save()
+        #     # # Delete handwritings
+        #     # for sign in signatures:
+        #     #     # os.remove(os.path.join(settings.BASE_DIR, sign.img.path))
+        #     #     sign.delete()
+        #     createEvent(contract, cd)
+
+    return response
 
 # -------------------- Expense ----------------------------
 

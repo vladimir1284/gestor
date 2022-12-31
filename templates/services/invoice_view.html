@@ -5,20 +5,19 @@
 {% endblock title %}
 {% block content %}
     <div class="card mb-3 container">
-        <div class="card-body row">
-            <h5 class="mt-4 col-lg-6">
-                <strong>Invoice for:</strong>
-                <a href="{% url 'detail-service-order' order.id %}">{{ order.concept }}</a>
+        <div class="card-body">
+            <h5 class="mt-4">
+                Service order: <a href="{% url 'detail-service-order' order.id %}">{{ order.concept }}</a> (${{ order.amount|floatformat:"2" }})
             </h5>
-            {% comment %} {% if order.trailer %}
-                {% include "services/order_header.html" with client=order.associated equipment=order.trailer equipment_type='trailer' %}
+            {% if order.trailer %}
+                {% include "services/order_header.html" with client=order.associated equipment=order.trailer equipment_type="trailer" %}
             {% elif order.vehicle %}
-                {% include "services/order_header.html" with client=order.associated equipment=order.vehicle equipment_type='vehicle' %}
-            {% endif %} {% endcomment %}
-            <div class="demo-inline-spacing col-lg-6">
+                {% include "services/order_header.html" with client=order.associated equipment=order.vehicle equipment_type="vehicle" %}
+            {% endif %}
+            <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
-                   href="{% url 'service-invoice' order.id %}">
+                   href="{% url 'pdf-invoice' order.id %}">
                     <span class="tf-icons bx bx-file"></span>
                 </a>
                 <a class="btn btn-icon btn-outline-primary"
