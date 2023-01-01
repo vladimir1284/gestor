@@ -181,6 +181,78 @@
             </table>
         </div>
     {% endif %}
+    <!-- Supplies -->
+    {% if consumable_amount %}
+        <h5 class="card-title mt-3 mb-0">
+            Supplies
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>
+                            Code
+                        </th>
+                        <th class="invoice-descrpition">
+                            Description
+                        </th>
+                        <th>
+                            Qty
+                        </th>
+                        <th>
+                            Each
+                        </th>
+                        <th>
+                            Amount
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for trans in transactions %}
+                        {% if trans.product.type == 'consumable' %}
+                            <tr>
+                                <td>
+                                    {{ trans.product.id|stringformat:"04i" }}
+                                </td>
+                                <td>
+                                    <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ trans.product.name }}</strong>
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        {{ trans.quantity|floatformat:"-2" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        ${{ trans.price|floatformat:"2" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        ${{ trans.amount|floatformat:"2" }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <strong class="float-end">${{ consumable_amount|floatformat:"2" }}</strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    <!-- Totals -->
     <div class="card">
         <div class="mt-3">
             <table class="table table-borderless">

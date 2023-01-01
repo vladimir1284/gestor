@@ -37,12 +37,14 @@
             data-search="{{ order.associated.name }}{{ order.associated.phone_number }}">
             <td class="chapilla">
                 <a href={% url 'detail-service-order' order.id %}>
-                    <img {% if order.status == 'processing' %} src="{% static 'images/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'images/icons/tag-success.png' %}" {% elif order.status == 'pending' %} src="{% static 'images/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'images/icons/tag-info.png' %}" {% elif order.status == 'decline' %} src="{% static 'images/icons/tag-danger.png' %}" {% endif %}
+                    <img {% if order.status == 'processing' %} src="{% static 'images/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'images/icons/done.png' %}" {% elif order.status == 'pending' %} src="{% static 'images/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'images/icons/tag-info.png' %}" {% elif order.status == 'decline' %} src="{% static 'images/icons/cancel.png' %}" {% endif %}
                          alt="{{ order.badge }}"
                          height="32px"
                          width="20px"
                          class="h-px-40 w-auto"/>
-                    {% if order.badge %}<span>{{ order.badge }}</span>{% endif %}
+                    {% if  order.status == 'processing' or order.status == 'pending' %}
+                        {% if order.badge %}<span>{{ order.badge }}</span>{% endif %}
+                    {% endif %}
                 </a>
             </td>
             <td class="d-flex pb-1">
