@@ -28,7 +28,8 @@ class Cost(models.Model):
                                    related_name='created_by')
     related_to = models.ForeignKey(User, blank=True, null=True,
                                    on_delete=models.SET_NULL,
-                                   related_name='related_to')
+                                   related_name='related_to',
+                                   verbose_name=_('Associated'))
 
     def __str__(self):
         return "{}-${}".format(self.concept, self.amount)
