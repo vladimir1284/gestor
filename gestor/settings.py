@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'gdstorage',
     "phonenumber_field",
     'django_cleanup.apps.CleanupConfig',
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'services.apps.ServicesConfig',
     'equipment.apps.EquipmentConfig',
+    'costs.apps.CostsConfig',
 ]
 
 MIDDLEWARE = [
@@ -162,3 +164,6 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 # SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
 # SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 #DEFAULT_FROM_EMAIL = 'TOWIT <vladimir.rodriguezdiez@viep.com.mx>'
+
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
+    BASE_DIR, "trailer-rental-323614-d43be7453c41.json")
