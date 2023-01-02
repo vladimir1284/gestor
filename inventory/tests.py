@@ -1,16 +1,19 @@
-from urllib import response
-from django.test import TestCase, Client
+
+from gestor.tests import BaseModelTests
+from django.test import Client
 from django.contrib.auth.models import User
 from .forms import UnitCreateForm
-from .views import convertUnit, DifferentMagnitudeUnitsError
+from .views import convertUnit
 from .models import (
     Unit,
     Product,
-    ProductTransaction)
+    ProductTransaction,
+    DifferentMagnitudeUnitsError
+)
 import random
 
 
-class TestPurchaseOrder(TestCase):
+class TestPurchaseOrder(BaseModelTests):
     """
     This class contains tests that manipulate Purchase orders
     """
@@ -19,17 +22,9 @@ class TestPurchaseOrder(TestCase):
         """
         This method runs before the execution of each test case.
         """
-        self.client = Client()
+        super(TestPurchaseOrder, self).setUp()
 
-        self.credentials = {
-            'username': 'myuser',
-            'password': 'mypass'}
-        User.objects.create_user(**self.credentials)
-        # send login data
-        response = self.client.post(
-            '/users/login/', self.credentials, follow=True)
-        # should be logged in now
-        self.assertTrue(response.context['user'].is_active)
+        self.client = Client()
 
         self.provider_data = {
             'name': "vendedor",
@@ -47,7 +42,7 @@ class TestPurchaseOrder(TestCase):
         # self.assertEqual(provider.name, self.provider_data['name'])
 
 
-class TestUnitConversion(TestCase):
+class TestUnitConversion(BaseModelTests):
     """
     This class contains tests that convert measurements from one
     unit of measurement to another.
@@ -57,17 +52,9 @@ class TestUnitConversion(TestCase):
         """
         This method runs before the execution of each test case.
         """
-        self.client = Client()
+        super(TestUnitConversion, self).setUp()
 
-        self.credentials = {
-            'username': 'myuser',
-            'password': 'mypass'}
-        User.objects.create_user(**self.credentials)
-        # send login data
-        response = self.client.post(
-            '/users/login/', self.credentials, follow=True)
-        # should be logged in now
-        self.assertTrue(response.context['user'].is_active)
+        self.client = Client()
 
         self.g_data = {
             'name': "g",
@@ -144,7 +131,7 @@ class TestUnitConversion(TestCase):
         self.assertTrue(False)
 
 
-class TestStockFIFO(TestCase):
+class TestStockFIFO(BaseModelTests):
 
     """
     Ejercicio resuelto de valoración de existencias (PMP-FIFO) 2.
@@ -155,17 +142,9 @@ class TestStockFIFO(TestCase):
         """
         This method runs before the execution of each test case.
         """
-        self.client = Client()
+        super(TestStockFIFO, self).setUp()
 
-        self.credentials = {
-            'username': 'testuser',
-            'password': 'testpass'}
-        User.objects.create_user(**self.credentials)
-        # send login data
-        response = self.client.post(
-            '/users/login/', self.credentials, follow=True)
-        # should be logged in now
-        self.assertTrue(response.context['user'].is_active)
+        self.client = Client()
 
     def test_fifo_exercise(self):
         # kg (SI)

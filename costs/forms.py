@@ -28,17 +28,16 @@ class CostsCreateForm(BaseForm):
             'amount',
             'related_to',
             'note',
+            'date',
         )
-
-    date = forms.DateTimeField(
-        widget=forms.DateInput(
-            attrs={'type': 'date'},
-        ),
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self.fields['date'] = forms.DateTimeField(
+            widget=forms.DateInput(
+                attrs={'type': 'date'},
+            ),
+        )
         self.helper.layout = Layout(
             Div(
                 Field('file', css_class="form-select"),
@@ -59,7 +58,7 @@ class CostsCreateForm(BaseForm):
                 css_class="mb-3"
             ),
             Div(
-                Field('date', css_class='datepicker'),
+                Field('date', css_class='form-control'),
                 css_class="mb-3"
             ),
             Div(
@@ -70,5 +69,8 @@ class CostsCreateForm(BaseForm):
                 Field('note', rows='2'),
                 css_class="mb-3"
             ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
 
         )

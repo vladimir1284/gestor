@@ -52,9 +52,11 @@ def delete_category(request, id):
 def create_cost(request):
     form = CostsCreateForm()
     if request.method == 'POST':
-        form = CostsCreateForm(request.POST)
+        form = CostsCreateForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            cost = form.save(commit=False)
+            cost.created_by = request.user
+            cost.save()
             return redirect('list-cost')
     context = {
         'form': form,
@@ -68,7 +70,7 @@ def update_cost(request, id):
     # fetch the object related to passed id
     cost = get_object_or_404(Cost, id=id)
     # pass the object as instance in form
-    form = CostsCreateForm(request.POST or None,
+    form = CostsCreateForm(request.POST or None, request.FILES or None,
                            instance=cost)
 
     # save the data from the form and
