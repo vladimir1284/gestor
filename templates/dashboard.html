@@ -4,7 +4,13 @@
     Dashboard
 {% endblock title %}
 {% block content %}
+    <style>
+        .invoice-descrpition{
+            width: 100%;
+        }
+    </style>
     {% localtime on %}
+    <!-- Services -->
     <div class="card mb-3">
         <h5 class="card-header">
             Service incomes - <b>${{ total.net|floatformat:"2" }}</b>
@@ -13,11 +19,11 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Client</th>
+                        <th class="invoice-descrpition">Client</th>
                         <th>date</th>
                         <th>Gross incomes</th>
                         <th>Net incomes</th>
-                        <th>Parts</th>
+                        <th>Parts&nbsp;&nbsp;&nbsp;&nbsp;</th>
                         <th>Supplies</th>
                         <th>Third party</th>
                         <th>Tax</th>
@@ -30,14 +36,27 @@
                                 <strong>{{ order.associated }}</strong>
                             </td>
                             <td>{{ order.terminated_date|date:"D, d" }}</td>
-                            <td>${{ order.amount|floatformat:"2" }}</td>
                             <td>
-                                <strong>${{ order.net|floatformat:"2" }}</strong>
+                                <div class="float-end">${{ order.amount|floatformat:"2" }}</div>
                             </td>
-                            <td>${{ order.parts|floatformat:"2" }}</td>
-                            <td>${{ order.consumable|floatformat:"2" }}</td>
-                            <td>${{ order.third_party|floatformat:"2" }}</td>
-                            <td>${{ order.tax|floatformat:"2" }}</td>
+                            <td>
+                                <div class="float-end">
+                                    <strong>${{ order.net|floatformat:"2" }}</strong>
+                                </div>
+                            </td>
+                            <td>
+                                $
+                                <div class="float-end">{{ order.parts|floatformat:"2" }}</div>
+                            </td>
+                            <td>
+                                <div class="float-end">${{ order.consumable|floatformat:"2" }}</div>
+                            </td>
+                            <td>
+                                <div class="float-end">${{ order.third_party|floatformat:"2" }}</div>
+                            </td>
+                            <td>
+                                <div class="float-end">${{ order.tax|floatformat:"2" }}</div>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -47,102 +66,210 @@
                         <th>
                             <strong>Total =</strong>
                         </th>
-                        <th>${{ total.gross|floatformat:"2" }}</th>
-                        <th>${{ total.net|floatformat:"2" }}</th>
-                        <th>${{ total.parts|floatformat:"2" }}</th>
-                        <th>${{ total.consumable|floatformat:"2" }}</th>
-                        <th>${{ total.third_party|floatformat:"2" }}</th>
-                        <th>${{ total.tax|floatformat:"2" }}</th>
+                        <th>
+                            <div class="float-end">${{ total.gross|floatformat:"2" }}</div>
+                        </th>
+                        <th>
+                            <div class="float-end">${{ total.net|floatformat:"2" }}</div>
+                        </th>
+                        <th>
+                            <div class="float-end">${{ total.parts|floatformat:"2" }}</div>
+                        </th>
+                        <th>
+                            <div class="float-end">${{ total.consumable|floatformat:"2" }}</div>
+                        </th>
+                        <th>
+                            <div class="float-end">${{ total.third_party|floatformat:"2" }}</div>
+                        </th>
+                        <th>
+                            <div class="float-end">${{ total.tax|floatformat:"2" }}</div>
+                        </th>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
+    <!-- Costs -->
     <div class="card mb-3">
         <h5 class="card-header">
-            Parts net incomes - <b>${{ parts_profit|floatformat:"2" }}</b>
+            Costs - <b>${{ costs.total|floatformat:"2" }}</b>
         </h5>
         <div class="table-responsive text-nowrap">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Quantity</th>
+                        <th>concept</th>
+                        <th>date</th>
                         <th>
-                            Unit
+                            cat
                         </th>
                         <th>
-                            Profit
+                            User
                         </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for part in products %}
-                        {% if part.type == 'part' %}
-                            <tr>
-                                <td>
-                                    <strong>{{ part.name }}</strong>
-                                </td>
-                                <td>
-                                    {{ part.quantity|floatformat:"-2" }}
-                                </td>
-                                <td>
-                                    {{ part.unit }}
-                                </td>
-                                <td>
-                                    ${{ part.profit|floatformat:"2" }}
-                                </td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="card mb-3">
-        <h5 class="card-header">
-            Supplies expenses - <b>${{ consumables_profit|floatformat:"2" }}</b>
-        </h5>
-        <div class="table-responsive text-nowrap">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>
-                            Name
-                        </th>
-                        <th>
-                            Quantity
-                        </th>
-                        <th>
-                            Unit
-                        </th>
-                        <th>
-                            Cost
+                        <th class="text-end">
+                            Amount
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for part in products %}
-                        {% if part.type == 'consumable' %}
-                            <tr>
-                                <td>
-                                    <strong>{{ part.name }}</strong>
-                                </td>
-                                <td>
-                                    {{ part.quantity|floatformat:"-2" }}
-                                </td>
-                                <td>
-                                    {{ part.unit }}
-                                </td>
-                                <td>
-                                    ${{ part.profit|floatformat:"2" }}
-                                </td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    {% for cost in costs %}
+                        <tr>
+                            <td>
+                                <strong>{{ cost.concept }}</strong>
+                            </td>
+                            <td>
+                                {{ cost.date|date:"D, d" }}
+                            </td>
+                            <td>
+                                {% if cost.category.icon %}
+                                    <img src="{{ cost.category.icon.url }}" alt="" class="w-px-40 h-auto"/>
+                                {% else %}
+                                    {{ cost.category.name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cost.related_to %}
+                                    <div class="avatar avatar-online">
+                                        {% if cost.related_to.profile_user.avatar %}
+                                            <img src="{{ cost.related_to.profile_user.avatar.url }}"
+                                                 alt=""
+                                                 class="w-px-40 h-auto rounded-circle"/>
+                                        {% else %}
+                                            <span style="font-size:1.5em;"
+                                                  class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                                {{ cost.related_to.first_name|first }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                ${{ cost.amount|floatformat:"2" }}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot class="table-border-bottom-0">
+                <tr>
+                    <th>
+                    </th>
+                    <th>
+                    </th>
+                    <th>
+                    </th>
+                    <th>
+                        <strong>Total =</strong>
+                    </th>
+                    <th>
+                        <div class="float-end">
+                            ${{ costs.total|floatformat:"2" }}
+                        </div>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
     </div>
+</div>
+<!-- Parts -->
+<div class="card mb-3">
+    <h5 class="card-header">
+        Parts net incomes - <b>${{ parts_profit|floatformat:"2" }}</b>
+    </h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="invoice-descrpition">
+                        Name
+                    </th>
+                    <th>
+                        Quantity
+                    </th>
+                    <th>
+                        Unit
+                    </th>
+                    <th>
+                        Profit
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for part in products %}
+                    {% if part.type == 'part' %}
+                        <tr>
+                            <td>
+                                <strong>{{ part.name }}</strong>
+                            </td>
+                            <td>
+                                <div class="float-end">
+                                    {{ part.quantity|floatformat:"-2" }}
+                                </div>
+                            </td>
+                            <td>
+                                {{ part.unit }}
+                            </td>
+                            <td>
+                                <div class="float-end">
+                                    ${{ part.profit|floatformat:"2" }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Supplies -->
+<div class="card mb-3">
+    <h5 class="card-header">
+        Supplies expenses - <b>${{ consumables_profit|floatformat:"2" }}</b>
+    </h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="invoice-descrpition">
+                        Name
+                    </th>
+                    <th>
+                        Quantity
+                    </th>
+                    <th>
+                        Unit
+                    </th>
+                    <th>
+                        Cost
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for part in products %}
+                    {% if part.type == 'consumable' %}
+                        <tr>
+                            <td>
+                                <strong>{{ part.name }}</strong>
+                            </td>
+                            <td>
+                                <div class="float-end">
+                                    {{ part.quantity|floatformat:"-2" }}
+                                </div>
+                            </td>
+                            <td>
+                                {{ part.unit }}
+                            </td>
+                            <td>
+                                <div class="float-end">
+                                    ${{ part.profit|floatformat:"2" }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endlocaltime %}
 {% endblock content %}

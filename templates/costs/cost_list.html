@@ -10,9 +10,9 @@
         <i class="bx bx-cog"></i>
     </th>
     <th>category</th>
+    <th>User</th>
     <th>concept</th>
     <th>date</th>
-    <th>Associated</th>
     <th>Amount</th>
 {% endblock Theader %}
 {% block Tbody %}
@@ -22,21 +22,28 @@
                 <a href={% url 'update-cost' cost.id %}>${{ cost.amount|floatformat:"0" }}</a>
             </td>
             <td>
-                {% if cost.category.icon %}
-                    <img src="{{ cost.category.icon.url }}"
-                         alt="icon"
-                         height="40px"
-                         width="40px"
-                         class="h-px-40 w-auto"/>
+                {% if cost.category %}{{ cost.category.name }}{% endif %}
+            </td>
+            <td>
+                {% if cost.related_to %}
+                    <div class="avatar avatar-online">
+                        {% if cost.related_to.profile_user.avatar %}
+                            <img src="{{ cost.related_to.profile_user.avatar.url }}"
+                                 alt=""
+                                 class="w-px-40 h-auto rounded-circle"/>
+                        {% else %}
+                            <span style="font-size:1.5em;"
+                                  class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                {{ cost.related_to.first_name|first }}
+                            </span>
+                        {% endif %}
+                    </div>
                 {% endif %}
             </td>
             <td>
                 <strong>{{ cost.concept }}</strong>
             </td>
             <td>{{ cost.date|date:"SHORT_DATE_FORMAT" }}</td>
-            <td>
-                {% if cost.related_to %}{{ cost.related_to.name }}{% endif %}
-            </td>
             <td>${{ cost.amount|floatformat:"2" }}</td>
         </tr>
     {% endfor %}

@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from inventory.models import ProductTransaction
 from services.models import Expense, ServiceTransaction
+from costs.models import Cost
 from utils.models import Order
 from services.views import (
     computeOrderAmount,  # TODO remove this import and make a custom function here
@@ -52,8 +53,8 @@ def getOrderBalance(order: Order, products: dict):
                  - order.parts
                  - order.consumable
                  - order.third_party
-                 - order.tax
                  )
+    order.amount += order.tax
 
 
 @login_required
@@ -91,6 +92,12 @@ def dashboard(request):
             'net': net,
             'tax': tax,
         }
+        # Costs
+        costs = Cost.objects.all().order_by("-date")
+        costs.total = 0
+        for cost in costs:
+            costs.total += cost.amount
+
         # Product incomes
         parts_profit = 0
         consumables_profit = 0
@@ -103,6 +110,7 @@ def dashboard(request):
         context = {
             'orders': orders,
             'total': total,
+            'costs': costs,
             'products': products.values(),
             'parts_profit': parts_profit,
             'consumables_profit': consumables_profit,
@@ -111,9 +119,8 @@ def dashboard(request):
 
 
 def computeTransactionProfit(transaction: ProductTransaction):
-    if transaction.product.type == 'part':
-        return (computeTransactionAmount(transaction)
-                - transaction.cost
-                - computeTransactionTax(transaction))
-    if transaction.product.type == 'consumable':
-        return transaction.cost
+    # if transaction.product.type == 'part':
+    return (computeTransactionAmount(transaction)
+            - transaction.cost)
+    # if transaction.product.type == 'consumable':
+    #     return transaction.cost
