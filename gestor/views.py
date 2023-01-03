@@ -36,6 +36,7 @@ def getOrderBalance(order: Order, products: dict):
                 'quantity': trans.quantity,
                 'profit': computeTransactionProfit(trans)
             })
+        if product.type == 'parts':
             parts_cost += trans.cost
         if product.type == 'consumable':
             consumable_expenses += trans.cost
