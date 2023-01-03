@@ -578,10 +578,8 @@ def product_list_metadata(type, products: List[Product]):
     alerts = 0
     for product in products:
         if product.type == type:
+            product.average_cost = product.getCost()
             # Average cost
-            product.average_cost = 0
-            if product.quantity > 0:
-                product.average_cost = product.stock_price/product.quantity
             product.sell_price = product.getSuggestedPrice()
             # Categories
             if product.category and product.category.name not in category_names:
@@ -675,9 +673,7 @@ def detail_product(request, id):
     product = get_object_or_404(Product, id=id)
     if not ProductTransaction.objects.filter(product=product):
         product.can_delete = True
-    product.average_cost = 0
-    if product.quantity > 0:
-        product.average_cost = product.stock_price/product.quantity
+    product.average_cost = product.getCost()
     product.sell_price = product.getSuggestedPrice()
 
     stocks = Stock.objects.filter(product=product).order_by('-created_date')

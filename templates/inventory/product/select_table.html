@@ -4,7 +4,7 @@
             <i class="bx bx-cart"></i>
         </th>
         <th>Name</th>
-        <th>Stock</th>
+        <th>Available</th>
         <th>Unit</th>
         {% if type == 'part' %}<th>Price</th>{% endif %}
         <th>Cost</th>
@@ -21,10 +21,10 @@
                     <strong>{{ product.name }}</strong>
                 </td>
                 <td>
-                    {% if product.quantity_min > 0 and product.quantity < product.quantity_min %}
-                        <spam class="alert-danger">{{ product.quantity|floatformat:"-2" }}</spam>
+                    {% if product.quantity_min > 0 and product.available < product.quantity_min %}
+                        <spam class="alert-danger">{{ product.available|floatformat:"-2" }}</spam>
                     {% else %}
-                        {{ product.quantity|floatformat:"-2" }}
+                        {{ product.available|floatformat:"-2" }}
                     {% endif %}
                 </td>
                 <td>{{ product.unit }}</td>

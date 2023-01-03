@@ -73,6 +73,12 @@ class Product(models.Model):
     stock_price = models.FloatField(blank=True, default=0)
     quantity_min = models.FloatField(blank=True, default=0)
 
+    def getCost(self):
+        average_cost = 0
+        if self.quantity > 0:
+            average_cost = self.stock_price/self.quantity
+        return average_cost
+
     def getSuggestedPrice(self):
         if self.quantity > 0:
             average_cost = self.stock_price/self.quantity
@@ -88,6 +94,15 @@ class Product(models.Model):
                     return math.ceil(suggested/5)*5
         else:
             return self.min_price
+
+    def computeAvailable(self):
+        # Compute the remaining products in stock
+        available = self.quantity
+        transactions = ProductTransaction.objects.filter(order__type="sell",
+                                                         product=self)
+        for trans in transactions:
+            available -= trans.quantity
+        return available
 
     def __str__(self):
         return "{}-{}-${}".format(self.name, self.quantity, self.stock_price)

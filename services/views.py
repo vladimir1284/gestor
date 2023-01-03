@@ -250,7 +250,12 @@ def service_list_metadata(services: List[Service]):
 def prepare_service_list():
     services = Service.objects.all()
     products = Product.objects.filter(quantity__gt=0).order_by('name')
-    context = prepare_product_list(products)
+    product_list = []
+    for product in products:
+        product.available = product.computeAvailable()
+        if product.available > 0:
+            product_list.append(product)
+    context = prepare_product_list(product_list)
     context.setdefault('services', services)
     context.setdefault('categories', service_list_metadata(services))
     return context
@@ -400,12 +405,7 @@ def select_client(request):
 def update_order(request, id):
     # fetch the object related to passed id
     order = get_object_or_404(Order, id=id)
-    # associated_id = request.session.get('associated_id')
-    # if associated_id is not None:
-    #     associated = get_object_or_404(Associated, id=associated_id)
-    #     order.associated = associated
-    #     request.session['associated_id'] = None
-    # pass the object as instance in form
+
     form = OrderCreateForm(instance=order)
 
     if request.method == 'POST':
@@ -575,14 +575,7 @@ def generate_invoice(request, id):
     html = HTML(string=html_string,
                 base_url=request.build_absolute_uri())
     main_doc = html.render(presentational_hints=True)
-    result = main_doc.write_pdf(
-        # stylesheets=[
-        #     # Change this to suit your css path
-        #     settings.BASE_DIR + 'css/bootstrap.min.css',
-        #     settings.BASE_DIR + 'css/main.css',
-        # ],
-
-    )
+    result = main_doc.write_pdf()
 
     # Creating http response
     response = HttpResponse(content_type='application/pdf;')

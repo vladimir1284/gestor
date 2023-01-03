@@ -87,6 +87,23 @@ class TransactionCreateForm(forms.ModelForm):
             'tax'
         )
 
+    def clean_quantity(self):
+        quantity = self.cleaned_data['quantity']
+        if self.order.type == "sell":
+            error_msg = ""
+            unit = Unit.objects.get(id=int(self.data['unit']))
+            available = self.product.computeAvailable()
+            # Compute the available quantity in transaction unit
+            available = convertUnit(self.product.unit, unit, available)
+            if available < quantity:
+                if int(available) == float(available):
+                    decimals = 0
+                else:
+                    decimals = 2  # Assumes 2 decimal places
+                error_msg += F'The quantity cannot be higher than {available:.{decimals}f}{unit}.'
+                raise ValidationError(error_msg)
+        return quantity
+
     def clean_price(self):
         price = self.cleaned_data['price']
         if self.order.type == "sell":
@@ -94,10 +111,12 @@ class TransactionCreateForm(forms.ModelForm):
             unit = Unit.objects.get(id=int(self.data['unit']))
             # Compute the price in product unit
             product_cost = price / convertUnit(unit, self.product.unit, 1)
+            cost = self.product.getCost()
+            average = F" Cost: ${cost:.2f}."
             if unit != self.product.unit:
-                error_msg += F'${price:.2f} for one {unit} implies ${product_cost:.2f} each {self.product.unit}. '
+                error_msg += F'${price:.2f} for one {unit} implies ${product_cost:.2f} each {self.product.unit}. ' + average
             if product_cost < self.product.min_price:
-                error_msg += F'The price cannot be lower than ${self.product.min_price:.2f}.'
+                error_msg += F'The price cannot be lower than ${self.product.min_price:.2f}.' + average
                 raise ValidationError(error_msg)
         return price
 
@@ -119,7 +138,19 @@ class TransactionCreateForm(forms.ModelForm):
             self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
             break
 
-        self.fields['price'].help_text = F"Minimum: ${self.product.min_price:.2f}/{self.product.unit}."
+        # Price
+        minimum = F"Minimum: ${self.product.min_price:.2f}/{self.product.unit}."
+        cost = self.product.getCost()
+        average = F" Cost: ${cost:.2f}."
+        self.fields['price'].help_text = minimum + average
+
+        # Quantity
+        available = self.product.computeAvailable()
+        if int(available) == float(available):
+            decimals = 0
+        else:
+            decimals = 2  # Assumes 2 decimal places for money
+        self.fields['quantity'].help_text = F"Available: {available:.{decimals}f}{self.product.unit}."
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
