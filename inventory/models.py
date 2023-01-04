@@ -99,6 +99,7 @@ class Product(models.Model):
         # Compute the remaining products in stock
         available = self.quantity
         transactions = ProductTransaction.objects.filter(order__type="sell",
+                                                         order__status="processing",
                                                          product=self)
         for trans in transactions:
             available -= trans.quantity
