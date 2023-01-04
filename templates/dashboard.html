@@ -12,8 +12,12 @@
     {% localtime on %}
     <!-- Services -->
     <div class="card mb-3">
-        <h5 class="card-header">
-            Service incomes: <b>${{ total.net|floatformat:"2" }}</b>
+        <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+            Service incomes:
+            <div class="text-success">
+                <strong>{{ total.net|floatformat:"2" }}</strong>
+                <span class="text-muted">USD</span>
+            </div>
         </h5>
         <div class="table-responsive text-nowrap">
             <table class="table">
@@ -91,15 +95,23 @@
     </div>
     <!-- Costs -->
     <div class="card mb-3">
-        <h5 class="card-header">
-            Costs: <b>${{ costs.total|floatformat:"2" }}</b>
+        <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+            Costs:
+            <div class="text-danger">
+                <strong>{{ costs.total|floatformat:"2" }}</strong>
+                <span class="text-muted">USD</span>
+            </div>
         </h5>
         <div class="table-responsive text-nowrap">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>concept</th>
-                        <th>date</th>
+                        <th>
+                            concept
+                        </th>
+                        <th>
+                            date
+                        </th>
                         <th>
                             cat
                         </th>
@@ -173,8 +185,12 @@
 </div>
 <!-- Parts -->
 <div class="card mb-3">
-    <h5 class="card-header">
-        Parts net incomes: <b>${{ parts_profit|floatformat:"2" }}</b>
+    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+        Parts net incomes:
+        <div class="text-success">
+            <strong>{{ parts_profit|floatformat:"2" }}</strong>
+            <span class="text-muted">USD</span>
+        </div>
     </h5>
     <div class="table-responsive text-nowrap">
         <table class="table">
@@ -223,8 +239,12 @@
 </div>
 <!-- Supplies -->
 <div class="card mb-3">
-    <h5 class="card-header">
-        Supplies expenses: <b>${{ consumables_profit|floatformat:"2" }}</b>
+    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+        Supplies:
+        <div class="{% if consumables_profit > 0 %}text-success{% elif consumables_profit < 0 %}text-danger{% endif %}">
+            <strong>{{ consumables_profit|floatformat:"2" }}</strong>
+            <span class="text-muted">USD</span>
+        </div>
     </h5>
     <div class="table-responsive text-nowrap">
         <table class="table">
@@ -240,7 +260,7 @@
                         Unit
                     </th>
                     <th>
-                        Cost
+                        Profit
                     </th>
                 </tr>
             </thead>
@@ -261,7 +281,10 @@
                             </td>
                             <td>
                                 <div class="float-end">
-                                    ${{ part.profit|floatformat:"2" }}
+                                    <div class="{% if part.profit > 0 %}text-success{% elif part.profit < 0 %}text-danger{% endif %}">
+                                        <strong>{{ part.profit|floatformat:"2" }}</strong>
+                                        <span class="text-muted">USD</span>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

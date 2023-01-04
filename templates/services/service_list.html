@@ -3,41 +3,39 @@
     Services
 {% endblock title %}
 {% block card %}
-    <div class="card-body">
-        <div class="list-head">
-            <h5>
-                Services <spam id="filter_tag"></spam>
-            </h5>
-            {% include "utils/filter_category.html" %}
-        </div>
-        <div class="table-responsive text-nowrap">
-            <table class="table" id="table_consumables">
-                <thead>
-                    <tr>
-                        <th>
-                            <i class="bx bx-cog"></i>
-                        </th>
-                        <th>Name</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody class="table-border-bottom-0">
-                    {% for service in services %}
-                        {% if service.type == type %}
-                            <tr data-tag="{{ service.category }}" data-search="{{ service.name }}">
-                                <td>
-                                    <a href={% url 'detail-service' service.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
-                                </td>
-                                <td>
-                                    <strong>{{ service.name }}</strong>
-                                </td>
-                                <td>${{ service.suggested_price|floatformat:"-2" }}</td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="list-head card-header">
+        <h5>
+            Services <spam id="filter_tag"></spam>
+        </h5>
+        {% include "utils/filter_category.html" %}
+    </div>
+    <div class="table-responsive text-nowrap">
+        <table class="table" id="table_consumables">
+            <thead>
+                <tr>
+                    <th>
+                        <i class="bx bx-cog"></i>
+                    </th>
+                    <th>Name</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                {% for service in services %}
+                    {% if service.type == type %}
+                        <tr data-tag="{{ service.category }}" data-search="{{ service.name }}">
+                            <td>
+                                <a href={% url 'detail-service' service.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                            </td>
+                            <td>
+                                <strong>{{ service.name }}</strong>
+                            </td>
+                            <td>${{ service.suggested_price|floatformat:"-2" }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock card %}
 {% block createUrl %}

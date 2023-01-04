@@ -473,16 +473,15 @@ def computeOrderAmount(order: Order):
     amount = 0
     tax = 0
     for transaction in transactions:
-        # if transaction.product.type == "part":
         transaction.amount = computeTransactionAmount(transaction)
         amount += transaction.amount
-        tax += computeTransactionTax(transaction)
-        # if transaction.product.type == "consumable":
-        #     transaction.amount = transaction.cost
+        transaction.tax += computeTransactionTax(transaction)
+        tax += transaction.tax
     for service in services:
         service.amount = computeTransactionAmount(service)
         amount += service.amount
-        tax += computeTransactionTax(service)
+        service.tax = computeTransactionTax(service)
+        tax += service.tax
     order.amount = amount
     order.tax = tax
     return (transactions, services)

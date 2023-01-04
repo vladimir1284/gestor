@@ -78,101 +78,187 @@
     </div>
     {% if parts_amount %}
         <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">
-                    Parts
-                    {% if parts_amount %}(${{ parts_amount|floatformat:"2" }}){% endif %}
-                </h5>
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <i class="bx bx-cog"></i>
-                                </th>
-                                <th>Product</th>
-                                <th>Qty</th>
-                                <th>Unit</th>
-                                <th>Price</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
-                            {% for trans in transactions %}
-                                {% if trans.product.type == 'part' %}
-                                    <tr data-tag="{{ trans.product.name }}">
-                                        <td>
-                                            <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
-                                        </td>
-                                        <td>
-                                            <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
-                                        </td>
-                                        <td>{{ trans.quantity|floatformat:"-2" }}</td>
-                                        <td>{{ trans.unit }}</td>
-                                        <td>${{ trans.price|floatformat:"2" }}</td>
-                                        <td>${{ trans.amount|floatformat:"2" }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <h5 class="card-header">
+                Parts
+                {% if parts_amount %}(${{ parts_amount|floatformat:"2" }}){% endif %}
+            </h5>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                            <th>Tax</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for trans in transactions %}
+                            {% if trans.product.type == 'part' %}
+                                <tr data-tag="{{ trans.product.name }}">
+                                    <td>
+                                        <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
+                                    </td>
+                                    <td>{{ trans.quantity|floatformat:"-2" }}</td>
+                                    <td>{{ trans.unit }}</td>
+                                    <td>${{ trans.price|floatformat:"2" }}</td>
+                                    <td>${{ trans.amount|floatformat:"2" }}</td>
+                                    <td>${{ trans.tax|floatformat:"2" }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     {% endif %}
     {% if services %}
         <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">
-                    Services
-                    {% if service_amount %}(${{ service_amount|floatformat:"2" }}){% endif %}
-                </h5>
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <i class="bx bx-cog"></i>
-                                </th>
-                                <th>Service</th>
-                                <th>Qty</th>
-                                <th>Price</th>
-                                <th>Amount</th>
+            <h5 class="card-header">
+                Services
+                {% if service_amount %}(${{ service_amount|floatformat:"2" }}){% endif %}
+            </h5>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th>Service</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>
+                                Amount
+                            </th>
+                            <th>
+                                Tax
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for service in services %}
+                            <tr data-tag="{{ service.product.name }}">
+                                <td>
+                                    <a href="{% if terminated %} {% url 'detail-service-transaction' service.id %} {% else %} {% url 'update-service-transaction' service.id %} {% endif %}">${{ service.amount|floatformat:"0" }}</a>
+                                </td>
+                                <td>
+                                    <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
+                                </td>
+                                <td>
+                                    {{ service.quantity|floatformat:"-2" }}
+                                </td>
+                                <td>
+                                    ${{ service.price|floatformat:"2" }}
+                                </td>
+                                <td>
+                                    ${{ service.amount|floatformat:"2" }}
+                                </td>
+                                <td>
+                                    ${{ service.tax|floatformat:"2" }}
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
-                            {% for service in services %}
-                                <tr data-tag="{{ service.product.name }}">
-                                    <td>
-                                        <a href="{% if terminated %} {% url 'detail-service-transaction' service.id %} {% else %} {% url 'update-service-transaction' service.id %} {% endif %}">${{ service.amount|floatformat:"0" }}</a>
-                                    </td>
-                                    <td>
-                                        <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
-                                    </td>
-                                    <td>
-                                        {{ service.quantity|floatformat:"-2" }}
-                                    </td>
-                                    <td>
-                                        ${{ service.price|floatformat:"2" }}
-                                    </td>
-                                    <td>
-                                        ${{ service.amount|floatformat:"2" }}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     {% endif %}
     {% if consumables %}
         <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">
-                    Consumables
-                    {% if consumable_amount %}(${{ consumable_amount|floatformat:"2" }}){% endif %}
-                </h5>
+            <h5 class="card-header">
+                Consumables
+                {% if consumable_amount %}(${{ consumable_amount|floatformat:"2" }}){% endif %}
+            </h5>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th>
+                                Product
+                            </th>
+                            <th>
+                                Qty
+                            </th>
+                            <th>
+                                Unit
+                            </th>
+                            <th>
+                                Price
+                            </th>
+                            <th>
+                                Amount
+                            </th>
+                            <th>
+                                Tax
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for trans in transactions %}
+                            {% if trans.product.type == 'consumable' %}
+                                <tr data-tag="{{ trans.product.name }}">
+                                    <td>
+                                        <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
+                                    </td>
+                                    <td>
+                                        {{ trans.quantity|floatformat:"-2" }}
+                                    </td>
+                                    <td>
+                                        {{ trans.unit }}
+                                    </td>
+                                    <td>
+                                        ${{ trans.price|floatformat:"2" }}
+                                    </td>
+                                    <td>
+                                        ${{ trans.amount|floatformat:"2" }}
+                                    </td>
+                                    <td>
+                                        ${{ trans.tax|floatformat:"2" }}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+    {% if not terminated or expenses %}
+        <div class="card mb-3">
+            <h5 class="card-header">
+                Third Party Expenses
+                {% if expenses_amount %}(${{ expenses_amount|floatformat:"2" }}){% endif %}
+                {% if not terminated %}
+                    <a href="{% url 'create-expense' order.id %}">
+                        <button type="button"
+                                class="btn rounded-pill btn-icon btn-primary"
+                                data-bs-toggle="tooltip"
+                                data-bs-offset="0,4"
+                                data-bs-placement="top"
+                                data-bs-html="true"
+                                title=""
+                                data-bs-original-title="Add third party expense">
+                            <span class="tf-icons bx bx-plus"></span>
+                        </button>
+                    </a>
+                {% endif %}
+            </h5>
+            {% if expenses %}
                 <div class="table-responsive text-nowrap">
                     <table class="table table-sm">
                         <thead>
@@ -181,115 +267,37 @@
                                     <i class="bx bx-cog"></i>
                                 </th>
                                 <th>
-                                    Product
+                                    Concept
                                 </th>
                                 <th>
-                                    Qty
+                                    Provider
                                 </th>
                                 <th>
-                                    Unit
-                                </th>
-                                <th>
-                                    Price
-                                </th>
-                                <th>
-                                    Amount
+                                    Cost
                                 </th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            {% for trans in transactions %}
-                                {% if trans.product.type == 'consumable' %}
-                                    <tr data-tag="{{ trans.product.name }}">
-                                        <td>
-                                            <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
-                                        </td>
-                                        <td>
-                                            <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
-                                        </td>
-                                        <td>
-                                            {{ trans.quantity|floatformat:"-2" }}
-                                        </td>
-                                        <td>
-                                            {{ trans.unit }}
-                                        </td>
-                                        <td>
-                                            ${{ trans.price|floatformat:"2" }}
-                                        </td>
-                                        <td>
-                                            ${{ trans.amount|floatformat:"2" }}
-                                        </td>
-                                    </tr>
-                                {% endif %}
+                            {% for expense in expenses %}
+                                <tr data-tag="{{ expense.concept }}">
+                                    <td>
+                                        <a href="{% url 'update-expense' expense.id %}">${{ expense.cost|floatformat:"0" }}</a>
+                                    </td>
+                                    <td>
+                                        <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ expense.concept }}</strong>
+                                    </td>
+                                    <td>
+                                        <a href={% url 'detail-associated' expense.associated.id %}>{{ expense.associated }}</a>
+                                    </td>
+                                    <td>
+                                        ${{ expense.cost|floatformat:"2" }}
+                                    </td>
+                                </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-    {% endif %}
-    {% if not terminated or expenses %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">
-                    Third Party Expenses
-                    {% if expenses_amount %}(${{ expenses_amount|floatformat:"2" }}){% endif %}
-                    {% if not terminated %}
-                        <a href="{% url 'create-expense' order.id %}">
-                            <button type="button"
-                                    class="btn rounded-pill btn-icon btn-primary"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-offset="0,4"
-                                    data-bs-placement="top"
-                                    data-bs-html="true"
-                                    title=""
-                                    data-bs-original-title="Add third party expense">
-                                <span class="tf-icons bx bx-plus"></span>
-                            </button>
-                        </a>
-                    {% endif %}
-                </h5>
-                {% if expenses %}
-                    <div class="table-responsive text-nowrap">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <i class="bx bx-cog"></i>
-                                    </th>
-                                    <th>
-                                        Concept
-                                    </th>
-                                    <th>
-                                        Provider
-                                    </th>
-                                    <th>
-                                        Cost
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="table-border-bottom-0">
-                                {% for expense in expenses %}
-                                    <tr data-tag="{{ expense.concept }}">
-                                        <td>
-                                            <a href="{% url 'update-expense' expense.id %}">${{ expense.cost|floatformat:"0" }}</a>
-                                        </td>
-                                        <td>
-                                            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ expense.concept }}</strong>
-                                        </td>
-                                        <td>
-                                            <a href={% url 'detail-associated' expense.associated.id %}>{{ expense.associated }}</a>
-                                        </td>
-                                        <td>
-                                            ${{ expense.cost|floatformat:"2" }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% endif %}
-            </div>
+            {% endif %}
         </div>
     {% endif %}
     <a href="{% url 'select-service' 'create-service-transaction' order.id %}">
