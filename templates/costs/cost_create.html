@@ -7,6 +7,24 @@
     const img_id = "id_image";
 {% endblock img_id %}
 {% block content %}
+    <div class="bs-toast toast toast-placement-ex m-2 bg-primary top-0 start-0 hide"
+         role="alert"
+         id="toast"
+         aria-live="assertive"
+         aria-atomic="true">
+        <div class="toast-header">
+            <div class="me-auto fw-semibold">Uploading...</div>
+            <div class="spinner-border spinner-border-sm text-secondary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <button type="button"
+                    class="btn-close"
+                    id="btn-close"
+                    data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+        </div>
+        <div class="toast-body">Please, be pacient, we are uploading your file to Google Drive.</div>
+    </div>
     <div class="col-xxl">
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
@@ -21,6 +39,7 @@
         </div>
     </div>
     <script>
+        // About date
         function formatDate(userDate) {
             userDate = new Date(userDate);
             y = userDate.getFullYear().toString();
@@ -33,5 +52,21 @@
         const date = document.getElementById("id_date");
         console.log(date.getAttribute("value"));
         date.value=formatDate(date.getAttribute("value"));
+
+        // Toast for alerting delayed upload to GDrive
+        let toast; 
+
+        function showToast(){
+            toast.style.display='block';
+        }
+        function hideToast(){
+            toast.style.display='none';
+        }
+
+        window.onload = function(){  
+            toast = document.getElementById("toast");
+            document.getElementById("submit-id-submit").addEventListener('click', showToast);
+            document.getElementById("btn-close").addEventListener('click', hideToast);            
+        }  
     </script>
 {% endblock content %}

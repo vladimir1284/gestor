@@ -105,7 +105,7 @@
                                             <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
                                         </td>
                                         <td>
-                                            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ trans.product.name }}</strong>
+                                            <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
                                         </td>
                                         <td>{{ trans.quantity|floatformat:"-2" }}</td>
                                         <td>{{ trans.unit }}</td>
@@ -205,7 +205,7 @@
                                             <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
                                         </td>
                                         <td>
-                                            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ trans.product.name }}</strong>
+                                            <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
                                         </td>
                                         <td>
                                             {{ trans.quantity|floatformat:"-2" }}
