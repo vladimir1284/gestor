@@ -16,8 +16,8 @@ class CostCategory(Category):
 
 class Cost(models.Model):
     concept = models.CharField(max_length=120)
-    file = models.FileField(upload_to='images/costs',
-                            blank=True, storage=gd_storage)
+    image = models.ImageField(upload_to='images/costs',
+                              blank=True, storage=gd_storage)
     note = models.TextField(blank=True)
     created_date = models.DateField(auto_now_add=True)
     date = models.DateField()

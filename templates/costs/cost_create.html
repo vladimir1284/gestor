@@ -29,6 +29,13 @@
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">{{ title }}</h5>
+                {% if form.instance.id %}
+                    <a onclick="deleteCost('{% url 'delete-cost' form.instance.id %}', '')"
+                       type="button"
+                       class="btn btn-icon btn-outline-danger float-end">
+                        <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                {% endif %}
             </div>
             <div class="card-body">
                 <form enctype="multipart/form-data" method="post" id="update-form">
@@ -39,7 +46,13 @@
         </div>
     </div>
     <script>
-        // About date
+        function deleteCost(url, name) {
+            let confirmAction = confirm("Are you sure to delete this cost?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+        {% comment %} // About date
         function formatDate(userDate) {
             userDate = new Date(userDate);
             y = userDate.getFullYear().toString();
@@ -51,7 +64,7 @@
         }
         const date = document.getElementById("id_date");
         console.log(date.getAttribute("value"));
-        date.value=formatDate(date.getAttribute("value"));
+        date.value=formatDate(date.getAttribute("value")); {% endcomment %}
 
         // Toast for alerting delayed upload to GDrive
         let toast; 

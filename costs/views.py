@@ -13,7 +13,7 @@ from django.shortcuts import (
     get_object_or_404,
 )
 from django.contrib.auth.decorators import login_required
-from .forms import CategoryCreateForm, CostsCreateForm
+from .forms import CategoryCreateForm, CostsCreateForm, CostsUpdateForm
 from django.utils.translation import gettext_lazy as _
 
 
@@ -70,7 +70,7 @@ def update_cost(request, id):
     # fetch the object related to passed id
     cost = get_object_or_404(Cost, id=id)
     # pass the object as instance in form
-    form = CostsCreateForm(request.POST or None, request.FILES or None,
+    form = CostsUpdateForm(request.POST or None, request.FILES or None,
                            instance=cost)
 
     # save the data from the form and
@@ -93,7 +93,7 @@ def list_cost(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
-    costs = Cost.objects.all().order_by("-date")
+    costs = Cost.objects.all().order_by("-date", "-id")
 
     if start_date is not None:
         print("Has start_date")

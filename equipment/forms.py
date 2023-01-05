@@ -43,7 +43,7 @@ class PictureLayout(Layout):
                 alt="vehicle picture"
                 class="d-block rounded"
                 height="100" width="100"
-                {% if form.image.image %}
+                {% if form.image %}
                     src="/media/{{ form.image.value }}"
                 {% else %}
                     src="{% static 'images/icons/no_image.jpg' %}"

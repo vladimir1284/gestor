@@ -17,31 +17,31 @@ class CategoryCreateForm(BaseCategoryCreateForm):
         fields = ('name', 'icon',)
 
 
-class CostsCreateForm(BaseForm):
-
-    class Meta:
-        model = Cost
-        fields = (
-            'file',
-            'concept',
-            'category',
-            'amount',
-            'related_to',
-            'note',
-            'date',
-        )
-
+class CommonLayout(Layout):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['date'] = forms.DateTimeField(
-            widget=forms.DateInput(
-                attrs={'type': 'date'},
-            ),
-        )
-        self.helper.layout = Layout(
+        super().__init__(
             Div(
-                Field('file', css_class="form-select"),
-                css_class="row mb-3"
+                HTML(
+                    """
+                {% load static %}
+                <img id="preview"
+                alt="image"
+                class="d-block rounded"
+                height="100" width="100"
+                {% if form.instance.image %}
+                    src="{{ form.instance.image.url }}"
+                {% else %}
+                    src="{% static 'images/icons/no_image.jpg' %}"
+                {% endif %}>
+                """
+                ),
+                css_class="d-flex align-items-start align-items-sm-center gap-4"
+            ),
+            Div(
+                Div(
+                    Field('image')
+                ),
+                css_class="mb-3"
             ),
             Div(
                 Field('concept'),
@@ -58,17 +58,73 @@ class CostsCreateForm(BaseForm):
                 css_class="mb-3"
             ),
             Div(
-                Field('date', css_class='form-control'),
-                css_class="mb-3"
-            ),
-            Div(
                 Field('related_to', css_class="form-select"),
                 css_class="mb-3"
             ),
             Div(
                 Field('note', rows='2'),
                 css_class="mb-3"
+            )
+        )
+
+
+class CostsCreateForm(BaseForm):
+
+    class Meta:
+        model = Cost
+        fields = (
+            'image',
+            'concept',
+            'category',
+            'amount',
+            'related_to',
+            'note',
+            'date',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'] = forms.DateTimeField(
+            widget=forms.DateInput(
+                attrs={'type': 'date'},
             ),
+        )
+
+        # instance = kwargs.get('instance')
+        # if instance is not None:
+        #     self.fields['date'].help_text = instance.date.strftime('%b %d, %Y')
+
+        self.helper.layout = Layout(
+            CommonLayout(),
+            Div(
+                Field('date', css_class='form-control'),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+
+        )
+
+
+class CostsUpdateForm(BaseForm):
+
+    class Meta:
+        model = Cost
+        fields = (
+            'image',
+            'concept',
+            'category',
+            'amount',
+            'related_to',
+            'note',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper.layout = Layout(
+            CommonLayout(),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )
