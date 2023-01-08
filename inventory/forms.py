@@ -5,12 +5,12 @@ from .models import (
     convertUnit,
     Unit,
     ProductTransaction,
-    InventoryLocations,
     PriceReference,
     ProductCategory,
 )
 from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
 from utils.forms import OrderCreateForm as BaseOrderCreateForm
+from django.forms import HiddenInput
 
 from users.models import (
     Associated,
@@ -31,6 +31,7 @@ class OrderCreateForm(BaseOrderCreateForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['associated'].label = _("Provider")
+        self.fields['badge'].widget = HiddenInput()
 
 
 class CommonTransactionLayout(Layout):
@@ -45,7 +46,7 @@ class CommonTransactionLayout(Layout):
                 ),
                 Div(
                     Div(
-                        AppendedText('tax', '%')
+                        AppendedText('tax', '%'),
                     ),
                     css_class="col-6"
                 ),
@@ -86,6 +87,12 @@ class TransactionCreateForm(forms.ModelForm):
             'unit',
             'tax'
         )
+
+    def clean_tax(self):
+        tax = self.cleaned_data['tax']
+        if tax is None:
+            tax = 0
+        return tax
 
     def clean_quantity(self):
         quantity = self.cleaned_data['quantity']
@@ -157,7 +164,9 @@ class TransactionCreateForm(forms.ModelForm):
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
         self.helper.add_input(Submit("submit", "Save"))
-        self.helper.layout = Layout(CommonTransactionLayout())
+        self.helper.layout = Layout(
+            CommonTransactionLayout()
+        )
 
 
 class TransactionProviderCreateForm(TransactionCreateForm):

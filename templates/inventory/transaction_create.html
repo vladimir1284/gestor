@@ -45,7 +45,7 @@
                 window.location = url;
             }
         }
-        let helptext, unit_select, price;
+        let helptext, unit_select, price, check, tax_input, tax_value;
 
         // Clean select options
         function removeAll(selectBox) {
@@ -88,6 +88,31 @@
                 unit = unit_select.value;
             }
         }
+        function checkTax(){
+            if (check.checked != true)
+            {
+                //tax_input.disabled=true;
+                tax_input.value=0;
+            } 
+            else {
+                //tax_input.disabled=false;
+                tax_input.value=tax_value;
+            }
+        }
+
+        function createTaxCheckbox(){
+            const tax = document.getElementById('div_id_tax');
+            const ig = tax.getElementsByClassName("input-group")[0];
+            ig.innerHTML = '<div class="input-group-text"> <input id="tax_check" onclick="checkTax()" class="form-check-input mt-0" type="checkbox"></div>' + ig.innerHTML;
+            check = document.getElementById("tax_check");
+
+            // Prepare tax input
+            tax_input = document.getElementById("id_tax");
+            tax_value = tax_input.value;
+            //tax_input.disabled=true;
+            tax_input.value=0;
+        }
+
         window.addEventListener("load", (event) => {
             unit_select = document.getElementById("id_unit");
             helptext = document.getElementById("hint_id_price");
@@ -95,6 +120,8 @@
             
             unit_select.onchange = updatePrice;
             updateUnits();
+
+            {% if create %}createTaxCheckbox();{% endif %}
           });
     </script>
 {% endblock content %}

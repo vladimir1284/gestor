@@ -6,7 +6,7 @@ from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTM
 from crispy_forms.helper import FormHelper
 from django.core.files.images import get_image_dimensions
 from .models import *
-from django.forms import ModelForm, HiddenInput
+from django.forms import HiddenInput
 from django import forms
 from phonenumber_field.widgets import RegionalPhoneNumberWidget
 

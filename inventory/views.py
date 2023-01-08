@@ -249,7 +249,8 @@ def renderCreateTransaction(request, form, product: Product, order_id):
         'order_id': order_id,
         'price_references': price_references,
         'title': title,
-        'units': units
+        'units': units,
+        'create': True,
     }
     return context
 
@@ -338,7 +339,7 @@ def update_transaction(request, id):
     context = renderCreateTransaction(request, form, transaction.product,
                                       transaction.order.id)
     context['title'] = _("Update Transaction")
-
+    context['create'] = False
     return render(request, 'inventory/transaction_create.html', context)
 
 
