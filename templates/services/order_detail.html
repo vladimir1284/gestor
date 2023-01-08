@@ -45,9 +45,11 @@
                 {% endif %}
             </h5>
             {% if order.trailer %}
-                {% include "services/order_header.html" with client=order.associated equipment=order.trailer equipment_type='trailer' %}
+                {% include "services/order_header.html" with client=order.associated equipment=order.trailer equipment_type='trailer' company=order.company %}
             {% elif order.vehicle %}
-                {% include "services/order_header.html" with client=order.associated equipment=order.vehicle equipment_type='vehicle' %}
+                {% include "services/order_header.html" with client=order.associated equipment=order.vehicle equipment_type='vehicle' company=order.company %}
+            {% else %}
+                {% include "services/order_header.html" with client=order.associated company=order.company %}
             {% endif %}
             <p class="card-text">{{ order.note }}</p>
             <div class="demo-inline-spacing">

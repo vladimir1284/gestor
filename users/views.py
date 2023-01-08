@@ -117,6 +117,14 @@ def create_client(request):
                 client = form.save()
                 request.session['client_id'] = client.id
                 return redirect('select-company')
+        else:
+            order_id = request.session.get('order_detail')
+            if order_id is not None:
+                order = get_object_or_404(Order, id=order_id)
+                order.associated = client
+                order.save()
+                return redirect('detail-service-order', id=order_id)
+
     return create_associated(request, 'client')
 
 
@@ -237,8 +245,15 @@ def create_company(request):
                 client_id = request.session.get('client_id')
                 client = get_object_or_404(Associated, id=client_id)
                 client.company = company
+                request.session['company_id'] = company.id
                 return redirect('select-equipment')
-            request.session['company_id'] = company.id
+            else:
+                order_id = request.session.get('order_detail')
+                if order_id is not None:
+                    order = get_object_or_404(Order, id=order_id)
+                    order.company = company
+                    order.save()
+                    return redirect('detail-service-order', id=order_id)
             return redirect(next)
     context = {
         'form': form,
@@ -277,11 +292,18 @@ def update_company(request, id):
 def select_company(request):
     if request.method == 'POST':
         company = get_object_or_404(Company, id=request.POST.get('id'))
+        request.session['company_id'] = company.id
         order_data = request.session.get('creating_order')
         if order_data is not None:
             return redirect('select-equipment')
+        else:
+            order_id = request.session.get('order_detail')
+            if order_id is not None:
+                order = get_object_or_404(Order, id=order_id)
+                order.company = company
+                order.save()
+                return redirect('detail-service-order', id=order_id)
         next = request.GET.get('next', 'list-company')
-        request.session['company_id'] = company.id
         return redirect(next)
     companies = Company.objects.filter(active=True).order_by("-created_date")
     return render(request, 'users/company_select.html', {'companies': companies})

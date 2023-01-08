@@ -321,10 +321,19 @@ def create_order(request):
     initial = {'concept': None}
     context = {}
     creating_order = request.session.get('creating_order')
+    request.session['all_selected'] = True
     if creating_order:
+
         client_id = request.session.get('client_id')
-        client = Associated.objects.get(id=client_id)
-        context = {'client': client}
+        if client_id:
+            client = Associated.objects.get(id=client_id)
+            print(client)
+            context = {'client': client}
+
+        company_id = request.session.get('company_id')
+        if company_id:
+            company = Company.objects.get(id=company_id)
+            context.setdefault('company', company)
 
         vehicle_id = request.session.get('vehicle_id')
         if vehicle_id:
@@ -350,8 +359,9 @@ def create_order(request):
 
             # Link the client to order
             client_id = request.session.get('client_id')
-            client = Associated.objects.get(id=client_id)
-            order.associated = client
+            if client_id:
+                client = Associated.objects.get(id=client_id)
+                order.associated = client
 
             # Link vehicle to order if exists
             vehicle_id = request.session.get('vehicle_id')
@@ -372,25 +382,39 @@ def create_order(request):
                 order.company = company
 
             order.save()
-            request.session['creating_order'] = None
-            request.session['client_id'] = None
-            request.session['vehicle_id'] = None
-            request.session['trailer_id'] = None
-            request.session['company_id'] = None
+            cleanSession(request)
             return redirect('detail-service-order', id=order.id)
 
     context.setdefault('form', form)
+    context.setdefault('title', _('Create service order'))
     return render(request, 'services/order_create.html', context)
+
+
+def cleanSession(request):
+    request.session['creating_order'] = None
+    request.session['client_id'] = None
+    request.session['vehicle_id'] = None
+    request.session['trailer_id'] = None
+    request.session['company_id'] = None
+    request.session['all_selected'] = None
+    request.session['order_detail'] = None
 
 
 @login_required
 def select_client(request):
-    if request.method == 'GET':
-        request.session['creating_order'] = True
     if request.method == 'POST':
         client = get_object_or_404(Associated, id=request.POST.get('id'))
         request.session['client_id'] = client.id
-        return redirect('select-company')
+        # Redirect acording to the  corresponding flow
+        if request.session.get('creating_order') is not None:
+            return redirect('select-company')
+        else:
+            order_id = request.session.get('order_detail')
+            if order_id is not None:
+                order = get_object_or_404(Order, id=order_id)
+                order.associated = client
+                order.save()
+                return redirect('detail-service-order', id=order_id)
 
     # add form dictionary to context
     associateds = Associated.objects.filter(
@@ -422,6 +446,7 @@ def update_order(request, id):
     context = {
         'form': form,
         'client': order.associated,
+        'title': _('Update service order')
     }
     if order.trailer:
         context.setdefault('equipment', order.trailer)
@@ -454,6 +479,11 @@ STATUS_ORDER = ['pending', 'processing', 'approved', 'complete', 'decline']
 
 @login_required
 def list_order(request):
+    # Prepare the flow for creating order
+    cleanSession(request)
+    request.session['creating_order'] = True
+
+    # List orders
     orders = Order.objects.filter(
         type='sell').order_by('-created_date')
     orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
@@ -549,6 +579,11 @@ def getOrderContext(id):
 
 @login_required
 def detail_order(request, id):
+    # Prepare the flow for creating order
+    request.session['creating_order'] = None
+    request.session['order_detail'] = id
+
+    # Get data for the given order
     context = getOrderContext(id)
     return render(request, 'services/order_detail.html', context)
 

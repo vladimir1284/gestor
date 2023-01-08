@@ -38,19 +38,30 @@ def list_equipment(request):
 @login_required
 def select_equipment(request):
     if request.method == 'POST':
+        type = request.POST.get('type')
         order_data = request.session.get('creating_order')
         if order_data is not None:
-            trailer = Trailer.objects.filter(id=request.POST.get('id')).first()
-            if trailer:
+            if type == 'trailer':
+                trailer = Trailer.objects.get(
+                    id=request.POST.get('id'))
                 request.session['trailer_id'] = trailer.id
-            else:
-                vehicle = Vehicle.objects.filter(
-                    id=request.POST.get('id')).first()
-                if vehicle:
-                    request.session['vehicle_id'] = vehicle.id
+            elif type == 'vehicle':
+                vehicle = Vehicle.objects.get(id=request.POST.get('id'))
+                request.session['vehicle_id'] = vehicle.id
             return redirect('create-service-order')
         else:
-            return redirect('list-service-order')
+            order_id = request.session.get('order_detail')
+            if order_id is not None:
+                order = get_object_or_404(Order, id=order_id)
+                if type == 'trailer':
+                    trailer = Trailer.objects.get(
+                        id=request.POST.get('id'))
+                    order.trailer = trailer
+                elif type == 'vehicle':
+                    vehicle = Vehicle.objects.get(id=request.POST.get('id'))
+                    order.vehicle = vehicle
+                order.save()
+                return redirect('detail-service-order', id=order_id)
 
     trailers = Trailer.objects.all()
     vehicles = Vehicle.objects.all()
@@ -67,9 +78,7 @@ def select_equipment_type(request):
     if request.method == 'POST':
         form = EquipmentTypeForm(request.POST)
         if form.is_valid():
-            if form.cleaned_data['type'] == 'trailer':
-                return redirect('create-trailer')
-            if form.cleaned_data['type'] == 'vehicle':
+            if form.cleaned_data['type'] in ('trailer', 'vehicle'):
                 return redirect('create-vehicle')
     context = {
         'form': form

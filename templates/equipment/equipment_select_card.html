@@ -23,6 +23,9 @@
                 {% csrf_token %}
                 <div>
                     <input type="hidden" name="id" value="{{ equipment.id }}" />
+                    <input type="hidden"
+                           name="type"
+                           value="{% if trailer %}trailer{% elif vehicle %}vehicle{% endif %}"/>
                 </div>
                 <button class="btn btn-icon btn-outline-primary" type="submit">
                     <span class="tf-icons bx bx-check"></span>

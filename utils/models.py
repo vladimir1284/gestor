@@ -58,7 +58,8 @@ class Order(models.Model):
     badge = models.IntegerField(blank=True, null=True)
     created_date = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    associated = models.ForeignKey(Associated, blank=True, null=True,
+                                   on_delete=models.SET_NULL)
     trailer = models.ForeignKey(Trailer, blank=True, null=True,
                                 on_delete=models.SET_NULL)
     vehicle = models.ForeignKey(Vehicle, blank=True, null=True,

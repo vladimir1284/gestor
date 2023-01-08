@@ -47,26 +47,30 @@
                     {% endif %}
                 </a>
             </td>
-            <td class="d-flex pb-1">
-                <div class="avatar flex-shrink-0 me-3">
-                    <a href={% url 'detail-associated' order.associated.id %}>
-                        <span class="avatar-initial rounded-circle bg-label-primary">
-                            <img {% if order.associated.avatar %} src="{{ order.associated.avatar.url }}" {% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
-                                 alt="Avatar"
-                                 height="100px"
-                                 width="100px"
-                                 class="w-px-40 h-auto rounded-circle"/>
-                        </span>
-                    </a>
-                </div>
-                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                    <div data-tag="{{ order.associated.name }}{{ order.associated.phone_number }}"
-                         class="me-2  associated-data">
-                        <h6 class="mb-0">{{ order.associated.name }}</h6>
-                        <small class="text-muted">{{ order.associated.phone_number }}</small>
+            {% if order.associated %}
+                <td class="d-flex pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <a href={% url 'detail-associated' order.associated.id %}>
+                            <span class="avatar-initial rounded-circle bg-label-primary">
+                                <img {% if order.associated.avatar %} src="{{ order.associated.avatar.url }}" {% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
+                                     alt="Avatar"
+                                     height="100px"
+                                     width="100px"
+                                     class="w-px-40 h-auto rounded-circle"/>
+                            </span>
+                        </a>
                     </div>
-                </div>
-            </td>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div data-tag="{{ order.associated.name }}{{ order.associated.phone_number }}"
+                             class="me-2  associated-data">
+                            <h6 class="mb-0">{{ order.associated.name }}</h6>
+                            <small class="text-muted">{{ order.associated.phone_number }}</small>
+                        </div>
+                    </div>
+                </td>
+            {% else %}
+                <td></td>
+            {% endif %}
             <td>
                 <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ order.concept }}</strong>
             </td>

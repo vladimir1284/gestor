@@ -1,25 +1,64 @@
 {% load static %}
 <div class="container">
     <div class="row">
-        <div class="col-md-6 d-flex pb-1">
-            <div class="avatar flex-shrink-0 me-3">
-                <a href={% url 'detail-associated' client.id %}>
-                    <span class="avatar-initial rounded-circle bg-label-primary">
-                        <img {% if client.avatar %} src="{{ client.avatar.url }}" {% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
-                             alt="Avatar"
-                             height="100px"
-                             width="100px"
-                             class="w-px-40 h-auto rounded-circle"/>
-                    </span>
-                </a>
-            </div>
-            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                <div class="me-2">
-                    <h6 class="mb-0">{{ client.name }}</h6>
-                    <small class="text-muted">{{ client.phone_number }}</small>
+        <div class="col-md-4 d-flex pb-1">
+            {% if client %}
+                <div class="avatar flex-shrink-0 me-3">
+                    <a href={% url 'detail-associated' client.id %}>
+                        <span class="avatar-initial rounded-circle bg-label-primary">
+                            <img {% if client.avatar %} src="{{ client.avatar.url }}" {% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
+                                 alt="Avatar"
+                                 height="100px"
+                                 width="100px"
+                                 class="w-px-40 h-auto rounded-circle"/>
+                        </span>
+                    </a>
                 </div>
-            </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                    <div class="me-2">
+                        <h6 class="mb-0">{{ client.name }}</h6>
+                        <small class="text-muted">{{ client.phone_number }}</small>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'select-service-client' %}"
+                   type="button"
+                   class="btn btn-outline-primary float-end">Add client</a>
+            {% endif %}
         </div>
-        <div class="col-md-6 d-flex pb-1">{% include "equipment/equipment_line.html" %}</div>
+        <div class="col-md-4 d-flex pb-1">
+            {% if company %}
+                <div class="avatar flex-shrink-0 me-3">
+                    <a href={% url 'detail-associated' company.id %}>
+                        <span class="avatar-initial rounded-circle bg-label-primary">
+                            <img {% if company.avatar %} src="{{ company.avatar.url }}" {% else %} src="{% static 'images/icons/company.png' %}" {% endif %}
+                                 alt="Avatar"
+                                 height="100px"
+                                 width="100px"
+                                 class="w-px-40 h-auto rounded-circle"/>
+                        </span>
+                    </a>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                    <div class="me-2">
+                        <h6 class="mb-0">{{ company.name }}</h6>
+                        <small class="text-muted">{{ company.phone_number }}</small>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'select-company' %}"
+                   type="button"
+                   class="btn btn-outline-primary float-end">Add company</a>
+            {% endif %}
+        </div>
+        <div class="col-md-4 d-flex pb-1">
+            {% if equipment_type %}
+                {% include "equipment/equipment_line.html" %}
+            {% else %}
+                <a href="{% url 'select-equipment' %}"
+                   type="button"
+                   class="btn btn-outline-primary float-end">Add vehicle</a>
+            {% endif %}
+        </div>
     </div>
 </div>
