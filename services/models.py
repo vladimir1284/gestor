@@ -6,6 +6,11 @@ from utils.models import Order, Transaction
 from users.models import Associated
 from django.utils.translation import gettext_lazy as _
 
+from gdstorage.storage import GoogleDriveStorage
+
+# Define Google Drive Storage
+gd_storage = GoogleDriveStorage()
+
 
 class ServiceCategory(Category):
     pass
@@ -27,6 +32,8 @@ class Service(models.Model):
 
 class Expense(models.Model):
     concept = models.CharField(max_length=120)
+    image = models.ImageField(upload_to='images/expenses',
+                              blank=True, storage=gd_storage)
     description = models.TextField(blank=True)
     associated = models.ForeignKey(Associated, blank=True, null=True,
                                    on_delete=models.SET_NULL)

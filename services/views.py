@@ -650,7 +650,7 @@ def create_expense(request, order_id):
         request.session['associated_id'] = None
     form = ExpenseCreateForm(initial=initial)
     if request.method == 'POST':
-        form = ExpenseCreateForm(request.POST)
+        form = ExpenseCreateForm(request.POST, request.FILES)
         if form.is_valid():
             expense = form.save(commit=False)
             expense.order = get_object_or_404(Order, id=order_id)
@@ -658,6 +658,8 @@ def create_expense(request, order_id):
             return redirect('detail-service-order', order_id)
     context = {
         'form': form,
+        'outsource': Associated.objects.filter(type='provider',
+                                               outsource=True),
         'title': _("Add third party expense")
     }
     return render(request, 'services/expense_create.html', context)
@@ -677,7 +679,7 @@ def update_expense(request, id):
 
     if request.method == 'POST':
         # pass the object as instance in form
-        form = ExpenseCreateForm(request.POST, instance=expense)
+        form = ExpenseCreateForm(request.POST, request.FILES, instance=expense)
 
         # save the data from the form and
         # redirect to detail_view
@@ -688,6 +690,8 @@ def update_expense(request, id):
     # add form dictionary to context
     context = {
         'form': form,
+        'outsource': Associated.objects.filter(type='provider',
+                                               outsource=True),
         'expense': expense,
         'title': _("Update third party expense")
     }

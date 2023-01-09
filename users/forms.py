@@ -304,6 +304,29 @@ class AssociatedCreateForm(BaseContactForm):
         )
 
 
+class ProviderCreateForm(AssociatedCreateForm):
+
+    class Meta(AssociatedCreateForm.Meta):
+        fields = AssociatedCreateForm.Meta.fields + ['outsource']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['type'].widget = HiddenInput()
+
+        self.helper.layout = Layout(
+            CommonContactLayout(),
+            Field('type'),
+            Div(
+                Field('outsource'),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
 class CompanyCreateForm(BaseContactForm):
 
     class Meta(BaseContactForm.Meta):

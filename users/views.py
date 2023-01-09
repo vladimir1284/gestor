@@ -13,6 +13,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import permission_required, login_required
 
 from .forms import (
+    ProviderCreateForm,
     UserProfileForm,
     UserCreateForm,
     AssociatedCreateForm,
@@ -102,6 +103,10 @@ def delete_user(request, id):
 
 # -------------------- Associated ----------------------------
 
+FORMS = {'client': AssociatedCreateForm,
+         'provider': ProviderCreateForm}
+
+
 @login_required
 def create_provider(request):
     return create_associated(request, 'provider')
@@ -145,10 +150,10 @@ def addStateCity(context):
 
 def create_associated(request, type):
     initial = {'type': type}
-    form = AssociatedCreateForm(initial=initial)
+    form = FORMS[type](initial=initial)
     next = request.GET.get('next', 'list-{}'.format(type))
     if request.method == 'POST':
-        form = AssociatedCreateForm(
+        form = FORMS[type](
             request.POST, request.FILES, initial=initial)
         if form.is_valid():
             associated = form.save()
@@ -170,11 +175,11 @@ def update_associated(request, id):
     associated = get_object_or_404(Associated, id=id)
 
     # pass the object as instance in form
-    form = AssociatedCreateForm(instance=associated)
+    form = FORMS[associated.type](instance=associated)
 
     if request.method == 'POST':
         # pass the object as instance in form
-        form = AssociatedCreateForm(
+        form = FORMS[associated.type](
             request.POST, request.FILES, instance=associated)
 
         # save the data from the form and

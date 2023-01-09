@@ -84,6 +84,8 @@ class Associated(Contact):
     type = models.CharField(
         max_length=20, choices=TYPE_CHOICE, default='client')
     license = models.CharField(max_length=50, blank=True, null=True)
+    # Provides third party expense
+    outsource = models.BooleanField(_('Outsource'), default=False)
 
 
 class UserProfile(models.Model):

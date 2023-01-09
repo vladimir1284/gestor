@@ -3,6 +3,9 @@
 {% block title %}
     Add expense
 {% endblock title %}
+{% block img_id %}
+    const img_id = "id_image";
+{% endblock img_id %}
 {% block content %}
     <!-- Basic with Icons -->
     <div class="col-xxl">
@@ -23,8 +26,8 @@
                 <form enctype="multipart/form-data" method="post" id="update-form">
                     {% csrf_token %}
                     {% crispy form %}
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
     <script>
@@ -34,5 +37,32 @@
                 window.location = url;
             }
         }
+
+        const providers = {};
+
+        {% for provider in outsource %}providers["{{provider.id}}"] = "{{provider.name}}";{% endfor %}
+
+        // Clean select options
+        function removeAll(selectBox) {
+            while (selectBox.options.length > 1) {
+                selectBox.remove(1);
+            }
+        }
+
+        function updateProviders(event){            
+            removeAll(provider_select);
+            // Iterate for cities in the state
+            let newOption;
+            for (const [id, name] of Object.entries(providers)) {
+                newOption = new Option(name, id);
+                provider_select.add(newOption,undefined);
+            }
+            provider_select.add(newOption,undefined);
+        }
+
+        window.addEventListener("load", (event) => {
+            provider_select = document.getElementById("id_associated");    
+            updateProviders();
+          });
     </script>
 {% endblock content %}

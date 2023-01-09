@@ -286,10 +286,15 @@
                                         <a href="{% url 'update-expense' expense.id %}">${{ expense.cost|floatformat:"0" }}</a>
                                     </td>
                                     <td>
-                                        <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ expense.concept }}</strong>
+                                        <strong>{{ expense.concept }}</strong>
+                                        {% if expense.image %}
+                                            <a href="{{ expense.image.url }}" target="blank" class="float-end"><span class="tf-icons bx bx-image"></span></a>
+                                        {% endif %}
                                     </td>
                                     <td>
-                                        <a href={% url 'detail-associated' expense.associated.id %}>{{ expense.associated }}</a>
+                                        {% if expense.associated %}
+                                            <a href={% url 'detail-associated' expense.associated.id %}>{{ expense.associated }}</a>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         ${{ expense.cost|floatformat:"2" }}

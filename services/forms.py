@@ -280,6 +280,7 @@ class ExpenseCreateForm(BaseForm):
     class Meta:
         model = Expense
         fields = ('concept',
+                  'image',
                   'description',
                   'cost',
                   'associated',)
@@ -308,6 +309,29 @@ class ExpenseCreateForm(BaseForm):
                     css_class="col-2 position-relative"
                 ),
                 css_class="row mb-3"
+            ),
+            Div(
+                HTML(
+                    """
+                {% load static %}
+                <img id="preview"
+                alt="image"
+                class="d-block rounded"
+                height="100" width="100"
+                {% if form.instance.image %}
+                    src="{{ form.instance.image.url }}"
+                {% else %}
+                    src="{% static 'images/icons/no_image.jpg' %}"
+                {% endif %}>
+                """
+                ),
+                css_class="d-flex align-items-start align-items-sm-center gap-4"
+            ),
+            Div(
+                Div(
+                    Field('image')
+                ),
+                css_class="mb-3"
             ),
             Div(
                 Div(

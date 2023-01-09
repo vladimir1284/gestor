@@ -3,7 +3,6 @@ from django.db import models
 from utils.models import Category
 from users.models import User
 from django.utils.translation import gettext_lazy as _
-from PIL import Image
 from gdstorage.storage import GoogleDriveStorage
 
 # Define Google Drive Storage
