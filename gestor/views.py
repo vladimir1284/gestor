@@ -120,8 +120,5 @@ def dashboard(request):
 
 
 def computeTransactionProfit(transaction: ProductTransaction):
-    # if transaction.product.type == 'part':
     return (computeTransactionAmount(transaction)
-            - transaction.cost)
-    # if transaction.product.type == 'consumable':
-    #     return transaction.cost
+            - transaction.quantity*transaction.product.min_price)

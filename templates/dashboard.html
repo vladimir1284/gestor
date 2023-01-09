@@ -26,8 +26,8 @@
                     <tr>
                         <th>Client</th>
                         <th>date</th>
-                        <th>Gross incomes</th>
-                        <th>Net incomes</th>
+                        <th>Gross</th>
+                        <th>Net</th>
                         <th>Parts&nbsp;&nbsp;&nbsp;&nbsp;</th>
                         <th>Supplies</th>
                         <th>Third party</th>
@@ -38,7 +38,7 @@
                     {% for order in orders %}
                         <tr>
                             <td>
-                                <strong>{{ order.associated }}</strong>
+                                <a href={% url 'service-invoice' order.id %}> <strong>{{ order.associated }}</strong></a>
                             </td>
                             <td>{{ order.terminated_date|date:"D, d" }}</td>
                             <td>
@@ -108,6 +108,9 @@
                 <thead>
                     <tr>
                         <th>
+                            Amount
+                        </th>
+                        <th>
                             concept
                         </th>
                         <th>
@@ -119,14 +122,14 @@
                         <th>
                             User
                         </th>
-                        <th class="text-end">
-                            Amount
-                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for cost in costs %}
                         <tr>
+                            <td class="text-end">
+                                ${{ cost.amount|floatformat:"2" }}
+                            </td>
                             <td>
                                 <strong>{{ cost.concept }}</strong>
                             </td>
@@ -158,144 +161,140 @@
                                     </div>
                                 {% endif %}
                             </td>
-                            <td class="text-end">
-                                ${{ cost.amount|floatformat:"2" }}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-border-bottom-0">
+                    <tr>
+                        <th>
+                        </th>
+                        <th>
+                        </th>
+                        <th>
+                        </th>
+                        <th>
+                            <strong>Total =</strong>
+                        </th>
+                        <th>
+                            <div class="float-end">
+                                ${{ costs.total|floatformat:"2" }}
                             </div>
-                        </td>
+                        </th>
                     </tr>
-                {% endfor %}
-            </tbody>
-            <tfoot class="table-border-bottom-0">
-                <tr>
-                    <th>
-                    </th>
-                    <th>
-                    </th>
-                    <th>
-                    </th>
-                    <th>
-                        <strong>Total =</strong>
-                    </th>
-                    <th>
-                        <div class="float-end">
-                            ${{ costs.total|floatformat:"2" }}
-                        </div>
-                    </th>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-</div>
-<!-- Parts -->
-<div class="card mb-3">
-    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-        Parts net incomes:
-        <div class="text-success">
-            <strong>{{ parts_profit|floatformat:"2" }}</strong>
-            <span class="text-muted">USD</span>
+                </tfoot>
+            </table>
         </div>
-    </h5>
-    <div class="table-responsive text-nowrap">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="invoice-descrpition">
-                        Name
-                    </th>
-                    <th>
-                        Quantity
-                    </th>
-                    <th>
-                        Unit
-                    </th>
-                    <th>
-                        Profit
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for part in products %}
-                    {% if part.type == 'part' %}
-                        <tr>
-                            <td>
-                                <strong>{{ part.name }}</strong>
-                            </td>
-                            <td>
-                                <div class="float-end">
-                                    {{ part.quantity|floatformat:"-2" }}
-                                </div>
-                            </td>
-                            <td>
-                                {{ part.unit }}
-                            </td>
-                            <td>
-                                <div class="float-end">
-                                    ${{ part.profit|floatformat:"2" }}
-                                </div>
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
-</div>
-<!-- Supplies -->
-<div class="card mb-3">
-    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-        Supplies:
-        <div class="{% if consumables_profit > 0 %}text-success{% elif consumables_profit < 0 %}text-danger{% endif %}">
-            <strong>{{ consumables_profit|floatformat:"2" }}</strong>
-            <span class="text-muted">USD</span>
-        </div>
-    </h5>
-    <div class="table-responsive text-nowrap">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="invoice-descrpition">
-                        Name
-                    </th>
-                    <th>
-                        Quantity
-                    </th>
-                    <th>
-                        Unit
-                    </th>
-                    <th>
-                        Profit
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for part in products %}
-                    {% if part.type == 'consumable' %}
-                        <tr>
-                            <td>
-                                <strong>{{ part.name }}</strong>
-                            </td>
-                            <td>
-                                <div class="float-end">
-                                    {{ part.quantity|floatformat:"-2" }}
-                                </div>
-                            </td>
-                            <td>
-                                {{ part.unit }}
-                            </td>
-                            <td>
-                                <div class="float-end">
-                                    <div class="{% if part.profit > 0 %}text-success{% elif part.profit < 0 %}text-danger{% endif %}">
-                                        <strong>{{ part.profit|floatformat:"2" }}</strong>
-                                        <span class="text-muted">USD</span>
+    <!-- Parts -->
+    <div class="card mb-3">
+        <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+            Parts net incomes:
+            <div class="text-success">
+                <strong>{{ parts_profit|floatformat:"2" }}</strong>
+                <span class="text-muted">USD</span>
+            </div>
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="invoice-descrpition">
+                            Name
+                        </th>
+                        <th>
+                            Quantity
+                        </th>
+                        <th>
+                            Unit
+                        </th>
+                        <th>
+                            Profit
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for part in products %}
+                        {% if part.type == 'part' %}
+                            <tr>
+                                <td>
+                                    <strong>{{ part.name }}</strong>
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        {{ part.quantity|floatformat:"-2" }}
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
+                                </td>
+                                <td>
+                                    {{ part.unit }}
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        ${{ part.profit|floatformat:"2" }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+    <!-- Supplies -->
+    <div class="card mb-3">
+        <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+            Supplies:
+            <div class="{% if consumables_profit > 0 %}text-success{% elif consumables_profit < 0 %}text-danger{% endif %}">
+                <strong>{{ consumables_profit|floatformat:"2" }}</strong>
+                <span class="text-muted">USD</span>
+            </div>
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="invoice-descrpition">
+                            Name
+                        </th>
+                        <th>
+                            Quantity
+                        </th>
+                        <th>
+                            Unit
+                        </th>
+                        <th>
+                            Profit
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for part in products %}
+                        {% if part.type == 'consumable' %}
+                            <tr>
+                                <td>
+                                    <strong>{{ part.name }}</strong>
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        {{ part.quantity|floatformat:"-2" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ part.unit }}
+                                </td>
+                                <td>
+                                    <div class="float-end">
+                                        <div class="{% if part.profit > 0 %}text-success{% elif part.profit < 0 %}text-danger{% endif %}">
+                                            <strong>{{ part.profit|floatformat:"2" }}</strong>
+                                            <span class="text-muted">USD</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 {% endlocaltime %}
 {% endblock content %}
