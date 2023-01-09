@@ -78,7 +78,9 @@ def select_equipment_type(request):
     if request.method == 'POST':
         form = EquipmentTypeForm(request.POST)
         if form.is_valid():
-            if form.cleaned_data['type'] in ('trailer', 'vehicle'):
+            if form.cleaned_data['type'] == 'trailer':
+                return redirect('create-trailer')
+            if form.cleaned_data['type'] == 'vehicle':
                 return redirect('create-vehicle')
     context = {
         'form': form
