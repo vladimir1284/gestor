@@ -27,7 +27,7 @@
             </table>
         </div>
         <div class="col-6">
-            <img src="file://{{ image }}"
+            <img {% if image %} src="file://{{ image }}" {% else %} src="{% static 'images/icons/TOWIT.png' %}" {% endif %}
                  alt=""
                  height="60px"
                  width="100px"
@@ -53,14 +53,17 @@
                 </tr>
                 <tr>
                     <td>Orchard, TX 77464</td>
-                    <td>{{ order.associated.phone_number|nbsp }}</td>
+                    <td>
+                        <strong>{{ order.company.name|upper|nbsp }}</strong>
+                    </td>
                 </tr>
                 <tr>
                     <td>(832) 963-5145 / (305) 833-6144</td>
-                    <td>{{ order.associated.email|nbsp }}</td>
+                    <td>{{ order.associated.phone_number|nbsp }}</td>
                 </tr>
                 <tr>
                     <td>towithouston@gmail.com</td>
+                    <td>{{ order.associated.email|nbsp }}</td>
                 </tr>
             </tbody>
         </table>
@@ -97,7 +100,8 @@
                         </tr>
                     {% endfor %}
                     <tr>
-                        <td></td>
+                        <td>
+                        </td>
                         <td>
                         </td>
                         <td>
@@ -247,6 +251,61 @@
                         </td>
                         <td>
                             <strong class="float-end">${{ consumable_amount|floatformat:"2" }}</strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    <!-- Expenses -->
+    {% if expenses %}
+        <h5 class="card-title mt-3 mb-0">
+            Third Party Expenses
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>
+                            Code
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                        <th class="invoice-descrpition">
+                            Provider
+                        </th>
+                        <th>
+                            Cost
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for expense in expenses %}
+                        <tr data-tag="{{ expense.concept }}">
+                            <td>
+                                {{ expense.id|stringformat:"04i" }}
+                            </td>
+                            <td>
+                                <strong>{{ expense.concept }}</strong>
+                            </td>
+                            <td>
+                                {% if expense.associated %}{{ expense.associated }}{% endif %}
+                            </td>
+                            <td>
+                                ${{ expense.cost|floatformat:"2" }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <strong class="float-end">${{ expenses_amount|floatformat:"2" }}</strong>
                         </td>
                     </tr>
                 </tbody>

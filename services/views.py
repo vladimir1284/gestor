@@ -499,6 +499,7 @@ def list_order(request):
 def computeOrderAmount(order: Order):
     transactions = ProductTransaction.objects.filter(order=order)
     services = ServiceTransaction.objects.filter(order=order)
+    expenses = Expense.objects.filter(order=order)
     # Compute amount
     amount = 0
     tax = 0
@@ -512,9 +513,13 @@ def computeOrderAmount(order: Order):
         amount += service.amount
         service.tax = computeTransactionTax(service)
         tax += service.tax
+    expenses.amount = 0
+    for expense in expenses:
+        expenses.amount += expense.cost
+        amount += expenses.amount
     order.amount = amount
     order.tax = tax
-    return (transactions, services)
+    return (transactions, services, expenses)
 
 
 def computeTransactionTax(transaction: Transaction):
@@ -528,11 +533,7 @@ def computeTransactionAmount(transaction: Transaction):
 
 def getOrderContext(id):
     order = Order.objects.get(id=id)
-    expenses = Expense.objects.filter(order=order)
-    expenses_amount = 0
-    for expense in expenses:
-        expenses_amount += expense.cost
-    (transactions, services) = computeOrderAmount(order)
+    (transactions, services, expenses) = computeOrderAmount(order)
     # Order by amount
     transactions = list(transactions)
     # Count consumables and parts
@@ -556,8 +557,8 @@ def getOrderContext(id):
     order.total = order.amount+order.tax
     # Compute tax percent
     tax_percent = 8.25
-    if order.tax > 0:
-        tax_percent = order.tax*100/order.amount
+    # if order.tax > 0:
+    #     tax_percent = order.tax*100/order.amount
     # Phone number format
     try:
         order.associated.phone_number = order.associated.phone_number.as_national
@@ -567,7 +568,7 @@ def getOrderContext(id):
             'services': services,
             'service_amount': service_amount,
             'expenses': expenses,
-            'expenses_amount': expenses_amount,
+            'expenses_amount': expenses.amount,
             'transactions': transactions,
             'consumable_amount': consumable_amount,
             'parts_amount': parts_amount,
