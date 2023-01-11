@@ -1,4 +1,5 @@
 {% load static %}
+{% load nbsp %}
 <style>
     .invoice-descrpition{
         width: 100%;
@@ -26,8 +27,8 @@
             </table>
         </div>
         <div class="col-6">
-            <img src="{% static 'images/icons/TOWIT.png' %}"
-                 alt="Avatar"
+            <img src="file://{{ image }}"
+                 alt=""
                  height="60px"
                  width="100px"
                  class="h-px-60 w-auto float-end"/>
@@ -48,15 +49,15 @@
                 </tr>
                 <tr>
                     <td>9707 SH</td>
-                    <td>{{ order.associated.name }}</td>
+                    <td>{{ order.associated.name|nbsp }}</td>
                 </tr>
                 <tr>
                     <td>Orchard, TX 77464</td>
-                    <td>{{ order.associated.phone_number }}</td>
+                    <td>{{ order.associated.phone_number|nbsp }}</td>
                 </tr>
                 <tr>
                     <td>(832) 963-5145 / (305) 833-6144</td>
-                    <td>{{ order.associated.email }}</td>
+                    <td>{{ order.associated.email|nbsp }}</td>
                 </tr>
                 <tr>
                     <td>towithouston@gmail.com</td>

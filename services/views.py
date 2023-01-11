@@ -603,8 +603,10 @@ def html_invoice(request, id):
 @login_required
 def generate_invoice(request, id):
     """Generate pdf."""
+    image = settings.STATICFILES_DIRS[0]+'/images/icons/TOWIT.png'
     # Render
     context = getOrderContext(id)
+    context.setdefault('image', image)
     html_string = render_to_string('services/invoice_pdf.html', context)
     html = HTML(string=html_string,
                 base_url=request.build_absolute_uri())
