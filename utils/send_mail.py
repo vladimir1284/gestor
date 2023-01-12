@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 from typing import List
 from .models import Order
+from django.conf import settings
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -12,7 +13,6 @@ from googleapiclient.errors import HttpError
 import base64
 from email.message import EmailMessage
 import tempfile
-import mimetypes
 from weasyprint import Document
 
 # If modifying these scopes, delete the file token.json.
@@ -28,19 +28,20 @@ class MailSender():
         # The file token.json stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
         # time.
-        if os.path.exists('token.json'):
+        token_file = os.path.join(settings.BASE_DIR, 'token.json')
+        if os.path.exists(token_file):
             self.creds = Credentials.from_authorized_user_file(
-                'token.json', SCOPES)
+                token_file, SCOPES)
         # If there are no (valid) credentials available, let the user log in.
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
                 self.creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', SCOPES)
+                    os.path.join(settings.BASE_DIR, 'credentials.json'), SCOPES)
                 self.creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open('token.json', 'w') as token:
+            with open(token_file, 'w') as token:
                 token.write(self.creds.to_json())
 
     def gmail_send_invoice(self,
@@ -72,8 +73,10 @@ class MailSender():
                 expenses_txt = "\nThe following third party expenses are included in your service:\n"
                 for expense in expenses:
                     expenses_txt += F"  - {expense.concept}"
-                    if expense.image is not None:
+                    try:
                         expenses_txt += F" ({expense.image.url})"
+                    except:
+                        pass
                     expenses_txt += "\n"
 
             content_text = f'''
