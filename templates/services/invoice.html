@@ -49,13 +49,11 @@
                 </tr>
                 <tr>
                     <td>9707 SH</td>
-                    <td>{{ order.associated.name|nbsp }}</td>
+                    <td>{{ order.company.name|upper|nbsp }}</td>
                 </tr>
                 <tr>
                     <td>Orchard, TX 77464</td>
-                    <td>
-                        <strong>{{ order.company.name|upper|nbsp }}</strong>
-                    </td>
+                    <td>{{ order.associated.name|nbsp }}</td>
                 </tr>
                 <tr>
                     <td>(832) 963-5145 / (305) 833-6144</td>
@@ -287,7 +285,7 @@
                                 {{ expense.id|stringformat:"04i" }}
                             </td>
                             <td>
-                                <strong>{{ expense.concept }}</strong>
+                                <strong>{{ expense.concept|nbsp }}</strong>
                             </td>
                             <td>
                                 {% if expense.associated %}{{ expense.associated }}{% endif %}

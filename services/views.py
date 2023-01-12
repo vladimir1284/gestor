@@ -50,7 +50,9 @@ from .forms import (
     TransactionCreateForm,
     OrderCreateForm,
     ExpenseCreateForm,
+    SendMailForm,
 )
+from utils.send_mail import MailSender
 from equipment.models import Vehicle, Trailer
 from django.utils.translation import gettext_lazy as _
 
@@ -592,6 +594,12 @@ def detail_order(request, id):
 @login_required
 def view_invoice(request, id):
     context = getOrderContext(id)
+    form = SendMailForm(request.POST or None,
+                        initial={'mail_address': context['order'].associated.email})
+    context.setdefault('form', form)
+    if form.is_valid():
+        sendMail(
+            context, form.cleaned_data['mail_address'], form.cleaned_data['send_copy'])
     return render(request, 'services/invoice_view.html', context)
 
 
@@ -601,45 +609,44 @@ def html_invoice(request, id):
     return render(request, 'services/invoice_pdf.html', context)
 
 
-@login_required
-def generate_invoice(request, id):
+def generate_invoice_pdf(context):
     """Generate pdf."""
     image = settings.STATICFILES_DIRS[0]+'/images/icons/TOWIT.png'
     # Render
-    context = getOrderContext(id)
     context.setdefault('image', image)
     html_string = render_to_string('services/invoice_pdf.html', context)
-    html = HTML(string=html_string,
-                base_url=request.build_absolute_uri())
+    html = HTML(string=html_string)
     main_doc = html.render(presentational_hints=True)
-    result = main_doc.write_pdf()
+    return main_doc.write_pdf()
+
+
+@login_required
+def generate_invoice(request, id):
+    context = getOrderContext(id)
+    result = generate_invoice_pdf(context)
 
     # Creating http response
     response = HttpResponse(content_type='application/pdf;')
     response['Content-Disposition'] = 'inline; filename=invoice_towit.pdf'
     response['Content-Transfer-Encoding'] = 'binary'
-    with tempfile.NamedTemporaryFile(delete=True) as output:
+    with tempfile.NamedTemporaryFile() as output:
         output.write(result)
         output.flush()
         output = open(output.name, 'rb')
         response.write(output.read())
-        # # Send email
-        # output.seek(0)
-        # send_contract(contract, output.read(), 'contract_ready_for_signature')
-        # if (stage == 3):
-        #     # Store file
-        #     output.seek(0)
-        #     cd = ContractDocument()
-        #     cd.lease = contract
-        #     cd.document.save("signed_contract_%s.pdf" % id, output, True)
-        #     cd.save()
-        #     # # Delete handwritings
-        #     # for sign in signatures:
-        #     #     # os.remove(os.path.join(settings.BASE_DIR, sign.img.path))
-        #     #     sign.delete()
-        #     createEvent(contract, cd)
 
     return response
+
+
+def sendMail(context, address, send_copy=False):
+    invoice = generate_invoice_pdf(context)
+    sender = MailSender()
+    send_to = [address]
+    if send_copy:
+        send_to.append('towithouston@gmail.com')
+    sender.gmail_send_invoice(
+        send_to, invoice, context['order'], context['expenses'])
+
 
 # -------------------- Expense ----------------------------
 

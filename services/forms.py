@@ -275,6 +275,45 @@ class ServiceCreateForm(forms.ModelForm):
         )
 
 
+class SendMailForm(forms.Form):
+    send_copy = forms.BooleanField(initial=True, required=False)
+    mail_address = forms.EmailField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Focus on form field whenever error occurred
+        errorList = list(self.errors)
+        for item in errorList:
+            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            break
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            Div(
+                Field('mail_address'),
+                css_class="row mb-3"
+            ),
+            Div(
+                Div(
+                    Field('send_copy'),
+                    css_class="col-6"
+                ),
+                Div(
+                    ButtonHolder(
+                        Submit('submit', 'Enviar',
+                               css_class='btn btn-success float-end')
+                    ),
+                    css_class="col-6"
+                ),
+                css_class="row mb-3"
+            ),
+        )
+
+
 class ExpenseCreateForm(BaseForm):
 
     class Meta:

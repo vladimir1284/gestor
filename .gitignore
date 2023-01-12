@@ -281,3 +281,7 @@ static/images/icons/categoria_rodamientos.PNG
 static/images/icons/categoria_soldadura.PNG
 static/images/icons/categoria_suspension.PNG
 static/images/icons/destornillador.PNG
+quickstart.py
+invoice_towit.pdf
+credentials.json
+token.json

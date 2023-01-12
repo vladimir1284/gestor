@@ -1,4 +1,5 @@
 {% extends 'base/base_list.html' %}
+{% load crispy_forms_tags %}
 {% load static %}
 {% block title %}
     {{ order.concept }}
@@ -20,16 +21,25 @@
                    href="{% url 'pdf-invoice' order.id %}">
                     <span class="tf-icons bx bx-file"></span>
                 </a>
-                <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'service-invoice' order.id %}">
+                <button class="btn btn-icon btn-outline-primary"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#sendMail"
+                        aria-expanded="true"
+                        aria-controls="sendMail">
                     <span class="tf-icons bx bx-mail-send"></span>
-                </a>
+                </button>
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
                    href="{% url 'service-invoice' order.id %}">
                     <span class="tf-icons bx bx-message-rounded-dots"></span>
                 </a>
+            </div>
+            <div class="collapse mt-2" id="sendMail" style="">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
             </div>
         </div>
     </div>
