@@ -22,7 +22,7 @@ class Service(models.Model):
     created_date = models.DateField(auto_now_add=True)
     category = models.ForeignKey(ServiceCategory, blank=True, null=True,
                                  on_delete=models.SET_NULL)
-    sell_tax = models.FloatField(blank=True, default=0)
+    sell_tax = models.FloatField(blank=True, default=8.25)
     suggested_price = models.FloatField(blank=True)
     max_price = models.FloatField(blank=True)
 

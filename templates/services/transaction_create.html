@@ -29,11 +29,41 @@
         </div>
     </div>
     <script>
+        let check, tax_input, tax_value;
         function deleteTransaction(url, name) {
             let confirmAction = confirm("Are you sure to delete the service " + name + " from this order?");
             if (confirmAction) {
                 window.location = url;
             }
         }
+
+        function checkTax(){
+            if (check.checked != true)
+            {
+                //tax_input.disabled=true;
+                tax_input.value=0;
+            } 
+            else {
+                //tax_input.disabled=false;
+                tax_input.value=tax_value;
+            }
+        }
+
+        function createTaxCheckbox(){
+            const tax = document.getElementById('div_id_tax');
+            const ig = tax.getElementsByClassName("input-group")[0];
+            ig.innerHTML = '<div class="input-group-text"> <input id="tax_check" onclick="checkTax()" class="form-check-input mt-0" type="checkbox"></div>' + ig.innerHTML;
+            check = document.getElementById("tax_check");
+
+            // Prepare tax input
+            tax_input = document.getElementById("id_tax");
+            tax_value = tax_input.value;
+            //tax_input.disabled=true;
+            tax_input.value=0;
+        }
+
+        window.addEventListener("load", (event) => {
+            {% if create %}createTaxCheckbox();{% endif %}
+          });
     </script>
 {% endblock content %}

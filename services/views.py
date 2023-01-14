@@ -94,7 +94,8 @@ def renderCreateTransaction(request, form, service, order_id):
         'form': form,
         'service': service,
         'order_id': order_id,
-        'title': _("Add service")
+        'title': _("Add service"),
+        'create': True,
     }
     return render(request, 'services/transaction_create.html', context)
 
@@ -136,7 +137,8 @@ def update_transaction(request, id):
         'form': form,
         'service': transaction.service,
         'order_id': transaction.order.id,
-        'title': _("Update Transaction")
+        'title': _("Update Transaction"),
+        'create': False,
     }
 
     return render(request, 'services/transaction_create.html', context)
