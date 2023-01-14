@@ -148,7 +148,7 @@ class TransactionCreateForm(forms.ModelForm):
         # Price
         minimum = F"Minimum: ${self.product.min_price:.2f}/{self.product.unit}."
         cost = self.product.getCost()
-        average = F" Cost: ${cost:.2f}."
+        average = F" Cost: ${cost:.2f}/{self.product.unit}."
         self.fields['price'].help_text = minimum + average
 
         # Quantity

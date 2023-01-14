@@ -246,6 +246,7 @@ def renderCreateTransaction(request, form, product: Product, order_id):
         'form': form,
         'product': product,
         'suggested': product.getSuggestedPrice(),
+        'cost': product.getCost(),
         'order_id': order_id,
         'price_references': price_references,
         'title': title,
