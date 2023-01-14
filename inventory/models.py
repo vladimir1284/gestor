@@ -130,6 +130,9 @@ class ProductTransaction(Transaction):
     def __str__(self):
         return "{} product: {}".format(super(Transaction, self).__str__(), self.product.name)
 
+    def getMinCost(self):
+        return self.quantity*self.product.min_price
+
 
 class PriceReference(models.Model):
     # Reference link for product price

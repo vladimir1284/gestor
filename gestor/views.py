@@ -35,7 +35,7 @@ def getOrderBalance(order: Order, products: dict):
                 'profit': computeTransactionProfit(trans)
             })
         if product.type == 'part':
-            parts_cost += trans.cost
+            parts_cost += trans.getMinCost()
         if product.type == 'consumable':
             consumable_expenses += trans.cost
     # Third party expenses
@@ -118,5 +118,5 @@ def dashboard(request):
 
 
 def computeTransactionProfit(transaction: ProductTransaction):
-    return (computeTransactionAmount(transaction)
-            - transaction.quantity*transaction.product.min_price)
+    return (transaction.getAmount()
+            - transaction.getMinCost())
