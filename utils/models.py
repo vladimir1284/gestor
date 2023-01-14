@@ -91,3 +91,9 @@ class Transaction(models.Model):
 
     def __str__(self):
         return "{}-{}-${}".format(self.order, self.quantity, self.price)
+
+    def getTax(self):
+        return self.tax/100*self.getAmount()
+
+    def getAmount(self):
+        return self.quantity*self.price

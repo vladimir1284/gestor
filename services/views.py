@@ -508,15 +508,15 @@ def computeOrderAmount(order: Order):
     amount = 0
     tax = 0
     for transaction in transactions:
-        transaction.amount = computeTransactionAmount(transaction)
+        transaction.amount = transaction.getAmount()
         amount += transaction.amount
-        transaction.tax += computeTransactionTax(transaction)
-        tax += transaction.tax
+        transaction.total_tax = transaction.getTax()
+        tax += transaction.total_tax
     for service in services:
-        service.amount = computeTransactionAmount(service)
+        service.amount = service.getAmount()
         amount += service.amount
-        service.tax = computeTransactionTax(service)
-        tax += service.tax
+        service.total_tax = service.getTax()
+        tax += service.total_tax
     expenses.amount = 0
     for expense in expenses:
         expenses.amount += expense.cost
@@ -524,16 +524,6 @@ def computeOrderAmount(order: Order):
     order.amount = amount
     order.tax = tax
     return (transactions, services, expenses)
-
-
-def computeTransactionTax(transaction: Transaction):
-    return transaction.quantity * transaction.price*transaction.tax/100.
-
-
-def computeTransactionAmount(transaction: Transaction):
-    # *(1 + transaction.tax/100.)
-    return transaction.quantity * transaction.price
-
 
 def getOrderContext(id):
     order = Order.objects.get(id=id)
@@ -543,27 +533,34 @@ def getOrderContext(id):
     # Count consumables and parts
     consumable_amount = 0
     parts_amount = 0
+    consumable_tax = 0
+    parts_tax = 0
     consumables = False
     for trans in transactions:
         if (trans.product.type == 'part'):
             parts_amount += trans.amount
+            parts_tax += trans.total_tax
         elif (trans.product.type == 'consumable'):
             consumables = True
             consumable_amount += trans.amount
+            consumable_tax += trans.total_tax
     # Account services
     service_amount = 0
+    service_tax = 0
     for service in services:
         service_amount += service.amount
+        service_tax += service.total_tax
     # Terminated order
     terminated = order.status in ['decline', 'complete']
     empty = (len(services) + len(transactions)) == 0
-    # Compute order total
+    # Compute totals
     order.total = order.amount+order.tax
+    consumable_total = consumable_tax+consumable_amount
+    parts_total=parts_amount+parts_tax
+    service_total=service_amount+service_tax
     # Compute tax percent
     tax_percent = 8.25
-    # if order.tax > 0:
-    #     tax_percent = order.tax*100/order.amount
-    # Phone number format
+
     try:
         order.associated.phone_number = order.associated.phone_number.as_national
     except:
@@ -571,11 +568,17 @@ def getOrderContext(id):
     return {'order': order,
             'services': services,
             'service_amount': service_amount,
+            'service_total': service_total,
+            'service_tax': service_tax,
             'expenses': expenses,
             'expenses_amount': expenses.amount,
             'transactions': transactions,
             'consumable_amount': consumable_amount,
+            'consumable_total': consumable_total,
+            'consumable_tax': consumable_tax,
             'parts_amount': parts_amount,
+            'parts_total': parts_total,
+            'parts_tax': parts_tax,
             'terminated': terminated,
             'empty': empty,
             'tax_percent': tax_percent,

@@ -8,7 +8,7 @@
     <div class="card mb-3 container">
         <div class="card-body">
             <h5 class="mt-4">
-                Service order: <a href="{% url 'detail-service-order' order.id %}">{{ order.concept }}</a> (${{ order.amount|floatformat:"2" }})
+                Service order: <a href="{% url 'detail-service-order' order.id %}">{{ order.concept }}</a> ${{ order.total|floatformat:"2" }}
             </h5>
             {% if order.trailer %}
                 {% include "services/order_header.html" with client=order.associated equipment=order.trailer equipment_type="trailer" %}

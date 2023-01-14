@@ -6,7 +6,7 @@
     <div class="card mb-3">
         <div class="card-body">
             <h5 class="card-title">
-                Service order: <b>{{ order.concept }}</b> (${{ order.amount|floatformat:"2" }})
+                Service order: <b>{{ order.concept }} ${{ order.total|floatformat:"2" }}</b> = ${{ order.amount|floatformat:"2" }}+${{ order.tax|floatformat:"2" }}
                 {% if terminated or empty %}
                     <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' %}danger{% endif %}">
                         {{ order.get_status_display }}
@@ -82,7 +82,7 @@
         <div class="card mb-3">
             <h5 class="card-header">
                 Parts
-                {% if parts_amount %}(${{ parts_amount|floatformat:"2" }}){% endif %}
+                {% if parts_amount %} <b>${{ parts_total|floatformat:"2" }}</b> = ${{ parts_amount|floatformat:"2" }}+${{ parts_tax|floatformat:"2" }}{% endif %}
             </h5>
             <div class="table-responsive text-nowrap">
                 <table class="table table-sm">
@@ -113,7 +113,7 @@
                                     <td>{{ trans.unit }}</td>
                                     <td>${{ trans.price|floatformat:"2" }}</td>
                                     <td>${{ trans.amount|floatformat:"2" }}</td>
-                                    <td>${{ trans.tax|floatformat:"2" }}</td>
+                                    <td>${{ trans.total_tax|floatformat:"2" }}</td>
                                 </tr>
                             {% endif %}
                         {% endfor %}
@@ -126,7 +126,7 @@
         <div class="card mb-3">
             <h5 class="card-header">
                 Services
-                {% if service_amount %}(${{ service_amount|floatformat:"2" }}){% endif %}
+                {% if service_amount %} <b>${{ service_total|floatformat:"2" }}</b> = ${{ service_amount|floatformat:"2" }}+${{ service_tax|floatformat:"2" }}{% endif %}
             </h5>
             <div class="table-responsive text-nowrap">
                 <table class="table table-sm">
@@ -165,7 +165,7 @@
                                     ${{ service.amount|floatformat:"2" }}
                                 </td>
                                 <td>
-                                    ${{ service.tax|floatformat:"2" }}
+                                    ${{ service.total_tax|floatformat:"2" }}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -178,7 +178,7 @@
         <div class="card mb-3">
             <h5 class="card-header">
                 Consumables
-                {% if consumable_amount %}(${{ consumable_amount|floatformat:"2" }}){% endif %}
+                {% if consumable_amount %} <b>${{ consumable_total|floatformat:"2" }}</b> = ${{ consumable_amount|floatformat:"2" }}+${{ consumable_tax|floatformat:"2" }}{% endif %}
             </h5>
             <div class="table-responsive text-nowrap">
                 <table class="table table-sm">
@@ -230,7 +230,7 @@
                                         ${{ trans.amount|floatformat:"2" }}
                                     </td>
                                     <td>
-                                        ${{ trans.tax|floatformat:"2" }}
+                                        ${{ trans.total_tax|floatformat:"2" }}
                                     </td>
                                 </tr>
                             {% endif %}

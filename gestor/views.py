@@ -12,8 +12,6 @@ from costs.models import Cost
 from utils.models import Order
 from services.views import (
     computeOrderAmount,  # TODO remove this import and make a custom function here
-    computeTransactionTax,
-    computeTransactionAmount,
 )
 
 
