@@ -489,7 +489,7 @@ def list_order(request):
 
     # List orders
     orders = Order.objects.filter(
-        type='sell').order_by('-created_date')
+        type='sell', status__in=('processing', 'pending')).order_by('-created_date')
     orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
     for order in orders:

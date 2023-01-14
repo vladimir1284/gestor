@@ -1,0 +1,50 @@
+{% load static %}
+<div class="col-md-3 mb-3 text-center">
+    <div class="card text-center">
+        <div class="card-body">
+            <div class="demo-inline-spacing mb-2 associated-pic">
+                <img {% if company.avatar %}src="{{ company.avatar.url }}"{% else %} src="{% static 'images/icons/company.png' %}" {% endif %}
+                     alt="Avatar"
+                     height="100px"
+                     width="100px"
+                     class="w-px-100 h-px-100 rounded-circle card-img-top"/>
+                <img {% if company.language == "english" %}src="{% static 'images/icons/en.png' %}"{% else %} src="{% static 'images/icons/es.png' %}" {% endif %}
+                     alt="Avatar"
+                     height="40px"
+                     width="40px"
+                     class="w-px-40 h-px-40 rounded-circle lang-flag"/>
+            </div>
+            <h5 class="card-title">{{ company.name }}</h5>
+            <div class="card-subtitle text-muted mb-3">{{ company.contact }}</div>
+            <p class="card-text">{{ company.note }}</p>
+            {% if company.last_order %}
+                <p class="card-text">
+                    <small class="text-muted">Last order {{ company.last_order }}</small>
+                </p>
+            {% endif %}
+            <div class="demo-inline-spacing">
+                {% if company.phone_number %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="tel:{{ company.phone_number }}">
+                        <span class="tf-icons bx bx-phone-call"></span>
+                    </a>
+                {% endif %}
+                {% if company.email %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="mailto:{{ company.email }}">
+                        <span class="tf-icons bx bx-mail-send"></span>
+                    </a>
+                {% endif %}
+                {% if update %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'update-company' company.id %}">
+                        <span class="tf-icons bx bx-edit"></span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

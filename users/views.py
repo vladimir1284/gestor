@@ -325,6 +325,14 @@ def list_company(request):
     return render(request, 'users/company_list.html', {'companies': companies})
 
 
+
+@login_required
+def detail_company(request, id):
+    # fetch the object related to passed id
+    company = get_object_or_404(Company, id=id)
+    return render(request, 'users/company_detail.html', {'company': company,
+                                                            'title': 'Company detail'})
+
 @ login_required
 def delete_company(request, id):
     # fetch the object related to passed id

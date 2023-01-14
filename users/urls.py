@@ -21,6 +21,7 @@ from .views import (
     select_company,
     delete_company,
     update_company,
+    detail_company,
 )
 
 urlpatterns = [
@@ -66,6 +67,7 @@ urlpatterns = [
     path('select-company/', select_company, name='select-company'),
     path('create-company/', create_company, name='create-company'),
     path('update-company/<id>', update_company, name='update-company'),
+    path('detail-company/<id>', detail_company, name='detail-company'),
     path('list-company/', list_company, name='list-company'),
     path('delete-company/<id>', delete_company, name='delete-company'),
 ]

@@ -1,0 +1,12 @@
+{% extends 'base/base_card.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ctitle %}
+    <h5 class="card-header">
+        Company
+    </h5>
+{% endblock Ctitle %}
+{% block Cards %}
+    {% include "./company_card.html" with update=1 %}
+{% endblock Cards %}
