@@ -1,5 +1,7 @@
 
 from gestor.tests import BaseModelTests
+from django.test import TestCase
+from users.models import User, UserProfile, Associated
 from django.test import Client
 from django.contrib.auth.models import User
 from .forms import UnitCreateForm
@@ -7,6 +9,7 @@ from .views import convertUnit
 from .models import (
     Unit,
     Product,
+    ProductCategory,
     ProductTransaction,
     DifferentMagnitudeUnitsError
 )
@@ -42,7 +45,7 @@ class TestPurchaseOrder(BaseModelTests):
         # self.assertEqual(provider.name, self.provider_data['name'])
 
 
-class TestUnitConversion(BaseModelTests):
+class TestUnitConversion(TestCase):
     """
     This class contains tests that convert measurements from one
     unit of measurement to another.
@@ -52,7 +55,17 @@ class TestUnitConversion(BaseModelTests):
         """
         This method runs before the execution of each test case.
         """
-        super(TestUnitConversion, self).setUp()
+
+        self.credentials = {
+            'username': 'myuser',
+            'password': 'mypass'}
+        user = User.objects.create_user(**self.credentials)
+        UserProfile.objects.create(user=user)
+        # send login data
+        response = self.client.post(
+            '/users/login/', self.credentials, follow=True)
+        # should be logged in now
+        self.assertTrue(response.context['user'].is_active)
 
         self.client = Client()
 
@@ -73,12 +86,15 @@ class TestUnitConversion(BaseModelTests):
         self.assertTrue(form.is_valid())
 
     def test_unit_create(self):
+        self.client.post('/users/login/', self.credentials, follow=True)
         # kg (SI)
-        self.client.post('/inventory/create-unit/', self.kg_data)
+        response = self.client.post('/inventory/create-unit/', self.kg_data)
+        # should be logged in now
         kg = Unit.objects.get(name="kg")
         self.assertEqual(kg.factor, 1)
 
     def test_unit_convert(self):
+        self.client.post('/users/login/', self.credentials, follow=True)
         # g
         self.client.post('/inventory/create-unit/', self.g_data)
 
@@ -92,6 +108,7 @@ class TestUnitConversion(BaseModelTests):
                                            value=rand_g), calculated_kg)
 
     def test_nonSI_unit_convert(self):
+        self.client.post('/users/login/', self.credentials, follow=True)
         # g
         self.client.post('/inventory/create-unit/', self.g_data)
 
@@ -110,6 +127,7 @@ class TestUnitConversion(BaseModelTests):
                                            value=rand_g), calculated_lb)
 
     def test_incompatible_unit_convert(self):
+        self.client.post('/users/login/', self.credentials, follow=True)
         # g
         self.client.post('/inventory/create-unit/', self.g_data)
 
@@ -131,22 +149,33 @@ class TestUnitConversion(BaseModelTests):
         self.assertTrue(False)
 
 
-class TestStockFIFO(BaseModelTests):
-
+class TestStockFIFO(TestCase):
     """
-    Ejercicio resuelto de valoración de existencias (PMP-FIFO) 2.
-    http://www.econosublime.com/2020/05/ejercicio-resuelto-pmp-fifo-valoracion-existencias.html
+    This class contains tests that convert measurements from one
+    unit of measurement to another.
     """
 
     def setUp(self):
         """
         This method runs before the execution of each test case.
         """
-        super(TestStockFIFO, self).setUp()
+
+        self.credentials = {
+            'username': 'myuser',
+            'password': 'mypass'}
+        user = User.objects.create_user(**self.credentials)
+        UserProfile.objects.create(user=user)
+        # send login data
+        response = self.client.post(
+            '/users/login/', self.credentials, follow=True)
+        # should be logged in now
+        self.assertTrue(response.context['user'].is_active)
 
         self.client = Client()
 
     def test_fifo_exercise(self):
+        response = self.client.post(
+            '/users/login/', self.credentials, follow=True)
         # kg (SI)
         kg_data = {
             'name': "kg",
@@ -154,41 +183,47 @@ class TestStockFIFO(BaseModelTests):
             'magnitude': "mass",
         }
         self.client.post('/inventory/create-unit/', kg_data)
-
+        self.assertEqual(Unit.objects.last().name, "kg")
         # food
         food = {
             'name': "comida",
         }
         self.client.post('/inventory/create-category/', food)
+        self.assertEqual(ProductCategory.objects.last().name, "comida")
 
         # provider
         provider = {
             'name': "Pedro Vendedor",
-            'type': "provider"
+            'type': "provider",
+            "city": 'houston',
+            "state": 'texas',
+            "language": 'spanish',
+            "active": True
         }
         self.client.post('/users/create-provider/', provider)
+        self.assertEqual(Associated.objects.last().name, "Pedro Vendedor")
 
         # client
         client = {
             'name': "Juan Comprador",
-            'type': "client"
+            'type': "client",
+            "city": 'houston',
+            "state": 'texas',
+            "language": 'spanish',
+            "active": True
         }
         self.client.post('/users/create-client/', client)
+        self.assertEqual(Associated.objects.last().name, "Juan Comprador")
 
         # pescado congelado
         pescado_congelado = {
             'name': "pescado congelado",
             'unit': 1,
             'category': 1,
-            'type': 'consumable',
-            'sell_price': 20,
-            'sell_tax': 15,
-            'sell_price_min': 20,
-            'sell_price_max': 30,
-            'quantity_min': 30,
-
+            'type': 'consumable'
         }
         self.client.post('/inventory/create-product/', pescado_congelado)
+        self.assertEqual(Product.objects.last().name, "pescado congelado")
 
         # 1 de enero inicial
         form_data = {

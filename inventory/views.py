@@ -359,9 +359,9 @@ def getTransactionAmount(transaction: ProductTransaction):
 
 def handle_transaction(transaction: ProductTransaction):
     #  To be performed on complete orders
-    product = transaction.product
+    product = Product.objects.get(id=transaction.product.id)
+
     # To be used in the rest of the system
-    product = Product.objects.get(id=product.id)
     product_quantity = convertUnit(
         input_unit=transaction.unit,
         output_unit=product.unit,
@@ -370,12 +370,12 @@ def handle_transaction(transaction: ProductTransaction):
     # TODO study taxes handling on sales to improve these formula
     # Generate stock
     cost = transaction.price*(1 + transaction.tax/100.)  # Add on taxes
+    product.quantity += product_quantity
+    product.stock_price += transaction.quantity * cost
+    product.save()
     Stock.objects.create(product=product,
                          quantity=product_quantity,
-                         cost=cost)
-    product.quantity += product_quantity
-    product.stock_price += product_quantity * cost
-    product.save()
+                         cost=(transaction.quantity * cost)/product_quantity)
 
 
 @login_required
