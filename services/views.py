@@ -520,7 +520,7 @@ def computeOrderAmount(order: Order):
     expenses.amount = 0
     for expense in expenses:
         expenses.amount += expense.cost
-        amount += expenses.amount
+    amount += expenses.amount
     order.amount = amount
     order.tax = tax
     return (transactions, services, expenses)

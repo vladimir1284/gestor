@@ -244,7 +244,7 @@
         <div class="card mb-3">
             <h5 class="card-header">
                 Third Party Expenses
-                {% if expenses_amount %}(${{ expenses_amount|floatformat:"2" }}){% endif %}
+                {% if expenses_amount %} <b>${{ expenses_amount|floatformat:"2" }}</b>{% endif %}
                 {% if not terminated %}
                     <a href="{% url 'create-expense' order.id %}">
                         <button type="button"
