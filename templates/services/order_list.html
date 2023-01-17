@@ -34,7 +34,7 @@
 {% block Tbody %}
     {% for order in orders %}
         <tr data-tag="{{ order.status }}"
-            data-search="{{ order.associated.name }}{{ order.associated.phone_number }}">
+            data-search="{{ order.associated.alias }}{{ order.associated.name }}{{ order.associated.phone_number }}">
             <td class="chapilla">
                 <a href={% url 'detail-service-order' order.id %}>
                     <img {% if order.status == 'processing' %} src="{% static 'images/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'images/icons/done.png' %}" {% elif order.status == 'pending' %} src="{% static 'images/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'images/icons/tag-info.png' %}" {% elif order.status == 'decline' %} src="{% static 'images/icons/cancel.png' %}" {% endif %}
@@ -65,7 +65,7 @@
                     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                         <div data-tag="{{ order.associated.name }}{{ order.associated.phone_number }}"
                              class="me-2  associated-data">
-                            <h6 class="mb-0">{{ order.associated.name }}</h6>
+                            <h6 class="mb-0">{% if order.associated.alias %}{{ order.associated.alias }}{% else %}{{ order.associated.name }}{% endif %}</h6>
                             <small class="text-muted">{{ order.associated.phone_number }}</small>
                         </div>
                     </div>

@@ -55,6 +55,12 @@ class CommonContactLayout(Layout):
                 Field(
                     PrependedText('name',
                                   '<i class="bx bx-user-circle"></i>')
+                )
+            ),
+            Div(
+                Field(
+                    PrependedText('alias',
+                                  '<i class="bx bx-user-circle"></i>')
                 ),
                 css_class="row mb-3"
             ),
@@ -257,6 +263,7 @@ class BaseContactForm(forms.ModelForm):
         model = Associated
         fields = [
             'name',
+            'alias',
             'state',
             'city',
             'other_state',
@@ -313,6 +320,7 @@ class ProviderCreateForm(AssociatedCreateForm):
         super().__init__(*args, **kwargs)
 
         self.fields['type'].widget = HiddenInput()
+        self.fields['alias'].widget = HiddenInput()
 
         self.helper.layout = Layout(
             CommonContactLayout(),
@@ -335,6 +343,9 @@ class CompanyCreateForm(BaseContactForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['alias'].widget = HiddenInput()
+
         self.helper.layout = Layout(
             CommonContactLayout(),
             Div(

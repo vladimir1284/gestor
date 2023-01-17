@@ -15,7 +15,7 @@
                      class="w-px-40 h-px-40 rounded-circle lang-flag"/>
             </div>
             <h5 class="card-title">{{ associated.name }}</h5>
-            <div class="card-subtitle text-muted mb-3">{{ associated.company }}</div>
+            <div class="card-subtitle text-muted mb-3">{% if associated.alias %}{{ associated.alias }}{% endif %}</div>
             <p class="card-text">{{ associated.note }}</p>
             {% if associated.last_order %}
                 <p class="card-text">

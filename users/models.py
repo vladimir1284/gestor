@@ -10,6 +10,8 @@ class Contact(models.Model):
         abstract = True
 
     name = models.CharField(max_length=120)
+    alias = models.CharField(_("Local alias"), max_length=120,
+                             null=True, blank=True)
     LANG_CHOICE = (
         ('spanish', 'Spanish'),
         ('english', 'English'),
@@ -60,6 +62,8 @@ class Contact(models.Model):
             print(error)
 
     def __str__(self):
+        if self.alias:
+            return self.alias
         return self.name
 
 
