@@ -8,7 +8,7 @@
     <div class="col-xxl">
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">Crear nueva orden</h5>
+                <h5 class="mb-0">{{title}}</h5>
             </div>
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}
@@ -16,4 +16,35 @@
             </form>
         </div>
     </div>
+
+    <script>
+        const providers = {};
+
+        {% for provider in provider_list %}providers["{{provider.id}}"] = "{{provider.name}}";{% endfor %}
+
+        // Clean select options
+        function removeAll(selectBox) {
+            while (selectBox.options.length > 1) {
+                selectBox.remove(1);
+            }
+        }
+
+        function updateProviders(event){            
+            removeAll(provider_select);
+            // Iterate for cities in the state
+            let newOption;
+            for (const [id, name] of Object.entries(providers)) {
+                newOption = new Option(name, id);
+                provider_select.add(newOption,undefined);
+            }
+            provider_select.add(newOption,undefined);
+        }
+
+        window.addEventListener("load", (event) => {
+            provider_select = document.getElementById("id_associated");    
+            const init_val = provider_select.value;
+            updateProviders();
+            provider_select.value=init_val;
+          });
+    </script>
 {% endblock content %}

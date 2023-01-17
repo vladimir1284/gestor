@@ -117,7 +117,9 @@ def create_order(request, product_id=None):
                 order.save()
                 return redirect('detail-order', id=order.id)
         context = {
-            'form': form
+            'form': form,
+            'title': _("Create order"),
+            'provider_list': Associated.objects.filter(type="provider")
         }
         return render(request, 'inventory/order_create.html', context)
 
@@ -142,6 +144,7 @@ def update_order(request, id):
     if associated_id is not None:
         associated = get_object_or_404(Associated, id=associated_id)
         order.associated = associated
+        request.session['associated_id'] = None
     # pass the object as instance in form
     form = OrderCreateForm(instance=order)
 
@@ -157,7 +160,9 @@ def update_order(request, id):
 
     # add form dictionary to context
     context = {
-        'form': form
+        'form': form,
+        'title': _("Update order"),
+        'provider_list': Associated.objects.filter(type="provider")
     }
 
     return render(request, 'inventory/order_create.html', context)
