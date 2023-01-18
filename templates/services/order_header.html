@@ -29,7 +29,7 @@
         <div class="col-md-4 d-flex pb-1">
             {% if company %}
                 <div class="avatar flex-shrink-0 me-3">
-                    <a href={% url 'detail-associated' company.id %}>
+                    <a href={% url 'detail-company' company.id %}>
                         <span class="avatar-initial rounded-circle bg-label-primary">
                             <img {% if company.avatar %} src="{{ company.avatar.url }}" {% else %} src="{% static 'images/icons/company.png' %}" {% endif %}
                                  alt="Avatar"

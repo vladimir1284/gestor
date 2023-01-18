@@ -525,6 +525,7 @@ def computeOrderAmount(order: Order):
     order.tax = tax
     return (transactions, services, expenses)
 
+
 def getOrderContext(id):
     order = Order.objects.get(id=id)
     (transactions, services, expenses) = computeOrderAmount(order)
@@ -556,8 +557,8 @@ def getOrderContext(id):
     # Compute totals
     order.total = order.amount+order.tax
     consumable_total = consumable_tax+consumable_amount
-    parts_total=parts_amount+parts_tax
-    service_total=service_amount+service_tax
+    parts_total = parts_amount+parts_tax
+    service_total = service_amount+service_tax
     # Compute tax percent
     tax_percent = 8.25
 
@@ -599,8 +600,14 @@ def detail_order(request, id):
 @login_required
 def view_invoice(request, id):
     context = getOrderContext(id)
+    mail_address = ""
+    if context['order'].associated and context['order'].associated.email:
+        mail_address = context['order'].associated.email
+    elif context['order'].company and context['order'].company.email:
+        mail_address = context['order'].company.email
+
     form = SendMailForm(request.POST or None,
-                        initial={'mail_address': context['order'].associated.email})
+                        initial={'mail_address': mail_address})
     context.setdefault('form', form)
     if form.is_valid():
         sendMail(

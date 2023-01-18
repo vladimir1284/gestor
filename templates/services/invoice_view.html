@@ -11,9 +11,9 @@
                 Service order: <a href="{% url 'detail-service-order' order.id %}">{{ order.concept }}</a> ${{ order.total|floatformat:"2" }}
             </h5>
             {% if order.trailer %}
-                {% include "services/order_header.html" with client=order.associated equipment=order.trailer equipment_type="trailer" %}
+                {% include "services/order_header.html" with client=order.associated company=order.company  equipment=order.trailer equipment_type="trailer" %}
             {% elif order.vehicle %}
-                {% include "services/order_header.html" with client=order.associated equipment=order.vehicle equipment_type="vehicle" %}
+                {% include "services/order_header.html" with client=order.associated company=order.company equipment=order.vehicle equipment_type="vehicle" %}
             {% endif %}
             <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
