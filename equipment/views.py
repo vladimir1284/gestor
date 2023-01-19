@@ -37,8 +37,15 @@ def list_equipment(request):
 
 @login_required
 def select_equipment(request):
+    type = request.session.get("equipment_type")
+    order_id = None
+    if type is None:
+        order_id = request.session.get('order_detail')
+        order = get_object_or_404(Order, id=order_id)
+        type = order.equipment_type
     if request.method == 'POST':
-        type = request.POST.get('type')
+        if type is None:
+            type = request.POST.get('type')
         order_data = request.session.get('creating_order')
         if order_data is not None:
             if type == 'trailer':
@@ -50,25 +57,46 @@ def select_equipment(request):
                 request.session['vehicle_id'] = vehicle.id
             return redirect('create-service-order')
         else:
-            order_id = request.session.get('order_detail')
-            if order_id is not None:
-                order = get_object_or_404(Order, id=order_id)
-                if type == 'trailer':
-                    trailer = Trailer.objects.get(
-                        id=request.POST.get('id'))
-                    order.trailer = trailer
-                elif type == 'vehicle':
-                    vehicle = Vehicle.objects.get(id=request.POST.get('id'))
-                    order.vehicle = vehicle
-                order.save()
-                return redirect('detail-service-order', id=order_id)
+            # order_id = request.session.get('order_detail')
+            # if order_id is not None:
+            #     order = get_object_or_404(Order, id=order_id)
+            if type == 'trailer':
+                trailer = Trailer.objects.get(
+                    id=request.POST.get('id'))
+                order.trailer = trailer
+                order.equipment_type = 'trailer'
+            elif type == 'vehicle':
+                vehicle = Vehicle.objects.get(id=request.POST.get('id'))
+                order.vehicle = vehicle
+                order.equipment_type = 'vehicle'
+            order.save()
+            return redirect('detail-service-order', id=order_id)
 
-    trailers = Trailer.objects.all()
-    vehicles = Vehicle.objects.all()
-    context = {
-        'trailers': trailers,
-        'vehicles': vehicles,
-    }
+    if type == 'trailer':
+        trailers = Trailer.objects.all()
+        context = {
+            'trailers': trailers,
+        }
+    if type == 'vehicle':
+        vehicles = Vehicle.objects.all()
+        context = {
+            'vehicles': vehicles,
+        }
+    try:
+        context.setdefault("type", type)
+    except Exception as err:
+        print(err)
+        trailers = Trailer.objects.all()
+        vehicles = Vehicle.objects.all()
+        context = {
+            'trailers': trailers,
+            'vehicles': vehicles,
+        }
+    if order_id is not None:
+        context.setdefault('skip', False)
+    else:
+        context.setdefault('skip', True)
+
     return render(request, 'equipment/equipment_select.html', context)
 
 
@@ -78,10 +106,8 @@ def select_equipment_type(request):
     if request.method == 'POST':
         form = EquipmentTypeForm(request.POST)
         if form.is_valid():
-            if form.cleaned_data['type'] == 'trailer':
-                return redirect('create-trailer')
-            if form.cleaned_data['type'] == 'vehicle':
-                return redirect('create-vehicle')
+            request.session["equipment_type"] = form.cleaned_data['type']
+            return redirect('select-equipment')
     context = {
         'form': form
     }

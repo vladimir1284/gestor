@@ -367,6 +367,11 @@ def create_order(request):
                 client = Associated.objects.get(id=client_id)
                 order.associated = client
 
+            # Set the equipment type in the order
+            equipment_type = request.session.get('equipment_type')
+            if equipment_type:
+                order.equipment_type = equipment_type
+
             # Link vehicle to order if exists
             vehicle_id = request.session.get('vehicle_id')
             if vehicle_id:
@@ -402,6 +407,7 @@ def cleanSession(request):
     request.session['company_id'] = None
     request.session['all_selected'] = None
     request.session['order_detail'] = None
+    request.session['equipment_type'] = None
 
 
 @login_required
@@ -424,8 +430,12 @@ def select_client(request):
     associateds = Associated.objects.filter(
         type='client', active=True).order_by("-created_date")
     context = {
-        'associateds': associateds
+        'associateds': associateds,
+        'skip': True
     }
+    order_id = request.session.get('order_detail')
+    if order_id is not None:
+        context['skip'] = False
     return render(request, 'services/client_list.html', context)
 
 

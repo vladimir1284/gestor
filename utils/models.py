@@ -60,6 +60,12 @@ class Order(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     associated = models.ForeignKey(Associated, blank=True, null=True,
                                    on_delete=models.SET_NULL)
+    EQUIPMENT_TYPE_CHOICE = (
+        ('trailer', _('Trailer')),
+        ('vehicle', _('Vehicle')),
+    )
+    equipment_type = models.CharField(max_length=20, blank=True, null=True,
+                                      choices=EQUIPMENT_TYPE_CHOICE)
     trailer = models.ForeignKey(Trailer, blank=True, null=True,
                                 on_delete=models.SET_NULL)
     vehicle = models.ForeignKey(Vehicle, blank=True, null=True,

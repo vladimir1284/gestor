@@ -4,9 +4,11 @@
 {% endblock title %}
 {% block Ctitle %}
     Select equipment
-    <a href="{% url 'create-service-order' %}"
-       type="button"
-       class="btn btn-outline-primary float-end">Skip</a>
+    {% if skip %}
+        <a href="{% url 'create-service-order' %}"
+           type="button"
+           class="btn btn-outline-primary float-end">Skip</a>
+    {% endif %}
 {% endblock Ctitle %}
 {% block Cards %}
     {% for equipment in trailers %}
@@ -17,7 +19,11 @@
     {% endfor %}
 {% endblock Cards %}
 {% block createUrl %}
-    {% url 'select-equipment-type' %}
+    {% if type == 'trailer' %}
+        {% url 'create-trailer' %}
+    {% elif type == 'vehicle' %}
+        {% url 'create-vehicle' %}
+    {% endif %}
 {% endblock createUrl %}
 {% block help %}
     New equipment

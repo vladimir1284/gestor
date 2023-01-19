@@ -46,8 +46,15 @@
                         {% if order.badge %}<span>{{ order.badge }}</span>{% endif %}
                     {% endif %}
                 </a>
-                {% if order.trailer %}<span>T</span>
-                {% elif order.vehicle %}<span>C</span>{% endif %}
+                {% if order.trailer %}
+                    <span>T</span>
+                {% elif order.vehicle %}
+                    <span>C</span>
+                {% elif order.equipment_type == "trailer" %}
+                    <span>T</span>
+                {% elif order.equipment_type == "vehicle" %}
+                    <span>C</span>
+                {% endif %}
             </td>
             {% if order.associated %}
                 <td class="d-flex pb-1">
@@ -65,7 +72,13 @@
                     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                         <div data-tag="{{ order.associated.name }}{{ order.associated.phone_number }}"
                              class="me-2  associated-data">
-                            <h6 class="mb-0">{% if order.associated.alias %}{{ order.associated.alias }}{% else %}{{ order.associated.name }}{% endif %}</h6>
+                            <h6 class="mb-0">
+                                {% if order.associated.alias %}
+                                    {{ order.associated.alias }}
+                                {% else %}
+                                    {{ order.associated.name }}
+                                {% endif %}
+                            </h6>
                             <small class="text-muted">{{ order.associated.phone_number }}</small>
                         </div>
                     </div>
@@ -76,21 +89,21 @@
                         <a href={% url 'detail-company' order.company.id %}>
                             <span class="avatar-initial rounded-circle bg-label-primary">
                                 <img {% if order.company.avatar %} src="{{ order.company.avatar.url }}" {% else %} src="{% static 'images/icons/company.png' %}" {% endif %}
-                                    alt="Avatar"
-                                    height="100px"
-                                    width="100px"
-                                    class="w-px-40 h-auto rounded-circle"/>
+                                     alt="Avatar"
+                                     height="100px"
+                                     width="100px"
+                                     class="w-px-40 h-auto rounded-circle"/>
                             </span>
                         </a>
                     </div>
                     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                         <div data-tag="{{ order.associated.name }}{{ order.associated.phone_number }}"
-                            class="me-2  associated-data">
+                             class="me-2  associated-data">
                             <h6 class="mb-0">{{ order.company.name }}</h6>
                             <small class="text-muted">{{ order.company.phone_number }}</small>
                         </div>
                     </div>
-                </td>                
+                </td>
             {% else %}
                 <td></td>
             {% endif %}

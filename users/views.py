@@ -115,20 +115,21 @@ def create_provider(request):
 @login_required
 def create_client(request):
     if request.method == 'POST':
-        order_data = request.session.get('creating_order')
-        if order_data is not None:
-            form = AssociatedCreateForm(request.POST, request.FILES)
-            if form.is_valid():
-                client = form.save()
+        form = AssociatedCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            client = form.save()
+
+            order_data = request.session.get('creating_order')
+            if order_data is not None:
                 request.session['client_id'] = client.id
                 return redirect('select-company')
-        else:
-            order_id = request.session.get('order_detail')
-            if order_id is not None:
-                order = get_object_or_404(Order, id=order_id)
-                order.associated = client
-                order.save()
-                return redirect('detail-service-order', id=order_id)
+            else:
+                order_id = request.session.get('order_detail')
+                if order_id is not None:
+                    order = get_object_or_404(Order, id=order_id)
+                    order.associated = client
+                    order.save()
+                    return redirect('detail-service-order', id=order_id)
 
     return create_associated(request, 'client')
 
@@ -251,7 +252,7 @@ def create_company(request):
                 client = get_object_or_404(Associated, id=client_id)
                 client.company = company
                 request.session['company_id'] = company.id
-                return redirect('select-equipment')
+                return redirect('select-equipment-type')
             else:
                 order_id = request.session.get('order_detail')
                 if order_id is not None:
@@ -300,7 +301,7 @@ def select_company(request):
         request.session['company_id'] = company.id
         order_data = request.session.get('creating_order')
         if order_data is not None:
-            return redirect('select-equipment')
+            return redirect('select-equipment-type')
         else:
             order_id = request.session.get('order_detail')
             if order_id is not None:
@@ -311,7 +312,12 @@ def select_company(request):
         next = request.GET.get('next', 'list-company')
         return redirect(next)
     companies = Company.objects.filter(active=True).order_by("-created_date")
-    return render(request, 'users/company_select.html', {'companies': companies})
+    context = {'companies': companies,
+               'skip': True}
+    order_id = request.session.get('order_detail')
+    if order_id is not None:
+        context['skip'] = False
+    return render(request, 'users/company_select.html', context)
 
 
 @login_required
@@ -325,13 +331,13 @@ def list_company(request):
     return render(request, 'users/company_list.html', {'companies': companies})
 
 
-
 @login_required
 def detail_company(request, id):
     # fetch the object related to passed id
     company = get_object_or_404(Company, id=id)
     return render(request, 'users/company_detail.html', {'company': company,
-                                                            'title': 'Company detail'})
+                                                         'title': 'Company detail'})
+
 
 @ login_required
 def delete_company(request, id):
