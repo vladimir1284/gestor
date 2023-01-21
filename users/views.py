@@ -175,6 +175,13 @@ def update_associated(request, id):
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
 
+    last_order = Order.objects.filter(
+        associated=associated).order_by("-created_date").first()
+    if not last_order:
+        associated.delete_url = 'delete-associated'
+    else:
+        associated.last_order = last_order
+
     # pass the object as instance in form
     form = FORMS[associated.type](instance=associated)
 
@@ -223,6 +230,9 @@ def detail_associated(request, id):
 
 def list_associated(request, type):
     associateds = Associated.objects.filter(type=type, active=True)
+    for associated in associateds:
+        associated.last_order = Order.objects.filter(
+            associated=associated).order_by("-created_date").first()
     return render(request, 'users/associated_list.html', {'associateds': associateds,
                                                           'type': type})
 
@@ -241,7 +251,6 @@ def delete_associated(request, id):
 @login_required
 def create_company(request):
     form = CompanyCreateForm()
-    next = request.GET.get('next', 'list-company')
     if request.method == 'POST':
         form = CompanyCreateForm(request.POST, request.FILES)
         if form.is_valid():
@@ -249,8 +258,9 @@ def create_company(request):
             order_data = request.session.get('creating_order')
             if order_data is not None:
                 client_id = request.session.get('client_id')
-                client = get_object_or_404(Associated, id=client_id)
-                client.company = company
+                if client_id is not None:
+                    client = get_object_or_404(Associated, id=client_id)
+                    client.company = company
                 request.session['company_id'] = company.id
                 return redirect('select-equipment-type')
             else:
@@ -260,7 +270,7 @@ def create_company(request):
                     order.company = company
                     order.save()
                     return redirect('detail-service-order', id=order_id)
-            return redirect(next)
+            return redirect('list-company')
     context = {
         'form': form,
         'title': _('Create company')
@@ -273,6 +283,9 @@ def create_company(request):
 def update_company(request, id):
     # fetch the object related to passed id
     company = get_object_or_404(Company, id=id)
+
+    if not Order.objects.filter(company=company):
+        company.delete_url = 'delete-company'
 
     # pass the object as instance in form
     form = CompanyCreateForm(request.POST or None,
@@ -322,6 +335,7 @@ def select_company(request):
 
 @login_required
 def list_company(request):
+    request.session['creating_order'] = None
     companies = Company.objects.filter(active=True).order_by("-created_date")
     for company in companies:
         last_order = Order.objects.filter(

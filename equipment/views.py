@@ -27,12 +27,22 @@ from django.utils.translation import gettext_lazy as _
 @login_required
 def list_equipment(request):
     trailers = Trailer.objects.all()
+    for trailer in trailers:
+        last_order = Order.objects.filter(
+            trailer=trailer).order_by("-created_date").first()
+        if last_order is not None:
+            trailer.last_order = last_order
     vehicles = Vehicle.objects.all()
+    for vehicle in vehicles:
+        last_order = Order.objects.filter(
+            vehicle=vehicle).order_by("-created_date").first()
+        if last_order is not None:
+            vehicle.last_order = last_order
     context = {
         'trailers': trailers,
         'vehicles': vehicles,
     }
-    return render(request, 'equipment/list_equipment.html', context)
+    return render(request, 'equipment/equipment_list.html', context)
 
 
 @login_required

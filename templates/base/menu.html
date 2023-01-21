@@ -7,7 +7,8 @@
                 <img id="logo"
                      src="{% static 'assets/img/icons/logo.png' %}"
                      alt="logo"
-                     style = "width: 60px; height: 25px;"/>
+                     style="width: 60px;
+                            height: 25px"/>
             </span>
             <span class="app-brand-text demo menu-text fw-bolder ms-2">Towit</span>
         </a>
@@ -99,6 +100,11 @@
                             <div data-i18n="Clientes">Categorías</div>
                         </a>
                     </li>
+                    <li class="menu-item">
+                        <a href="{% url 'list-equipment' %}" class="menu-link">
+                            <div data-i18n="Vehículos">Vehículos</div>
+                        </a>
+                    </li>
                 {% endif %}
             </ul>
         </li>
@@ -157,7 +163,9 @@
                 <ul class="menu-sub">
                     <li class="menu-item">
                         <a href="{% url 'list-order' %}" class="menu-link">
-                            <div data-i18n="Purchases">Órdenes</div>
+                            <div data-i18n="Purchases">
+                                Órdenes
+                            </div>
                         </a>
                     </li>
                     <li class="menu-item">

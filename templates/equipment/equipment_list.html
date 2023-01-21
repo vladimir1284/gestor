@@ -1,0 +1,122 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}
+    Add transaction
+{% endblock title %}
+{% block content %}
+    <div class="card">
+        <div class="card-header tabs pb-0">
+            <div class="list-head">
+                <h5 class="mt-4 mb-4">
+                    Vehicles <spam id="filter_tag"></spam>
+                </h5>
+                <div class="nav-align-top">
+                    <ul class="nav nav-pills nav-fill" role="tablist">
+                        <li class="nav-item">
+                            <button type="button"
+                                    class="nav-link active"
+                                    role="tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#navs-pills-justified-cars"
+                                    aria-controls="navs-pills-justified-cars"
+                                    aria-selected="true">
+                                <img src="{% static 'images/icons/truck.jpg' %}"
+                                     alt="image"
+                                     height="20px"
+                                     width="20px"
+                                     class="w-px-20 h-auto"/>
+                                Cars
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button"
+                                    class="nav-link"
+                                    role="tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#navs-pills-justified-trailers"
+                                    aria-controls="navs-pills-justified-trailers"
+                                    aria-selected="false">
+                                <img src="{% static 'images/icons/trailer.png' %}"
+                                     alt="image"
+                                     height="20px"
+                                     width="20px"
+                                     class="w-px-20 h-auto"/>
+                                Trailers
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content  pt-0">
+            <div class="tab-pane fade active show"
+                 id="navs-pills-justified-cars"
+                 role="tabpanel">
+                <div class="table-responsive text-nowrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <i class="bx bx-cog"></i>
+                                </th>
+                                <th>Vehicle</th>
+                                <th>Last Order</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            {% for equipment in vehicles %}
+                                <tr data-search="{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
+                                    <td>
+                                        <a href={% url 'update-vehicle' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                    </td>
+                                    <td class="d-flex">{% include "equipment/equipment_line.html" with equipment_type="vehicle" %}</td>
+                                    <td>
+                                        {% if equipment.last_order %}
+                                            <a href="{% url 'detail-service-order' equipment.last_order.id %}">{{ equipment.last_order.concept }}</a> ({{ equipment.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade"
+                 id="navs-pills-justified-trailers"
+                 role="tabpanel">
+                <div class="table-responsive text-nowrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <i class="bx bx-cog"></i>
+                                </th>
+                                <th>Vehicle</th>
+                                <th>Last Order</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            {% for equipment in trailers %}
+                                <tr data-search="{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
+                                    <td>
+                                        <a href={% url 'update-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                    </td>
+                                    <td class="d-flex">{% include "equipment/equipment_line.html" with equipment_type="trailer" %}</td>
+                                    <td>
+                                        {% if equipment.last_order %}
+                                            <a href="{% url 'detail-service-order' equipment.last_order.id %}">{{ equipment.last_order.concept }}</a> ({{ equipment.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

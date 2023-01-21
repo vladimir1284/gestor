@@ -1,4 +1,5 @@
 {% extends 'base/base_list.html' %}
+{% load static %}
 {% block title %}
     {{ title }}
 {% endblock title %}
@@ -15,12 +16,31 @@
 {% endblock Theader %}
 {% block Tbody %}
     {% for company in companies %}
-        <tr data-tag="{{ company.name }}">
+        <tr data-search="{{ company.name }}{{ company.phone_number }}">
             <td>
                 <a href={% url 'update-company' company.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
             <td>
-                <strong>{{ company.name }}</strong>
+                <div class="d-flex pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <a href={% url 'detail-company' company.id %}>
+                            <span class="avatar-initial rounded-circle bg-label-primary">
+                                <img {% if company.avatar %} src="{{ company.avatar.url }}" {% else %} src="{% static 'images/icons/company.png' %}" {% endif %}
+                                     alt="Avatar"
+                                     height="100px"
+                                     width="100px"
+                                     class="w-px-40 h-auto rounded-circle"/>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div data-tag="{{ company.name }}{{ company.phone_number }}"
+                             class="me-2  associated-data">
+                            <h6 class="mb-0">{{ company.name }}</h6>
+                            <small class="text-muted">{{ company.phone_number }}</small>
+                        </div>
+                    </div>
+                </div>
             </td>
             <td>
                 {% if company.phone_number %}
