@@ -44,13 +44,7 @@
                     </ul>
                 {% endif %}
             </h5>
-            {% if order.trailer %}
-                {% include "services/order_header.html" with client=order.associated equipment=order.trailer equipment_type='trailer' company=order.company %}
-            {% elif order.vehicle %}
-                {% include "services/order_header.html" with client=order.associated equipment=order.vehicle equipment_type='vehicle' company=order.company %}
-            {% else %}
-                {% include "services/order_header.html" with client=order.associated company=order.company %}
-            {% endif %}
+            {% include "services/order_header.html" %}
             <p class="card-text">{{ order.note }}</p>
             <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
@@ -82,7 +76,9 @@
         <div class="card mb-3">
             <h5 class="card-header">
                 Parts
-                {% if parts_amount %} <b>${{ parts_total|floatformat:"2" }}</b> = ${{ parts_amount|floatformat:"2" }}+${{ parts_tax|floatformat:"2" }}{% endif %}
+                {% if parts_amount %}
+                    <b>${{ parts_total|floatformat:"2" }}</b> = ${{ parts_amount|floatformat:"2" }}+${{ parts_tax|floatformat:"2" }}
+                {% endif %}
             </h5>
             <div class="table-responsive text-nowrap">
                 <table class="table table-sm">
@@ -126,7 +122,9 @@
         <div class="card mb-3">
             <h5 class="card-header">
                 Services
-                {% if service_amount %} <b>${{ service_total|floatformat:"2" }}</b> = ${{ service_amount|floatformat:"2" }}+${{ service_tax|floatformat:"2" }}{% endif %}
+                {% if service_amount %}
+                    <b>${{ service_total|floatformat:"2" }}</b> = ${{ service_amount|floatformat:"2" }}+${{ service_tax|floatformat:"2" }}
+                {% endif %}
             </h5>
             <div class="table-responsive text-nowrap">
                 <table class="table table-sm">
@@ -178,7 +176,9 @@
         <div class="card mb-3">
             <h5 class="card-header">
                 Consumables
-                {% if consumable_amount %} <b>${{ consumable_total|floatformat:"2" }}</b> = ${{ consumable_amount|floatformat:"2" }}+${{ consumable_tax|floatformat:"2" }}{% endif %}
+                {% if consumable_amount %}
+                    <b>${{ consumable_total|floatformat:"2" }}</b> = ${{ consumable_amount|floatformat:"2" }}+${{ consumable_tax|floatformat:"2" }}
+                {% endif %}
             </h5>
             <div class="table-responsive text-nowrap">
                 <table class="table table-sm">
@@ -244,7 +244,7 @@
         <div class="card mb-3">
             <h5 class="card-header">
                 Third Party Expenses
-                {% if expenses_amount %} <b>${{ expenses_amount|floatformat:"2" }}</b>{% endif %}
+                {% if expenses_amount %}<b>${{ expenses_amount|floatformat:"2" }}</b>{% endif %}
                 {% if not terminated %}
                     <a href="{% url 'create-expense' order.id %}">
                         <button type="button"
@@ -309,7 +309,7 @@
     {% endif %}
     <a href="{% url 'select-service' 'create-service-transaction' order.id %}">
         <button type="button"
-                style="visibility: {% if terminated %}hidden{% endif %};"
+                style="visibility: {% if terminated %}hidden{% endif %}"
                 class="btn rounded-pill btn-primary btn-icon add"
                 data-bs-toggle="tooltip"
                 data-bs-offset="0,4"

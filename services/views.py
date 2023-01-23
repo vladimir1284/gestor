@@ -323,35 +323,31 @@ def delete_service(request, id):
 @login_required
 def create_order(request):
     initial = {'concept': None}
-    context = {}
     creating_order = request.session.get('creating_order')
     request.session['all_selected'] = True
+    order = Order()
     if creating_order:
-
         client_id = request.session.get('client_id')
         if client_id:
             client = Associated.objects.get(id=client_id)
-            print(client)
-            context = {'client': client}
+            order.associated = client
 
         company_id = request.session.get('company_id')
         if company_id:
             company = Company.objects.get(id=company_id)
-            context.setdefault('company', company)
+            order.company = company
 
         vehicle_id = request.session.get('vehicle_id')
         if vehicle_id:
             vehicle = Vehicle.objects.get(id=vehicle_id)
             initial = {'concept': _('Maintenance to car')}
-            context.setdefault('equipment', vehicle)
-            context.setdefault('equipment_type', 'vehicle')
+            order.vehicle = vehicle
 
         trailer_id = request.session.get('trailer_id')
         if trailer_id:
             trailer = Trailer.objects.get(id=trailer_id)
             initial = {'concept': _('Maintenance to trailer')}
-            context.setdefault('equipment', trailer)
-            context.setdefault('equipment_type', 'trailer')
+            order.trailer = trailer
 
     form = OrderCreateForm(initial=initial)
     if request.method == 'POST':
@@ -394,8 +390,10 @@ def create_order(request):
             cleanSession(request)
             return redirect('detail-service-order', id=order.id)
 
-    context.setdefault('form', form)
-    context.setdefault('title', _('Create service order'))
+    context = {'form': form,
+               'title': _('Create service order'),
+               'order': order,
+               }
     return render(request, 'services/order_create.html', context)
 
 
@@ -459,15 +457,9 @@ def update_order(request, id):
     # add form dictionary to context
     context = {
         'form': form,
-        'client': order.associated,
+        'order': order,
         'title': _('Update service order')
     }
-    if order.trailer:
-        context.setdefault('equipment', order.trailer)
-        context.setdefault('equipment_type', 'trailer')
-    elif order.vehicle:
-        context.setdefault('equipment', order.vehicle)
-        context.setdefault('equipment_type', 'vehicle')
 
     return render(request, 'services/order_create.html', context)
 

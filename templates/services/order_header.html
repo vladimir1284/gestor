@@ -1,12 +1,15 @@
 {% load static %}
 <div class="container">
+    <div class="row d-block pb-2">
+        Created: <strong>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</strong>
+    </div>
     <div class="row">
         <div class="col-md-4 d-flex pb-1">
-            {% if client %}
+            {% if order.associated %}
                 <div class="avatar flex-shrink-0 me-3">
-                    <a href={% url 'detail-associated' client.id %}>
+                    <a href={% url 'detail-associated' order.associated.id %}>
                         <span class="avatar-initial rounded-circle bg-label-primary">
-                            <img {% if client.avatar %} src="{{ client.avatar.url }}" {% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
+                            <img {% if order.associated.avatar %} src="{{ order.associated.avatar.url }}" {% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
                                  alt="Avatar"
                                  height="100px"
                                  width="100px"
@@ -16,8 +19,14 @@
                 </div>
                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                     <div class="me-2">
-                        <h6 class="mb-0">{% if client.alias %}{{ client.alias }}{% else %}{{ client.name }}{% endif %}</h6>
-                        <small class="text-muted">{{ client.phone_number }}</small>
+                        <h6 class="mb-0">
+                            {% if order.associated.alias %}
+                                {{ order.associated.alias }}
+                            {% else %}
+                                {{ order.associated.name }}
+                            {% endif %}
+                        </h6>
+                        <small class="text-muted">{{ order.associated.phone_number }}</small>
                     </div>
                 </div>
             {% else %}
@@ -27,11 +36,11 @@
             {% endif %}
         </div>
         <div class="col-md-4 d-flex pb-1">
-            {% if company %}
+            {% if order.company %}
                 <div class="avatar flex-shrink-0 me-3">
-                    <a href={% url 'detail-company' company.id %}>
+                    <a href={% url 'detail-company' order.company.id %}>
                         <span class="avatar-initial rounded-circle bg-label-primary">
-                            <img {% if company.avatar %} src="{{ company.avatar.url }}" {% else %} src="{% static 'images/icons/company.png' %}" {% endif %}
+                            <img {% if order.company.avatar %} src="{{ order.company.avatar.url }}" {% else %} src="{% static 'images/icons/company.png' %}" {% endif %}
                                  alt="Avatar"
                                  height="100px"
                                  width="100px"
@@ -41,8 +50,8 @@
                 </div>
                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                     <div class="me-2">
-                        <h6 class="mb-0">{{ company.name }}</h6>
-                        <small class="text-muted">{{ company.phone_number }}</small>
+                        <h6 class="mb-0">{{ order.company.name }}</h6>
+                        <small class="text-muted">{{ order.company.phone_number }}</small>
                     </div>
                 </div>
             {% else %}
@@ -52,8 +61,10 @@
             {% endif %}
         </div>
         <div class="col-md-4 d-flex pb-1">
-            {% if equipment_type %}
-                {% include "equipment/equipment_line.html" %}
+            {% if order.trailer %}
+                {% include "equipment/equipment_line.html" with equipment=order.trailer equipment_type="trailer" %}
+            {% elif order.vehicle %}
+                {% include "equipment/equipment_line.html" with equipment=order.vehicle equipment_type="vehicle" %}
             {% else %}
                 <a href="{% url 'select-equipment' %}"
                    type="button"
