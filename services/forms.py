@@ -183,8 +183,7 @@ class ServiceCreateForm(forms.ModelForm):
                   'description',
                   'category',
                   'sell_tax',
-                  'suggested_price',
-                  'max_price',)
+                  'suggested_price',)
 
     def __init__(self, *args, **kwargs):
         if 'title' in kwargs:
@@ -242,14 +241,6 @@ class ServiceCreateForm(forms.ModelForm):
                             Div(
                                 Field(
                                     PrependedText('suggested_price', '$')
-                                )
-                            ),
-                            css_class="mb-3"
-                        ),
-                        Div(
-                            Div(
-                                Field(
-                                    PrependedText('max_price', '$')
                                 )
                             ),
                             css_class="mb-3"

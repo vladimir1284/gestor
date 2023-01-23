@@ -24,7 +24,6 @@ class Service(models.Model):
                                  on_delete=models.SET_NULL)
     sell_tax = models.FloatField(blank=True, default=8.25)
     suggested_price = models.FloatField(blank=True)
-    max_price = models.FloatField(blank=True)
 
     def __str__(self):
         return "{}-${}".format(self.name, self.suggested_price)
