@@ -36,7 +36,7 @@
                 </thead>
                 <tbody>
                     {% for order in orders %}
-                        <tr>
+                        <tr data-search="{{ order.associated.name }}">
                             <td>
                                 <a href={% url 'service-invoice' order.id %}> <strong>{{ order.associated }}</strong></a>
                             </td>
@@ -126,7 +126,7 @@
                 </thead>
                 <tbody>
                     {% for cost in costs %}
-                        <tr>
+                        <tr data-search="{{ cost.concept }}">
                             <td class="text-end">
                                 ${{ cost.amount|floatformat:"2" }}
                             </td>
@@ -153,7 +153,7 @@
                                                  alt=""
                                                  class="w-px-40 h-auto rounded-circle"/>
                                         {% else %}
-                                            <span style="font-size:1.5em;"
+                                            <span style="font-size:1.5em"
                                                   class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
                                                 {{ cost.related_to.first_name|first }}
                                             </span>
@@ -185,7 +185,7 @@
             </table>
         </div>
     </div>
-    <!-- Parts 
+    <!-- Parts
     <div class="card mb-3">
         <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
             Parts net incomes:
