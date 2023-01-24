@@ -1,4 +1,5 @@
 import os
+from services.views import computeOrderAmount
 from django.urls import reverse_lazy
 from django.views.generic.edit import (
     UpdateView,
@@ -220,12 +221,26 @@ def list_client(request):
     return list_associated(request, 'client')
 
 
+def processOrders(orders):
+    orders.total = 0
+    for order in orders:
+        computeOrderAmount(order)
+        order.amount += order.tax
+        orders.total += order.amount
+
+
 @login_required
 def detail_associated(request, id):
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
-    return render(request, 'users/associated_detail.html', {'associated': associated,
-                                                            'title': 'Associated detail'})
+    orders = Order.objects.filter(
+        associated=associated).order_by("-created_date", "-id")
+    processOrders(orders)
+    context = {'contact': associated,
+               'orders': orders,
+               'type': 'associated',
+               'title': 'Associated detail'}
+    return render(request, 'users/contact_detail.html', context)
 
 
 def list_associated(request, type):
@@ -349,8 +364,14 @@ def list_company(request):
 def detail_company(request, id):
     # fetch the object related to passed id
     company = get_object_or_404(Company, id=id)
-    return render(request, 'users/company_detail.html', {'company': company,
-                                                         'title': 'Company detail'})
+    orders = Order.objects.filter(
+        company=company).order_by("-created_date", "-id")
+    processOrders(orders)
+    context = {'contact': company,
+               'orders': orders,
+               'type': 'company',
+               'title': 'Company detail'}
+    return render(request, 'users/contact_detail.html', context)
 
 
 @ login_required
