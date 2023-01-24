@@ -329,6 +329,7 @@ def update_transaction(request, id):
     # pass the object as instance in form
     form = TransactionCreateForm(request.POST or None,
                                  instance=transaction,
+                                 id=transaction.id,
                                  product=transaction.product,
                                  order=transaction.order)
 

@@ -99,7 +99,7 @@ class TransactionCreateForm(forms.ModelForm):
         if self.order.type == "sell":
             error_msg = ""
             unit = Unit.objects.get(id=int(self.data['unit']))
-            available = self.product.computeAvailable()
+            available = self.product.computeAvailable(self.id)
             # Compute the available quantity in transaction unit
             available = convertUnit(self.product.unit, unit, available)
             if available < quantity:
@@ -133,6 +133,11 @@ class TransactionCreateForm(forms.ModelForm):
             kwargs.pop('product')
         else:
             self.product = None
+        if 'id' in kwargs:
+            self.id = kwargs['id']
+            kwargs.pop('id')
+        else:
+            self.id = None
         if 'order' in kwargs:
             self.order = kwargs['order']
             kwargs.pop('order')
@@ -152,7 +157,7 @@ class TransactionCreateForm(forms.ModelForm):
         self.fields['price'].help_text = minimum + average
 
         # Quantity
-        available = self.product.computeAvailable()
+        available = self.product.computeAvailable(self.id)
         if int(available) == float(available):
             decimals = 0
         else:

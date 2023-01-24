@@ -95,14 +95,15 @@ class Product(models.Model):
         else:
             return self.min_price
 
-    def computeAvailable(self):
+    def computeAvailable(self, current_transaction=None):
         # Compute the remaining products in stock
         available = self.quantity
         transactions = ProductTransaction.objects.filter(order__type="sell",
                                                          order__status="processing",
                                                          product=self)
         for trans in transactions:
-            available -= trans.quantity
+            if (trans.id != current_transaction):
+                available -= trans.quantity
         return available
 
     def __str__(self):
