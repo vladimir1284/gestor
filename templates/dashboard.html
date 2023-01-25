@@ -38,7 +38,7 @@
                     {% for order in orders %}
                         <tr data-search="{{ order.associated.name }}">
                             <td>
-                                <a href={% url 'service-invoice' order.id %}> <strong>{{ order.associated }}</strong></a>
+                                <a href={% url 'detail-service-order' order.id %}> <strong>{{ order.associated }}</strong></a>
                             </td>
                             <td>{{ order.terminated_date|date:"D, d" }}</td>
                             <td>

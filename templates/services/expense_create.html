@@ -31,6 +31,8 @@
         </div>
     </div>
     <script>
+        let provider_select;
+
         function deleteExpense(url, name) {
             let confirmAction = confirm("Are you sure to delete the expense " + name + " from this order?");
             if (confirmAction) {
@@ -62,7 +64,9 @@
 
         window.addEventListener("load", (event) => {
             provider_select = document.getElementById("id_associated");    
+            const initial = provider_select.value;
             updateProviders();
+            provider_select.value = initial;
           });
     </script>
 {% endblock content %}

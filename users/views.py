@@ -158,8 +158,11 @@ def create_associated(request, type):
         form = FORMS[type](
             request.POST, request.FILES, initial=initial)
         if form.is_valid():
-            associated = form.save()
+            associated: Associated = form.save()
             request.session['associated_id'] = associated.id
+            if associated.outsource:
+                order_id = request.session.get('order_detail')
+                return redirect('create-expense', order_id)
             return redirect(next)
     title = {'client':  _('Create client'),
              'provider':  _('Create Provider')}[type]
