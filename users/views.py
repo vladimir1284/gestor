@@ -247,7 +247,8 @@ def detail_associated(request, id):
 
 
 def list_associated(request, type):
-    associateds = Associated.objects.filter(type=type, active=True)
+    associateds = Associated.objects.filter(
+        type=type, active=True).order_by("name", "alias")
     for associated in associateds:
         associated.last_order = Order.objects.filter(
             associated=associated).order_by("-created_date").first()
@@ -342,7 +343,7 @@ def select_company(request):
                 return redirect('detail-service-order', id=order_id)
         next = request.GET.get('next', 'list-company')
         return redirect(next)
-    companies = Company.objects.filter(active=True).order_by("-created_date")
+    companies = Company.objects.filter(active=True).order_by("name", "alias")
     context = {'companies': companies,
                'skip': True}
     order_id = request.session.get('order_detail')
@@ -354,7 +355,7 @@ def select_company(request):
 @login_required
 def list_company(request):
     request.session['creating_order'] = None
-    companies = Company.objects.filter(active=True).order_by("-created_date")
+    companies = Company.objects.filter(active=True).order_by("name", "alias")
     for company in companies:
         last_order = Order.objects.filter(
             company=company).order_by("-created_date").first()

@@ -431,7 +431,7 @@ def select_client(request):
 
     # add form dictionary to context
     associateds = Associated.objects.filter(
-        type='client', active=True).order_by("-created_date")
+        type='client', active=True).order_by("name", "alias")
     context = {
         'associateds': associateds,
         'skip': True
@@ -688,7 +688,7 @@ def create_expense(request, order_id):
     context = {
         'form': form,
         'outsource': Associated.objects.filter(type='provider',
-                                               outsource=True),
+                                               outsource=True).order_by("name", "alias"),
         'title': _("Add third party expense")
     }
     return render(request, 'services/expense_create.html', context)
@@ -720,7 +720,7 @@ def update_expense(request, id):
     context = {
         'form': form,
         'outsource': Associated.objects.filter(type='provider',
-                                               outsource=True),
+                                               outsource=True).order_by("name", "alias"),
         'expense': expense,
         'title': _("Update third party expense")
     }
