@@ -45,6 +45,23 @@ def list_equipment(request):
     return render(request, 'equipment/equipment_list.html', context)
 
 
+def appendEquipment(request, id):
+    type = request.session.get("equipment_type")
+    order_id = request.session.get('order_detail')
+    if order_id is not None:
+        order = get_object_or_404(Order, id=order_id)
+    if type == 'trailer':
+        trailer = Trailer.objects.get(id=id)
+        order.trailer = trailer
+        order.equipment_type = 'trailer'
+    elif type == 'vehicle':
+        vehicle = Vehicle.objects.get(id=id)
+        order.vehicle = vehicle
+        order.equipment_type = 'vehicle'
+    order.save()
+    return redirect('detail-service-order', id=order_id)
+
+
 @login_required
 def select_equipment(request):
     type = request.session.get("equipment_type")
@@ -57,30 +74,16 @@ def select_equipment(request):
         if type is None:
             type = request.POST.get('type')
         order_data = request.session.get('creating_order')
+        id = request.POST.get('id')
         if order_data is not None:
             if type == 'trailer':
-                trailer = Trailer.objects.get(
-                    id=request.POST.get('id'))
+                trailer = Trailer.objects.get(id=id)
                 request.session['trailer_id'] = trailer.id
             elif type == 'vehicle':
-                vehicle = Vehicle.objects.get(id=request.POST.get('id'))
+                vehicle = Vehicle.objects.get(id=id)
                 request.session['vehicle_id'] = vehicle.id
             return redirect('create-service-order')
-        else:
-            # order_id = request.session.get('order_detail')
-            # if order_id is not None:
-            #     order = get_object_or_404(Order, id=order_id)
-            if type == 'trailer':
-                trailer = Trailer.objects.get(
-                    id=request.POST.get('id'))
-                order.trailer = trailer
-                order.equipment_type = 'trailer'
-            elif type == 'vehicle':
-                vehicle = Vehicle.objects.get(id=request.POST.get('id'))
-                order.vehicle = vehicle
-                order.equipment_type = 'vehicle'
-            order.save()
-            return redirect('detail-service-order', id=order_id)
+        return appendEquipment(request, id)
 
     if type == 'trailer':
         trailers = Trailer.objects.all()
@@ -135,9 +138,11 @@ def create_trailer(request):
         if form.is_valid():
             trailer = form.save()
             order_data = request.session.get('creating_order')
+            request.session['trailer_id'] = trailer.id
             if order_data is not None:
-                request.session['trailer_id'] = trailer.id
-            return redirect('create-service-order')
+                return redirect('create-service-order')
+            return appendEquipment(request, trailer.id)
+
     context = {
         'form': form,
         'title': _("Create Trailer")
@@ -192,9 +197,10 @@ def create_vehicle(request):
         if form.is_valid():
             vehicle = form.save()
             order_data = request.session.get('creating_order')
+            request.session['vehicle_id'] = vehicle.id
             if order_data is not None:
-                request.session['vehicle_id'] = vehicle.id
-            return redirect('create-service-order')
+                return redirect('create-service-order')
+            return appendEquipment(request, vehicle.id)
     context = {
         'form': form,
         'title': _("Create Car")
