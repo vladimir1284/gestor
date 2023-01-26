@@ -19,6 +19,7 @@ class Contact(models.Model):
     language = models.CharField(_('Language'), max_length=20,
                                 choices=LANG_CHOICE, default='spanish')
     active = models.BooleanField(default=True)
+    membership = models.BooleanField(default=False)
     STATE_CHOICE = (
         ('florida', 'Florida'),
         ('texas', 'Texas'),

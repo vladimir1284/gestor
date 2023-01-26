@@ -64,18 +64,16 @@
                         <span class="tf-icons bx bx-mail-send"></span>
                     </a>
                 {% endif %}
-                {% if update %}
-                    <a class="btn btn-icon btn-outline-primary"
-                       type
-                       None="button"
-                       {% if type == 'company' %}
-                       href="{% url 'update-company' contact.id %}">
-                    {% elif type == 'associated' %}
-                        href="{% url 'update-associated' contact.id %}">
-                    {% endif %}
-                    <span class="tf-icons bx bx-edit"></span>
-                </a>
-            {% endif %}
+                <a class="btn btn-icon btn-outline-primary"
+                   type
+                   None="button"
+                   {% if type == 'company' %}
+                   href="{% url 'update-company' contact.id %}">
+                {% elif type == 'associated' %}
+                    href="{% url 'update-associated' contact.id %}">
+                {% endif %}
+                <span class="tf-icons bx bx-edit"></span>
+            </a>
         </div>
     </div>
     <div class="card-header">

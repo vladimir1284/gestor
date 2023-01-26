@@ -67,7 +67,10 @@ def dashboard(request):
             type='sell',
             terminated_date__gte=datetime.datetime(
                 2010, 1, 1, 0, 0,
-                tzinfo=datetime.timezone.utc)).order_by('-terminated_date')
+                tzinfo=datetime.timezone.utc)).order_by(
+                    '-terminated_date').exclude(
+                        associated__membership=True).exclude(
+                            company__membership=True)
         parts = 0
         consumable = 0
         gross = 0

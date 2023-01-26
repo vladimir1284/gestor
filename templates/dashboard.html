@@ -36,9 +36,15 @@
                 </thead>
                 <tbody>
                     {% for order in orders %}
-                        <tr data-search="{{ order.associated.name }}">
+                        <tr data-search="{{ order.associated.name }}{{ order.company.name }}">
                             <td>
-                                <a href={% url 'detail-service-order' order.id %}> <strong>{{ order.associated }}</strong></a>
+                                <a href={% url 'detail-service-order' order.id %}> <strong>
+                                    {% if order.associated %}
+                                        {{ order.associated }}
+                                    {% else %}
+                                        {{ order.company.name }}
+                                    {% endif %}
+                                </strong></a>
                             </td>
                             <td>{{ order.terminated_date|date:"D, d" }}</td>
                             <td>

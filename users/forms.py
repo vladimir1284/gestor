@@ -108,6 +108,12 @@ class CommonContactLayout(Layout):
                     Field('note', rows='2')
                 ),
                 css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('membership')
+                ),
+                css_class="mb-3"
             )
         )
 
@@ -158,6 +164,7 @@ class UserUpdateForm(forms.ModelForm):
         # self.helper.css = 'is-invalid'
         self.helper.layout = Layout(
             CommonUserLayout(),
+
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )
@@ -272,7 +279,8 @@ class BaseContactForm(forms.ModelForm):
             'email',
             'avatar',
             'phone_number',
-            'language'
+            'language',
+            'membership'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -321,6 +329,7 @@ class ProviderCreateForm(AssociatedCreateForm):
 
         self.fields['type'].widget = HiddenInput()
         self.fields['alias'].widget = HiddenInput()
+        self.fields['membership'].widget = HiddenInput()
 
         self.helper.layout = Layout(
             CommonContactLayout(),
