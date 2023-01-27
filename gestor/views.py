@@ -71,53 +71,57 @@ def dashboard(request):
                     '-terminated_date').exclude(
                         associated__membership=True).exclude(
                             company__membership=True)
-        parts = 0
-        consumable = 0
-        gross = 0
-        third_party = 0
-        net = 0
-        tax = 0
-        products = {}
-        for order in orders:
-            getOrderBalance(order, products)
-            parts += order.parts
-            consumable += order.consumable
-            gross += order.amount
-            third_party += order.third_party
-            net += order.net
-            tax += order.tax
-        total = {
-            'parts': parts,
-            'consumable': consumable,
-            'gross': gross,
-            'third_party': third_party,
-            'net': net,
-            'tax': tax,
-        }
-        # Costs
-        costs = Cost.objects.all().order_by("-date")
-        costs.total = 0
-        for cost in costs:
-            costs.total += cost.amount
-
-        # Product incomes
-        parts_profit = 0
-        consumables_profit = 0
-        for product in products.keys():
-            if product.type == "part":
-                parts_profit += products[product]['profit']
-            if product.type == "consumable":
-                consumables_profit += products[product]['profit']
-
-        context = {
-            'orders': orders,
-            'total': total,
-            'costs': costs,
-            'products': products.values(),
-            'parts_profit': parts_profit,
-            'consumables_profit': consumables_profit,
-        }
+        context = computeReport(orders)
         return render(request, 'dashboard.html', context)
+
+
+def computeReport(orders):
+    parts = 0
+    consumable = 0
+    gross = 0
+    third_party = 0
+    net = 0
+    tax = 0
+    products = {}
+    for order in orders:
+        getOrderBalance(order, products)
+        parts += order.parts
+        consumable += order.consumable
+        gross += order.amount
+        third_party += order.third_party
+        net += order.net
+        tax += order.tax
+    total = {
+        'parts': parts,
+        'consumable': consumable,
+        'gross': gross,
+        'third_party': third_party,
+        'net': net,
+        'tax': tax,
+    }
+    # Costs
+    costs = Cost.objects.all().order_by("-date")
+    costs.total = 0
+    for cost in costs:
+        costs.total += cost.amount
+
+    # Product incomes
+    parts_profit = 0
+    consumables_profit = 0
+    for product in products.keys():
+        if product.type == "part":
+            parts_profit += products[product]['profit']
+        if product.type == "consumable":
+            consumables_profit += products[product]['profit']
+
+    return {
+        'orders': orders,
+        'total': total,
+        'costs': costs,
+        'products': products.values(),
+        'parts_profit': parts_profit,
+        'consumables_profit': consumables_profit,
+    }
 
 
 def computeTransactionProfit(transaction: ProductTransaction):

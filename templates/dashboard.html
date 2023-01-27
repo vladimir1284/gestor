@@ -41,8 +41,10 @@
                                 <a href={% url 'detail-service-order' order.id %}> <strong>
                                     {% if order.associated %}
                                         {{ order.associated }}
+                                    {% elif order.company %}
+                                        {{ order.company }}
                                     {% else %}
-                                        {{ order.company.name }}
+                                        None
                                     {% endif %}
                                 </strong></a>
                             </td>

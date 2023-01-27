@@ -67,7 +67,7 @@
                             {% for equipment in vehicles %}
                                 <tr data-search="{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
                                     <td>
-                                        <a href={% url 'update-vehicle' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                        <a href={% url 'detail-vehicle' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
                                     </td>
                                     <td class="d-flex">{% include "equipment/equipment_line.html" with equipment_type="vehicle" %}</td>
                                     <td>
@@ -101,7 +101,7 @@
                             {% for equipment in trailers %}
                                 <tr data-search="{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
                                     <td>
-                                        <a href={% url 'update-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                        <a href={% url 'detail-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
                                     </td>
                                     <td class="d-flex">{% include "equipment/equipment_line.html" with equipment_type="trailer" %}</td>
                                     <td>

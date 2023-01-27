@@ -1,0 +1,99 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block page %}
+    <style>
+        .add {
+            position: fixed;
+            font-size: 27px;
+            bottom: 3rem;
+            right: 1.625rem;
+            z-index: 999999;
+            box-shadow: 0 1px 20px 1px #696cff;
+        }
+        .tooltip-inner{
+            font-size: 10px;
+        }
+        .associated-pic{
+            position: relative;
+        }
+        .lang-flag{
+            position: absolute;
+            bottom: 0;
+            left: 50%; /* position the left edge of the element at the middle of the parent */      
+            transform: translate(25px, 0);
+        }
+    </style>
+{% endblock page %}
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <h5>
+                <strong>{{ title }}</strong>
+            </h5>
+        </div>
+        <div class="card-body text-center">
+            <div class="demo-inline-spacing mb-2 associated-pic">
+                <img {% if equipment.image %} src="{{ equipment.image.url }}" {% else %} {% if type == 'trailer' %} src="{% static 'images/icons/trailer.png' %}" {% else %} src="{% static 'images/icons/truck.jpg' %}" {% endif %}
+                     {% endif %}
+                     alt="image"
+                     height="100px"
+                     width="100px"
+                     class="w-px-100 h-px-100 rounded-circle card-img-top"/>
+            </div>
+            <h5 class="card-title">
+                {% if equipment_type == 'trailer' %}
+                    {{ equipment.get_manufacturer_display }} {{ equipment.get_type_display }} ({{ equipment.get_year_display }})
+                {% else %}
+                    {{ equipment.get_manufacturer_display }} {{ equipment.get_model_display }} ({{ equipment.get_year_display }})
+                {% endif %}
+            </h5>
+            <div class="card-subtitle text-muted mb-3">{{ equipment.vin }}</div>
+            <p class="card-text">{{ equipment.note }}</p>
+            <div class="demo-inline-spacing">
+                <a class="btn btn-icon btn-outline-primary"
+                   type
+                   None="button"
+                   {% if type == 'trailer' %}
+                   href="{% url 'update-trailer' equipment.id %}">
+                {% elif type == 'vehicle' %}
+                    href="{% url 'update-vehicle' equipment.id %}">
+                {% endif %}
+                <span class="tf-icons bx bx-edit"></span>
+            </a>
+        </div>
+    </div>
+    <div class="card-header">
+        <h5>
+            <strong>Service orders</strong> - ${{ orders.total|floatformat:"2" }}
+        </h5>
+    </div>
+    <div class="table-responsive text-nowrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr data-search="{{ order.concept }}">
+                        <td>
+                            <a href="{% url 'detail-service-order' order.id %}"><strong>{{ order.concept }}</strong></a>
+                        </td>
+                        <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
+                        <td>
+                            <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>${{ order.amount|floatformat:"2" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

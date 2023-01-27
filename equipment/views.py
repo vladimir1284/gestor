@@ -7,6 +7,8 @@ from django.shortcuts import (
 from django.http import HttpResponseRedirect
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
+
+from users.views import processOrders
 from .models import (
     Trailer,
     Vehicle,
@@ -157,13 +159,14 @@ def update_trailer(request, id):
 
     # pass the object as instance in form
     form = TrailerCreateForm(request.POST or None,
+                             request.FILES or None,
                              instance=trailer)
 
     # save the data from the form and
     # redirect to detail_view
     if form.is_valid():
         form.save()
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return redirect('detail-trailer', id)
 
     # add form dictionary to context
     if not Order.objects.filter(trailer=trailer):
@@ -176,6 +179,22 @@ def update_trailer(request, id):
     }
 
     return render(request, 'equipment/equipment_create.html', context)
+
+
+@login_required
+def detail_trailer(request, id):
+    # fetch the object related to passed id
+    trailer = get_object_or_404(Trailer, id=id)
+    orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
+    processOrders(orders)
+    context = {
+        'orders': orders,
+        'equipment': trailer,
+        'type': 'trailer',
+        'title': _("Trailer details")
+    }
+
+    return render(request, 'equipment/equipment_detail.html', context)
 
 
 @login_required
@@ -215,13 +234,14 @@ def update_vehicle(request, id):
 
     # pass the object as instance in form
     form = VehicleCreateForm(request.POST or None,
+                             request.FILES or None,
                              instance=vehicle)
 
     # save the data from the form and
     # redirect to detail_view
     if form.is_valid():
         form.save()
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return redirect('detail-vehicle', id)
 
     # add form dictionary to context
     if not Order.objects.filter(vehicle=vehicle):
@@ -234,6 +254,22 @@ def update_vehicle(request, id):
     }
 
     return render(request, 'equipment/equipment_create.html', context)
+
+
+@login_required
+def detail_vehicle(request, id):
+    # fetch the object related to passed id
+    vehicle = get_object_or_404(Vehicle, id=id)
+    orders = Order.objects.filter(vehicle=vehicle).order_by("-created_date")
+    processOrders(orders)
+    context = {
+        'orders': orders,
+        'equipment': vehicle,
+        'type': 'vehicle',
+        'title': _("Vehicle details")
+    }
+
+    return render(request, 'equipment/equipment_detail.html', context)
 
 
 @login_required
