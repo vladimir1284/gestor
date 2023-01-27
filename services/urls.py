@@ -24,6 +24,7 @@ from .views import (
     update_order,
     detail_order,
     list_order,
+    list_terminated_order,
     update_order_status,
     view_invoice,
     generate_invoice,
@@ -73,6 +74,8 @@ urlpatterns = [
     path('pdf-invoice/<id>', generate_invoice, name='pdf-invoice'),
     path('html-invoice/<id>', html_invoice, name='html-invoice'),
     path('list-order/', list_order, name='list-service-order'),
+    path('list-terminated-order/', list_terminated_order,
+         name='list-service-order-terminated'),
     path('update-order-status/<id>/<status>',
          update_order_status, name='update-service-order-status'),
     # -------------------- Expense ----------------------------

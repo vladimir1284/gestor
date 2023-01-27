@@ -490,21 +490,36 @@ STATUS_ORDER = ['pending', 'processing', 'approved', 'complete', 'decline']
 
 @login_required
 def list_order(request):
+    context = prepareListOrder(request, ('processing', 'pending'))
+    context.setdefault('stage', 'Terminated')
+    context.setdefault('alternative_view', 'list-service-order-terminated')
+    return render(request, 'services/order_list.html', context)
+
+
+@login_required
+def list_terminated_order(request):
+    context = prepareListOrder(request, ('complete', 'decline'))
+    context.setdefault('stage', 'Active')
+    context.setdefault('alternative_view', 'list-service-order')
+    return render(request, 'services/order_list.html', context)
+
+
+def prepareListOrder(request, status_list):
     # Prepare the flow for creating order
     cleanSession(request)
     request.session['creating_order'] = True
 
     # List orders
     orders = Order.objects.filter(
-        type='sell', status__in=('processing', 'pending')).order_by('-created_date')
+        type='sell', status__in=status_list).order_by('-created_date')
     orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
     for order in orders:
         statuses.add(order.status)
         # transactions = ProductTransaction.objects.filter(order=order)
         computeOrderAmount(order)
-    return render(request, 'services/order_list.html', {'orders': orders,
-                                                        'statuses': statuses})
+    return {'orders': orders,
+            'statuses': statuses}
 
 
 def computeOrderAmount(order: Order):

@@ -10,6 +10,7 @@ from .views import (
     update_order,
     detail_order,
     list_order,
+    list_terminated_order,
     select_provider,
     update_order_status,
     # ---- Transaction ----
@@ -55,6 +56,8 @@ urlpatterns = [
     path('update-order/<id>', update_order, name='update-order'),
     path('detail-order/<id>', detail_order, name='detail-order'),
     path('list-order/', list_order, name='list-order'),
+    path('list-terminated-order/', list_terminated_order,
+         name='list-order-terminated'),
     path('update-order-status/<id>/<status>',
          update_order_status, name='update-order-status'),
     # -------------------- Transaction ----------------------------

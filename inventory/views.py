@@ -186,8 +186,23 @@ STATUS_ORDER = ['pending', 'processing', 'approved', 'complete', 'decline']
 
 @login_required
 def list_order(request):
+    context = prepareListOrder(request, ('processing', 'pending'))
+    context.setdefault('stage', 'Terminated')
+    context.setdefault('alternative_view', 'list-order-terminated')
+    return render(request, 'inventory/order_list.html', context)
+
+
+@login_required
+def list_terminated_order(request):
+    context = prepareListOrder(request, ('complete', 'decline'))
+    context.setdefault('stage', 'Active')
+    context.setdefault('alternative_view', 'list-order')
+    return render(request, 'inventory/order_list.html', context)
+
+
+def prepareListOrder(request, status_list):
     orders = Order.objects.filter(
-        type='purchase').order_by('-created_date')
+        type='purchase', status__in=status_list).order_by('-created_date')
     orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
     for order in orders:
@@ -197,8 +212,9 @@ def list_order(request):
         for transaction in transactions:
             amount += getTransactionAmount(transaction)
         order.amount = amount
-    return render(request, 'inventory/order_list.html', {'orders': orders,
-                                                         'statuses': statuses})
+
+    return {'orders': orders,
+            'statuses': statuses}
 
 
 @login_required

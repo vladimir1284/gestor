@@ -6,6 +6,11 @@
 {% block Ttitle %}
     <h5 class="card-header">
         Service Orders <spam id="filter_tag"></spam>
+        <a href="{% url alternative_view %}"
+           type="button"
+           class="btn btn-outline-primary float-end">
+            <span class="tf-icons bx bx-repost"></span>&nbsp; {{ stage }}
+        </a>
     </h5>
     <div class="card-body">
         <div class="demo-inline-spacing">
