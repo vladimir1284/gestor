@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 from django.shortcuts import (
     render,
     redirect,
@@ -9,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from inventory.models import ProductTransaction
 from services.models import Expense, ServiceTransaction
 from costs.models import Cost
-from utils.models import Order
+from utils.models import Order, Transaction
 from services.views import (
     computeOrderAmount,  # TODO remove this import and make a custom function here
 )
@@ -18,7 +19,8 @@ from services.views import (
 def getOrderBalance(order: Order, products: dict):
     computeOrderAmount(order)
     # Consumables and parts
-    transactions = ProductTransaction.objects.filter(order=order)
+    transactions: List[ProductTransaction] = ProductTransaction.objects.filter(
+        order=order)
     parts_cost = 0
     consumable_expenses = 0
     for trans in transactions:

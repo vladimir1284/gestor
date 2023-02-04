@@ -6,7 +6,8 @@
     <div class="card mb-3">
         <div class="card-body">
             <h5 class="card-title">
-                Service order: <b>{{ order.concept }} ${{ order.total|floatformat:"2" }}</b> = ${{ order.amount|floatformat:"2" }}+${{ order.tax|floatformat:"2" }}
+                Service order: <b>{{ order.concept }} ${{ order.total|floatformat:"2" }}</b>
+                {% if order.tax > 0 %}= ${{ order.amount|floatformat:"2" }}+${{ order.tax|floatformat:"2" }}{% endif %}
                 {% if terminated or empty %}
                     <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' %}danger{% endif %}">
                         {{ order.get_status_display }}
@@ -77,7 +78,8 @@
             <h5 class="card-header">
                 Parts
                 {% if parts_amount %}
-                    <b>${{ parts_total|floatformat:"2" }}</b> = ${{ parts_amount|floatformat:"2" }}+${{ parts_tax|floatformat:"2" }}
+                    <b>${{ parts_total|floatformat:"2" }}</b>
+                    {% if parts_tax > 0 %}= ${{ parts_amount|floatformat:"2" }}+${{ parts_tax|floatformat:"2" }}{% endif %}
                 {% endif %}
             </h5>
             <div class="table-responsive text-nowrap">
@@ -123,7 +125,8 @@
             <h5 class="card-header">
                 Services
                 {% if service_amount %}
-                    <b>${{ service_total|floatformat:"2" }}</b> = ${{ service_amount|floatformat:"2" }}+${{ service_tax|floatformat:"2" }}
+                    <b>${{ service_total|floatformat:"2" }}</b>
+                    {% if service_tax > 0 %}= ${{ service_amount|floatformat:"2" }}+${{ service_tax|floatformat:"2" }}{% endif %}
                 {% endif %}
             </h5>
             <div class="table-responsive text-nowrap">
@@ -177,7 +180,8 @@
             <h5 class="card-header">
                 Consumables
                 {% if consumable_amount %}
-                    <b>${{ consumable_total|floatformat:"2" }}</b> = ${{ consumable_amount|floatformat:"2" }}+${{ consumable_tax|floatformat:"2" }}
+                    <b>${{ consumable_total|floatformat:"2" }}</b>
+                    {% if consumable_tax > 0 %}= ${{ consumable_amount|floatformat:"2" }}+${{ consumable_tax|floatformat:"2" }}{% endif %}
                 {% endif %}
             </h5>
             <div class="table-responsive text-nowrap">
