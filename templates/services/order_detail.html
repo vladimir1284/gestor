@@ -1,4 +1,4 @@
-{% extends 'base/base_list.html' %}
+{% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
 {% load static %}
 {% block title %}
@@ -12,7 +12,9 @@
                 <p class="pt-2 d-flex">
                     <span class="pt-2">
                         <b>${{ order.total|floatformat:"-2" }}</b>
-                        {% if order.tax > 0 %}= ${{ order.amount|floatformat:"-2" }}+${{ order.tax|floatformat:"-2" }}{% endif %}
+                        {% if order.tax > 0 or order.discount > 0 %}
+                            = ${{ order.amount|floatformat:"-2" }}+${{ order.tax|floatformat:"-2" }}
+                        {% endif %}
                         - &nbsp;
                     </span>
                     <button type="button"
@@ -21,7 +23,7 @@
                             data-bs-target="#discountCollapse"
                             aria-expanded="true"
                             aria-controls="discountCollapse">
-                        ${{ order.discount }} discount
+                        ${{ order.discount|floatformat:"-2" }} discount
                     </button>
                     <div class="collapse mt-2" id="discountCollapse">
                         <form enctype="multipart/form-data"
@@ -359,6 +361,30 @@
             if (confirmAction) {
                 window.location = url;
             }
+        }
+
+        let round_to, cost, hint, profit, discount;
+
+        function updateProfit(){
+            const variation = cost-Number(round_to.value);
+            hint.innerHTML = "Profit: $"+ (profit-variation);
+            if(variation >= profit){
+                round_to.style.color = "red";
+                discount.disabled = true;
+            } else {
+                round_to.style.color = "";
+                discount.disabled = false;
+            }
+        }
+
+        window.onload = function(){  
+            discount = document.getElementById("submit-id-submit");
+            round_to = document.getElementById("id_round_to");
+            cost = Number(round_to.value);  
+            hint = document.getElementById("hint_id_round_to");
+            profit = Number(hint.innerHTML.split("$")[1]);  
+
+            round_to.oninput = updateProfit;
         }
     </script>
 {% endblock content %}

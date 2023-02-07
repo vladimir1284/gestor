@@ -583,7 +583,7 @@ def getOrderContext(id):
     terminated = order.status in ['decline', 'complete']
     empty = (len(services) + len(transactions)) == 0
     # Compute totals
-    order.total = order.amount+order.tax
+    order.total = order.amount+order.tax-order.discount
     consumable_total = consumable_tax+consumable_amount
     parts_total = parts_amount+parts_tax
     service_total = service_amount+service_tax
@@ -591,7 +591,7 @@ def getOrderContext(id):
     tax_percent = 8.25
 
     # Profit
-    profit = order.total - expenses.amount - consumable_cost - parts_cost
+    profit = order.amount - expenses.amount - consumable_cost - parts_cost
 
     try:
         order.associated.phone_number = order.associated.phone_number.as_national
@@ -633,8 +633,12 @@ def detail_order(request, id):
                             total=context['order'].total,
                             profit=123.4357239847)
         if form.is_valid():
+            # Restore the old discount
+            context['order'].total += context['order'].discount
             context['order'].discount = context['order'].total - \
-                form.cleaned_data['round_to']
+                form.cleaned_data['round_to']  # Compute the new discount
+            # Apply the new discount
+            context['order'].total -= context['order'].discount
             context['order'].save()
 
     form = DiscountForm(total=context['order'].total,
