@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from utils.models import (
     Order,
 )
@@ -264,6 +265,51 @@ class ServiceCreateForm(forms.ModelForm):
                 css_class="col-xxl"
             )
         )
+
+
+class DiscountForm(BaseForm):
+    round_to = forms.FloatField()
+
+    class Meta:
+        model = Order
+        fields = ()
+
+    def clean_round_to(self):
+        round_to = self.cleaned_data['round_to']
+        error_msg = ""
+
+        if False:
+            error_msg += F'The price cannot be lower than ${self.product.min_price:.2f}.' + average
+            raise ValidationError(error_msg)
+        return round_to
+
+    def __init__(self, *args, **kwargs):
+
+        self.total = int(kwargs['total'])
+        kwargs.pop('total')
+        self.profit = int(kwargs['profit'])
+        kwargs.pop('profit')
+
+        super().__init__(*args, **kwargs)
+
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field(
+                        PrependedText('round_to', '$')
+                    ),
+                    css_class="mb-3"
+                ),
+                ButtonHolder(
+                    Submit('submit', 'Create discount',
+                           css_class='btn btn-success float-end')
+                ),
+                css_class="row mb-3"
+            )
+        )
+
+        self.fields['round_to'].help_text = F"Profit: ${self.profit}"
+        self.fields['round_to'].initial = self.total
 
 
 class SendMailForm(forms.Form):

@@ -45,6 +45,7 @@ from .models import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import (
+    DiscountForm,
     ServiceCreateForm,
     CategoryCreateForm,
     TransactionCreateForm,
@@ -553,6 +554,9 @@ def getOrderContext(id):
     (transactions, services, expenses) = computeOrderAmount(order)
     # Order by amount
     transactions = list(transactions)
+    # Costs
+    parts_cost = 0
+    consumable_cost = 0
     # Count consumables and parts
     consumable_amount = 0
     parts_amount = 0
@@ -563,10 +567,12 @@ def getOrderContext(id):
         if (trans.product.type == 'part'):
             parts_amount += trans.amount
             parts_tax += trans.total_tax
+            parts_cost += trans.getMinCost()
         elif (trans.product.type == 'consumable'):
             consumables = True
             consumable_amount += trans.amount
             consumable_tax += trans.total_tax
+            consumable_cost += trans.cost
     # Account services
     service_amount = 0
     service_tax = 0
@@ -583,6 +589,9 @@ def getOrderContext(id):
     service_total = service_amount+service_tax
     # Compute tax percent
     tax_percent = 8.25
+
+    # Profit
+    profit = order.total - expenses.amount - consumable_cost - parts_cost
 
     try:
         order.associated.phone_number = order.associated.phone_number.as_national
@@ -605,7 +614,8 @@ def getOrderContext(id):
             'terminated': terminated,
             'empty': empty,
             'tax_percent': tax_percent,
-            'consumables': consumables}
+            'consumables': consumables,
+            'profit': profit}
 
 
 @login_required
@@ -616,6 +626,21 @@ def detail_order(request, id):
 
     # Get data for the given order
     context = getOrderContext(id)
+
+    # Discount
+    if request.method == 'POST':
+        form = DiscountForm(request.POST,
+                            total=context['order'].total,
+                            profit=123.4357239847)
+        if form.is_valid():
+            context['order'].discount = context['order'].total - \
+                form.cleaned_data['round_to']
+            context['order'].save()
+
+    form = DiscountForm(total=context['order'].total,
+                        profit=context['profit'])
+    context.setdefault('form', form)
+
     return render(request, 'services/order_detail.html', context)
 
 
