@@ -1,20 +1,152 @@
 <thead>
     <tr>
         <th>Name</th>
-        <th>Price</th>
+        <th>unit</th>
+        <th>Sugg</th>
+        {% if type == 'part' %}<th>Ave</th>{% endif %}
         <th>Cost</th>
+        <th>Min</th>
     </tr>
 </thead>
 <tbody class="table-border-bottom-0">
+    <script>
+        let product_id, min_price_input;
+
+        function getInitialData(id){
+            const product = document.getElementById(id)
+            product_id = Number(id.split("-")[1])
+            min_price_input = document.getElementById("minValueInput")
+            const pname = document.getElementById("product-name")
+            const old_value = parseFloat(product.dataset.minPrice.replace(',','.').replace(' ',''))
+            min_price_input.value = old_value;
+            pname.textContent = product.dataset.productName;
+            console.log(old_value);
+        }
+
+        function updateMinPrice(){
+            uploadData(Number(min_price_input.value), product_id);
+        }
+
+        function uploadData(value, product_id){
+            data = JSON.stringify({
+                product_id: product_id,
+                value: value
+            })
+            
+            let csrftoken = getCookie('csrftoken');
+
+            fetch("{% url 'minprice-update' %}", {
+                method: 'POST',
+                body: data,
+                headers: { 'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": csrftoken },
+            })
+            .then((res) => {return res.json()})
+            .then(json => {
+                console.log(json);
+                //alert('Successful update');
+            })
+            .catch(err => {
+                alert(`Error: ${err}`);
+                console.log(err);
+            });
+        }
+        
+        
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
     {% for product in products %}
         {% if product.type == type %}
             <tr data-tag="{{ product.category }}" data-search="{{ product.name }}">
                 <td>
-                    <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ product.name }}</strong>
+                    <div class="d-flex">
+                        <a class="pe-2" href="{% url 'detail-product' product.id %}"><strong>{{ product.name }}</strong></a>
+                        <ul class="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
+                            {% for ref in product.price_references1 %}
+                                <li data-bs-toggle="tooltip"
+                                    data-popup="tooltip-custom"
+                                    data-bs-placement="top"
+                                    class="avatar avatar-xs pull-up"
+                                    title=""
+                                    data-bs-original-title="{{ ref.store }}: ${{ ref.price }}">
+                                    <img src="{{ ref.favicon }}"
+                                         alt="{{ ref.store | truncatechars:1 }}"
+                                         class="rounded-circle">
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </td>
+                <td>{{ product.unit }}</td>
                 <td>${{ product.sell_price|floatformat:"-2" }}</td>
+                {% if type == 'part' %}
+                    <td>
+                        {% if product.average %}${{ product.average|floatformat:"-2" }}{% endif %}
+                    </td>
+                {% endif %}
                 <td>${{ product.average_cost|floatformat:"-2" }}</td>
+                <td>
+                    <button onclick="getInitialData(this.id)" type="button" class="btn btn-outline-primary p-1 pt-0 pb-0 minprice" data-min-price={{ product.min_price }} id="product-{{ product.id }}" data-product-name="{{ product.name }}" data-bs-toggle="modal" data-bs-target="#modalCenter">
+                        ${{ product.min_price|floatformat:"-2" }}
+                    </button>
+                </td>
             </tr>
         {% endif %}
     {% endfor %}
+    <div class="modal fade"
+         id="modalCenter"
+         tabindex="-1"
+         style="display: none;"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCenterTitle">Modify Minnimum Price</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Product <strong><span id="product-name"></span></strong>
+                    </p>
+                    <div class="row">
+                        <div class="col mb-3">
+                            <label for="minValueInput" class="form-label">Min Price</label>
+                            <input type="number"
+                                   id="minValueInput"
+                                   class="form-control"
+                                   placeholder="Enter Name">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Close</button>
+                    <button onclick="updateMinPrice()" type="button" class="btn btn-primary">
+                        <div class="spinner-border spinner-border-sm text-secondary"
+                             visibility="hidden"
+                             role="status"></div>
+                        Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </tbody>

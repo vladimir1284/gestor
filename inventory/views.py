@@ -1,5 +1,8 @@
 import os
 import pygsheets
+import json
+from django.http import JsonResponse
+from urllib.parse import urlsplit
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -649,22 +652,60 @@ def prepare_product_list(products=None):
 
 @login_required
 def list_product(request):
-    response = prepare_product_list()
-    return render(request, 'inventory/product_list.html', response)
+    context = prepare_product_list()
+    return render(request, 'inventory/product_list.html', context)
+
+
+@login_required
+def minprice_update(request):
+    if request.method == "POST":
+        post_data = json.loads(request.body.decode("utf-8"))
+        print(post_data)
+        return JsonResponse({"status": "ok"})
+    return JsonResponse({"status": "error"})
 
 
 @login_required
 def minprice_product(request):
-    response = prepare_product_list()
-    return render(request, 'inventory/minprice_list.html', response)
+    context = prepare_product_list()
+
+    # TODO Exclude TOWIT services
+    for product in context['products']:
+
+        # Show references
+        product.price_references = PriceReference.objects.filter(
+            product=product)
+
+        for ref in product.price_references:
+            split_url = urlsplit(ref.url)
+            ref.favicon = split_url.scheme + "://" + split_url.netloc + "/favicon.ico"
+
+        # Compute average sell price
+        transactions = ProductTransaction.objects.filter(
+            order__type="sell",
+            order__status="complete",
+            product=product).order_by('-id')[:10]
+        total = 0
+        quantity = 0
+        for transaction in transactions:
+            product_quantity = convertUnit(
+                input_unit=transaction.unit,
+                output_unit=product.unit,
+                value=transaction.quantity)
+            quantity += product_quantity
+            total += transaction.cost
+        if quantity > 0:
+            product.average = total/quantity
+
+    return render(request, 'inventory/minprice_list.html', context)
 
 
 @login_required
 def select_product(request, next, order_id):
-    response = prepare_product_list()
-    response.setdefault("next", next)
-    response.setdefault("order_id", order_id)
-    return render(request, 'inventory/product_select.html', response)
+    context = prepare_product_list()
+    context.setdefault("next", next)
+    context.setdefault("order_id", order_id)
+    return render(request, 'inventory/product_select.html', context)
 
 
 @login_required
