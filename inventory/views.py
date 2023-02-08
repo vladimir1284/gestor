@@ -654,6 +654,12 @@ def list_product(request):
 
 
 @login_required
+def minprice_product(request):
+    response = prepare_product_list()
+    return render(request, 'inventory/minprice_list.html', response)
+
+
+@login_required
 def select_product(request, next, order_id):
     response = prepare_product_list()
     response.setdefault("next", next)

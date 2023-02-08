@@ -1,0 +1,7 @@
+{% extends "./product/base_product_list.html" %}
+{% block tableParts %}
+    {% include "./product/minprice_table.html" with type="part" %}
+{% endblock tableParts %}
+{% block tableConsumables %}
+    {% include "./product/minprice_table.html" with type="consumable" %}
+{% endblock tableConsumables %}
