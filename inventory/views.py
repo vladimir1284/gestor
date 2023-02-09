@@ -1,4 +1,5 @@
 import os
+from django.core.checks.messages import Error
 import pygsheets
 import json
 from django.http import JsonResponse
@@ -659,10 +660,18 @@ def list_product(request):
 @login_required
 def minprice_update(request):
     if request.method == "POST":
-        post_data = json.loads(request.body.decode("utf-8"))
-        print(post_data)
-        return JsonResponse({"status": "ok"})
-    return JsonResponse({"status": "error"})
+        try:
+            post_data = json.loads(request.body.decode("utf-8"))
+            product = Product.objects.get(id=post_data["product_id"])
+            product.min_price = post_data["value"]
+            product.save()
+            return JsonResponse({"status": "ok",
+                                "min_value": product.min_price})
+        except Exception as err:
+            print(err)
+            return JsonResponse({"status": "error",
+                                 "msg": str(err)})
+    return JsonResponse({})
 
 
 @login_required

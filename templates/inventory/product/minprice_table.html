@@ -10,26 +10,26 @@
 </thead>
 <tbody class="table-border-bottom-0">
     <script>
-        let product_id, min_price_input;
+        let product_id, spinner, min_price_input, product;
 
         function getInitialData(id){
-            const product = document.getElementById(id)
-            product_id = Number(id.split("-")[1])
-            min_price_input = document.getElementById("minValueInput")
-            const pname = document.getElementById("product-name")
-            const old_value = parseFloat(product.dataset.minPrice.replace(',','.').replace(' ',''))
+            product = document.getElementById(id);
+            product_id = Number(id.split("-")[1]);
+            min_price_input = document.getElementById("minValueInput");
+            const pname = document.getElementById("product-name");
+            spinner = document.getElementById("spinner_uploading");
+            const old_value = parseFloat(product.dataset.minPrice.replace(',','.').replace(' ',''));
             min_price_input.value = old_value;
             pname.textContent = product.dataset.productName;
-            console.log(old_value);
         }
 
         function updateMinPrice(){
             uploadData(Number(min_price_input.value), product_id);
         }
 
-        function uploadData(value, product_id){
+        function uploadData(value, pid){
             data = JSON.stringify({
-                product_id: product_id,
+                product_id: pid,
                 value: value
             })
             
@@ -44,13 +44,25 @@
             })
             .then((res) => {return res.json()})
             .then(json => {
-                console.log(json);
-                //alert('Successful update');
+                if(json.status != "ok"){
+                    console.log(json);
+                    if (json.status === "error"){
+                        throw( json.msg ); 
+                    }
+                    throw( "Wrong response from server!" ); 
+                }
+                product.style.color="green";
+                product.textContent="$" + json.min_value;
             })
             .catch(err => {
                 alert(`Error: ${err}`);
                 console.log(err);
+            })
+            .finally(() => {
+                spinner.style.display="none";
+                $('#modalCenter').modal('hide');
             });
+            spinner.style.display="";
         }
         
         
@@ -76,7 +88,7 @@
                     <div class="d-flex">
                         <a class="pe-2" href="{% url 'detail-product' product.id %}"><strong>{{ product.name }}</strong></a>
                         <ul class="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
-                            {% for ref in product.price_references1 %}
+                            {% for ref in product.price_references %}
                                 <li data-bs-toggle="tooltip"
                                     data-popup="tooltip-custom"
                                     data-bs-placement="top"
@@ -110,7 +122,7 @@
     <div class="modal fade"
          id="modalCenter"
          tabindex="-1"
-         style="display: none;"
+         style="display: none"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -128,10 +140,7 @@
                     <div class="row">
                         <div class="col mb-3">
                             <label for="minValueInput" class="form-label">Min Price</label>
-                            <input type="number"
-                                   id="minValueInput"
-                                   class="form-control"
-                                   placeholder="Enter Name">
+                            <input type="number" id="minValueInput" class="form-control"/>
                         </div>
                     </div>
                 </div>
@@ -141,8 +150,10 @@
                             data-bs-dismiss="modal">Close</button>
                     <button onclick="updateMinPrice()" type="button" class="btn btn-primary">
                         <div class="spinner-border spinner-border-sm text-secondary"
-                             visibility="hidden"
-                             role="status"></div>
+                             style="display: none"
+                             id="spinner_uploading"
+                             role="status">
+                        </div>
                         Update
                     </button>
                 </div>
