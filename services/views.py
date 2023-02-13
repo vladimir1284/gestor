@@ -572,7 +572,8 @@ def getOrderContext(id):
             consumables = True
             consumable_amount += trans.amount
             consumable_tax += trans.total_tax
-            consumable_cost += trans.cost
+            if trans.cost is not None:
+                consumable_cost += trans.cost
     # Account services
     service_amount = 0
     service_tax = 0
