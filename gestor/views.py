@@ -59,25 +59,43 @@ def getOrderBalance(order: Order, products: dict):
 
 
 @login_required
+def report(request, year, month):
+    # Prepare dashboard from last close
+    ((previousMonth, previousYear),
+        (currentMonth, currentYear),
+        (nextMonth, nextYear)) = getMonthYear(month, year)
+
+    orders = Order.objects.filter(
+        status='complete',
+        type='sell',
+        terminated_date__year=currentYear,
+        terminated_date__month=currentMonth).order_by(
+        '-terminated_date').exclude(
+        associated__membership=True).exclude(
+        company__membership=True)
+
+    costs = Cost.objects.filter(date__year=currentYear,
+                                date__month=currentMonth).order_by("-date")
+
+    context = computeReport(orders, costs)
+    context.setdefault('previousMonth', previousMonth)
+    context.setdefault('currentMonth', currentMonth)
+    context.setdefault('nextMonth', nextMonth)
+    context.setdefault('previousYear', previousYear)
+    context.setdefault('currentYear', currentYear)
+    context.setdefault('nextYear', nextYear)
+    return render(request, 'dashboard.html', context)
+
+
+@login_required
 def dashboard(request):
     if (request.user.profile_user.role == 2):  # Mechanic
         return redirect('list-service-order')
     else:
-        # Prepare dashboard from last close
-        orders = Order.objects.filter(
-            status='complete',
-            type='sell',
-            terminated_date__gte=datetime.datetime(
-                2010, 1, 1, 0, 0,
-                tzinfo=datetime.timezone.utc)).order_by(
-                    '-terminated_date').exclude(
-                        associated__membership=True).exclude(
-                            company__membership=True)
-        context = computeReport(orders)
-        return render(request, 'dashboard.html', context)
+        return report(request, year=None, month=None)
 
 
-def computeReport(orders):
+def computeReport(orders, costs):
     parts = 0
     consumable = 0
     gross = 0
@@ -102,7 +120,6 @@ def computeReport(orders):
         'tax': tax,
     }
     # Costs
-    costs = Cost.objects.all().order_by("-date")
     costs.total = 0
     for cost in costs:
         costs.total += cost.amount
@@ -129,3 +146,35 @@ def computeReport(orders):
 def computeTransactionProfit(transaction: ProductTransaction):
     return (transaction.getAmount()
             - transaction.getMinCost())
+
+
+def getMonthYear(month=None, year=None):
+    # Current
+    if month is None:
+        currentMonth = datetime.datetime.now().month
+    else:
+        month = int(month)
+        if month > 12 or month < 0:
+            raise ValueError(F'Wrong month value: {month}!')
+        currentMonth = month
+    if year is None:
+        currentYear = datetime.datetime.now().year
+    else:
+        year = int(year)
+        currentYear = year
+
+    # Next
+    nextYear = currentYear
+    nextMonth = currentMonth + 1
+    if nextMonth > 12:
+        nextMonth = 1
+        nextYear = currentYear+1
+
+    # Previous
+    previousYear = currentYear
+    previousMonth = currentMonth - 1
+    if previousMonth < 1:
+        previousMonth = 12
+        previousYear = currentYear-1
+
+    return ((previousMonth, previousYear), (currentMonth, currentYear), (nextMonth, nextYear))

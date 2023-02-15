@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load month_name %}
 {% load static %}
 {% load tz %}
 {% block title %}
@@ -11,6 +12,22 @@
         }
     </style>
     {% localtime on %}
+    <!-- Month -->
+    <div class="text-center">
+        <div class="demo-inline-spacing pb-3">
+            <a type="button"
+               href="{% url 'report' previousYear previousMonth %}"
+               class="btn btn-icon btn-outline-primary">
+                <span class="tf-icons bx bx-chevron-left"></span>
+            </a>
+            <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
+            <a type="button"
+               href="{% url 'report' nextYear nextMonth %}"
+               class="btn btn-icon btn-outline-primary">
+                <span class="tf-icons bx bx-chevron-right"></span>
+            </a>
+        </div>
+    </div>
     <!-- Services -->
     <div class="card mb-3">
         <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
@@ -91,10 +108,14 @@
                             <div class="float-end">${{ total.consumable|floatformat:"2" }}</div>
                         </th>
                         <th>
-                            <div class="float-end">${{ total.third_party|floatformat:"2" }}</div>
+                            <div class="float-end">
+                                ${{ total.third_party|floatformat:"2" }}
+                            </div>
                         </th>
                         <th>
-                            <div class="float-end">${{ total.tax|floatformat:"2" }}</div>
+                            <div class="float-end">
+                                ${{ total.tax|floatformat:"2" }}
+                            </div>
                         </th>
                     </tr>
                 </tfoot>
