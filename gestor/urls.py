@@ -23,7 +23,7 @@ from .views import dashboard, report
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', dashboard, name='dashboard'),
-    path('<year>/<month>', report, name='report'),
+    path('report/<year>/<month>', report, name='report'),
     path('users/', include('users.urls')),
     path('inventory/', include('inventory.urls')),
     path('services/', include('services.urls')),
