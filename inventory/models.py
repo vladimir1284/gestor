@@ -157,3 +157,22 @@ class Stock(models.Model):
 
     def __str__(self):
         return "{}-{}-${}".format(self.product.name, self.quantity, self.cost)
+
+
+class ProductKit(models.Model):
+    # A kit is a set of products that are usually included together in an order
+    name = models.CharField(max_length=120, unique=True)
+    category = models.ForeignKey(ProductCategory, blank=True, null=True,
+                                 on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+
+class KitElement(models.Model):
+    # Linking a product to a kit
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    kit = models.ForeignKey(ProductKit, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return F"{self.product} -> {self.kit}"

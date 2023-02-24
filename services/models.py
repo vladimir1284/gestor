@@ -1,8 +1,7 @@
 import datetime
-from utils.models import Category
 from django.db import models
 
-from utils.models import Order, Transaction
+from utils.models import Order, Transaction, Category
 from users.models import Associated
 from django.utils.translation import gettext_lazy as _
 

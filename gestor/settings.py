@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'gdstorage',
     "phonenumber_field",
     'django_cleanup.apps.CleanupConfig',
+    'django_extensions',
 
     # local
     'utils.apps.UtilsConfig',
