@@ -252,12 +252,15 @@ def service_list_metadata(services: List[Service]):
     return categories
 
 
-def prepare_service_list(order_id):
+def prepare_service_list(order_id=None):
     services = Service.objects.all()
     products = Product.objects.filter(quantity__gt=0).order_by('name')
+    products_in_order = []
+
     # Don't include products in the current order
-    transactions = ProductTransaction.objects.filter(order__id=order_id)
-    products_in_order = [trans.product for trans in transactions]
+    if order_id is not None:
+        transactions = ProductTransaction.objects.filter(order__id=order_id)
+        products_in_order = [trans.product for trans in transactions]
 
     product_list = []
     for product in products:
