@@ -45,6 +45,7 @@
                      class="w-px-40 h-px-40 rounded-circle lang-flag"/>
             </div>
             <h5 class="card-title">{{ contact.name }}</h5>
+            {% if contact.alias %}<div class="card-subtitle text-muted mb-3">{{ contact.alias }}</div>{% endif %}
             <div class="card-subtitle text-muted mb-3">{{ contact.contact }}</div>
             <p class="card-text">{{ contact.note }}</p>
             <div class="demo-inline-spacing">

@@ -63,8 +63,6 @@ class Contact(models.Model):
             print(error)
 
     def __str__(self):
-        if self.alias:
-            return self.alias
         return self.name
 
 
