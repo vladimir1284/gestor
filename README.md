@@ -36,6 +36,7 @@ the system: Admins or Mechanistic.
 
 An **Associated** can be either a *client* or a *provider*. *Service orders* can be issued to a *client* or a 
 **Company**. The abstract model **Contact** defines the fields that are common to **Company** and **Associated**.
+Purchase orders are linked always to a provider*.
 
 ![Users UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/users_models.png)
 
