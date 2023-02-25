@@ -1,0 +1,9 @@
+{% extends "./product/base_product_list.html" %}
+{% block tableParts %}
+    {% include "./product/kit_select_table.html" with type="part" %}
+{% endblock tableParts %}
+{% block tableConsumables %}
+    {% include "./product/kit_select_table.html" with type="consumable" %}
+{% endblock tableConsumables %}
+{% block addButton %}
+{% endblock addButton %}

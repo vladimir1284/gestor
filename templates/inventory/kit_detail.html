@@ -1,0 +1,47 @@
+{% extends 'base/base_list.html' %}
+{% block title %}
+    {{ order.concept }}
+{% endblock title %}
+{% block Ttitle %}
+    <div class="card-body">
+        <h5 class="card-title">
+            Kit: <b>{{ kit.name }}</b>
+        </h5>
+        <div class="card-subtitle text-muted mb-3">{{ kit.category }}</div>
+        <div class="demo-inline-spacing">
+            <a class="btn btn-icon btn-outline-primary"
+               type="button"
+               href="{% url 'update-kit' kit.id %}">
+                <span class="tf-icons bx bx-edit"></span>
+            </a>
+        </div>
+    </div>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
+    <th>Product</th>
+    <th>Qty</th>
+    <th>Unit</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for element in elements %}
+        <tr data-tag="{{ element.product.name }}">
+            <td>
+                <a href="{% url 'update-kit-element' element.id %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+            <td>
+                <a href="{% url 'detail-product' element.product.id %}"><strong>{{ element.product.name }}</strong></a>
+            </td>
+            <td>{{ element.quantity|floatformat:"-2" }}</td>
+            <td>{{ element.unit }}</td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'add-kit-product' kit.id %}
+{% endblock createUrl %}
+{% block help %}
+    Add product
+{% endblock help %}

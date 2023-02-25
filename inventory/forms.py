@@ -1,15 +1,20 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import (
+    KitElement,
     Product,
     convertUnit,
     Unit,
     ProductTransaction,
     PriceReference,
     ProductCategory,
+    ProductKit,
 )
-from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
-from utils.forms import OrderCreateForm as BaseOrderCreateForm
+from utils.forms import (
+    CategoryCreateForm as BaseCategoryCreateForm,
+    OrderCreateForm as BaseOrderCreateForm,
+    BaseForm,
+)
 from django.forms import HiddenInput
 
 from users.models import (
@@ -456,5 +461,67 @@ class ProductCreateForm(forms.ModelForm):
                     css_class="card mb-4"
                 ),
                 css_class="col-xxl"
+            )
+        )
+
+
+class KitCreateForm(BaseForm):
+    class Meta:
+        model = ProductKit
+        fields = (
+            'name',
+            'category',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('name')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('category', css_class="form-select")
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar',
+                       css_class='btn btn-success')
+            )
+        )
+
+
+class KitElementCreateForm(BaseForm):
+    class Meta:
+        model = KitElement
+        fields = (
+            'unit',
+            'quantity'
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('quantity')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('unit', css_class="form-select")
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar',
+                       css_class='btn btn-success')
             )
         )

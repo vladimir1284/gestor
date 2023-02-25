@@ -37,7 +37,8 @@ from .models import (
     ProductCategory,
     convertUnit,
     PriceReference,
-
+    ProductKit,
+    KitElement
 )
 from .forms import (
     UnitCreateForm,
@@ -47,6 +48,8 @@ from .forms import (
     TransactionCreateForm,
     TransactionProviderCreateForm,
     OrderCreateForm,
+    KitCreateForm,
+    KitElementCreateForm,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -787,3 +790,133 @@ def delete_product(request, id):
     obj = get_object_or_404(Product, id=id)
     obj.delete()
     return redirect('list-product')
+
+
+# --------------------------- Kits --------------------------------
+
+@login_required
+def create_kit(request):
+    form = KitCreateForm()
+    if request.method == 'POST':
+        form = KitCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('list-kit')
+    context = {
+        'form': form,
+        'title': _("Create Kit")
+    }
+    return render(request, 'inventory/kit_create.html', context)
+
+
+@login_required
+def update_kit(request, id):
+    # fetch the object related to passed id
+    kit = get_object_or_404(ProductKit, id=id)
+
+    # pass the object as instance in form
+    form = KitCreateForm(request.POST or None,
+                         instance=kit)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        form.save()
+        return redirect('list-kit', id)
+    context = {
+        'form': form,
+        'title': _("Update kit")
+    }
+
+    return render(request, 'equipment/kit_create.html', context)
+
+
+@login_required
+def list_kit(request):
+    kits = ProductKit.objects.all()
+    context = {
+        'kits': kits,
+    }
+    return render(request, 'inventory/kit_list.html', context)
+
+
+@login_required
+def detail_kit(request, id):
+    # fetch the object related to passed id
+    kit = get_object_or_404(ProductKit, id=id)
+    elements = KitElement.objects.filter(kit=kit)
+    context = {
+        'kit': kit,
+        'elements': elements,
+    }
+    return render(request, 'inventory/kit_detail.html', context)
+
+
+@ login_required
+def delete_kit(request, id):
+    # fetch the object related to passed id
+    obj = get_object_or_404(ProductKit, id=id)
+    obj.delete()
+    return redirect('list-kit')
+
+
+# --------------------------- Kit Elements --------------------------------
+
+@login_required
+def select_kit_product(request, kit_id):
+    context = prepare_product_list()
+    context.setdefault("kit_id", kit_id)
+    return render(request, 'inventory/kit_product_select.html', context)
+
+
+@login_required
+def create_kit_element(request, kit_id, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    kit = get_object_or_404(ProductKit, id=kit_id)
+
+    form = KitElementCreateForm(initial={'unit': product.unit})
+    if request.method == 'POST':
+        form = KitElementCreateForm(request.POST)
+        if form.is_valid():
+            kitElement = form.save(commit=False)
+            kitElement.kit = kit
+            kitElement.product = product
+            kitElement.save()
+            return redirect('detail-kit', kit_id)
+    context = {
+        'form': form,
+        'kit': kit,
+        'product': product,
+        'title': _("Add kit product")
+    }
+    return render(request, 'inventory/kit_element_create.html', context)
+
+
+@login_required
+def update_kit_element(request, id):
+    # fetch the object related to passed id
+    kitElement = get_object_or_404(KitElement, id=id)
+
+    # pass the object as instance in form
+    form = KitElementCreateForm(request.POST or None,
+                                instance=kitElement)
+
+    # save the data from the form and
+    # redirect to detail_view
+    if form.is_valid():
+        form.save()
+        return redirect('detail-kit', kitElement.kit.id)
+    context = {
+        'form': form,
+        'title': _("Update kit product")
+    }
+
+    return render(request, 'inventory/kit_element_create.html', context)
+
+
+@ login_required
+def delete_kit_element(request, id):
+    # fetch the object related to passed id
+    kitElement = get_object_or_404(KitElement, id=id)
+    kitElement.delete()
+    return redirect('detail-kit', kitElement.kit.id)

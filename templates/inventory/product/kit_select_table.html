@@ -1,0 +1,36 @@
+<thead>
+    <tr>
+        <th>
+            <i class="bx bx-cart"></i>
+        </th>
+        <th>Name</th>
+        <th>Available</th>
+        <th>Unit</th>
+        {% if type == 'part' %}<th>Price</th>{% endif %}
+        <th>Cost</th>
+    </tr>
+</thead>
+<tbody class="table-border-bottom-0">
+    {% for product in products %}
+        {% if product.type == type %}
+            <tr data-tag="{{ product.category }}" data-search="{{ product.name }}">
+                <td>
+                    <a href="{% url 'create-kit-element' kit_id product.id %}"><i class="bx bx-plus"></i></a>
+                </td>
+                <td class="pl-0">
+                    <strong>{{ product.name }}</strong>
+                </td>
+                <td>
+                    {% if product.quantity_min > 0 and product.available < product.quantity_min %}
+                        <spam class="alert-danger">{{ product.available|floatformat:"-2" }}</spam>
+                    {% else %}
+                        {{ product.available|floatformat:"-2" }}
+                    {% endif %}
+                </td>
+                <td>{{ product.unit }}</td>
+                {% if type == 'part' %}<td>${{ product.sell_price|floatformat:"-2" }}</td>{% endif %}
+                <td>${{ product.average_cost|floatformat:"-2" }}</td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+</tbody>

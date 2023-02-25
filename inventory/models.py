@@ -171,8 +171,10 @@ class ProductKit(models.Model):
 
 class KitElement(models.Model):
     # Linking a product to a kit
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     kit = models.ForeignKey(ProductKit, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+    quantity = models.FloatField(blank=True, default=1)
 
     def __str__(self):
         return F"{self.product} -> {self.kit}"

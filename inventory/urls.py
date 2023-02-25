@@ -40,6 +40,17 @@ from .views import (
     create_price,
     update_price,
     delete_price,
+    # ------- Kits -------
+    list_kit,
+    detail_kit,
+    create_kit,
+    update_kit,
+    delete_kit,
+    select_kit_product,
+    # ------- Kit Elements -------
+    create_kit_element,
+    delete_kit_element,
+    update_kit_element,
 )
 
 
@@ -93,4 +104,17 @@ urlpatterns = [
     path('create-price/<product_id>', create_price, name='create-price'),
     path('update-price/<id>', update_price, name='update-price'),
     path('delete-price/<id>', delete_price, name='delete-price'),
+    # ------------------------- Kits ----------------------------
+    path('list-kit/', list_kit, name='list-kit'),
+    path('detail-kit/<id>', detail_kit, name='detail-kit'),
+    path('create-kit/', create_kit, name='create-kit'),
+    path('update-kit/<id>', update_kit, name='update-kit'),
+    path('delete-kit/<id>', delete_kit, name='delete-kit'),
+    path('select_kit_product/<kit_id>',
+         select_kit_product, name='add-kit-product'),
+    # --------------------- Kit Elements ------------------------
+    path('create-kit-element/<kit_id>/<product_id>',
+         create_kit_element, name='create-kit-element'),
+    path('delete-kit-element/<id>', delete_kit_element, name='delete-kit-element'),
+    path('update-kit-element/<id>', update_kit_element, name='update-kit-element'),
 ]
