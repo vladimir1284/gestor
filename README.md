@@ -7,7 +7,8 @@ This is a custom ERP for a small trailer repair business.
 ### Utils
 
 This application includes two abstract models for **Transaction** and **Category**. The
-**Order** model is common to [Inventory](#Inventory)
+**Order** model is common to [Inventory](#Inventory) and [Services](#Services)
+
 ![Utils UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/utils_models.png)
 
 ### Inventory
@@ -20,6 +21,10 @@ The **ProductCategory** is used for filtering in the user interface. The **Produ
 the link and price reference form and online store.
 
 ![Inventory UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/inventory_models.png)
+
+### Services
+
+![Services UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/services_models.png)
 
 ### Complete scheme
 This is a complete representation of models in the system
