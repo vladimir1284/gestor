@@ -17,8 +17,10 @@ be stored and counted.
 The **Unit** model allows to store, buy and sell products in different measurement unit, handling automatically 
 the unit conversion. Units are divided into magnitudes (Quantity), such as mass, distance etc. The base unit for conversion is always from the [ISU](https://en.wikipedia.org/wiki/International_System_of_Units).
 
-The **ProductCategory** is used for filtering in the user interface. The **ProductTransaction** represents the *purchase* of *service* transaction within a given **Order**. There can be several **PriceReference** for a product, holding 
-the link and price reference from and online store.
+The **ProductCategory** is used for filtering in the user interface. The **ProductTransaction** represents the *purchase* of *service* transaction within a given **Order**. There can be several **PriceReference** for a product, holding the link and price reference from and online store.
+
+The **ProductKit** storage a set of products that are usually included together in *service orders*. The 
+**KitElement** creates a link between a **Product** and the **ProductKit** it belongs to.
 
 ![Inventory UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/inventory_models.png)
 
