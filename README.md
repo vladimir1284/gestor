@@ -5,9 +5,9 @@ This is a custom ERP for a small trailer repair business.
 ## Models
 
 ### Utils
-
 This application includes two abstract models for **Transaction** and **Category**. The
-**Order** model is common to [Inventory](#Inventory) and [Services](#Services)
+**Order** model is common to [Inventory](#Inventory) and [Services](#Services). Orders can be of type *purchase* 
+or *sell*.
 
 ![Utils UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/utils_models.png)
 
@@ -17,15 +17,35 @@ be stored and counted.
 The **Unit** model allows to store, buy and sell products in different measurement unit, handling automatically 
 the unit conversion. Units are divided into magnitudes (Quantity), such as mass, distance etc. The base unit for conversion is always from the [ISU](https://en.wikipedia.org/wiki/International_System_of_Units).
 
-The **ProductCategory** is used for filtering in the user interface. The **ProductTransaction** represents the buy of sell transaction within a given **Order**. There can be several **PriceReference** for a product, holding 
-the link and price reference form and online store.
+The **ProductCategory** is used for filtering in the user interface. The **ProductTransaction** represents the *purchase* of *service* transaction within a given **Order**. There can be several **PriceReference** for a product, holding 
+the link and price reference from and online store.
 
 ![Inventory UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/inventory_models.png)
 
 ### Services
+The main model in this application is the **Service**, which includes a description and a suggested price 
+for a given labor. The **ServiceCategory** is used for filtering in the user interface. The **ServiceTransaction** represents a particular labor included in a *service* **Order**. 
+
+The **Expense** model accounts for the Third Party Services required for the given *service* **Order**. 
 
 ![Services UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/services_models.png)
 
+### Users
+The **UserProfile** adds the avatar image and the phone number to the [standard django user model](https://docs.djangoproject.com/en/4.1/ref/contrib/auth/). This model stores the information of the users that can access into
+the system: Admins or Mechanistic.
+
+An **Associated** can be either a *client* or a *provider*. *Service orders* can be issued to a *client* or a 
+**Company**. The abstract model **Contact** defines the fields that are common to **Company** and **Associated**.
+
+![Users UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/users_models.png)
+
+### Equipment
+The **Equipment** model is the abstract model that defines the field that are common to **Vehicles** (mostly trucks) and **Trailers**. **Equipment** can be linked into *service orders* but it is not required.
+
+![Equipment UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/equipment_models.png)
+
+
 ### Complete scheme
-This is a complete representation of models in the system
+This is a complete representation of the models and their relations.
+
 ![Models UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/models.png)
