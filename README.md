@@ -47,6 +47,11 @@ The **Equipment** model is the abstract model that defines the field that are co
 
 ![Equipment UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/equipment_models.png)
 
+### Costs
+The **Cost** model is the main model in this application. Costs are discounted to compute the profit in a 
+period. The **CostCategory** is used for filtering in the user interface.
+
+![Costs UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/costs_models.png)
 
 ### Complete scheme
 This is a complete representation of the models and their relations.
