@@ -11,6 +11,11 @@
         <div class="demo-inline-spacing">
             <a class="btn btn-icon btn-outline-primary"
                type="button"
+               href="{% url 'list-kit' %}">
+                <span class="tf-icons bx bx-arrow-back"></span>
+            </a>
+            <a class="btn btn-icon btn-outline-primary"
+               type="button"
                href="{% url 'update-kit' kit.id %}">
                 <span class="tf-icons bx bx-edit"></span>
             </a>
@@ -34,7 +39,9 @@
             <td>
                 <a href="{% url 'detail-product' element.product.id %}"><strong>{{ element.product.name }}</strong></a>
             </td>
-            <td>{{ element.quantity|floatformat:"-2" }}</td>
+            <td {% if element.quantity > element.product.available %}class="alert-danger"{% endif %}>
+                {{ element.quantity|floatformat:"-2" }}
+            </td>
             <td>{{ element.unit }}</td>
         </tr>
     {% endfor %}

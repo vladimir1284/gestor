@@ -822,13 +822,13 @@ def update_kit(request, id):
     # redirect to detail_view
     if form.is_valid():
         form.save()
-        return redirect('list-kit', id)
+        return redirect('detail-kit', id)
     context = {
         'form': form,
         'title': _("Update kit")
     }
 
-    return render(request, 'equipment/kit_create.html', context)
+    return render(request, 'inventory/kit_create.html', context)
 
 
 @login_required
@@ -845,6 +845,11 @@ def detail_kit(request, id):
     # fetch the object related to passed id
     kit = get_object_or_404(ProductKit, id=id)
     elements = KitElement.objects.filter(kit=kit)
+    for element in elements:
+        element.product.available = convertUnit(
+            element.product.unit,
+            element.unit,
+            element.product.computeAvailable())
     context = {
         'kit': kit,
         'elements': elements,

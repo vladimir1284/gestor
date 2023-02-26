@@ -26,6 +26,7 @@ from inventory.models import (
     ProductTransaction,
     Product,
     Stock,
+    ProductKit
 )
 from inventory.views import (
     getTransactionAmount,
@@ -271,6 +272,12 @@ def prepare_service_list(order_id=None):
     context = prepare_product_list(product_list)
     context.setdefault('services', services)
     context.setdefault('categories', service_list_metadata(services))
+
+    kits = ProductKit.objects.all()
+
+    context.setdefault('kits', kits)
+    context.setdefault('kits', kits)
+
     return context
 
 

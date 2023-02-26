@@ -1,0 +1,20 @@
+<thead>
+    <tr>
+        <th>
+            <i class="bx bx-plus"></i>
+        </th>
+        <th>Name</th>
+    </tr>
+</thead>
+<tbody class="table-border-bottom-0">
+    {% for kit in kits %}
+        <tr data-tag="{{ kit.category }}" data-search="{{ kit.name }}">
+            <td>
+                <a href={% url next order_id kit.id %}><i class="bx bx-plus"></i></a>
+            </td>
+            <td>
+                <strong>{{ kit.name }}</strong>
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>

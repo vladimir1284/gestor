@@ -8,6 +8,8 @@ from .models import (
     InventoryLocations,
     ProductCategory,
     PriceReference,
+    ProductKit,
+    KitElement
 )
 
 
@@ -18,3 +20,5 @@ admin.site.register(InventoryLocations)
 admin.site.register(ProductCategory)
 admin.site.register(Stock)
 admin.site.register(PriceReference)
+admin.site.register(ProductKit)
+admin.site.register(KitElement)

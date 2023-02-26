@@ -17,7 +17,9 @@
             <td>
                 <a href={% url 'detail-kit' kit.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
-            <td>{{ kit.name }}</td>
+            <td>
+                <strong>{{ kit.name }}</strong>
+            </td>
         </tr>
     {% endfor %}
 {% endblock Tbody %}

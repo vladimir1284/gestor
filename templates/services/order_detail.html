@@ -5,6 +5,19 @@
     {{ order.concept }}
 {% endblock title %}
 {% block content %}
+    <style>
+    .add {
+        position: fixed;
+        font-size: 27px;
+        bottom: 3rem;
+        right: 1.625rem;
+        z-index: 999999;
+        box-shadow: 0 1px 20px 1px #696cff;
+    }
+    .add .tooltip{
+        opacity: 1;
+    }
+    </style>
     <div class="card mb-3">
         <div class="card-body">
             <h5 class="card-title">
@@ -378,6 +391,11 @@
         }
 
         window.onload = function(){  
+            add = document.getElementsByClassName("add")[0];  
+            if (add.style.visibility != "hidden"){
+                $(add).tooltip('show'); 
+            }  
+
             discount = document.getElementById("submit-id-submit");
             round_to = document.getElementById("id_round_to");
             cost = Number(round_to.value);  
