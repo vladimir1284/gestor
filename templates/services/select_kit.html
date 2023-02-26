@@ -10,10 +10,16 @@
     {% for kit in kits %}
         <tr data-tag="{{ kit.category }}" data-search="{{ kit.name }}">
             <td>
-                <a href={% url next order_id kit.id %}><i class="bx bx-plus"></i></a>
+                {% if kit.available %}
+                    <a href={% url 'create-kit-transaction' order_id kit.id %}><i class="bx bx-plus"></i></a>
+                {% endif %}
             </td>
             <td>
-                <strong>{{ kit.name }}</strong>
+                <a href={% url 'detail-kit' kit.id %}>
+                    <div {% if kit.available %}{% else %}class="text-danger"{% endif %}>
+                        <strong>{{ kit.name }}</strong>
+                    </div>
+                </a>
             </td>
         </tr>
     {% endfor %}

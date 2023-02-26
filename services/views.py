@@ -26,7 +26,8 @@ from inventory.models import (
     ProductTransaction,
     Product,
     Stock,
-    ProductKit
+    ProductKit,
+    KitElement,
 )
 from inventory.views import (
     getTransactionAmount,
@@ -274,9 +275,23 @@ def prepare_service_list(order_id=None):
     context.setdefault('categories', service_list_metadata(services))
 
     kits = ProductKit.objects.all()
+    # Verify availability
+    kit_alerts = 0
+    for kit in kits:
+        kit.available = True
+        elements = KitElement.objects.filter(kit=kit)
+        for element in elements:
+            element.product.available = convertUnit(
+                element.product.unit,
+                element.unit,
+                element.product.computeAvailable())
+            if element.product.available < element.quantity:
+                kit.available = False
+                kit_alerts += 1
+                break
 
     context.setdefault('kits', kits)
-    context.setdefault('kits', kits)
+    context.setdefault('kit_alerts', kit_alerts)
 
     return context
 

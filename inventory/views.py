@@ -309,6 +309,39 @@ def create_transaction(request, order_id, product_id):
 
 
 @login_required
+def create_kit_transaction(request, order_id, kit_id):
+    order = get_object_or_404(Order, id=order_id)
+    kit = get_object_or_404(ProductKit, id=kit_id)
+    elements = KitElement.objects.filter(kit=kit)
+    transactions = ProductTransaction.objects.filter(order=order)
+    for element in elements:
+        inOrder = False
+        # Check for products in the order
+        for trans in transactions:
+            if element.product == trans.product:
+                # Add to a product present in the order
+                trans.quantity += convertUnit(element.unit,
+                                              trans.unit,
+                                              element.quantity)
+                trans.save()
+                inOrder = True
+                break
+        if not inOrder:
+            # New product transaction
+            ProductTransaction.objects.create(
+                order=order,
+                product=element.product,
+                quantity=element.quantity,
+                unit=element.unit,
+                note=_(
+                    F"Generated from kit {kit.name}.\nRemember to check the price and tax!"),
+                price=element.product.getSuggestedPrice()
+            )
+
+    return redirect('detail-service-order', id=order_id)
+
+
+@login_required
 def create_transaction_new_order(request, product_id):
     product = Product.objects.get(id=product_id)
     initial = {'unit': product.unit}
