@@ -1,5 +1,7 @@
 import datetime
 from typing import List
+from collections import OrderedDict
+from operator import itemgetter, attrgetter
 from django.shortcuts import (
     render,
     redirect,
@@ -133,11 +135,19 @@ def computeReport(orders, costs):
         if product.type == "consumable":
             consumables_profit += products[product]['profit']
 
+    # Sort by profit
+    sorted_products = sorted(
+        products, key=lambda product: products[product]['profit'], reverse=True)
+
+    for product in sorted_products:
+        product.profit = products[product]['profit']
+        product.quantity = products[product]['quantity']
+
     return {
         'orders': orders,
         'total': total,
         'costs': costs,
-        'products': products.values(),
+        'products': sorted_products,
         'parts_profit': parts_profit,
         'consumables_profit': consumables_profit,
     }
