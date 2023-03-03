@@ -134,6 +134,11 @@ class ProductTransaction(Transaction):
     def getMinCost(self):
         return self.quantity*self.product.min_price
 
+    def getAveCost(self):
+        product_quantity = convertUnit(
+            self.unit, self.product.unit, self.quantity)
+        return product_quantity*self.product.getCost()
+
 
 class PriceReference(models.Model):
     # Reference link for product price

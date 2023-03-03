@@ -29,14 +29,16 @@ def getOrderBalance(order: Order, products: dict):
         product = trans.product
         if product in products.keys():
             products[product]['quantity'] += trans.quantity
-            products[product]['profit'] += computeTransactionProfit(trans)
+            products[product]['profit'] += computeTransactionProfit(
+                trans,
+                procedure="profit")
         else:
             products.setdefault(product, {
                 'type': product.type,
                 'name': product.name,
                 'unit': product.unit,
                 'quantity': trans.quantity,
-                'profit': computeTransactionProfit(trans)
+                'profit': computeTransactionProfit(trans, procedure="profit")
             })
         if product.type == 'part':
             parts_cost += trans.getMinCost()
@@ -153,9 +155,19 @@ def computeReport(orders, costs):
     }
 
 
-def computeTransactionProfit(transaction: ProductTransaction):
-    return (transaction.getAmount()
-            - transaction.getMinCost())
+def computeTransactionProfit(transaction: ProductTransaction, procedure="min"):
+    # Procedure for computing profit
+    # min    - Discount the product minimum price
+    # profit - Compute total profit
+    if procedure == "min":
+        return (transaction.getAmount()
+                - transaction.getMinCost())
+    if procedure == "profit":
+        aveCost = transaction.getAveCost()
+        if aveCost == 0:
+            aveCost = transaction.getMinCost()
+        return (transaction.getAmount()
+                - aveCost)
 
 
 def getMonthYear(month=None, year=None):
