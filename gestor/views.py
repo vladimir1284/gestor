@@ -163,11 +163,8 @@ def computeTransactionProfit(transaction: ProductTransaction, procedure="min"):
         return (transaction.getAmount()
                 - transaction.getMinCost())
     if procedure == "profit":
-        aveCost = transaction.getAveCost()
-        if aveCost == 0:
-            aveCost = transaction.getMinCost()
         return (transaction.getAmount()
-                - aveCost)
+                - transaction.cost)
 
 
 def getMonthYear(month=None, year=None):
