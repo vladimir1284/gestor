@@ -7,8 +7,8 @@
         <h5 class="card-title">
             Kit: <b>{{ kit.name }}</b>
         </h5>
-        <div class="card-subtitle text-muted mb-3">{{ kit.category }}</div>
-        <div class="demo-inline-spacing">
+        <div class="card-subtitle text-muted">{{ kit.category }}</div>
+        <div class="demo-inline-spacing mb-3">
             <a class="btn btn-icon btn-outline-primary"
                type="button"
                href="{% url 'list-kit' %}">
@@ -20,7 +20,28 @@
                 <span class="tf-icons bx bx-edit"></span>
             </a>
         </div>
+        <h5 class="card-title">Services:</h5>
+        <ul>
+            {% for service in services %}
+                <li>
+                    <a href="{% url 'detail-service' service.service.id %}">{{ service.service }}</a>
+                    <a onclick="deleteService('{% url 'delete-kit-service' service.id %}', '{{ service.service.name }}')"
+                       type="button"
+                       class="float-end">
+                        <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
+    <script>
+        function deleteService(url, name) {
+            let confirmAction = confirm("Are you sure to delete service " +name+ "?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+    </script>
 {% endblock Ttitle %}
 {% block Theader %}
     <th>
@@ -50,5 +71,5 @@
     {% url 'add-kit-product' kit.id %}
 {% endblock createUrl %}
 {% block help %}
-    Add product
+    Add element
 {% endblock help %}

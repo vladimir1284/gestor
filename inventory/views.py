@@ -22,6 +22,8 @@ from django.shortcuts import (
 )
 from django.contrib.auth.decorators import login_required
 
+from services.models import Service
+
 from users.models import (
     Associated,
 )
@@ -38,7 +40,8 @@ from .models import (
     convertUnit,
     PriceReference,
     ProductKit,
-    KitElement
+    KitElement,
+    KitService
 )
 from .forms import (
     UnitCreateForm,
@@ -745,9 +748,21 @@ def minprice_product(request):
     return render(request, 'inventory/minprice_list.html', context)
 
 
+def service_list_metadata(services: List[Service]):
+    category_names = []
+    categories = []
+    for service in services:
+        # Categories
+        if service.category and service.category.name not in category_names:
+            category_names.append(service.category.name)
+            categories.append(service.category)
+    return categories
+
+
 @login_required
 def select_product(request, next, order_id):
     context = prepare_product_list()
+
     context.setdefault("next", next)
     context.setdefault("order_id", order_id)
     return render(request, 'inventory/product_select.html', context)
@@ -883,9 +898,13 @@ def detail_kit(request, id):
             element.product.unit,
             element.unit,
             element.product.computeAvailable())
+
+    services = KitService.objects.filter(kit=kit)
+
     context = {
         'kit': kit,
         'elements': elements,
+        'services': services
     }
     return render(request, 'inventory/kit_detail.html', context)
 
@@ -903,6 +922,12 @@ def delete_kit(request, id):
 @login_required
 def select_kit_product(request, kit_id):
     context = prepare_product_list()
+
+    # Adding services to kit
+    services = Service.objects.all()
+    context.setdefault('services', services)
+    context.setdefault('categories', service_list_metadata(services))
+
     context.setdefault("kit_id", kit_id)
     return render(request, 'inventory/kit_product_select.html', context)
 
@@ -958,3 +983,23 @@ def delete_kit_element(request, id):
     kitElement = get_object_or_404(KitElement, id=id)
     kitElement.delete()
     return redirect('detail-kit', kitElement.kit.id)
+
+
+# --------------------------- Kit Services --------------------------------
+
+
+@login_required
+def create_kit_service(request, kit_id, service_id):
+    service = get_object_or_404(Service, id=service_id)
+    kit = get_object_or_404(ProductKit, id=kit_id)
+
+    KitService.objects.create(kit=kit, service=service)
+    return redirect('detail-kit', kit_id)
+
+
+@ login_required
+def delete_kit_service(request, id):
+    # fetch the object related to passed id
+    kitService = get_object_or_404(KitService, id=id)
+    kitService.delete()
+    return redirect('detail-kit', kitService.kit.id)

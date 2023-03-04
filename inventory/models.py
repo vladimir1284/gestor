@@ -2,6 +2,7 @@ from django.db import models
 import math
 
 from utils.models import Category, Transaction
+from services.models import Service
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
@@ -183,3 +184,9 @@ class KitElement(models.Model):
 
     def __str__(self):
         return F"{self.product} -> {self.kit}"
+
+
+class KitService(models.Model):
+    # Linking a product to a kit
+    kit = models.ForeignKey(ProductKit, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)

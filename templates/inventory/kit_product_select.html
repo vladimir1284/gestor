@@ -1,4 +1,7 @@
 {% extends "./product/base_product_list.html" %}
+{% block tableServices %}
+    {% include "services/service/kit_select_table.html" with type="service" %}
+{% endblock tableServices %}
 {% block tableParts %}
     {% include "./product/kit_select_table.html" with type="part" %}
 {% endblock tableParts %}

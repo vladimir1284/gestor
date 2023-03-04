@@ -52,6 +52,9 @@ from .views import (
     create_kit_element,
     delete_kit_element,
     update_kit_element,
+    # ------- Kit Services -------
+    create_kit_service,
+    delete_kit_service,
 )
 
 
@@ -120,4 +123,8 @@ urlpatterns = [
     path('update-kit-element/<id>', update_kit_element, name='update-kit-element'),
     path('create-kit-transaction/<order_id>/<kit_id>',
          create_kit_transaction, name='create-kit-transaction'),
+    # --------------------- Kit Services ------------------------
+    path('create-kit-service/<kit_id>/<service_id>',
+         create_kit_service, name='create-kit-service'),
+    path('delete-kit-service/<id>', delete_kit_service, name='delete-kit-service'),
 ]
