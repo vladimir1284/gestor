@@ -5,7 +5,7 @@
 {% block Ttitle %}
     <div class="card-body">
         <h5 class="card-title">
-            Kit: <b>{{ kit.name }}</b>
+            Kit: <b>{{ kit.name }}</b> - ${{ total|floatformat:"-2" }}
         </h5>
         <div class="card-subtitle text-muted">{{ kit.category }}</div>
         <div class="demo-inline-spacing mb-3">

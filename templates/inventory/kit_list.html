@@ -10,6 +10,7 @@
         <i class="bx bx-cog"></i>
     </th>
     <th>Name</th>
+    <th>Price</th>
 {% endblock Theader %}
 {% block Tbody %}
     {% for kit in kits %}
@@ -20,6 +21,7 @@
             <td>
                 <strong>{{ kit.name }}</strong>
             </td>
+            <td>${{ kit.total|floatformat:"2" }}</td>
         </tr>
     {% endfor %}
 {% endblock Tbody %}

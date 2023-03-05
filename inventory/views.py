@@ -31,6 +31,8 @@ from utils.models import (
     Order,
 )
 
+from services.models import ServiceTransaction
+
 from .models import (
     Product,
     Unit,
@@ -315,6 +317,8 @@ def create_transaction(request, order_id, product_id):
 def create_kit_transaction(request, order_id, kit_id):
     order = get_object_or_404(Order, id=order_id)
     kit = get_object_or_404(ProductKit, id=kit_id)
+
+    # Add products
     elements = KitElement.objects.filter(kit=kit)
     transactions = ProductTransaction.objects.filter(order=order)
     for element in elements:
@@ -339,6 +343,30 @@ def create_kit_transaction(request, order_id, kit_id):
                 note=_(
                     F"Generated from kit {kit.name}.\nRemember to check the price and tax!"),
                 price=element.product.getSuggestedPrice()
+            )
+
+    # Add services
+    kitServices = KitService.objects.filter(kit=kit)
+    transactions = ServiceTransaction.objects.filter(order=order)
+    for service in kitServices:
+        inOrder = False
+        # Check for products in the order
+        for trans in transactions:
+            if service.service == trans.service:
+                # Add to a product present in the order
+                trans.quantity += 1
+                trans.save()
+                inOrder = True
+                break
+        if not inOrder:
+            # New product transaction
+            ServiceTransaction.objects.create(
+                order=order,
+                service=service.service,
+                quantity=1,
+                note=_(
+                    F"Generated from kit {kit.name}.\nRemember to check the price and tax!"),
+                price=service.service.suggested_price
             )
 
     return redirect('detail-service-order', id=order_id)
@@ -879,9 +907,36 @@ def update_kit(request, id):
     return render(request, 'inventory/kit_create.html', context)
 
 
+def computeKitData(kit):
+    elements = KitElement.objects.filter(kit=kit)
+    total = 0
+    for element in elements:
+        # Add cost
+        total += element.quantity*convertUnit(
+            element.product.unit,
+            element.unit,
+            element.product.getSuggestedPrice())
+        # Compute availability
+        element.product.available = convertUnit(
+            element.product.unit,
+            element.unit,
+            element.product.computeAvailable())
+
+    services = KitService.objects.filter(kit=kit)
+    for service in services:
+        total += service.service.suggested_price
+
+    return (elements, services, total)
+
+
 @login_required
 def list_kit(request):
     kits = ProductKit.objects.all()
+
+    for kit in kits:
+        (elements, services, total) = computeKitData(kit)
+        kit.total = total
+
     context = {
         'kits': kits,
     }
@@ -892,19 +947,14 @@ def list_kit(request):
 def detail_kit(request, id):
     # fetch the object related to passed id
     kit = get_object_or_404(ProductKit, id=id)
-    elements = KitElement.objects.filter(kit=kit)
-    for element in elements:
-        element.product.available = convertUnit(
-            element.product.unit,
-            element.unit,
-            element.product.computeAvailable())
 
-    services = KitService.objects.filter(kit=kit)
+    (elements, services, total) = computeKitData(kit)
 
     context = {
         'kit': kit,
         'elements': elements,
-        'services': services
+        'services': services,
+        'total': total,
     }
     return render(request, 'inventory/kit_detail.html', context)
 
