@@ -55,6 +55,7 @@ from .forms import (
     OrderCreateForm,
     KitCreateForm,
     KitElementCreateForm,
+    KitTransactionCreateForm,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -318,58 +319,108 @@ def create_kit_transaction(request, order_id, kit_id):
     order = get_object_or_404(Order, id=order_id)
     kit = get_object_or_404(ProductKit, id=kit_id)
 
-    # Add products
-    elements = KitElement.objects.filter(kit=kit)
-    transactions = ProductTransaction.objects.filter(order=order)
-    for element in elements:
-        inOrder = False
-        # Check for products in the order
-        for trans in transactions:
-            if element.product == trans.product:
-                # Add to a product present in the order
-                trans.quantity += convertUnit(element.unit,
-                                              trans.unit,
-                                              element.quantity)
-                trans.save()
-                inOrder = True
-                break
-        if not inOrder:
-            # New product transaction
-            ProductTransaction.objects.create(
-                order=order,
-                product=element.product,
-                quantity=element.quantity,
-                unit=element.unit,
-                note=_(
-                    F"Generated from kit {kit.name}.\nRemember to check the price and tax!"),
-                price=element.product.getSuggestedPrice()
-            )
+    (elements, services, total, min_price) = computeKitData(kit)
 
-    # Add services
-    kitServices = KitService.objects.filter(kit=kit)
-    transactions = ServiceTransaction.objects.filter(order=order)
-    for service in kitServices:
-        inOrder = False
-        # Check for products in the order
-        for trans in transactions:
-            if service.service == trans.service:
-                # Add to a product present in the order
-                trans.quantity += 1
-                trans.save()
-                inOrder = True
-                break
-        if not inOrder:
-            # New product transaction
-            ServiceTransaction.objects.create(
-                order=order,
-                service=service.service,
-                quantity=1,
-                note=_(
-                    F"Generated from kit {kit.name}.\nRemember to check the price and tax!"),
-                price=service.service.suggested_price
-            )
+    form = KitTransactionCreateForm(initial={
+        'quantity': 1,
+        'price': total,
+        'tax': False
+    }, min_price=min_price)
 
-    return redirect('detail-service-order', id=order_id)
+    if request.method == 'POST':
+        form = KitTransactionCreateForm(request.POST, initial={
+            'quantity': 1,
+            'price': total,
+            'tax': False
+        }, min_price=min_price, kit=kit)
+
+        if form.is_valid():
+            multiply = form.cleaned_data['quantity']
+            price = form.cleaned_data['price']
+            tax = form.cleaned_data['tax']
+            print(tax)
+
+            # Handle price change
+            load2service = 0
+            if price != total:
+                diff = price - total
+                if diff < 0:  # Discount
+                    order.discount = -multiply*diff
+                    order.save()
+                else:  # Profit
+                    load2service = multiply*diff
+
+            # Add services
+            kitServices = KitService.objects.filter(kit=kit)
+            transactions = ServiceTransaction.objects.filter(order=order)
+            for service in kitServices:
+                inOrder = False
+                # Check for products in the order
+                for trans in transactions:
+                    if service.service == trans.service:
+                        # Add to a product present in the order
+                        trans.quantity += multiply
+                        trans.price += load2service/trans.quantity
+                        trans.save()
+                        inOrder = True
+                        break
+                if not inOrder:
+                    # New product transaction
+                    if load2service > 0:
+                        service.service.suggested_price += load2service/multiply
+                    trans = ServiceTransaction.objects.create(
+                        order=order,
+                        service=service.service,
+                        quantity=multiply,
+                        note=_(
+                            F"Generated from kit {kit.name}.\nRemember to check the price and tax!"),
+                        price=service.service.suggested_price
+                    )
+                    if tax == False:
+                        trans.sell_trans = 0
+                        trans.save()
+                load2service = 0
+
+            # Add products
+            elements = KitElement.objects.filter(kit=kit)
+            transactions = ProductTransaction.objects.filter(order=order)
+            for element in elements:
+                inOrder = False
+                # Check for products in the order
+                for trans in transactions:
+                    if element.product == trans.product:
+                        # Add to a product present in the order
+                        trans.quantity += multiply*convertUnit(element.unit,
+                                                               trans.unit,
+                                                               element.quantity)
+                        trans.save()
+                        inOrder = True
+                        break
+                if not inOrder:
+                    # New product transaction
+                    trans = ProductTransaction.objects.create(
+                        order=order,
+                        product=element.product,
+                        quantity=element.quantity*multiply,
+                        unit=element.unit,
+                        note=_(
+                            F"Generated from kit {kit.name}.\nRemember to check the price and tax!"),
+                        price=element.product.getSuggestedPrice()
+                    )
+                    if tax == False:
+                        trans.sell_trans = 0
+                        trans.save()
+
+            return redirect('detail-service-order', id=order_id)
+
+    context = {
+        'kit': kit,
+        'elements': elements,
+        'services': services,
+        'total': total,
+        'form': form
+    }
+    return render(request, 'inventory/kit_add.html', context)
 
 
 @login_required
@@ -910,12 +961,17 @@ def update_kit(request, id):
 def computeKitData(kit):
     elements = KitElement.objects.filter(kit=kit)
     total = 0
+    min_price = 0
     for element in elements:
         # Add cost
         total += element.quantity*convertUnit(
             element.product.unit,
             element.unit,
             element.product.getSuggestedPrice())
+        min_price += element.quantity*convertUnit(
+            element.product.unit,
+            element.unit,
+            element.product.min_price)
         # Compute availability
         element.product.available = convertUnit(
             element.product.unit,
@@ -926,7 +982,7 @@ def computeKitData(kit):
     for service in services:
         total += service.service.suggested_price
 
-    return (elements, services, total)
+    return (elements, services, total, min_price)
 
 
 @login_required
@@ -934,7 +990,7 @@ def list_kit(request):
     kits = ProductKit.objects.all()
 
     for kit in kits:
-        (elements, services, total) = computeKitData(kit)
+        (elements, services, total, min_price) = computeKitData(kit)
         kit.total = total
 
     context = {
@@ -948,7 +1004,7 @@ def detail_kit(request, id):
     # fetch the object related to passed id
     kit = get_object_or_404(ProductKit, id=id)
 
-    (elements, services, total) = computeKitData(kit)
+    (elements, services, total, min_price) = computeKitData(kit)
 
     context = {
         'kit': kit,

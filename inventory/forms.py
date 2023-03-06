@@ -81,6 +81,86 @@ class CommonTransactionLayout(Layout):
         )
 
 
+class KitTransactionCreateForm(forms.Form):
+    quantity = forms.IntegerField(label='Qty')
+    price = forms.FloatField(label='Price')
+    tax = forms.BooleanField(label='Tax', required=False)
+
+    def clean_tax(self):
+        tax = self.cleaned_data['tax']
+        if tax is None:
+            tax = 0
+        return tax
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data['quantity']
+
+        elements = KitElement.objects.filter(kit=self.kit)
+        for element in elements:
+            required = convertUnit(
+                element.unit,
+                element.product.unit,
+                element.quantity*quantity)
+            available = element.product.computeAvailable()
+            if available < required:
+                error_msg = F'Product {element.product.name} has only {available:.2f}{element.product.unit} available! A minimum of {required}{element.product.unit} is required.'
+                raise ValidationError(error_msg)
+
+        return quantity
+
+    def clean_price(self):
+        price = self.cleaned_data['price']
+        if price < self.min_price:
+            error_msg = F'The price cannot be lower than ${self.min_price:.2f}.'
+            raise ValidationError(error_msg)
+        return price
+
+    def __init__(self, *args, **kwargs):
+
+        self.min_price = 0
+        if 'min_price' in kwargs:
+            self.product = kwargs['min_price']
+            self.min_price = kwargs.pop('min_price')
+        if 'kit' in kwargs:
+            self.kit = kwargs['kit']
+            kwargs.pop('kit')
+        else:
+            self.kit = None
+
+        super().__init__(*args, **kwargs)
+
+        self.fields['price'].help_text = F"Min: ${self.min_price}."
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False  # Don't render form tag
+        self.helper.disable_csrf = True  # Don't render CSRF token
+        self.helper.label_class = 'form-label'
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('quantity')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field(
+                        PrependedText('price', '$'))
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('tax')
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Add', css_class='btn btn-success')
+            )
+        )
+
+
 class TransactionCreateForm(forms.ModelForm):
 
     class Meta:

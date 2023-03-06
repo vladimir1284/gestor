@@ -1,0 +1,53 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ order.concept }}
+{% endblock title %}
+{% block content %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">
+                Kit: <b>{{ kit.name }}</b>
+            </h5>
+            <div class="card-subtitle text-muted">{{ kit.category }}</div>
+            <div class="container mb-3">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
+            </div>
+            <h5 class="card-title">Services:</h5>
+            <ul>
+                {% for service in services %}
+                    <li>
+                        <a href="{% url 'detail-service' service.service.id %}">{{ service.service }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Unit</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for element in elements %}
+                        <tr data-tag="{{ element.product.name }}">
+                            <td>
+                                <a href="{% url 'detail-product' element.product.id %}"><strong>{{ element.product.name }}</strong></a>
+                            </td>
+                            <td {% if element.quantity > element.product.available %}class="alert-danger"{% endif %}>
+                                {{ element.quantity|floatformat:"-2" }}
+                            </td>
+                            <td>{{ element.unit }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
