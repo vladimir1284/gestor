@@ -19,8 +19,9 @@ the unit conversion. Units are divided into magnitudes (Quantity), such as mass,
 
 The **ProductCategory** is used for filtering in the user interface. The **ProductTransaction** represents the *purchase* of *service* transaction within a given **Order**. There can be several **PriceReference** for a product, holding the link and price reference from and online store.
 
-The **ProductKit** storage a set of products that are usually included together in *service orders*. The 
-**KitElement** creates a link between a **Product** and the **ProductKit** it belongs to.
+The **ProductKit** storage a set of products and services that are usually included together in *service orders*. The 
+**KitElement** creates a link between a **Product** and the **ProductKit** it belongs to. The 
+**KitService** creates a link between a **Service** and the **ProductKit** it belongs to.
 
 ![Inventory UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/inventory_models.png)
 
