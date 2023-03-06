@@ -377,7 +377,7 @@ def create_kit_transaction(request, order_id, kit_id):
                         price=service.service.suggested_price
                     )
                     if tax == False:
-                        trans.sell_trans = 0
+                        trans.tax = 0
                         trans.save()
                 load2service = 0
 
@@ -408,7 +408,7 @@ def create_kit_transaction(request, order_id, kit_id):
                         price=element.product.getSuggestedPrice()
                     )
                     if tax == False:
-                        trans.sell_trans = 0
+                        trans.tax = 0
                         trans.save()
 
             return redirect('detail-service-order', id=order_id)
