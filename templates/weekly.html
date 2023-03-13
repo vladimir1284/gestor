@@ -1,0 +1,750 @@
+{% extends 'base/base.html' %}
+{% load month_name %}
+{% load static %}
+{% load tz %}
+{% block title %}
+    Dashboard
+{% endblock title %}
+{% block content %}
+    <style>
+        .invoice-descrpition{
+            width: 100%;
+        }
+    </style>
+    {% localtime on %}
+    <!-- Week -->
+    <div class="text-center">
+        <div class="demo-inline-spacing pb-3">
+            <a type="button"
+               href="{% url 'weekly-report-date' previousWeek %}"
+               class="btn btn-icon btn-outline-primary">
+                <span class="tf-icons bx bx-chevron-left"></span>
+            </a>
+            <button type="button" class="btn btn-outline-primary">{{ start_date|date:"d/M" }} - {{ end_date|date:"d/M" }}</button>
+            <a type="button"
+               href="{% url 'weekly-report-date' nextWeek %}"
+               class="btn btn-icon btn-outline-primary">
+                <span class="tf-icons bx bx-chevron-right"></span>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Order Statistics -->
+        <div class="col-md-6 col-lg-6 col-xl-6 order-0 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between pb-0">
+                    <div class="card-title mb-0">
+                        <h5 class="m-0 me-2">Order Statistics</h5>
+                        <small class="text-muted">{{ orders|length }} Service Orders</small>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3"
+                         style="position: relative;">
+                        <div class="d-flex flex-column align-items-center gap-1">
+                            <h2 class="mb-2">${{ total.net|floatformat:"0" }}</h2>
+                            <span>Service income</span>
+                        </div>
+                        <div id="orderStatisticsChart"></div>
+                        <div class="resize-triggers">
+                            <div class="expand-trigger">
+                                <div style="width: 602px; height: 139px;"></div>
+                            </div>
+                            <div class="contract-trigger"></div>
+                        </div>
+                    </div>
+                    <ul class="p-0 m-0">
+                        <li class="d-flex mb-4 pb-1">
+                            <div class="avatar flex-shrink-0 me-3">
+                                <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-dollar"></i></span>
+                            </div>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <h6 class="mb-0">Labor income</h6>
+                                    <small class="text-muted">Total amount</small>
+                                </div>
+                                <div class="user-progress">
+                                    <small class="fw-semibold">${{ orders.labor|floatformat:"0" }}</small>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="d-flex mb-4 pb-1">
+                            <div class="avatar flex-shrink-0 me-3">
+                                <span class="avatar-initial rounded bg-label-warning"><i class="bx bx-coin-stack"></i></span>
+                            </div>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <h6 class="mb-0">Discount</h6>
+                                    <small class="text-muted">Substracted from labor</small>
+                                </div>
+                                <div class="user-progress">
+                                    <small class="fw-semibold">${{ total.discount|floatformat:"0" }}</small>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="d-flex mb-4 pb-1">
+                            <div class="avatar flex-shrink-0 me-3">
+                                <span class="avatar-initial rounded bg-label-secondary"><i class="bx bx-repost"></i></span>
+                            </div>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <h6 class="mb-0">Parts</h6>
+                                    <small class="text-muted">Cost from stock</small>
+                                </div>
+                                <div class="user-progress">
+                                    <small class="fw-semibold">${{ total.parts|floatformat:"0" }}</small>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="d-flex mb-4 pb-1">
+                            <div class="avatar flex-shrink-0 me-3">
+                                <span class="avatar-initial rounded bg-label-success"><i class="bx bx-credit-card"></i></span>
+                            </div>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <h6 class="mb-0">Third Party</h6>
+                                    <small class="text-muted">Outsourced services</small>
+                                </div>
+                                <div class="user-progress">
+                                    <small class="fw-semibold">${{ total.third_party|floatformat:"0" }}</small>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="d-flex">
+                            <div class="avatar flex-shrink-0 me-3">
+                                <span class="avatar-initial rounded bg-label-info"><i class="bx bx-archive"></i></span>
+                            </div>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <h6 class="mb-0">Supplies</h6>
+                                    <small class="text-muted">Cost of supplies</small>
+                                </div>
+                                <div class="user-progress">
+                                    <small class="fw-semibold">${{ total.consumable|floatformat:"0" }}</small>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Costs Statistics -->
+        <div class="col-md-6 col-lg-6 col-xl-6 order-0 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center justify-content-between pb-0">
+                    <div class="card-title mb-0">
+                        <h5 class="m-0 me-2">Costs Statistics</h5>
+                        <small class="text-muted">{{ costs|length }} Cost Items</small>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3"
+                         style="position: relative;">
+                        <div class="d-flex flex-column align-items-center gap-1">
+                            <h2 class="mb-2">
+                                ${{ profit|floatformat:"0" }}
+                            </h2>
+                            <span>Total Profit</span>
+                        </div>
+                        <div id="costStatisticsChart">
+                        </div>
+                        <div class="resize-triggers">
+                            <div class="expand-trigger">
+                                <div style="width: 602px; height: 139px;">
+                                </div>
+                            </div>
+                            <div class="contract-trigger">
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="p-0 m-0">
+                        {% for cat in cost_cats %}
+                            <li class="d-flex mb-4 pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <img {% if cat.icon %} src="{{ cat.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
+                                         alt=""
+                                         class="rounded"/>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0">
+                                            {{ cat.name }}
+                                        </h6>
+                                        <small class="text-muted">{{ cat.items }} items</small>
+                                    </div>
+                                    <div class="user-progress">
+                                        <small class="fw-semibold">${{ cat.amount|floatformat:"0" }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="nav-align-top">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <button type="button"
+                            class="nav-link active"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#navs-top-parts"
+                            aria-controls="navs-top-home"
+                            aria-selected="true">
+                        Parts
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button type="button"
+                            class="nav-link"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#navs-top-orders"
+                            aria-controls="navs-top-profile"
+                            aria-selected="false">
+                        Services
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button type="button"
+                            class="nav-link"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#navs-top-supplies"
+                            aria-controls="navs-top-messages"
+                            aria-selected="false">
+                        Supplies
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button type="button"
+                            class="nav-link"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#navs-top-costs"
+                            aria-controls="navs-top-messages"
+                            aria-selected="false">
+                        Costs
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade active show" id="navs-top-parts" role="tabpanel">
+                    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        Parts net incomes:
+                        <div class="text-success">
+                            <strong>{{ parts_profit|floatformat:"2" }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="invoice-descrpition">
+                                        Name
+                                    </th>
+                                    <th>
+                                        Qty
+                                    </th>
+                                    <th>
+                                        Unit
+                                    </th>
+                                    <th>
+                                        Cost
+                                    </th>
+                                    <th>
+                                        Profit
+                                    </th>
+                                    <th>
+                                        %
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for part in products %}
+                                    {% if part.type == 'part' %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ part.name }}</strong>
+                                            </td>
+                                            <td>
+                                                <div class="float-end">
+                                                    {{ part.quantity|floatformat:"-2" }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {{ part.unit }}
+                                            </td>
+                                            <td>
+                                                <div class="float-end">
+                                                    ${{ part.cost|floatformat:"2" }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="float-end">
+                                                    ${{ part.profit|floatformat:"2" }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="float-end">
+                                                    {{ part.efficiency|floatformat:"0" }}%
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="navs-top-orders" role="tabpanel">
+                    <!-- Services -->
+                    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        Service incomes:
+                        <div class="text-success">
+                            <strong>{{ total.net|floatformat:"2" }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Client
+                                    </th>
+                                    <th>
+                                        date
+                                    </th>
+                                    <th>
+                                        Gross
+                                    </th>
+                                    <th>
+                                        Net
+                                    </th>
+                                    <th>
+                                        Parts
+                                    </th>
+                                    <th>
+                                        Supplies
+                                    </th>
+                                    <th>
+                                        3d pty
+                                    </th>
+                                    <th>
+                                        Discnt
+                                    </th>
+                                    <th>
+                                        Tax
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                    <tr data-search="{{ order.associated.name }}{{ order.company.name }}">
+                                        <td>
+                                            <a href={% url 'detail-service-order' order.id %}> <strong>
+                                                {% if order.associated %}
+                                                    {{ order.associated }}
+                                                {% elif order.company %}
+                                                    {{ order.company }}
+                                                {% else %}
+                                                    None
+                                                {% endif %}
+                                            </strong></a>
+                                        </td>
+                                        <td>
+                                            {{ order.terminated_date|date:"D, d" }}
+                                        </td>
+                                        <td>
+                                            <div class="float-end">
+                                                ${{ order.amount|floatformat:"2" }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="float-end">
+                                                <strong>${{ order.net|floatformat:"2" }}</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="float-end">
+                                                ${{ order.parts|floatformat:"2" }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="float-end">
+                                                ${{ order.consumable|floatformat:"2" }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="float-end">
+                                                ${{ order.third_party|floatformat:"2" }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="float-end">
+                                                ${{ order.discount|floatformat:"2" }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="float-end">
+                                                ${{ order.tax|floatformat:"2" }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-border-bottom-0">
+                                <tr>
+                                    <th>
+                                    </th>
+                                    <th>
+                                        <strong>Total =</strong>
+                                    </th>
+                                    <th>
+                                        <div class="float-end">
+                                            ${{ total.gross|floatformat:"2" }}
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="float-end">
+                                            ${{ total.net|floatformat:"2" }}
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="float-end">
+                                            ${{ total.parts|floatformat:"2" }}
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="float-end">
+                                            ${{ total.consumable|floatformat:"2" }}
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="float-end">
+                                            ${{ total.third_party|floatformat:"2" }}
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="float-end">
+                                            ${{ total.discount|floatformat:"2" }}
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="float-end">
+                                            ${{ total.tax|floatformat:"2" }}
+                                        </div>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="navs-top-supplies" role="tabpanel">
+                    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        Supplies:
+                        <div class="{% if consumables_profit > 0 %}text-success{% elif consumables_profit < 0 %}text-danger{% endif %}">
+                            <strong>{{ consumables_profit|floatformat:"2" }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="invoice-descrpition">
+                                        Name
+                                    </th>
+                                    <th>
+                                        Quantity
+                                    </th>
+                                    <th>
+                                        Unit
+                                    </th>
+                                    <th>
+                                        Profit
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for part in products %}
+                                    {% if part.type == 'consumable' %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ part.name }}</strong>
+                                            </td>
+                                            <td>
+                                                <div class="float-end">
+                                                    {{ part.quantity|floatformat:"-2" }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {{ part.unit }}
+                                            </td>
+                                            <td>
+                                                <div class="float-end">
+                                                    <div class="{% if part.profit > 0 %}text-success{% elif part.profit < 0 %}text-danger{% endif %}">
+                                                        <strong>{{ part.profit|floatformat:"2" }}</strong>
+                                                        <span class="text-muted">USD</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="navs-top-costs" role="tabpanel">
+                    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        Costs:
+                        <div class="text-danger">
+                            <strong>{{ costs.total|floatformat:"2" }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Amount
+                                    </th>
+                                    <th>
+                                        concept
+                                    </th>
+                                    <th>
+                                        date
+                                    </th>
+                                    <th>
+                                        cat
+                                    </th>
+                                    <th>
+                                        User
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cost in costs %}
+                                    <tr data-search="{{ cost.concept }}">
+                                        <td class="text-end">
+                                            ${{ cost.amount|floatformat:"2" }}
+                                        </td>
+                                        <td>
+                                            <strong>{{ cost.concept }}</strong>
+                                        </td>
+                                        <td>
+                                            {{ cost.date|date:"D, d" }}
+                                        </td>
+                                        <td>
+                                            {% if cost.category.icon %}
+                                                <img {% if cost.category.icon %} src="{{ cost.category.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
+                                                     alt=""
+                                                     class="w-px-40 h-auto"/>
+                                            {% else %}
+                                                {{ cost.category.name }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if cost.related_to %}
+                                                <div class="avatar avatar-online">
+                                                    {% if cost.related_to.profile_user.avatar %}
+                                                        <img src="{{ cost.related_to.profile_user.avatar.url }}"
+                                                             alt=""
+                                                             class="w-px-40 h-auto rounded-circle"/>
+                                                    {% else %}
+                                                        <span style="font-size:1.5em"
+                                                              class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                                            {{ cost.related_to.first_name|first }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-border-bottom-0">
+                                <tr>
+                                    <th>
+                                    </th>
+                                    <th>
+                                    </th>
+                                    <th>
+                                    </th>
+                                    <th>
+                                        <strong>Total =</strong>
+                                    </th>
+                                    <th>
+                                        <div class="float-end">
+                                            ${{ costs.total|floatformat:"2" }}
+                                        </div>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endlocaltime %}
+<script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
+<script>
+
+(function () {
+    let cardColor, headingColor, axisColor, shadeColor, borderColor;
+  
+    cardColor = config.colors.white;
+    headingColor = config.colors.headingColor;
+    axisColor = config.colors.axisColor;
+    borderColor = config.colors.borderColor;
+
+    // Order Statistics Chart
+    // --------------------------------------------------------------------
+    const chartOrderStatistics = document.querySelector('#orderStatisticsChart'),
+    orderChartConfig = {
+      chart: {
+        height: 185,
+        width: 185,
+        type: 'donut'
+      },
+      labels: ['Labor', 'Parts', 'Discount', 'Third'],
+      series: [{{orders.labor|floatformat:"0"}}, {{total.parts|floatformat:"0"}}, {{total.discount|floatformat:"0"}}, {{total.third_party|floatformat:"0"}}],
+      colors: [config.colors.primary, config.colors.secondary, config.colors.warning, config.colors.success],
+      stroke: {
+        width: 7,
+        colors: cardColor
+      },
+      dataLabels: {
+        enabled: false,
+        formatter: function (val, opt) {
+          return parseInt(val) + '%';
+        }
+      },
+      legend: {
+        show: false
+      },
+      grid: {
+        padding: {
+          top: 0,
+          bottom: 0,
+          right: 15
+        }
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '75%',
+            labels: {
+              show: true,
+              value: {
+                fontSize: '1.5rem',
+                fontFamily: 'Public Sans',
+                color: headingColor,
+                offsetY: -15,
+                formatter: function (val) {
+                  return '$' + parseInt(val);
+                }
+              },
+              name: {
+                offsetY: 20,
+                fontFamily: 'Public Sans'
+              },
+              total: {
+                show: true,
+                fontSize: '0.8125rem',
+                color: axisColor,
+                label: 'Gross',
+                formatter: function (w) {
+                  return '${{ total.gross|floatformat:"0" }}';
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+  if (typeof chartOrderStatistics !== undefined && chartOrderStatistics !== null) {
+    const statisticsChart = new ApexCharts(chartOrderStatistics, orderChartConfig);
+    statisticsChart.render();
+  }
+
+ // Cost Statistics Chart
+    // --------------------------------------------------------------------
+    const chartCostStatistics = document.querySelector('#costStatisticsChart'),
+    costChartConfig = {
+      chart: {
+        height: 185,
+        width: 185,
+        type: 'donut'
+      },
+      labels: [{% for cat in cost_cats %}'{{cat.name}}',{% endfor %}],
+      series: [{% for cat in cost_cats %}{{cat.amount|floatformat:"0"}},{% endfor %}],
+      colors: [config.colors.primary, config.colors.secondary, config.colors.info, config.colors.success],
+      stroke: {
+        width: 7,
+        colors: cardColor
+      },
+      dataLabels: {
+        enabled: false,
+        formatter: function (val, opt) {
+          return parseInt(val) + '%';
+        }
+      },
+      legend: {
+        show: false
+      },
+      grid: {
+        padding: {
+          top: 0,
+          bottom: 0,
+          right: 15
+        }
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '75%',
+            labels: {
+              show: true,
+              value: {
+                fontSize: '1.5rem',
+                fontFamily: 'Public Sans',
+                color: headingColor,
+                offsetY: -15,
+                formatter: function (val) {
+                  return '$' + parseInt(val);
+                }
+              },
+              name: {
+                offsetY: 20,
+                fontFamily: 'Public Sans'
+              },
+              total: {
+                show: true,
+                fontSize: '0.8125rem',
+                color: axisColor,
+                label: 'Total',
+                formatter: function (w) {
+                  return '${{ costs.total|floatformat:"0" }}';
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+  if (typeof chartCostStatistics !== undefined && chartCostStatistics !== null) {
+    const costStatisticsChart = new ApexCharts(chartCostStatistics, costChartConfig);
+    costStatisticsChart.render();
+  }
+})();
+</script>
+{% endblock content %}
