@@ -18,12 +18,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import dashboard, report
+from .views import dashboard, report, weekly_report
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', dashboard, name='dashboard'),
     path('report/<year>/<month>', report, name='report'),
+    path('weekly/', weekly_report, name='weekly-report'),
+    path('weekly/<date>', weekly_report, name='weekly-report-date'),
     path('users/', include('users.urls')),
     path('inventory/', include('inventory.urls')),
     path('services/', include('services.urls')),
