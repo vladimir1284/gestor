@@ -8,6 +8,7 @@ from .models import (
     ServiceTransaction,
     ServiceCategory,
     Expense,
+    ServicePicture,
 )
 from utils.forms import (
     BaseForm,
@@ -432,5 +433,26 @@ class ExpenseCreateForm(BaseForm):
             ButtonHolder(
                 Submit('submit', 'Enviar',
                        css_class='btn btn-success')
+            )
+        )
+
+
+class ServicePictureForm(BaseForm):
+    class Meta:
+        model = ServicePicture
+        fields = ('image',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('image')
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Add', css_class='btn btn-success')
             )
         )

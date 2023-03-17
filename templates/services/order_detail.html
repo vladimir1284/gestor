@@ -355,6 +355,45 @@
             {% endif %}
         </div>
     {% endif %}
+    <!-- Images -->
+    <div class="card mb-3">
+        <!-- Gallery -->
+        <h5 id="gallery" class="mt-3 card-header">
+            Gallery
+            <div class="demo-inline-spacing">
+                <a onclick="shareImages()"
+                   class="btn btn-icon btn-outline-primary"
+                   type="button">
+                    <span class="tf-icons bx bx-share-alt"></span>
+                </a>
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'create-service-pictures' order.id %}">
+                    <span class="tf-icons bx bx-plus"></span>
+                </a>
+                {% if images %}
+                    <a onclick="deletePictures()"
+                       type="button"
+                       class="btn btn-icon btn-outline-danger float-end">
+                        <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                {% endif %}
+            </div>
+        </h5>
+        <hr class="mt-0 mb-4"/>
+        {% if images %}
+            <div class="row col-12">
+                {% for img in images %}
+                    <div class="col-6 col-md-4 text-center">
+                        <input value={{ img.id }} id="trigger-{{ img.id }}" type="checkbox" style="display: none;" class="img-cb">
+                        <label for="trigger-{{ img.id }}" class="img-border">
+                            <img class="checker" src="{{ img.image.url }}" alt="Service picture">
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
     <a href="{% url 'select-service' 'create-service-transaction' order.id %}">
         <button type="button"
                 style="visibility: {% if terminated %}hidden{% endif %}"
@@ -404,5 +443,41 @@
 
             round_to.oninput = updateProfit;
         }
+
+        function getSelectedImages(){
+            /* Get the text field */
+            let imgs =  document.getElementsByClassName("img-cb");
+          
+            /* Select the text field */
+            let urls = "";
+            
+            for (let item of imgs) {
+                  if(item.checked){
+                      urls += item.value + ",";
+                  }
+            }
+            return urls
+          }
+      
+          function shareImages() {  
+              let imgs = getSelectedImages();
+              if (imgs.length > 0){
+                  window.open("/towit/share_images/"+imgs, '_blank');   
+              } else {
+                  alert("Please, select at least one picture!")
+              }
+          }
+          
+          function deletePictures() {        
+              let imgs = getSelectedImages();
+              if (imgs.length > 0){
+                  let confirmAction = confirm("Are you sure to delete the selected pictures?");
+                  if (confirmAction) {
+                       window.location = "/towit/delete_trailer_images/"+imgs;
+                  }
+              } else {
+                  alert("Please, select at least one picture!")
+              }
+          }
     </script>
 {% endblock content %}

@@ -33,6 +33,10 @@ from .views import (
     create_expense,
     update_expense,
     delete_expense,
+    # ---- Service Picture ----------
+    create_service_pictures,
+    share_service_pictures,
+    delete_service_picture
 )
 
 
@@ -82,4 +86,12 @@ urlpatterns = [
     path('create-expense/<order_id>', create_expense, name='create-expense'),
     path('update-expense/<id>', update_expense, name='update-expense'),
     path('delete-expense/<id>', delete_expense, name='delete-expense'),
+    # ----------------- Service Picture -----------------------
+    path('new_picture/<int:order_id>',  create_service_pictures,
+         name='create-service-pictures'),
+    path('share_images/<ids>',  share_service_pictures,
+         name='share-service-pictures'),
+    path('delete_trailer_images/<ids>',  delete_service_picture,
+         name='delete-service-pictures'),
+
 ]

@@ -5,6 +5,7 @@ from utils.models import Order, Transaction, Category
 from users.models import Associated
 from django.utils.translation import gettext_lazy as _
 
+from django.urls import reverse
 from gdstorage.storage import GoogleDriveStorage
 
 # Define Google Drive Storage
@@ -47,3 +48,14 @@ class ServiceTransaction(Transaction):
 
     def __str__(self):
         return "{} product: {}".format(super(Transaction, self).__str__(), self.service.name)
+
+
+class ServicePicture(models.Model):
+    order = models.ForeignKey(Order,
+                              on_delete=models.CASCADE,
+                              related_name='service_picture')
+    # image = models.ImageField(upload_to='pictures')
+    image = models.ImageField(upload_to='images/services', storage=gd_storage)
+
+    def get_absolute_url(self):
+        return reverse('detail-service-order', kwargs={'id': self.order.id}) + '#gallery'
