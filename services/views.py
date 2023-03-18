@@ -671,7 +671,12 @@ def detail_order(request, id):
 
     form = DiscountForm(total=context['order'].total,
                         profit=context['profit'])
+
     context.setdefault('form', form)
+
+    # Pictures
+    images = ServicePicture.objects.filter(order=context['order'])
+    context.setdefault('images', images)
 
     return render(request, 'services/order_detail.html', context)
 
@@ -836,7 +841,7 @@ def share_service_pictures(request, ids):
     pks = list(map(int, ids.split(',')[:-1]))
     images = ServicePicture.objects.filter(pk__in=pks)
     return render(request, 'services/service_images.html', {'images': images,
-                                                            'order': images[0].trailer})
+                                                            'order': images[0].order})
 
 
 @login_required

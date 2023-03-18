@@ -91,7 +91,7 @@ urlpatterns = [
          name='create-service-pictures'),
     path('share_images/<ids>',  share_service_pictures,
          name='share-service-pictures'),
-    path('delete_trailer_images/<ids>',  delete_service_picture,
+    path('delete_service_images/<ids>',  delete_service_picture,
          name='delete-service-pictures'),
 
 ]

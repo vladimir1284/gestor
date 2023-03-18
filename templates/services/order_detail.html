@@ -17,6 +17,35 @@
     .add .tooltip{
         opacity: 1;
     }
+    .hidden{
+        visibility: hidden;
+    }
+    .dot {
+        height: 1em;
+        width: 1em;
+        background-color: {{trailer.color.code}};
+        border-radius: 50%;
+        display: inline-block;
+        padding-top:5px;
+    }
+    .bottom-space {
+        margin-bottom: 1em;
+    }
+
+    #trigger {
+        display: none;
+    }
+    .checker {
+        object-fit: cover;
+        object-position: center;
+        height: 200px;
+        width: 200px;
+        }
+    {% for img in images %}   
+        #trigger-{{ img.id }}:checked + .img-border {
+            border:3px solid blue;
+        }
+    {% endfor %}
     </style>
     <div class="card mb-3">
         <div class="card-body">
@@ -462,7 +491,7 @@
           function shareImages() {  
               let imgs = getSelectedImages();
               if (imgs.length > 0){
-                  window.open("/towit/share_images/"+imgs, '_blank');   
+                  window.open("/services/share_images/"+imgs, '_blank');   
               } else {
                   alert("Please, select at least one picture!")
               }
@@ -473,7 +502,7 @@
               if (imgs.length > 0){
                   let confirmAction = confirm("Are you sure to delete the selected pictures?");
                   if (confirmAction) {
-                       window.location = "/towit/delete_trailer_images/"+imgs;
+                       window.location = "/services/delete_service_images/"+imgs;
                   }
               } else {
                   alert("Please, select at least one picture!")

@@ -447,6 +447,23 @@ class ServicePictureForm(BaseForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
+                HTML(
+                    """
+                {% load static %}
+                <img id="preview"
+                alt="image"
+                class="d-block rounded"
+                height="100" width="100"
+                {% if form.instance.image %}
+                    src="{{ form.instance.image.url }}"
+                {% else %}
+                    src="{% static 'images/icons/no_image.jpg' %}"
+                {% endif %}>
+                """
+                ),
+                css_class="d-flex align-items-start align-items-sm-center gap-4"
+            ),
+            Div(
                 Div(
                     Field('image')
                 ),
