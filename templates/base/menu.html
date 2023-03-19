@@ -7,7 +7,8 @@
                 <img id="logo"
                      src="{% static 'assets/img/icons/logo.png' %}"
                      alt="logo"
-                     style="width: 60px; height: 25px"/>
+                     style="width: 60px;
+                            height: 25px"/>
             </span>
             <span class="app-brand-text demo menu-text fw-bolder ms-2">Towit</span>
         </a>
@@ -42,8 +43,8 @@
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="{% url 'logout' %}" class="menu-link">
-                        <div data-i18n="Membership">Membresías</div>
+                    <a href="{% url 'weekly-membership' %}" class="menu-link">
+                        <div data-i18n="Membership">Membership</div>
                     </a>
                 </li>
                 <li class="menu-item">

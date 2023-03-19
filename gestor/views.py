@@ -101,6 +101,31 @@ def report(request, year, month):
 
 
 @login_required
+def weekly_membership_report(request, date=None):
+
+    (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
+
+    orders = Order.objects.filter(
+        status='complete',
+        type='sell',
+        terminated_date__gt=start_date,
+        terminated_date__lte=end_date).order_by(
+        '-terminated_date').exclude(
+        company__membership=False).exclude(
+        company=None)
+
+    costs = Cost.objects.filter(date__gt=start_date,
+                                date__lte=end_date).order_by("-date")
+
+    context = computeReport(orders, costs)
+    context.setdefault('start_date', start_date)
+    context.setdefault('end_date', end_date - timedelta(days=1))
+    context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
+    context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
+    return render(request, 'weekly_membership.html', context)
+
+
+@login_required
 def weekly_report(request, date=None):
 
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)

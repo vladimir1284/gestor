@@ -18,7 +18,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import dashboard, report, weekly_report
+from .views import dashboard, report, weekly_report, weekly_membership_report
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +26,9 @@ urlpatterns = [
     path('report/<year>/<month>', report, name='report'),
     path('weekly/', weekly_report, name='weekly-report'),
     path('weekly/<date>', weekly_report, name='weekly-report-date'),
+    path('weekly_membership/', weekly_membership_report, name='weekly-membership'),
+    path('weekly_membership/<date>', weekly_membership_report,
+         name='weekly-membership-date'),
     path('users/', include('users.urls')),
     path('inventory/', include('inventory.urls')),
     path('services/', include('services.urls')),
