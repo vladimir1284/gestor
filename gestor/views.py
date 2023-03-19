@@ -119,7 +119,7 @@ def weekly_report(request, date=None):
 
     context = computeReport(orders, costs)
     context.setdefault('start_date', start_date)
-    context.setdefault('end_date', end_date)
+    context.setdefault('end_date', end_date - timedelta(days=1))
     context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
     context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
     return render(request, 'weekly.html', context)
