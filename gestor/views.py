@@ -60,11 +60,11 @@ def getOrderBalance(order: Order, products: dict):
     order.parts = parts_cost
     order.consumable = consumable_expenses
     order.third_party = third_party_expenses
+    order.amount -= order.discount
     order.net = (order.amount
                  - order.parts
                  - order.consumable
                  - order.third_party
-                 - order.discount
                  )
     order.amount += order.tax
 
