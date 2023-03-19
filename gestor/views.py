@@ -34,6 +34,7 @@ def getOrderBalance(order: Order, products: dict):
         if product in products.keys():
             products[product]['quantity'] += trans.quantity
             products[product]['cost'] += trans.cost
+            products[product]['price'] += trans.getAmount()
             products[product]['profit'] += computeTransactionProfit(
                 trans,
                 procedure="profit")
@@ -43,6 +44,7 @@ def getOrderBalance(order: Order, products: dict):
                 'name': product.name,
                 'unit': product.unit,
                 'quantity': trans.quantity,
+                'price': trans.getAmount(),
                 'cost': trans.cost,
                 'profit': computeTransactionProfit(trans, procedure="profit")
             })
@@ -181,12 +183,20 @@ def computeReport(orders, costs):
 
     # Product incomes
     parts_profit = 0
+    parts_price = 0
+    parts_cost = 0
     consumables_profit = 0
     for product in products.keys():
         if product.type == "part":
             parts_profit += products[product]['profit']
+            parts_price += products[product]['price']
+            parts_cost += products[product]['cost']
         if product.type == "consumable":
             consumables_profit += products[product]['profit']
+
+    parts_utility = 0
+    if (parts_cost != 0):
+        parts_utility = 100*parts_profit/parts_cost
 
     # Sort by profit
     sorted_products = sorted(
@@ -196,6 +206,8 @@ def computeReport(orders, costs):
         product.profit = products[product]['profit']
         product.quantity = products[product]['quantity']
         product.cost = products[product]['cost']
+        product.price = products[product]['price']
+        product.average = product.price/product.quantity
         if products[product]['cost'] != 0:
             product.efficiency = int(
                 100*products[product]['profit']/products[product]['cost'])
@@ -210,6 +222,9 @@ def computeReport(orders, costs):
         'profit': total['net'] - costs.total,
         'products': sorted_products,
         'parts_profit': parts_profit,
+        'parts_cost': parts_cost,
+        'parts_utility': parts_utility,
+        'parts_price': parts_price,
         'consumables_profit': consumables_profit,
     }
 

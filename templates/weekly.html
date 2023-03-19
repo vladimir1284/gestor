@@ -40,7 +40,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3"
-                         style="position: relative;">
+                         style="position: relative">
                         <div class="d-flex flex-column align-items-center gap-1">
                             <h2 class="mb-2">${{ total.net|floatformat:"0" }}</h2>
                             <span>Service income</span>
@@ -139,7 +139,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3"
-                         style="position: relative;">
+                         style="position: relative">
                         <div class="d-flex flex-column align-items-center gap-1">
                             <h2 class="mb-2">
                                 ${{ profit|floatformat:"0" }}
@@ -233,13 +233,25 @@
             </ul>
             <div class="tab-content">
                 <div class="tab-pane fade active show" id="navs-top-parts" role="tabpanel">
-                    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                        Parts net incomes:
-                        <div class="text-success">
-                            <strong>{{ parts_profit|floatformat:"2" }}</strong>
-                            <span class="text-muted">USD</span>
+                    <div class="d-flex mb-4 pb-1">
+                        <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-secondary"><i class="bx bx-repost"></i></span>
                         </div>
-                    </h5>
+                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                                <h6 class="mb-0">
+                                    Parts income ({{ parts_utility|floatformat:"0" }}%)
+                                </h6>
+                                <small class="text-muted">Price: ${{ parts_price|floatformat:"0" }}, Cost: ${{ parts_cost|floatformat:"0" }}</small>
+                            </div>
+                            <div class="user-progress">
+                                <div class="text-success">
+                                    <strong>{{ parts_profit|floatformat:"0" }}</strong>
+                                    <span class="text-muted">USD</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="table-responsive text-nowrap">
                         <table class="table">
                             <thead>
@@ -252,6 +264,12 @@
                                     </th>
                                     <th>
                                         Unit
+                                    </th>
+                                    <th>
+                                        Price
+                                    </th>
+                                    <th>
+                                        Ave
                                     </th>
                                     <th>
                                         Cost
@@ -278,6 +296,16 @@
                                             </td>
                                             <td>
                                                 {{ part.unit }}
+                                            </td>
+                                            <td>
+                                                <div class="float-end">
+                                                    ${{ part.price|floatformat:"2" }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="float-end">
+                                                    <strong>${{ part.average|floatformat:"2" }}</strong>
+                                                </div>
                                             </td>
                                             <td>
                                                 <div class="float-end">
