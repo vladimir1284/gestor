@@ -59,6 +59,8 @@
                    href="{% url 'update-order' order.id %}">
                     <span class="tf-icons bx bx-edit"></span>
                 </a>
+            {% endif %}
+            {% if order.status != 'decline' %}
                 <a onclick="updateStatus('{% url 'update-order-status' order.id 'decline' %}', 'decline')"
                    type="button"
                    class="btn btn-icon btn-outline-danger float-end">

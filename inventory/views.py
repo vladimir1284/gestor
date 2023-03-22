@@ -181,6 +181,27 @@ def update_order(request, id):
     return render(request, 'inventory/order_create.html', context)
 
 
+def undo_transaction(transaction: ProductTransaction):
+    #  To be performed on complete orders
+    product = Product.objects.get(id=transaction.product.id)
+
+    # To be used in the rest of the system
+    product_quantity = convertUnit(
+        input_unit=transaction.unit,
+        output_unit=product.unit,
+        value=transaction.quantity)
+
+    stock = Stock.objects.filter(product=product,
+                                 quantity=product_quantity).latest('id')
+
+    if stock is not None:
+        cost = transaction.price*(1 + transaction.tax/100.)  # Add on taxes
+        product.quantity -= product_quantity
+        product.stock_price -= transaction.quantity * cost
+        product.save()
+        stock.delete()
+
+
 @login_required
 def update_order_status(request, id, status):
     order = get_object_or_404(Order, id=id)
@@ -189,6 +210,13 @@ def update_order_status(request, id, status):
         for transaction in transactions:
             handle_transaction(transaction)
         order.terminated_date = timezone.now()
+    elif order.status == 'complete':
+        if status == 'decline':
+            # Reverse stock
+            transactions = ProductTransaction.objects.filter(order=order)
+            for transaction in transactions:
+                undo_transaction(transaction)
+
     order.status = status
     order.save()
     return redirect('list-order')

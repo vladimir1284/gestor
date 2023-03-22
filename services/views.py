@@ -489,11 +489,43 @@ def update_order_status(request, id, status):
             for transaction in transactions:
                 handle_transaction(transaction)
             order.terminated_date = timezone.now()
+        elif order.status == 'complete':
+            if status == 'decline':
+                # Reverse stock
+                transactions = ProductTransaction.objects.filter(order=order)
+                for transaction in transactions:
+                    reverse_transaction(transaction)
+
         order.status = status
         order.save()
     except NotEnoughStockError as error:
         print(error)
     return redirect('list-service-order')
+
+
+def reverse_transaction(transaction: Transaction):
+    #  To be performed on complete orders
+    if isinstance(transaction, ProductTransaction):
+        product = transaction.product
+        # To be used in the rest of the system
+        product = Product.objects.get(id=product.id)
+        product_quantity = convertUnit(
+            input_unit=transaction.unit,
+            output_unit=product.unit,
+            value=transaction.quantity)
+
+        if (product_quantity > product.quantity):
+            raise NotEnoughStockError
+
+        stock_cost = transaction.cost
+
+        product.quantity += product_quantity
+        product.stock_price += stock_cost
+        product.save()
+
+        Stock.objects.create(product=product,
+                             quantity=product_quantity,
+                             cost=stock_cost/product_quantity)
 
 
 STATUS_ORDER = ['pending', 'processing', 'approved', 'complete', 'decline']
@@ -523,7 +555,7 @@ def prepareListOrder(request, status_list):
     # List orders
     orders = Order.objects.filter(
         type='sell', status__in=status_list).order_by('-created_date')
-    orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
+    # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
     for order in orders:
         statuses.add(order.status)
