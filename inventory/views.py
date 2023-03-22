@@ -216,7 +216,7 @@ def list_terminated_order(request):
 def prepareListOrder(request, status_list):
     orders = Order.objects.filter(
         type='purchase', status__in=status_list).order_by('-created_date')
-    orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
+    # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
     for order in orders:
         statuses.add(order.status)

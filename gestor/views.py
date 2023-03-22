@@ -232,7 +232,8 @@ def computeReport(orders, costs):
         product.quantity = products[product]['quantity']
         product.cost = products[product]['cost']
         product.price = products[product]['price']
-        product.average = product.price/product.quantity
+        if product.quantity > 0:
+            product.average = product.price/product.quantity
         if products[product]['cost'] != 0:
             product.efficiency = int(
                 100*products[product]['profit']/products[product]['cost'])
