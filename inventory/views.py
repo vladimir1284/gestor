@@ -784,7 +784,67 @@ def minprice_update(request):
             product.min_price = post_data["value"]
             product.save()
             return JsonResponse({"status": "ok",
-                                "min_value": product.min_price})
+                                "new_value": F"${product.min_price}"})
+        except Exception as err:
+            print(err)
+            return JsonResponse({"status": "error",
+                                 "msg": str(err)})
+    return JsonResponse({})
+
+
+def discountStockFIFO(product, product_quantity):
+    # Implementing FIFO method
+    stock_cost = 0
+    pending = product_quantity
+    stock_array = Stock.objects.filter(
+        product=product).order_by('created_date')
+    for stock in stock_array:
+        if (pending < stock.quantity):
+            stock_cost += pending * stock.cost
+            stock.quantity -= pending
+            stock.save()
+            break
+        elif (pending == stock.quantity):
+            stock_cost += stock.quantity * stock.cost
+            stock.delete()
+            break
+        else:
+            stock_cost += stock.quantity * stock.cost
+            pending -= stock.quantity
+            stock.delete()
+    return stock_cost
+
+
+@login_required
+def quantity_update(request):
+    if request.method == "POST":
+        try:
+            post_data = json.loads(request.body.decode("utf-8"))
+            product = Product.objects.get(id=post_data["product_id"])
+            new_quantity = post_data["value"]
+
+            if new_quantity < 0:
+                return JsonResponse({"status": "error",
+                                     "msg": "Negative quantity!!"})
+
+            diff = new_quantity - product.quantity
+            if diff > 0:
+                # Emulate a purchase transaction by adding the quantity to the latest stock
+                last_stock = Stock.objects.filter(product=product).latest('id')
+                last_stock.quantity += diff
+                last_stock.save()
+                product.quantity = new_quantity
+                product.stock_price += diff*last_stock.cost
+                product.save()
+            elif diff < 0:
+                # Emulate a sell transaction
+                stock_cost = discountStockFIFO(product, -diff)
+                product.quantity += diff
+                product.stock_price -= stock_cost
+                product.save()
+
+            return JsonResponse({"status": "ok",
+                                "new_value": product.quantity})
         except Exception as err:
             print(err)
             return JsonResponse({"status": "error",

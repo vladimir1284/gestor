@@ -6,81 +6,10 @@
         {% if type == 'part' %}<th>Ave</th>{% endif %}
         <th>Cost</th>
         <th>Min</th>
+        <th>Qty</th>
     </tr>
 </thead>
 <tbody class="table-border-bottom-0">
-    <script>
-        let product_id, spinner, min_price_input, product;
-
-        function getInitialData(id){
-            product = document.getElementById(id);
-            product_id = Number(id.split("-")[1]);
-            min_price_input = document.getElementById("minValueInput");
-            const pname = document.getElementById("product-name");
-            spinner = document.getElementById("spinner_uploading");
-            const old_value = parseFloat(product.dataset.minPrice.replace(',','.').replace(' ',''));
-            min_price_input.value = old_value;
-            pname.textContent = product.dataset.productName;
-        }
-
-        function updateMinPrice(){
-            uploadData(Number(min_price_input.value), product_id);
-        }
-
-        function uploadData(value, pid){
-            data = JSON.stringify({
-                product_id: pid,
-                value: value
-            })
-            
-            let csrftoken = getCookie('csrftoken');
-
-            fetch("{% url 'minprice-update' %}", {
-                method: 'POST',
-                body: data,
-                headers: { 'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json',
-                    "X-CSRFToken": csrftoken },
-            })
-            .then((res) => {return res.json()})
-            .then(json => {
-                if(json.status != "ok"){
-                    console.log(json);
-                    if (json.status === "error"){
-                        throw( json.msg ); 
-                    }
-                    throw( "Wrong response from server!" ); 
-                }
-                product.style.color="green";
-                product.textContent="$" + json.min_value;
-            })
-            .catch(err => {
-                alert(`Error: ${err}`);
-                console.log(err);
-            })
-            .finally(() => {
-                spinner.style.display="none";
-                $('#modalCenter').modal('hide');
-            });
-            spinner.style.display="";
-        }
-        
-        
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-    </script>
     {% for product in products %}
         {% if product.type == type %}
             <tr data-tag="{{ product.category }}" data-search="{{ product.name }}">
@@ -116,48 +45,16 @@
                         ${{ product.min_price|floatformat:"-2" }}
                     </button>
                 </td>
+                <td>
+                    {% if product.quantity > 0 %}
+                        <button onclick="getInitialQty(this.id)" type="button" class="btn btn-outline-primary p-1 pt-0 pb-0 minprice" data-quantity={{ product.quantity }} id="qty_product-{{ product.id }}" data-product-name="{{ product.name }}" data-bs-toggle="modal" data-bs-target="#modalCenterQty">
+                            {{ product.quantity|floatformat:"-2" }}
+                        </button>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
             </tr>
         {% endif %}
     {% endfor %}
-    <div class="modal fade"
-         id="modalCenter"
-         tabindex="-1"
-         style="display: none"
-         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalCenterTitle">Modify Minnimum Price</h5>
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>
-                        Product <strong><span id="product-name"></span></strong>
-                    </p>
-                    <div class="row">
-                        <div class="col mb-3">
-                            <label for="minValueInput" class="form-label">Min Price</label>
-                            <input type="number" id="minValueInput" class="form-control"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button"
-                            class="btn btn-outline-secondary"
-                            data-bs-dismiss="modal">Close</button>
-                    <button onclick="updateMinPrice()" type="button" class="btn btn-primary">
-                        <div class="spinner-border spinner-border-sm text-secondary"
-                             style="display: none"
-                             id="spinner_uploading"
-                             role="status">
-                        </div>
-                        Update
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 </tbody>

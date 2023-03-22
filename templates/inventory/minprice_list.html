@@ -1,4 +1,182 @@
 {% extends "./product/base_product_list.html" %}
+{% block extra_scripts %}
+    <script>
+    let product_id, spinner, min_price_input, product, qty_input;
+
+    function getInitialData(id){
+        product = document.getElementById(id);
+        product_id = Number(id.split("-")[1]);
+        min_price_input = document.getElementById("minValueInput");
+        const pname = document.getElementById("product-name");
+        spinner = document.getElementById("spinner_uploading");
+        const old_value = parseFloat(product.dataset.minPrice.replace(',','.').replace(' ',''));
+        min_price_input.value = old_value;
+        pname.textContent = product.dataset.productName;
+    }
+
+    function getInitialQty(id){
+        product = document.getElementById(id);
+        product_id = Number(id.split("-")[1]);
+        qty_input = document.getElementById("qtyInput");
+        const pname = document.getElementById("qty-product-name");
+        spinner = document.getElementById("qty_spinner_uploading");
+        const old_value = parseFloat(product.dataset.quantity.replace(',','.').replace(' ',''));
+        qty_input.value = old_value;
+        pname.textContent = product.dataset.productName;
+    }
+
+
+    function updateQty(){
+        uploadData(Number(qty_input.value), product_id, "{% url 'quantity-update' %}");
+    }
+
+    function updateMinPrice(){
+        uploadData(Number(min_price_input.value), product_id, "{% url 'minprice-update' %}");
+    }
+
+    function uploadData(value, pid, url){
+        data = JSON.stringify({
+            product_id: pid,
+            value: value
+        })
+        
+        let csrftoken = getCookie('csrftoken');
+
+        fetch(url, {
+            method: 'POST',
+            body: data,
+            headers: { 'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+                "X-CSRFToken": csrftoken },
+        })
+        .then((res) => {return res.json()})
+        .then(json => {
+            if(json.status != "ok"){
+                console.log(json);
+                if (json.status === "error"){
+                    throw( json.msg ); 
+                }
+                throw( "Wrong response from server!" ); 
+            }
+            product.addEventListener("focus", function () {
+                this.style.color = "lightgreen";  
+              });
+            product.addEventListener("focusout", function () {
+                this.style.color = "green";  
+              });
+            product.textContent=json.new_value;
+        })
+        .catch(err => {
+            alert(`Error: ${err}`);
+            console.log(err);
+        })
+        .finally(() => {
+            spinner.style.display="none";
+            $('#modalCenter').modal('hide');
+            $('#modalCenterQty').modal('hide');
+        });
+        spinner.style.display="";
+    }
+    
+    
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+    <div class="modal fade"
+         id="modalCenter"
+         tabindex="-1"
+         style="display: none"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCenterTitle">Modify Minnimum Price</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Product <strong><span id="product-name"></span></strong>
+                    </p>
+                    <div class="row">
+                        <div class="col mb-3">
+                            <label for="minValueInput" class="form-label">Min Price</label>
+                            <input type="number" id="minValueInput" class="form-control"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Close</button>
+                    <button onclick="updateMinPrice()" type="button" class="btn btn-primary">
+                        <div class="spinner-border spinner-border-sm text-secondary"
+                             style="display: none"
+                             id="spinner_uploading"
+                             role="status">
+                        </div>
+                        Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade"
+         id="modalCenterQty"
+         tabindex="-1"
+         style="display: none"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCenterTitle">Modify Stock</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Product <strong><span id="qty-product-name"></span></strong>
+                    </p>
+                    <div class="row">
+                        <div class="col mb-3">
+                            <label for="qtyInput" class="form-label">Quantity</label>
+                            <input type="number" id="qtyInput" class="form-control"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">Close</button>
+                    <button onclick="updateQty()" type="button" class="btn btn-primary">
+                        <div class="spinner-border spinner-border-sm text-secondary"
+                             style="display: none"
+                             id="qty_spinner_uploading"
+                             role="status">
+                        </div>
+                        Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock extra_scripts %}
 {% block tableParts %}
     {% include "./product/minprice_table.html" with type="part" %}
 {% endblock tableParts %}

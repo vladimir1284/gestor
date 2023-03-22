@@ -34,6 +34,7 @@ from inventory.views import (
     convertUnit,
     NotEnoughStockError,
     prepare_product_list,
+    discountStockFIFO
 )
 from utils.models import (
     Transaction,
@@ -171,25 +172,7 @@ def handle_transaction(transaction: Transaction):
         if (product_quantity > product.quantity):
             raise NotEnoughStockError
 
-        # Implementing FIFO method
-        stock_cost = 0
-        pending = product_quantity
-        stock_array = Stock.objects.filter(
-            product=product).order_by('created_date')
-        for stock in stock_array:
-            if (pending < stock.quantity):
-                stock_cost += pending * stock.cost
-                stock.quantity -= pending
-                stock.save()
-                break
-            elif (pending == stock.quantity):
-                stock_cost += stock.quantity * stock.cost
-                stock.delete()
-                break
-            else:
-                stock_cost += stock.quantity * stock.cost
-                pending -= stock.quantity
-                stock.delete()
+        stock_cost = discountStockFIFO(product, product_quantity)
         transaction.cost = stock_cost
         transaction.save()
 

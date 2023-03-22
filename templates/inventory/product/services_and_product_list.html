@@ -20,6 +20,18 @@
                     <li class="nav-item">
                         <button type="button"
                                 onClick="filterTag('all')"
+                                class="nav-link active"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#navs-pills-justified-services"
+                                aria-controls="navs-pills-justified-services"
+                                aria-selected="true">
+                            <i class="tf-icons bx bx-cog"></i> Services
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button"
+                                onClick="filterTag('all')"
                                 class="nav-link"
                                 role="tab"
                                 data-bs-toggle="tab"
@@ -53,6 +65,17 @@
     </div>
     <div class="tab-content pe-0 ps-0">
         <div class="tab-pane fade active show"
+             id="navs-pills-justified-services"
+             role="tabpanel">
+            <div class="list-head pe-4 ps-4">{% include "utils/filter_category.html" with categories=categories %}</div>
+            <div class="table-responsive text-nowrap">
+                <table class="table" id="table_services">
+                    {% block tableServices %}
+                    {% endblock tableServices %}
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade show"
              id="navs-pills-justified-parts"
              role="tabpanel">
             <div class="list-head pe-4 ps-4">{% include "utils/filter_category.html" with categories=part_categories %}</div>
