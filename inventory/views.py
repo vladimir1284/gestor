@@ -325,7 +325,7 @@ def create_transaction(request, order_id, product_id):
 
     form = TransactionCreateForm(initial={'unit': product.unit,
                                           'price': product.getSuggestedPrice()},
-                                 product=product)
+                                 product=product, order=order)
     if request.method == 'POST':
         form = TransactionCreateForm(
             request.POST, product=product, order=order)

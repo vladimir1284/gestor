@@ -207,8 +207,9 @@ class TransactionCreateForm(forms.ModelForm):
             average = F" Cost: ${cost:.2f}."
             if unit != self.product.unit:
                 error_msg += F'${price:.2f} for one {unit} implies ${product_cost:.2f} each {self.product.unit}. ' + average
-            if product_cost < self.product.min_price:
-                error_msg += F'The price cannot be lower than ${self.product.min_price:.2f}.' + average
+
+            if product_cost < self.limit:
+                error_msg += F'The price cannot be lower than ${self.limit:.2f}.' + average
                 raise ValidationError(error_msg)
         return price
 
@@ -228,6 +229,16 @@ class TransactionCreateForm(forms.ModelForm):
             kwargs.pop('order')
         else:
             self.order = None
+
+        # Price
+        self.limit = self.product.min_price
+        cost = self.product.getCost()
+        # Allow minimum price equal to cost for membership
+        if self.order is not None:
+            if self.order.company is not None:
+                if self.order.company.membership:
+                    self.limit = cost
+
         super().__init__(*args, **kwargs)
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
@@ -235,9 +246,7 @@ class TransactionCreateForm(forms.ModelForm):
             self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
             break
 
-        # Price
-        minimum = F"Minimum: ${self.product.min_price:.2f}/{self.product.unit}."
-        cost = self.product.getCost()
+        minimum = F"Minimum: ${self.limit:.2f}/{self.product.unit}."
         average = F" Cost: ${cost:.2f}/{self.product.unit}."
         self.fields['price'].help_text = minimum + average
 
