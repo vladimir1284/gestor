@@ -29,6 +29,8 @@ The **ProductKit** storage a set of products and services that are usually inclu
 The main model in this application is the **Service**, which includes a description and a suggested price 
 for a given labor. The **ServiceCategory** is used for filtering in the user interface. The **ServiceTransaction** represents a particular labor included in a *service* **Order**. 
 
+Each **Order** has one or several **Payment** associated when completed. **PaymentCategory** divides payments into payment methods. 
+
 The **Expense** model accounts for the Third Party Services required for the given *service* **Order**. 
 
 ![Services UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/services_models.png)
