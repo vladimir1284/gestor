@@ -59,3 +59,17 @@ class ServicePicture(models.Model):
 
     def get_absolute_url(self):
         return reverse('detail-service-order', kwargs={'id': self.order.id}) + '#gallery'
+
+
+class PaymentCategory(Category):
+    extra_charge = models.FloatField(default=0)
+
+
+class Payment(models.Model):
+    category = models.ForeignKey(PaymentCategory, blank=True, null=True,
+                                 on_delete=models.SET_NULL)
+    amount = models.FloatField(blank=True, null=True)
+    exclusive = models.BooleanField(default=False)
+    order = models.ForeignKey(Order,
+                              on_delete=models.CASCADE,
+                              related_name='service_payment')

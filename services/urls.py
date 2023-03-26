@@ -1,5 +1,13 @@
 from django.urls import path
 from .views import (
+    # ----- Payment -------
+    create_payment_category,
+    list_payment_category,
+    update_payment_category,
+    delete_payment_category,
+    update_payment,
+    delete_payment,
+    process_payment,
     # ---- Category -------
     CategoryListView,
     delete_category,
@@ -93,5 +101,19 @@ urlpatterns = [
          name='share-service-pictures'),
     path('delete_service_images/<ids>',  delete_service_picture,
          name='delete-service-pictures'),
+    # -------------------- Payment ----------------------------
+    path('create_payment_category/',
+         create_payment_category, name='create-payment-category'),
+    path('list_payment_category/', list_payment_category,
+         name='list-payment-category'),
+    path('update_payment_category/<id>',
+         update_payment_category, name='update-payment-category'),
+    path('delete_payment_category/<id>',
+         delete_payment_category, name='delete-payment-category'),
+    path('update_payment/<id>', update_payment, name='update-payment'),
+    path('delete_payment/<id>/<int:order_id>',
+         delete_payment, name='delete-payment'),
+    path('process_payment/<int:order_id>',
+         process_payment, name='process-payment'),
 
 ]

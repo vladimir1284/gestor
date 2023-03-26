@@ -285,3 +285,7 @@ quickstart.py
 invoice_towit.pdf
 credentials.json
 token.json
+static/images/icons/card.jpg
+static/images/icons/cash.png
+static/images/icons/Square_Cash_app_logo.svg.png
+static/images/icons/zelle-z.png

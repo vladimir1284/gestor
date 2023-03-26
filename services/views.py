@@ -46,6 +46,8 @@ from .models import (
     Order,
     Expense,
     ServicePicture,
+    Payment,
+    PaymentCategory,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import (
@@ -56,7 +58,8 @@ from .forms import (
     OrderCreateForm,
     ExpenseCreateForm,
     SendMailForm,
-    ServicePictureForm
+    ServicePictureForm,
+    PaymentCategoryCreateForm
 )
 from utils.send_mail import MailSender
 from equipment.models import Vehicle, Trailer
@@ -866,3 +869,73 @@ def delete_service_picture(request, ids):
     for img in images:
         img.delete()
     return redirect('detail-service-order', images[0].order.id)
+
+
+# -------------------- Payment -------------------------
+
+@login_required
+def create_payment_category(request):
+    form = PaymentCategoryCreateForm()
+    if request.method == 'POST':
+        form = PaymentCategoryCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('list-payment-category')
+    context = {
+        'form': form,
+        'title': _('Create payment category')
+    }
+    return render(request, 'services/payment_category_create.html', context)
+
+
+@login_required
+def update_payment_category(request, id):
+    category = get_object_or_404(PaymentCategory, id=id)
+    form = PaymentCategoryCreateForm(instance=category)
+    if request.method == 'POST':
+        form = PaymentCategoryCreateForm(request.POST, request.FILES,
+                                         instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('list-payment-category')
+    context = {
+        'form': form,
+        'title': _('Update payment category')
+    }
+    return render(request, 'services/payment_category_create.html', context)
+
+
+@login_required
+def list_payment_category(request):
+    # fetch the object related to passed id
+    categories = PaymentCategory.objects.all()
+    context = {
+        'object_list': categories
+    }
+    return render(request, 'services/payment_category_list.html', context)
+
+
+@login_required
+def delete_payment_category(request, id):
+    # fetch the object related to passed id
+    category = get_object_or_404(PaymentCategory, id=id)
+    category.delete()
+    return redirect('list-payment-category')
+
+
+@login_required
+def process_payment(request, order_id):
+    pass
+
+
+@login_required
+def update_payment(request, id, order_id):
+    pass
+
+
+@login_required
+def delete_payment(request, id, order_id):
+    # fetch the object related to passed id
+    payment = get_object_or_404(Payment, id=id)
+    payment.delete()
+    return redirect('detail-order', order_id)

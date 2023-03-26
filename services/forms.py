@@ -9,6 +9,8 @@ from .models import (
     ServiceCategory,
     Expense,
     ServicePicture,
+    PaymentCategory,
+    Payment
 )
 from utils.forms import (
     BaseForm,
@@ -74,6 +76,48 @@ class CategoryCreateForm(BaseCategoryCreateForm):
     class Meta:
         model = ServiceCategory
         fields = ('name', 'icon',)
+
+
+class PaymentCategoryCreateForm(BaseForm):
+
+    class Meta:
+        model = PaymentCategory
+        fields = ('name', 'icon', 'extra_charge')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('name')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    AppendedText('extra_charge', '%')
+                ),
+                css_class="mb-3"
+            ),
+            HTML(
+                """
+                <img id="preview" 
+                {% if form.icon.value %}
+                    class="img-responsive" 
+                    src="/media/{{ form.icon.value }}"
+                {% endif %}">
+                """
+            ),
+            Div(
+                Div(
+                    Field('icon', css_class="form-select")
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
 
 
 class CommonTransactionLayout(Layout):
