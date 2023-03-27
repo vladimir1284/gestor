@@ -42,6 +42,7 @@
                 <thead>
                     <tr>
                         <th>Client</th>
+                        <th>VIN</th>
                         <th>date</th>
                         <th>Gross</th>
                         <th>Net</th>
@@ -65,6 +66,13 @@
                                         None
                                     {% endif %}
                                 </strong></a>
+                            </td>
+                            <td>
+                                {% if order.trailer %}
+                                    {{ order.trailer.vin }}
+                                {% elif order.vehicle %}
+                                    {{ order.vehicle.vin }}
+                                {% endif %}
                             </td>
                             <td>{{ order.terminated_date|date:"D, d" }}</td>
                             <td>
@@ -103,7 +111,9 @@
                             <div class="float-end">${{ total.gross|floatformat:"2" }}</div>
                         </th>
                         <th>
-                            <div class="float-end">${{ total.net|floatformat:"2" }}</div>
+                            <div class="float-end">
+                                ${{ total.net|floatformat:"2" }}
+                            </div>
                         </th>
                         <th>
                             <div class="float-end">
