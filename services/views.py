@@ -59,7 +59,8 @@ from .forms import (
     ExpenseCreateForm,
     SendMailForm,
     ServicePictureForm,
-    PaymentCategoryCreateForm
+    PaymentCategoryCreateForm,
+    PaymentCreateForm,
 )
 from utils.send_mail import MailSender
 from equipment.models import Vehicle, Trailer
@@ -925,7 +926,26 @@ def delete_payment_category(request, id):
 
 @login_required
 def process_payment(request, order_id):
-    pass
+    categories = PaymentCategory.objects.all()
+    forms = []
+    for category in categories:
+        initial = {'category': category}
+        forms.append(PaymentCreateForm(
+            initial=initial, auto_id=category.name+"_%s"))
+    if request.method == 'POST':
+        for form in forms:
+            form = PaymentCreateForm(request.POST, initial=initial)
+            if form.is_valid():
+                if form.cleaned_data['amount'] > 0:
+                    form.save()
+        return redirect('detail-order', order_id)
+
+    # order = get_object_or_404(Order, id=order_id)
+    context = getOrderContext(order_id)
+
+    context.setdefault('forms', forms)
+    context.setdefault('title', _('Process payment'))
+    return render(request, 'services/payment_process.html', context)
 
 
 @login_required

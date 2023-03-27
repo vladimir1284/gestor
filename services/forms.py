@@ -78,6 +78,27 @@ class CategoryCreateForm(BaseCategoryCreateForm):
         fields = ('name', 'icon',)
 
 
+class PaymentCreateForm(BaseForm):
+
+    class Meta:
+        model = Payment
+        fields = ('amount', )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.category = self.initial['category']
+        self.fields['amount'].label = self.category.name
+        if self.category.extra_charge > 0:
+            self.fields['amount'].help_text = F"Extra charge: {self.category.extra_charge}%"
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    PrependedText('amount', '$')
+                )
+            )
+        )
+
+
 class PaymentCategoryCreateForm(BaseForm):
 
     class Meta:

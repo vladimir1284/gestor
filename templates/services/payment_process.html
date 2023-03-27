@@ -1,0 +1,83 @@
+{% extends 'base/base_form.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">
+                    {{ title }}  <b>$<span id="order_total">{{ order.total|floatformat:"-2" }}</span></b>
+                </h5>
+            </div>
+            {% include "services/order_header.html" %}
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% for form in forms %}
+                        <div class="d-flex mb-4 pb-1">
+                            <div class="flex-shrink-0 me-3">
+                                {% if form.category.icon %}<img src="{{ form.category.icon.url }}" alt="" class="w-px-75 h-auto"/>{% endif %}
+                            </div>
+                            <div class="w-100">{% crispy form %}</div>
+                        </div>
+                    {% endfor %}
+                    <p>
+                        <input disabled
+                               class="btn btn-primary btn btn-success float-end"
+                               type="submit"
+                               id="summit_btn"
+                               value="Process">
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        let payment_inputs, total, submit;
+        let payment, extra_charge;
+
+        window.onload = function(){  
+            payment_inputs = document.getElementsByClassName("numberinput");
+            total = parseFloat(document.getElementById("order_total").innerHTML.replace(',', '.'));
+            for (var i in payment_inputs) {
+                payment_inputs[i].onclick = selectPaymentType;
+                payment_inputs[i].oninput = updateValues;
+            }
+            submit = document.getElementById("summit_btn");
+        }  
+        function selectPaymentType(){            
+            event.srcElement.value = total;
+            for (var i in payment_inputs) {
+                if (payment_inputs[i].id != event.srcElement.id){
+                    payment_inputs[i].value = 0;
+                }
+                payment_inputs[i].onclick = null;
+            }
+            updateValues();
+        }
+        function updateValues(){
+            payment = 0;
+            extra_charge = 0;
+            for (var i in payment_inputs) {
+                let data = Number(payment_inputs[i].value);
+                if (data > 0){
+                    payment += data;
+                }
+                let extra = document.getElementById("hint_"+payment_inputs[i].id)
+                if (extra != undefined){
+                    let b = extra.innerHTML.split(":");
+                    extra_charge += Number(payment_inputs[i].value)/100*parseFloat(b[b.length -1].split("%")[0].replace(',', '.'));
+                }
+            }
+            console.log(payment, extra_charge)
+            if (payment === total){
+                submit.disabled=false;
+            } else {
+                submit.disabled=true;
+            }
+        }
+    </script>
+{% endblock content %}
