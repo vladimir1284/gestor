@@ -24,13 +24,17 @@
                             <div class="w-100">{% crispy form %}</div>
                         </div>
                     {% endfor %}
-                    <p>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="me-2">
+                            <h6 id="total_value" class="mb-0"></h6>
+                            <small id="extra_charge" class="text-muted"></small>
+                        </div>
                         <input disabled
                                class="btn btn-primary btn btn-success float-end"
                                type="submit"
                                id="summit_btn"
                                value="Process">
-                    </p>
+                    </div>
                 </form>
             </div>
         </div>
