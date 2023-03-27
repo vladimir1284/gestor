@@ -107,7 +107,7 @@
                 <td></td>
             {% endif %}
             <td>
-                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ order.concept }}</strong>
+                <i class="fab fa-angular fa-lg text-danger"></i> <strong {% if order.status == 'decline' and order.terminated_date %} class="bg-label-danger"{% endif %}>{{ order.concept }}</strong>
             </td>
             <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
             <td>${{ order.amount|floatformat:"2" }}</td>
