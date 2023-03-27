@@ -69,7 +69,7 @@ class Payment(models.Model):
     category = models.ForeignKey(PaymentCategory, blank=True, null=True,
                                  on_delete=models.SET_NULL)
     amount = models.FloatField(blank=True, null=True)
-    exclusive = models.BooleanField(default=False)
+    extra_charge = models.FloatField(default=0)
     order = models.ForeignKey(Order,
                               on_delete=models.CASCADE,
                               related_name='service_payment')

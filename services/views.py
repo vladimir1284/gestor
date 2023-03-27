@@ -489,10 +489,7 @@ def update_order_status(request, id, status):
     order = get_object_or_404(Order, id=id)
     try:
         if status == 'complete':
-            transactions = ProductTransaction.objects.filter(order=order)
-            for transaction in transactions:
-                handle_transaction(transaction)
-            order.terminated_date = timezone.now()
+            return redirect('process-payment', id)
         elif order.status == 'complete':
             if status == 'decline':
                 # Reverse stock
@@ -930,17 +927,31 @@ def process_payment(request, order_id):
     forms = []
     for category in categories:
         initial = {'category': category}
-        forms.append(PaymentCreateForm(
-            initial=initial, auto_id=category.name+"_%s"))
+        forms.append(PaymentCreateForm(request.POST or None, prefix=category.name,
+                                       initial=initial, auto_id=category.name+"_%s"))
     if request.method == 'POST':
+        order = get_object_or_404(Order, id=order_id)
+        valid = False
         for form in forms:
-            form = PaymentCreateForm(request.POST, initial=initial)
             if form.is_valid():
                 if form.cleaned_data['amount'] > 0:
-                    form.save()
-        return redirect('detail-order', order_id)
+                    payment = form.save(commit=False)
+                    payment.order = order
+                    payment.category = form.category
+                    payment.extra_charge = payment.category.extra_charge
+                    payment.save()
+                    valid = True
+        if valid:
+            transactions = ProductTransaction.objects.filter(order=order)
+            for transaction in transactions:
+                handle_transaction(transaction)
+            order.terminated_date = timezone.now()
+            order.status = "complete"
+            order.save()
+            return redirect('detail-service-order', order_id)
+        else:
+            return redirect('process-payment', order_id)
 
-    # order = get_object_or_404(Order, id=order_id)
     context = getOrderContext(order_id)
 
     context.setdefault('forms', forms)

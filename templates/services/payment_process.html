@@ -26,8 +26,10 @@
                     {% endfor %}
                     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                         <div class="me-2">
-                            <h6 id="total_value" class="mb-0"></h6>
-                            <small id="extra_charge" class="text-muted"></small>
+                            <h6 class="mb-0">
+                                <span id="total_value"></span> <span id="diff_value"></span>
+                            </h6>
+                            <small id="extra_value" class="text-muted"></small>
                         </div>
                         <input disabled
                                class="btn btn-primary btn btn-success float-end"
@@ -42,10 +44,20 @@
     <script>
         let payment_inputs, total, submit;
         let payment, extra_charge;
+        let total_value, diff_value, extra_value;
 
         window.onload = function(){  
+            // Inputs 
             payment_inputs = document.getElementsByClassName("numberinput");
+
+            // Report
+            total_value = document.getElementById("total_value");
+            diff_value = document.getElementById("diff_value");
+            extra_value = document.getElementById("extra_value");
+
+            // Charge
             total = parseFloat(document.getElementById("order_total").innerHTML.replace(',', '.'));
+
             for (var i in payment_inputs) {
                 payment_inputs[i].onclick = selectPaymentType;
                 payment_inputs[i].oninput = updateValues;
@@ -76,11 +88,21 @@
                     extra_charge += Number(payment_inputs[i].value)/100*parseFloat(b[b.length -1].split("%")[0].replace(',', '.'));
                 }
             }
-            console.log(payment, extra_charge)
-            if (payment === total){
-                submit.disabled=false;
-            } else {
+            total_value.innerHTML = `$${(payment+extra_charge).toFixed(2)}`;
+            extra_value.innerHTML = `$${extra_charge.toFixed(2)}`;
+
+            let diff = payment - total;             
+            if (diff != 0){
                 submit.disabled=true;
+                diff_value.innerHTML = `($${diff.toFixed(2)})`;
+                if (diff < 0){
+                    diff_value.style.color = "red";
+                } else {
+                    diff_value.style.color = "green";
+                }
+            } else {
+                diff_value.innerHTML = "";
+                submit.disabled=false;
             }
         }
     </script>

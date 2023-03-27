@@ -7,8 +7,7 @@
                 <img id="logo"
                      src="{% static 'assets/img/icons/logo.png' %}"
                      alt="logo"
-                     style="width: 60px;
-                            height: 25px"/>
+                     style="width: 60px; height: 25px"/>
             </span>
             <span class="app-brand-text demo menu-text fw-bolder ms-2">Towit</span>
         </a>
@@ -127,6 +126,12 @@
                     </li>
                 </ul>
             </li>
+            <li class="menu-item">
+                <a href="{% url 'list-payment-category' %}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-money"></i>
+                    <div data-i18n="Payments">Pagos</div>
+                </a>
+            </li>
         {% endif %}
         {% if perms.can_add_user %}
             <li class="menu-header small text-uppercase">
@@ -155,7 +160,9 @@
                     </li>
                     <li class="menu-item">
                         <a href={% url 'list-category' %} class="menu-link">
-                            <div data-i18n="Categorías">Categorías</div>
+                            <div data-i18n="Categorías">
+                                Categorías
+                            </div>
                         </a>
                     </li>
                     <li class="menu-item">
