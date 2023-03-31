@@ -108,7 +108,7 @@
                         {% if order.status != 'complete' %}
                             <li>
                                 <a class="dropdown-item badge bg-success"
-                                   onclick="updateStatus('{% url 'update-service-order-status' order.id 'complete' %}', 'complete')">Complete</a>
+                                   href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
                             </li>
                         {% endif %}
                     </ul>

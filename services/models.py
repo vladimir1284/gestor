@@ -4,6 +4,7 @@ from django.db import models
 from utils.models import Order, Transaction, Category
 from users.models import Associated
 from django.utils.translation import gettext_lazy as _
+from users.models import User
 
 from django.urls import reverse
 from gdstorage.storage import GoogleDriveStorage
@@ -73,3 +74,10 @@ class Payment(models.Model):
     order = models.ForeignKey(Order,
                               on_delete=models.CASCADE,
                               related_name='service_payment')
+
+
+class PendingPayment(models.Model):
+    client = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    amount = models.FloatField()
+    created_date = models.DateField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -89,6 +89,7 @@ class Associated(Contact):
     license = models.CharField(max_length=50, blank=True, null=True)
     # Provides third party expense
     outsource = models.BooleanField(_('Outsource'), default=False)
+    debt = models.FloatField(default=0)
 
 
 class UserProfile(models.Model):

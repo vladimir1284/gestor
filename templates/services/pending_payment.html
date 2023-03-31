@@ -1,4 +1,5 @@
 {% extends 'base/base_form.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 {% block title %}
     {{ title }}
@@ -9,7 +10,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">
-                    {{ title }}  <b>$<span id="order_total">{{ order.total|floatformat:"-2" }}</span></b>
+                    {{ title }}  <b>$<span id="order_total">{{ client.debt|floatformat:"-2" }}</span></b>
                 </h5>
             </div>
             <div class="card-body">
@@ -28,14 +29,29 @@
                                id="summit_btn"
                                value="Process">
                     </div>
-                    {% for form in forms %}
-                        <div class="d-flex pb-1">
-                            <div class="flex-shrink-0 me-3">
-                                {% if form.category.icon %}<img src="{{ form.category.icon.url }}" alt="" class="w-px-75 h-auto"/>{% endif %}
+                    <div>
+                        <div class="d-flex pe-2">
+                            <div class="avatar flex-shrink-0 me-3">
+                                <a href={% url 'detail-associated' client.id %}>
+                                    <span class="avatar-initial rounded-circle bg-label-primary">
+                                        <img {% if client.avatar %} src="{{ client.avatar.url }}" {% else %} src="{% static 'images/icons/user.png' %}" {% endif %}
+                                             alt="Avatar"
+                                             height="100px"
+                                             width="100px"
+                                             class="w-px-40 h-auto rounded-circle"/>
+                                    </span>
+                                </a>
                             </div>
-                            <div class="w-100">{% crispy form %}</div>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div data-tag="{{ client.name }}{{ client.phone_number }}"
+                                     class="me-2  client-data">
+                                    <h6 class="mb-0">{{ client.name }}</h6>
+                                    <small class="text-muted">{{ client.phone_number }}</small>
+                                </div>
+                            </div>
                         </div>
-                    {% endfor %}
+                        <div class="w-100">{% crispy form %}</div>
+                    </div>
                 </form>
             </div>
         </div>

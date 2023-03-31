@@ -48,6 +48,7 @@ from .models import (
     ServicePicture,
     Payment,
     PaymentCategory,
+    PendingPayment,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import (
@@ -61,6 +62,7 @@ from .forms import (
     ServicePictureForm,
     PaymentCategoryCreateForm,
     PaymentCreateForm,
+    PendingPaymentCreateForm,
 )
 from utils.send_mail import MailSender
 from equipment.models import Vehicle, Trailer
@@ -924,6 +926,16 @@ def delete_payment_category(request, id):
 @login_required
 def process_payment(request, order_id):
     categories = PaymentCategory.objects.all()
+
+    # Create the debt category if it doesn't exists
+    debt, created = PaymentCategory.objects.get_or_create(
+        name='debt',
+        defaults={'name': 'debt', 'icon': 'images/icons/debt.png'}
+    )
+    if created:
+        categories.union(PaymentCategory.objects.filter(id=debt.id))
+
+    # Create a form for each category
     forms = []
     for category in categories:
         initial = {'category': category}
@@ -941,6 +953,11 @@ def process_payment(request, order_id):
                     payment.extra_charge = payment.category.extra_charge
                     payment.save()
                     valid = True
+                    # Account for client's debt
+                    if payment.category == debt:
+                        if order.associated is not None:
+                            order.associated.debt += payment.amount
+                            order.associated.save()
         if valid:
             transactions = ProductTransaction.objects.filter(order=order)
             for transaction in transactions:
@@ -957,6 +974,27 @@ def process_payment(request, order_id):
     context.setdefault('forms', forms)
     context.setdefault('title', _('Process payment'))
     return render(request, 'services/payment_process.html', context)
+
+
+@login_required
+def pay_debt(request, client_id):
+    # PendingPaymentCreateForm
+    # order.created_by = request.user
+    client = get_object_or_404(Associated, id=client_id)
+    form = PendingPaymentCreateForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            payment: PendingPayment = form.save(commit=False)
+            payment.client = client
+            payment.created_by = request.user
+            payment.save()
+            # Discount debt
+            client.debt -= payment.amount
+            client.save()
+    context = {'title': _('Pay debt'),
+               'client': client,
+               'form': form}
+    return render(request, 'services/pending_payment.html', context)
 
 
 @login_required

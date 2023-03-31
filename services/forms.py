@@ -10,7 +10,8 @@ from .models import (
     Expense,
     ServicePicture,
     PaymentCategory,
-    Payment
+    Payment,
+    PendingPayment,
 )
 from utils.forms import (
     BaseForm,
@@ -76,6 +77,23 @@ class CategoryCreateForm(BaseCategoryCreateForm):
     class Meta:
         model = ServiceCategory
         fields = ('name', 'icon',)
+
+
+class PendingPaymentCreateForm(BaseForm):
+
+    class Meta:
+        model = PendingPayment
+        fields = ('amount', )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    PrependedText('amount', '$')
+                )
+            )
+        )
 
 
 class PaymentCreateForm(BaseForm):

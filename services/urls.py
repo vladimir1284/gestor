@@ -8,6 +8,7 @@ from .views import (
     update_payment,
     delete_payment,
     process_payment,
+    pay_debt,
     # ---- Category -------
     CategoryListView,
     delete_category,
@@ -115,5 +116,7 @@ urlpatterns = [
          delete_payment, name='delete-payment'),
     path('process-payment/<int:order_id>',
          process_payment, name='process-payment'),
+    path('pay-debt/<int:client_id>',
+         pay_debt, name='pay-debt'),
 
 ]

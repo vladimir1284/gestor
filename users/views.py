@@ -224,6 +224,16 @@ def list_client(request):
     return list_associated(request, 'client')
 
 
+@login_required
+def list_debtor(request):
+    debtors = Associated.objects.filter(
+        debt__gt=0, active=True).order_by("name", "alias")
+    for client in debtors:
+        client.last_order = Order.objects.filter(
+            associated=client).order_by("-created_date").first()
+    return render(request, 'users/debtor_list.html', {'associateds': debtors})
+
+
 def processOrders(orders):
     orders.total = 0
     for order in orders:

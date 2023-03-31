@@ -5,7 +5,8 @@ from .models import (
     Service,
     ServicePicture,
     Payment,
-    PaymentCategory
+    PaymentCategory,
+    PendingPayment
 )
 
 
@@ -14,3 +15,4 @@ admin.site.register(ServiceCategory)
 admin.site.register(ServicePicture)
 admin.site.register(Payment)
 admin.site.register(PaymentCategory)
+admin.site.register(PendingPayment)

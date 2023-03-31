@@ -1,0 +1,80 @@
+{% extends 'base/base_list.html' %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">Clients</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
+    <th>Name</th>
+    <th>Debt</th>
+    <th>Contact</th>
+    <th>Last Order</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for associated in associateds %}
+        <tr data-search="{{ associated.name }}{{ associated.phone_number }}">
+            <td>
+                <a href={% url 'update-associated' associated.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+            <td>
+                <div class="d-flex pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <a href={% url 'detail-associated' associated.id %}>
+                            <span class="avatar-initial rounded-circle bg-label-primary">
+                                <img {% if associated.avatar %} src="{{ associated.avatar.url }}" {% else %} src="{% static 'images/icons/user.png' %}" {% endif %}
+                                     alt="Avatar"
+                                     height="100px"
+                                     width="100px"
+                                     class="w-px-40 h-auto rounded-circle"/>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div data-tag="{{ associated.name }}{{ associated.phone_number }}"
+                             class="me-2  associated-data">
+                            <h6 class="mb-0">{{ associated.name }}</h6>
+                            <small class="text-muted">{{ associated.phone_number }}</small>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <a href="{% url 'pay-debt' associated.id %}">${{ associated.debt|floatformat:"2" }}</a>
+            </td>
+            <td>
+                {% if associated.phone_number %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="tel:{{ associated.phone_number }}">
+                        <span class="tf-icons bx bx-phone-call"></span>
+                    </a>
+                {% endif %}
+                {% if associated.email %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="mailto:{{ associated.email }}">
+                        <span class="tf-icons bx bx-mail-send"></span>
+                    </a>
+                {% endif %}
+            </td>
+            <td>
+                {% if associated.last_order %}
+                    <a href="{% url 'detail-service-order' associated.last_order.id %}">{{ associated.last_order.concept }}</a> ({{ associated.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'create-client' %}
+{% endblock createUrl %}
+{% block help %}
+    New client
+{% endblock help %}
