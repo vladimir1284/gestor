@@ -58,7 +58,7 @@
     </div>
     <script>
         let payment_inputs, total, submit;
-        let payment, extra_charge;
+        let payment;
         let total_value, diff_value, extra_value;
 
         window.onload = function(){  
@@ -91,33 +91,30 @@
         }
         function updateValues(){
             payment = 0;
-            extra_charge = 0;
             for (var i in payment_inputs) {
                 let data = Number(payment_inputs[i].value);
                 if (data > 0){
                     payment += data;
                 }
                 let extra = document.getElementById("hint_"+payment_inputs[i].id)
-                if (extra != undefined){
-                    let b = extra.innerHTML.split(":");
-                    extra_charge += Number(payment_inputs[i].value)/100*parseFloat(b[b.length -1].split("%")[0].replace(',', '.'));
-                }
             }
-            total_value.innerHTML = `$${(payment+extra_charge).toFixed(2)}`;
-            extra_value.innerHTML = `$${extra_charge.toFixed(2)}`;
+            total_value.innerHTML = `$${(payment).toFixed(2)}`;
 
-            let diff = payment - total;             
-            if (diff != 0){
+            let diff = payment - total;   
+            
+            diff_value.innerHTML = `($${diff.toFixed(2)})`;   
+            extra_value.innerHTML = "";       
+            if (diff > 0 || payment === 0){
                 submit.disabled=true;
-                diff_value.innerHTML = `($${diff.toFixed(2)})`;
-                if (diff < 0){
-                    diff_value.style.color = "red";
-                } else {
-                    diff_value.style.color = "green";
-                }
-            } else {
-                diff_value.innerHTML = "";
+                diff_value.style.color = "red";
+            } else {            
                 submit.disabled=false;
+                if (diff < 0){
+                    diff_value.style.color = "green";
+                    extra_value.innerHTML = `Remains in debt: $${diff.toFixed(2)}`;
+                } else {
+                    diff_value.innerHTML = "";
+                }
             }
         }
     </script>

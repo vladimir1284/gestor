@@ -991,6 +991,7 @@ def pay_debt(request, client_id):
             # Discount debt
             client.debt -= payment.amount
             client.save()
+            return redirect('detail-associated', client_id)
     context = {'title': _('Pay debt'),
                'client': client,
                'form': form}
