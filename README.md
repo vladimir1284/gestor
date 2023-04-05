@@ -31,6 +31,8 @@ for a given labor. The **ServiceCategory** is used for filtering in the user int
 
 Each **Order** has one or several **Payment** associated when completed. **PaymentCategory** divides payments into payment methods. 
 
+The **PendingPayment** accounts the debt payment for a given client.
+
 The **Expense** model accounts for the Third Party Services required for the given *service* **Order**. 
 
 ![Services UML diagram](https://raw.githubusercontent.com/vladimir1284/gestor/master/services_models.png)
