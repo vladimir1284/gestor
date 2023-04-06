@@ -115,6 +115,23 @@
                 {% endif %}
             </h5>
             {% include "services/order_header.html" %}
+            <div class="demo-inline-spacing">
+                <ul class="p-0 m-0">
+                    {% for payment in payments %}
+                        <li class="d-flex mb-4 pb-1">
+                            <div class="avatar flex-shrink-0 me-3">
+                                {% if payment.category.icon %}<img src="{{ payment.category.icon.url }}" alt="" class="w-px-40 h-auto"/>{% endif %}
+                            </div>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <small class="text-muted d-block mb-1">{{ payment.category }}</small>
+                                    <h6 class="mb-0">${{ payment.amount|floatformat:"2" }}</h6>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
             <p class="card-text">{{ order.note }}</p>
             <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
@@ -207,8 +224,12 @@
                             <th>
                                 <i class="bx bx-cog"></i>
                             </th>
-                            <th>Service</th>
-                            <th>Qty</th>
+                            <th>
+                                Service
+                            </th>
+                            <th>
+                                Qty
+                            </th>
                             <th>
                                 Price
                             </th>

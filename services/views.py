@@ -696,6 +696,11 @@ def detail_order(request, id):
     images = ServicePicture.objects.filter(order=context['order'])
     context.setdefault('images', images)
 
+    if context['terminated']:
+        # Payments
+        context.setdefault(
+            'payments', Payment.objects.filter(order=context['order']))
+
     return render(request, 'services/order_detail.html', context)
 
 
@@ -714,6 +719,10 @@ def view_invoice(request, id):
     if form.is_valid():
         sendMail(
             context, form.cleaned_data['mail_address'], form.cleaned_data['send_copy'])
+    # Payments
+    context.setdefault(
+        'payments', Payment.objects.filter(order=context['order']))
+
     return render(request, 'services/invoice_view.html', context)
 
 
