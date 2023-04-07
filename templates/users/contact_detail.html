@@ -90,6 +90,7 @@
                     <th>Date</th>
                     <th>Status</th>
                     <th>Amount</th>
+                    <th>Debt</th>
                 </tr>
             </thead>
             <tbody>
@@ -105,6 +106,9 @@
                             </span>
                         </td>
                         <td>${{ order.amount|floatformat:"2" }}</td>
+                        <td>
+                            {% if order.debt %}${{ order.debt|floatformat:"2" }}{% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -27,6 +27,11 @@
             </a>
         </li>
         <li class="menu-item">
+            <a href="{% url 'list-debtor' %}" class="menu-link">
+                <div data-i18n="Pending Payments<">Pending Payments</div>
+            </a>
+        </li>
+        <li class="menu-item">
             <a href="{% url 'list-client' %}" class="menu-link">
                 <div data-i18n="Clientes">Clientes</div>
             </a>
@@ -63,11 +68,6 @@
                 <li class="menu-item">
                     <a href="{% url 'list-company' %}" class="menu-link">
                         <div data-i18n="Companies">Compañías</div>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{% url 'list-debtor' %}" class="menu-link">
-                        <div data-i18n="Pending Payments<">Pending Payments</div>
                     </a>
                 </li>
                 {% if perms.can_add_user %}

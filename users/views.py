@@ -1,6 +1,8 @@
 import os
 from services.views import computeOrderAmount
 from django.urls import reverse_lazy
+from datetime import datetime, timedelta
+import pytz
 from django.views.generic.edit import (
     UpdateView,
 )
@@ -21,6 +23,8 @@ from .forms import (
     UserUpdateForm,
     CompanyCreateForm,
 )
+
+from services.models import Payment
 
 from .models import (
     User,
@@ -224,11 +228,33 @@ def list_client(request):
     return list_associated(request, 'client')
 
 
+def getDebtOrders(debtor):
+    orders = Order.objects.filter(associated=debtor, type="sell",
+                                  status="complete").order_by("-terminated_date")
+    pending_orders = []
+    debt = debtor.debt
+    for order in orders:
+        debt_payment = Payment.objects.filter(order=order,
+                                              category__name="debt").first()
+        if debt_payment is not None:
+            # Order with pending payment
+            if debt > 0:
+                order.debt = debt_payment.amount
+                pending_orders.append(order)
+                debt -= debt_payment.amount
+            else:
+                break
+    return pending_orders
+
+
 @login_required
 def list_debtor(request):
     debtors = Associated.objects.filter(
         debt__gt=0, active=True).order_by("name", "alias")
     for client in debtors:
+        client.oldest_debt = getDebtOrders(client)[0]
+        client.overdue = client.oldest_debt.terminated_date < (
+            datetime.now(pytz.timezone('UTC')) - timedelta(days=14))
         client.last_order = Order.objects.filter(
             associated=client).order_by("-created_date").first()
     return render(request, 'users/debtor_list.html', {'associateds': debtors})
@@ -249,6 +275,15 @@ def detail_associated(request, id):
     orders = Order.objects.filter(
         associated=associated).order_by("-created_date", "-id")
     processOrders(orders)
+    if associated.debt > 0:
+        pending_orders = getDebtOrders(associated)
+        for order in orders:
+            try:
+                index = pending_orders.index(order)
+                order.debt = pending_orders[index].debt
+            except ValueError:
+                pass  # Order without debt
+
     context = {'contact': associated,
                'orders': orders,
                'type': 'associated',

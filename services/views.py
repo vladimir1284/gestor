@@ -934,15 +934,13 @@ def delete_payment_category(request, id):
 
 @login_required
 def process_payment(request, order_id):
-    categories = PaymentCategory.objects.all()
+    categories = PaymentCategory.objects.all().exclude(name='debt')
 
     # Create the debt category if it doesn't exists
     debt, created = PaymentCategory.objects.get_or_create(
         name='debt',
         defaults={'name': 'debt', 'icon': 'images/icons/debt.png'}
     )
-    if created:
-        categories.union(PaymentCategory.objects.filter(id=debt.id))
 
     # Create a form for each category
     forms = []
@@ -950,8 +948,14 @@ def process_payment(request, order_id):
         initial = {'category': category}
         forms.append(PaymentCreateForm(request.POST or None, prefix=category.name,
                                        initial=initial, auto_id=category.name+"_%s"))
+
+    order = get_object_or_404(Order, id=order_id)
+    if order.associated is not None:
+        initial = {'category': debt}
+        forms.append(PaymentCreateForm(request.POST or None, prefix=category.name,
+                                       initial=initial, auto_id=category.name+"_%s"))
+
     if request.method == 'POST':
-        order = get_object_or_404(Order, id=order_id)
         valid = False
         for form in forms:
             if form.is_valid():
@@ -1000,7 +1004,7 @@ def pay_debt(request, client_id):
             # Discount debt
             client.debt -= payment.amount
             client.save()
-            return redirect('detail-associated', client_id)
+            return redirect('list-debtor')
     context = {'title': _('Pay debt'),
                'client': client,
                'form': form}
