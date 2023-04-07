@@ -517,9 +517,6 @@ def reverse_transaction(transaction: Transaction):
             output_unit=product.unit,
             value=transaction.quantity)
 
-        if (product_quantity > product.quantity):
-            raise NotEnoughStockError
-
         stock_cost = transaction.cost
 
         product.quantity += product_quantity
