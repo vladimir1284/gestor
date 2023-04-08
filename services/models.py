@@ -81,3 +81,5 @@ class PendingPayment(models.Model):
     amount = models.FloatField()
     created_date = models.DateField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(PaymentCategory, blank=True, null=True,
+                                 on_delete=models.SET_NULL)

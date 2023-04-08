@@ -988,23 +988,35 @@ def process_payment(request, order_id):
 
 @login_required
 def pay_debt(request, client_id):
-    # PendingPaymentCreateForm
-    # order.created_by = request.user
+    categories = PaymentCategory.objects.all().exclude(name='debt')
+
+    # Create a form for each category
+    forms = []
+    for category in categories:
+        initial = {'category': category}
+        forms.append(PaymentCreateForm(request.POST or None, prefix=category.name,
+                                       initial=initial, auto_id=category.name+"_%s"))
+
     client = get_object_or_404(Associated, id=client_id)
-    form = PendingPaymentCreateForm(request.POST or None)
+
     if request.method == 'POST':
-        if form.is_valid():
-            payment: PendingPayment = form.save(commit=False)
-            payment.client = client
-            payment.created_by = request.user
-            payment.save()
-            # Discount debt
-            client.debt -= payment.amount
-            client.save()
-            return redirect('list-debtor')
-    context = {'title': _('Pay debt'),
+        valid = False
+        for form in forms:
+            if form.is_valid():
+                if form.cleaned_data['amount'] > 0:
+                    payment = PendingPayment.objects.create(
+                        client=client,
+                        created_by=request.user,
+                        amount=form.cleaned_data['amount'],
+                        category=form.category)
+                    # Discount debt
+                    client.debt -= payment.amount
+        client.save()
+        return redirect('list-debtor')
+
+    context = {'forms': forms,
                'client': client,
-               'form': form}
+               'title': _('Pay debt ')}
     return render(request, 'services/pending_payment.html', context)
 
 

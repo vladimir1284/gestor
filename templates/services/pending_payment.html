@@ -1,5 +1,4 @@
 {% extends 'base/base_form.html' %}
-{% load static %}
 {% load crispy_forms_tags %}
 {% block title %}
     {{ title }}
@@ -10,7 +9,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">
-                    {{ title }}  <b>$<span id="order_total">{{ client.debt|floatformat:"-2" }}</span></b>
+                    {{ title }} ({{ client.name }}) <b>$<span id="order_total">{{ client.debt|floatformat:"-2" }}</span></b>
                 </h5>
             </div>
             <div class="card-body">
@@ -29,36 +28,21 @@
                                id="summit_btn"
                                value="Process">
                     </div>
-                    <div>
-                        <div class="d-flex pe-2">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <a href={% url 'detail-associated' client.id %}>
-                                    <span class="avatar-initial rounded-circle bg-label-primary">
-                                        <img {% if client.avatar %} src="{{ client.avatar.url }}" {% else %} src="{% static 'images/icons/user.png' %}" {% endif %}
-                                             alt="Avatar"
-                                             height="100px"
-                                             width="100px"
-                                             class="w-px-40 h-auto rounded-circle"/>
-                                    </span>
-                                </a>
+                    {% for form in forms %}
+                        <div class="d-flex pb-1">
+                            <div class="flex-shrink-0 me-3">
+                                {% if form.category.icon %}<img src="{{ form.category.icon.url }}" alt="" class="w-px-75 h-auto"/>{% endif %}
                             </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div data-tag="{{ client.name }}{{ client.phone_number }}"
-                                     class="me-2  client-data">
-                                    <h6 class="mb-0">{{ client.name }}</h6>
-                                    <small class="text-muted">{{ client.phone_number }}</small>
-                                </div>
-                            </div>
+                            <div class="w-100">{% crispy form %}</div>
                         </div>
-                        <div class="w-100">{% crispy form %}</div>
-                    </div>
+                    {% endfor %}
                 </form>
             </div>
         </div>
     </div>
     <script>
         let payment_inputs, total, submit;
-        let payment;
+        let payment, extra_charge;
         let total_value, diff_value, extra_value;
 
         window.onload = function(){  
@@ -91,27 +75,32 @@
         }
         function updateValues(){
             payment = 0;
+            extra_charge = 0;
             for (var i in payment_inputs) {
                 let data = Number(payment_inputs[i].value);
                 if (data > 0){
                     payment += data;
                 }
                 let extra = document.getElementById("hint_"+payment_inputs[i].id)
+                if (extra != undefined){
+                    let b = extra.innerHTML.split(":");
+                    extra_charge += Number(payment_inputs[i].value)/100*parseFloat(b[b.length -1].split("%")[0].replace(',', '.'));
+                }
             }
-            total_value.innerHTML = `$${(payment).toFixed(2)}`;
+            total_value.innerHTML = `$${(payment+extra_charge).toFixed(2)}`;
+            extra_value.innerHTML = `$${extra_charge.toFixed(2)}`;
 
-            let diff = payment - total;   
-            
-            diff_value.innerHTML = `($${diff.toFixed(2)})`;   
-            extra_value.innerHTML = "";       
+            let diff = payment - total;             
             if (diff > 0 || payment === 0){
                 submit.disabled=true;
                 diff_value.style.color = "red";
+                diff_value.innerHTML = `($${diff.toFixed(2)})`;
             } else {            
                 submit.disabled=false;
                 if (diff < 0){
                     diff_value.style.color = "green";
-                    extra_value.innerHTML = `Remains in debt: $${diff.toFixed(2)}`;
+                    extra_value.innerHTML += `. Remains in debt: $${-diff.toFixed(2)}`;
+                    diff_value.innerHTML = `($${diff.toFixed(2)})`;
                 } else {
                     diff_value.innerHTML = "";
                 }
