@@ -949,8 +949,8 @@ def process_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     if order.associated is not None:
         initial = {'category': debt}
-        forms.append(PaymentCreateForm(request.POST or None, prefix=category.name,
-                                       initial=initial, auto_id=category.name+"_%s"))
+        forms.append(PaymentCreateForm(request.POST or None, prefix=debt.name,
+                                       initial=initial, auto_id=debt.name+"_%s"))
 
     if request.method == 'POST':
         valid = False
