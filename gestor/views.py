@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import List
+from itertools import chain
 from django.shortcuts import (
     render,
     redirect,
@@ -8,12 +9,43 @@ from django.shortcuts import (
 from django.contrib.auth.decorators import login_required
 
 from inventory.models import ProductTransaction
-from services.models import Expense, ServiceTransaction
+from services.models import (
+    Expense,
+    ServiceTransaction,
+    PendingPayment,
+    Payment
+)
 from costs.models import Cost
 from utils.models import Order, Transaction
 from services.views import (
     computeOrderAmount,  # TODO remove this import and make a custom function here
 )
+
+
+class UnknownCategory:
+    name = "Unknown"
+    extra_charge = 0
+    amount = 0
+    chartColor = "#233446"  # Dark
+
+    def __init__(self, name=None, chartColor=None):
+        if name is not None:
+            self.name = name
+        if chartColor is not None:
+            self.chartColor = chartColor
+
+
+unknownCategory = UnknownCategory()
+
+STYLE_COLOR = {
+    '#696cff': 'primary',
+    '#8592a3': 'secondary',
+    '#71dd37': 'success',
+    '#ff3e1d': 'danger',
+    '#ffab00': 'warning',
+    '#03c3ec': 'info',
+    '#233446': 'dark',
+}
 
 
 def getOrderBalance(order: Order, products: dict):
@@ -90,14 +122,18 @@ def report(request, year, month):
     costs = Cost.objects.filter(date__year=currentYear,
                                 date__month=currentMonth).order_by("-date")
 
-    context = computeReport(orders, costs)
+    pending_payments = PendingPayment.objects.filter(
+        created_date__year=currentYear,
+        created_date__month=currentMonth).order_by("-created_date")
+
+    context = computeReport(orders, costs, pending_payments)
     context.setdefault('previousMonth', previousMonth)
     context.setdefault('currentMonth', currentMonth)
     context.setdefault('nextMonth', nextMonth)
     context.setdefault('previousYear', previousYear)
     context.setdefault('currentYear', currentYear)
     context.setdefault('nextYear', nextYear)
-    return render(request, 'dashboard.html', context)
+    return render(request, 'monthly.html', context)
 
 
 @login_required
@@ -142,7 +178,11 @@ def weekly_report(request, date=None):
     costs = Cost.objects.filter(date__gt=start_date,
                                 date__lte=end_date).order_by("-date")
 
-    context = computeReport(orders, costs)
+    pending_payments = PendingPayment.objects.filter(
+        created_date__gt=start_date,
+        created_date__lte=end_date).order_by("-created_date")
+
+    context = computeReport(orders, costs, pending_payments)
     context.setdefault('start_date', start_date)
     context.setdefault('end_date', end_date - timedelta(days=1))
     context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
@@ -158,7 +198,7 @@ def dashboard(request):
         return report(request, year=None, month=None)
 
 
-def computeReport(orders, costs):
+def computeReport(orders, costs, pending_payments):
     parts = 0
     consumable = 0
     gross = 0
@@ -202,9 +242,21 @@ def computeReport(orders, costs):
     sorted_cats = sorted(
         cats, key=lambda cat: cats[cat][0], reverse=True)
 
-    for cat in sorted_cats:
+    otherCosts = UnknownCategory("Others", '#8592a3')
+    chart_costs = []
+
+    for i, cat in enumerate(sorted_cats):
+        cat.style = STYLE_COLOR[cat.chartColor]
         cat.amount = cats[cat][0]
         cat.items = cats[cat][1]
+
+        if i > 2 and len(sorted_cats) > 4:
+            otherCosts.amount += cat.amount
+        else:
+            chart_costs.append(cat)
+
+    if len(sorted_cats) > 4:
+        chart_costs.append(otherCosts)
 
     # Product incomes
     parts_profit = 0
@@ -240,11 +292,63 @@ def computeReport(orders, costs):
         else:
             product.efficiency = None
 
+    # Payments
+    payments = Payment.objects.filter(order__in=orders)  # Order payments
+    payments = list(chain(payments, pending_payments))  # Include debt payments
+
+    payment_total = 0
+    debt_paid = 0
+    payment_cats = {}
+    for payment in payments:
+        if payment.category is None:
+            category = unknownCategory
+        else:
+            category = payment.category
+        if category not in payment_cats.keys():
+            payment_cats.setdefault(category, [payment.amount, 1])
+        else:
+            payment_cats[category][0] += payment.amount
+            payment_cats[category][1] += 1
+        payment_total += payment.amount
+        if isinstance(payment, PendingPayment):
+            debt_paid += payment.amount
+
+    # Sort by amount
+    sorted_payment_cats = sorted(
+        payment_cats, key=lambda cat: payment_cats[cat][0], reverse=True)
+
+    extra_charge = 0
+    chart_payments = []
+    othersCategory = UnknownCategory("Others", '#8592a3')
+
+    for i, cat in enumerate(sorted_payment_cats):
+        cat.style = STYLE_COLOR[cat.chartColor]
+        cat.amount = payment_cats[cat][0]
+        if cat.extra_charge > 0:
+            cat.extra_charge = cat.amount*cat.extra_charge/100
+            # cat.amount += cat.extra_charge
+            extra_charge += cat.extra_charge
+        cat.transactions = payment_cats[cat][1]
+
+        if i > 2 and len(sorted_payment_cats) > 4:
+            othersCategory.amount += cat.amount
+        else:
+            chart_payments.append(cat)
+
+    if len(sorted_payment_cats) > 4:
+        chart_payments.append(othersCategory)
+
     return {
         'orders': orders,
         'total': total,
         'costs': costs,
         'cost_cats': sorted_cats,
+        'chart_costs': chart_costs,
+        'payment_cats': sorted_payment_cats,
+        'payment_total': payment_total,
+        'chart_payments': chart_payments,
+        'debt_paid': debt_paid,
+        'payment_transactions': len(payments),
         'profit': total['net'] - costs.total,
         'products': sorted_products,
         'parts_profit': parts_profit,

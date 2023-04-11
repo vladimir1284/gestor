@@ -1,17 +1,18 @@
 {% extends 'statistics.html' %}
 {% load static %}
+{% load month_name %}
 {% block nav %}
-    <!-- Week -->
+    <!-- Month -->
     <div class="text-center">
         <div class="demo-inline-spacing pb-3">
             <a type="button"
-               href="{% url 'weekly-report-date' previousWeek %}"
+               href="{% url 'report' previousYear previousMonth %}"
                class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-chevron-left"></span>
             </a>
-            <button type="button" class="btn btn-outline-primary">{{ start_date|date:"d/M" }} - {{ end_date|date:"d/M" }}</button>
+            <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
             <a type="button"
-               href="{% url 'weekly-report-date' nextWeek %}"
+               href="{% url 'report' nextYear nextMonth %}"
                class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-chevron-right"></span>
             </a>

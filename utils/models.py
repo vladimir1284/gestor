@@ -24,6 +24,28 @@ class Category(models.Model):
 
     # Categories for products
     name = models.CharField(max_length=120, unique=True)
+
+    # Colors for the template:
+    # primary (violet) #696cff
+    # secondary (gray) #8592a3
+    # success (green) #71dd37
+    # danger (red) #ff3e1d
+    # warning (yellow) #ffab00
+    # info (blue) #03c3ec
+    # dark (black) #233446
+
+    COLOR_CHOICE = (
+        ('#696cff', 'violet'),
+        ('#8592a3', 'gray'),
+        ('#71dd37', 'green'),
+        ('#ff3e1d', 'red'),
+        ('#ffab00', 'yellow'),
+        ('#03c3ec', 'blue'),
+        ('#233446', 'black'),
+    )
+    chartColor = models.CharField(
+        max_length=7, default="#8592a3", choices=COLOR_CHOICE)
+
     ICON_SIZE = 64
     icon = models.ImageField(upload_to='images/icons',
                              blank=True)
