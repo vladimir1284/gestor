@@ -1,21 +1,27 @@
-{% extends 'statistics.html' %}
+{% extends 'membership.html' %}
 {% load static %}
 {% load month_name %}
+{% load tz %}
+{% block title %}
+    TOWIT monthly report
+{% endblock title %}
+{% localtime on %}
 {% block nav %}
     <!-- Month -->
     <div class="text-center">
         <div class="demo-inline-spacing pb-3">
             <a type="button"
-               href="{% url 'monthly' previousYear previousMonth %}"
+               href="{% url 'monthly-membership-date' previousYear previousMonth %}"
                class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-chevron-left"></span>
             </a>
             <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
             <a type="button"
-               href="{% url 'monthly' nextYear nextMonth %}"
+               href="{% url 'monthly-membership-date' nextYear nextMonth %}"
                class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-chevron-right"></span>
             </a>
         </div>
     </div>
 {% endblock nav %}
+{% endlocaltime %}

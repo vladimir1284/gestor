@@ -48,14 +48,26 @@
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="{% url 'weekly-membership' %}" class="menu-link">
-                        <div data-i18n="Membership">Membership</div>
+                    <a href="{% url 'monthly-report' %}" class="menu-link">
+                        <div data-i18n="Weekly">Monthly</div>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="{% url 'logout' %}" class="menu-link">
-                        <div data-i18n="Rendimiento">Rendimiento</div>
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <div data-i18n="Reportes">TOWIT</div>
                     </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item">
+                            <a href="{% url 'weekly-membership' %}" class="menu-link">
+                                <div data-i18n="Weekly">Weekly</div>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'monthly-membership' %}" class="menu-link">
+                                <div data-i18n="Weekly">Monthly</div>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </li>
@@ -151,12 +163,16 @@
                 <ul class="menu-sub">
                     <li class="menu-item">
                         <a href={% url 'list-product' %} class="menu-link">
-                            <div data-i18n="Inventario">Inventario</div>
+                            <div data-i18n="Inventario">
+                                Inventario
+                            </div>
                         </a>
                     </li>
                     <li class="menu-item">
                         <a href={% url 'list-kit' %} class="menu-link">
-                            <div data-i18n="Inventario">Kits</div>
+                            <div data-i18n="Inventario">
+                                Kits
+                            </div>
                         </a>
                     </li>
                     <li class="menu-item">

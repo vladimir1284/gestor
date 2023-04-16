@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'services.apps.ServicesConfig',
     'equipment.apps.EquipmentConfig',
     'costs.apps.CostsConfig',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
@@ -144,7 +145,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-#AUTH_USER_MODEL = 'users.User'
+# AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/users/login/'
 
 MEDIA_ROOT = 'static/'
@@ -164,7 +165,7 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 # EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
 # SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
 # SENDGRID_SANDBOX_MODE_IN_DEBUG = False
-#DEFAULT_FROM_EMAIL = 'TOWIT <vladimir.rodriguezdiez@viep.com.mx>'
+# DEFAULT_FROM_EMAIL = 'TOWIT <vladimir.rodriguezdiez@viep.com.mx>'
 
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
     BASE_DIR, "trailer-rental-323614-d43be7453c41.json")

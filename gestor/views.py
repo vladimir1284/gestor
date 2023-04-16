@@ -104,7 +104,7 @@ def getOrderBalance(order: Order, products: dict):
 
 
 @login_required
-def report(request, year, month):
+def monthly_report(request, year, month):
     # Prepare dashboard from last close
     ((previousMonth, previousYear),
         (currentMonth, currentYear),
@@ -153,12 +153,49 @@ def weekly_membership_report(request, date=None):
     costs = Cost.objects.filter(date__gt=start_date,
                                 date__lte=end_date).order_by("-date")
 
-    context = computeReport(orders, costs)
+    pending_payments = PendingPayment.objects.filter(
+        created_date__gt=start_date,
+        created_date__lte=end_date).order_by("-created_date")
+
+    context = computeReport(orders, costs, pending_payments)
     context.setdefault('start_date', start_date)
     context.setdefault('end_date', end_date - timedelta(days=1))
     context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
     context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
     return render(request, 'weekly_membership.html', context)
+
+
+@login_required
+def monthly_membership_report(request, year=None, month=None):
+    # Prepare dashboard from last close
+    ((previousMonth, previousYear),
+        (currentMonth, currentYear),
+        (nextMonth, nextYear)) = getMonthYear(month, year)
+
+    orders = Order.objects.filter(
+        status='complete',
+        type='sell',
+        terminated_date__year=currentYear,
+        terminated_date__month=currentMonth).order_by(
+        '-terminated_date').exclude(
+        company__membership=False).exclude(
+        company=None)
+
+    costs = Cost.objects.filter(date__year=currentYear,
+                                date__month=currentMonth).order_by("-date")
+
+    pending_payments = PendingPayment.objects.filter(
+        created_date__year=currentYear,
+        created_date__month=currentMonth).order_by("-created_date")
+
+    context = computeReport(orders, costs, pending_payments)
+    context.setdefault('previousMonth', previousMonth)
+    context.setdefault('currentMonth', currentMonth)
+    context.setdefault('nextMonth', nextMonth)
+    context.setdefault('previousYear', previousYear)
+    context.setdefault('currentYear', currentYear)
+    context.setdefault('nextYear', nextYear)
+    return render(request, 'monthly_membership.html', context)
 
 
 @login_required
@@ -192,10 +229,35 @@ def weekly_report(request, date=None):
 
 @login_required
 def dashboard(request):
+    indicators = [
+        {'name': 'profit',
+         'amount': 12345.34,
+         'increment': 75.64,
+         'positive': True,
+         'icon': 'images/icons/profit.png'},
+        {'name': 'profit',
+         'amount': 12345.34,
+         'increment': 75.64,
+         'positive': False,
+         'icon': 'images/icons/debt.png'},
+        {'name': 'debt',
+         'amount': 12345.34,
+         'increment': -15.64,
+         'positive': True,
+         'icon': 'images/icons/profit.png'},
+    ]
+    context = {
+        'indicators': indicators,
+    }
+    return render(request, 'dashboard.html', context)
+
+
+@login_required
+def monthly_report(request):
     if (request.user.profile_user.role == 2):  # Mechanic
         return redirect('list-service-order')
     else:
-        return report(request, year=None, month=None)
+        return monthly_membership_report(request, year=None, month=None)
 
 
 def computeReport(orders, costs, pending_payments):

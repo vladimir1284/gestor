@@ -1,328 +1,80 @@
 {% extends 'base/base.html' %}
 {% load month_name %}
+{% load l10n %}
 {% load static %}
+{% load humanize %}
 {% load tz %}
 {% block title %}
     Dashboard
 {% endblock title %}
 {% block content %}
-    <style>
-        .invoice-descrpition{
-            width: 100%;
-        }
-    </style>
-    {% localtime on %}
-    <!-- Month -->
-    <div class="text-center">
-        <div class="demo-inline-spacing pb-3">
-            <a type="button"
-               href="{% url 'report' previousYear previousMonth %}"
-               class="btn btn-icon btn-outline-primary">
-                <span class="tf-icons bx bx-chevron-left"></span>
-            </a>
-            <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
-            <a type="button"
-               href="{% url 'report' nextYear nextMonth %}"
-               class="btn btn-icon btn-outline-primary">
-                <span class="tf-icons bx bx-chevron-right"></span>
-            </a>
-        </div>
-    </div>
-    <!-- Services -->
-    <div class="card mb-3">
-        <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-            Service incomes:
-            <div class="text-success">
-                <strong>{{ total.net|floatformat:"2" }}</strong>
-                <span class="text-muted">USD</span>
+    {% localize on %}
+    <div class="row">
+        <div class="col-lg-8 mb-4 order-0">
+            <div class="card">
+                <div class="d-flex align-items-end row">
+                    <div class="col-sm-7">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">Congratulations John! 🎉</h5>
+                            <p class="mb-4">
+                                You have done <span class="fw-bold">72%</span> more sales today. Check your new badge in
+                                your profile.
+                            </p>
+                            <a href="javascript:;" class="btn btn-sm btn-outline-primary">View Badges</a>
+                        </div>
+                    </div>
+                    <div class="col-sm-5 text-center text-sm-left">
+                        <div class="card-body pb-0 px-0 px-md-4">
+                            <img src="{% static 'images/ilustrations/man-with-laptop-light.png' %}"
+                                 height="140"
+                                 alt="View Badge User"
+                                 data-app-dark-img="illustrations/man-with-laptop-dark.png"
+                                 data-app-light-img="illustrations/man-with-laptop-light.png">
+                        </div>
+                    </div>
+                </div>
             </div>
-        </h5>
-        <div class="table-responsive text-nowrap">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Client</th>
-                        <th>date</th>
-                        <th>Gross</th>
-                        <th>Net</th>
-                        <th>Parts&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                        <th>Supplies</th>
-                        <th>Third party</th>
-                        <th>Tax</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                        <tr data-search="{{ order.associated.name }}{{ order.company.name }}">
-                            <td>
-                                <a href={% url 'detail-service-order' order.id %}> <strong>
-                                    {% if order.associated %}
-                                        {{ order.associated }}
-                                    {% elif order.company %}
-                                        {{ order.company }}
-                                    {% else %}
-                                        None
-                                    {% endif %}
-                                </strong></a>
-                            </td>
-                            <td>{{ order.terminated_date|date:"D, d" }}</td>
-                            <td>
-                                <div class="float-end">${{ order.amount|floatformat:"2" }}</div>
-                            </td>
-                            <td>
-                                <div class="float-end">
-                                    <strong>${{ order.net|floatformat:"2" }}</strong>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="float-end">${{ order.parts|floatformat:"2" }}</div>
-                            </td>
-                            <td>
-                                <div class="float-end">${{ order.consumable|floatformat:"2" }}</div>
-                            </td>
-                            <td>
-                                <div class="float-end">${{ order.third_party|floatformat:"2" }}</div>
-                            </td>
-                            <td>
-                                <div class="float-end">${{ order.tax|floatformat:"2" }}</div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot class="table-border-bottom-0">
-                    <tr>
-                        <th></th>
-                        <th>
-                            <strong>Total =</strong>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.gross|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.net|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.parts|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.consumable|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">
-                                ${{ total.third_party|floatformat:"2" }}
-                            </div>
-                        </th>
-                        <th>
-                            <div class="float-end">
-                                ${{ total.tax|floatformat:"2" }}
-                            </div>
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
         </div>
-    </div>
-    <!-- Costs -->
-    <div class="card mb-3">
-        <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-            Costs:
-            <div class="text-danger">
-                <strong>{{ costs.total|floatformat:"2" }}</strong>
-                <span class="text-muted">USD</span>
-            </div>
-        </h5>
-        <div class="table-responsive text-nowrap">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>
-                            Amount
-                        </th>
-                        <th>
-                            concept
-                        </th>
-                        <th>
-                            date
-                        </th>
-                        <th>
-                            cat
-                        </th>
-                        <th>
-                            User
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cost in costs %}
-                        <tr data-search="{{ cost.concept }}">
-                            <td class="text-end">
-                                ${{ cost.amount|floatformat:"2" }}
-                            </td>
-                            <td>
-                                <strong>{{ cost.concept }}</strong>
-                            </td>
-                            <td>
-                                {{ cost.date|date:"D, d" }}
-                            </td>
-                            <td>
-                                {% if cost.category.icon %}
-                                    <img {% if cost.category.icon %} src="{{ cost.category.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
-                                         alt=""
-                                         class="w-px-40 h-auto"/>
-                                {% else %}
-                                    {{ cost.category.name }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if cost.related_to %}
-                                    <div class="avatar avatar-online">
-                                        {% if cost.related_to.profile_user.avatar %}
-                                            <img src="{{ cost.related_to.profile_user.avatar.url }}"
-                                                 alt=""
-                                                 class="w-px-40 h-auto rounded-circle"/>
-                                        {% else %}
-                                            <span style="font-size:1.5em"
-                                                  class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
-                                                {{ cost.related_to.first_name|first }}
-                                            </span>
-                                        {% endif %}
+        <div class="col-lg-4 col-md-4 order-1">
+            <div class="row">
+                {% for indicator in indicators %}
+                    <div class="col-lg-6 col-md-12 col-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-title d-flex align-items-start justify-content-between">
+                                    <div class="avatar flex-shrink-0">
+                                        <img src="{% static indicator.icon %}" alt="chart success" class="rounded">
                                     </div>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot class="table-border-bottom-0">
-                    <tr>
-                        <th>
-                        </th>
-                        <th>
-                        </th>
-                        <th>
-                        </th>
-                        <th>
-                            <strong>Total =</strong>
-                        </th>
-                        <th>
-                            <div class="float-end">
-                                ${{ costs.total|floatformat:"2" }}
-                            </div>
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-    </div>
-    <!-- Parts -->
-    <div class="card mb-3">
-        <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-            Parts net incomes:
-            <div class="text-success">
-                <strong>{{ parts_profit|floatformat:"2" }}</strong>
-                <span class="text-muted">USD</span>
-            </div>
-        </h5>
-        <div class="table-responsive text-nowrap">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th class="invoice-descrpition">
-                            Name
-                        </th>
-                        <th>
-                            Quantity
-                        </th>
-                        <th>
-                            Unit
-                        </th>
-                        <th>
-                            Profit
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for part in products %}
-                        {% if part.type == 'part' %}
-                            <tr>
-                                <td>
-                                    <strong>{{ part.name }}</strong>
-                                </td>
-                                <td>
-                                    <div class="float-end">
-                                        {{ part.quantity|floatformat:"-2" }}
-                                    </div>
-                                </td>
-                                <td>
-                                    {{ part.unit }}
-                                </td>
-                                <td>
-                                    <div class="float-end">
-                                        ${{ part.profit|floatformat:"2" }}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <!-- Supplies -->
-    <div class="card mb-3">
-        <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-            Supplies:
-            <div class="{% if consumables_profit > 0 %}text-success{% elif consumables_profit < 0 %}text-danger{% endif %}">
-                <strong>{{ consumables_profit|floatformat:"2" }}</strong>
-                <span class="text-muted">USD</span>
-            </div>
-        </h5>
-        <div class="table-responsive text-nowrap">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th class="invoice-descrpition">
-                            Name
-                        </th>
-                        <th>
-                            Quantity
-                        </th>
-                        <th>
-                            Unit
-                        </th>
-                        <th>
-                            Profit
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for part in products %}
-                        {% if part.type == 'consumable' %}
-                            <tr>
-                                <td>
-                                    <strong>{{ part.name }}</strong>
-                                </td>
-                                <td>
-                                    <div class="float-end">
-                                        {{ part.quantity|floatformat:"-2" }}
-                                    </div>
-                                </td>
-                                <td>
-                                    {{ part.unit }}
-                                </td>
-                                <td>
-                                    <div class="float-end">
-                                        <div class="{% if part.profit > 0 %}text-success{% elif part.profit < 0 %}text-danger{% endif %}">
-                                            <strong>{{ part.profit|floatformat:"2" }}</strong>
-                                            <span class="text-muted">USD</span>
+                                    <div class="dropdown">
+                                        <button class="btn p-0"
+                                                type="button"
+                                                id="cardOpt3"
+                                                data-bs-toggle="dropdown"
+                                                aria-haspopup="true"
+                                                aria-expanded="false">
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end"
+                                             aria-labelledby="cardOpt3"
+                                             style="">
+                                            <a class="dropdown-item" href="javascript:void(0);">View More</a>
                                         </div>
                                     </div>
-                                </td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
+                                </div>
+                                <span class="fw-semibold d-block mb-1">{{ indicator.name }}</span>
+                                <h3 class="card-title mb-2">${{ indicator.amount|floatformat:"0"|intcomma }}</h3>
+                                <small class="{% if indicator.positive %}text-success fw-semibold{% else %}text-danger fw-semibold{% endif %}">
+                                    {% if indicator.increment > 0 %}
+                                        <i class="bx bx-up-arrow-alt"></i>
+                                    {% else %}
+                                        <i class="bx bx-down-arrow-alt"></i>
+                                    {% endif %}
+                                {{ indicator.increment }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-    </div>
-{% endlocaltime %}
+    {% endlocalize %}
 {% endblock content %}
