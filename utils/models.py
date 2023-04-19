@@ -125,3 +125,38 @@ class Transaction(models.Model):
 
     def getAmount(self):
         return self.quantity*self.price
+
+
+class Statistics(models.Model):
+    """
+    Weekly data associated to the date of the sunday (last day of week)
+    """
+    # Orders
+    completed_orders = models.IntegerField(default=0)
+    gross_income = models.FloatField(default=0)
+    profit_before_costs = models.FloatField(default=0)
+    labor_income = models.FloatField(default=0)
+    discount = models.FloatField(default=0)
+    third_party = models.FloatField(default=0)
+    supplies = models.FloatField(default=0)
+
+    # Costs
+    costs = models.FloatField(default=0)
+
+    # Parts
+    parts_cost = models.FloatField(default=0)
+    parts_price = models.FloatField(default=0)
+
+    # Payments
+    payment_amount = models.FloatField(default=0)
+    transactions = models.IntegerField(default=0)
+    # Debt
+    debt_created = models.FloatField(default=0)
+    debt_paid = models.FloatField(default=0)
+
+    # TOWIT
+    membership_orders = models.IntegerField(default=0)
+    membership_amount = models.FloatField(default=0)
+
+    # Sunday after the week
+    date = models.DateField()

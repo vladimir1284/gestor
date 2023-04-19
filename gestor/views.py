@@ -8,6 +8,7 @@ from django.shortcuts import (
 )
 from django.contrib.auth.decorators import login_required
 
+
 from inventory.models import ProductTransaction
 from services.models import (
     Expense,
@@ -16,7 +17,7 @@ from services.models import (
     Payment
 )
 from costs.models import Cost
-from utils.models import Order, Transaction
+from utils.models import Order, Statistics
 from services.views import (
     computeOrderAmount,  # TODO remove this import and make a custom function here
 )
@@ -475,3 +476,82 @@ def getMonthYear(month=None, year=None):
         previousYear = currentYear-1
 
     return ((previousMonth, previousYear), (currentMonth, currentYear), (nextMonth, nextYear))
+
+
+def weekly_stats(date=None):
+    # Compute weekly stats for a given date
+    # We get the data from the previous week
+
+    (start_date, end_date, previousWeek, nextWeek) = getWeek(date)  # This week
+
+    # Previous week
+    (start_date, end_date, previousWeek, nextWeek) = getWeek(
+        previousWeek.strftime("%m%d%Y"))
+
+    try:
+        # Weekly stats are stored in the end_date of the week
+        stats = Statistics.objects.get(date=end_date)
+        return stats
+    except Statistics.DoesNotExist:
+        stats = Statistics(date=end_date)
+
+        orders = Order.objects.filter(
+            status='complete',
+            type='sell',
+            terminated_date__gt=start_date,
+            terminated_date__lte=end_date).order_by(
+            '-terminated_date').exclude(
+            associated__membership=True).exclude(
+            company__membership=True)
+
+        if not orders:
+            return stats
+
+        costs = Cost.objects.filter(date__gt=start_date,
+                                    date__lte=end_date).order_by("-date")
+
+        pending_payments = PendingPayment.objects.filter(
+            created_date__gt=start_date,
+            created_date__lte=end_date).order_by("-created_date")
+
+        context = computeReport(orders, costs, pending_payments)
+
+        stats.completed_orders = len(orders)
+        stats.gross_income = context['total']['gross']
+        stats.profit_before_costs = context['total']['net']
+        stats.labor_income = context['orders'].labor
+        stats.discount = context['total']['discount']
+        stats.third_party = context['total']['third_party']
+        stats.supplies = context['total']['consumable']
+        stats.costs = context['costs'].total
+        stats.parts_cost = context['parts_cost']
+        stats.parts_price = context['parts_price']
+        stats.payment_amount = context['payment_total']
+        stats.transactions = context['payment_transactions']
+        stats.debt_paid = context['debt_paid']
+
+        stats.debt_created = 0
+        for cat in context['payment_cats']:
+            if cat.name == "debt":
+                stats.debt_created = cat.amount
+                break
+
+        # Membership stats
+
+        orders = Order.objects.filter(
+            status='complete',
+            type='sell',
+            terminated_date__gt=start_date,
+            terminated_date__lte=end_date).order_by(
+            '-terminated_date').exclude(
+            company__membership=False).exclude(
+            company=None)
+
+        context = computeReport(orders, costs, pending_payments)
+
+        stats.membership_orders = len(context['orders'])
+        stats.membership_amount = context['total']['net']
+
+        print(stats)
+        stats.save()
+        return stats
