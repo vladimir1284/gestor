@@ -230,25 +230,83 @@ def weekly_report(request, date=None):
 
 @login_required
 def dashboard(request):
+    stats_list = weekly_stats()
+
+    # Profit
+    current_profit = stats_list[0].profit_before_costs - stats_list[0].costs
+    previous_profit = stats_list[1].profit_before_costs - stats_list[1].costs
+    profit_increment = 0
+    if current_profit > 0:
+        profit_increment = 100 * \
+            (current_profit - previous_profit)/current_profit
+
+    # Parts
+    current_parts_profit = stats_list[0].parts_price - stats_list[0].parts_cost
+    previous_parts_profit = stats_list[1].parts_price - \
+        stats_list[1].parts_cost
+    parts_profit_increment = 0
+    if current_parts_profit > 0:
+        parts_profit_increment = 100 * \
+            (current_parts_profit - previous_parts_profit)/current_parts_profit
+
+    # Costs
+    current_costs = stats_list[0].costs
+    previous_costs = stats_list[1].costs
+    costs_increment = 0
+    if current_costs > 0:
+        costs_increment = 100 * \
+            (current_costs - previous_costs)/current_costs
+
+    # Debt balance
+    current_debt_balance = stats_list[0].debt_created - stats_list[0].debt_paid
+    previous_debt_balance = stats_list[1].debt_created - \
+        stats_list[1].debt_paid
+    debt_increment = 0
+    if current_debt_balance > 0:
+        debt_increment = 100*(current_debt_balance -
+                              previous_debt_balance)/current_debt_balance
+
+    # Time series
+    stats_list.reverse()
+
+    time_labels = [stats.date.strftime("%b, %d") for stats in stats_list]
+    time_labels[0] = ""
+
+    profit_data = [int(x.profit_before_costs - x.costs) for x in stats_list]
+    parts_data = [int(x.parts_price - x.parts_cost) for x in stats_list]
+    expenses_data = [int(x.costs) for x in stats_list]
+
     indicators = [
-        {'name': 'profit',
-         'amount': 12345.34,
-         'increment': 75.64,
-         'positive': True,
+        {'name': 'Profit',
+         'amount': current_profit,
+         'increment': profit_increment,
+         'positive': current_profit > 0,
+         'series': profit_data,
          'icon': 'images/icons/profit.png'},
-        {'name': 'profit',
-         'amount': 12345.34,
-         'increment': 75.64,
-         'positive': False,
+        {'name': 'Parts',
+         'amount': current_parts_profit,
+         'increment': parts_profit_increment,
+         'positive': parts_profit_increment > 0,
+         'series': parts_data,
+         'icon': 'images/icons/parts.jpg'},
+        {'name': 'Expenses',
+         'amount': current_costs,
+         'increment': costs_increment,
+         'positive': costs_increment < 0,
+         'series': expenses_data,
+         'icon': 'images/icons/costs.png'},
+        {'name': 'Debt',
+         'amount': current_debt_balance,
+         'increment': debt_increment,
+         'positive': debt_increment < 0,
+         'series': None,
          'icon': 'images/icons/debt.png'},
-        {'name': 'debt',
-         'amount': 12345.34,
-         'increment': -15.64,
-         'positive': True,
-         'icon': 'images/icons/profit.png'},
     ]
+
     context = {
         'indicators': indicators,
+        'last_date': stats_list[0].date - timedelta(days=1),  # TODO fix this
+        'time_labels': time_labels,
     }
     return render(request, 'dashboard.html', context)
 
@@ -478,80 +536,85 @@ def getMonthYear(month=None, year=None):
     return ((previousMonth, previousYear), (currentMonth, currentYear), (nextMonth, nextYear))
 
 
-def weekly_stats(date=None):
+def weekly_stats(date=None, n=12) -> List[Statistics]:
     # Compute weekly stats for a given date
+    # Returns a list for several week stats
     # We get the data from the previous week
 
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)  # This week
+    stats_list = []
+    for _ in range(n):
+        # Previous week
+        (start_date, end_date, previousWeek, nextWeek) = getWeek(
+            previousWeek.strftime("%m%d%Y"))
 
-    # Previous week
-    (start_date, end_date, previousWeek, nextWeek) = getWeek(
-        previousWeek.strftime("%m%d%Y"))
+        try:
+            # Weekly stats are stored in the end_date of the week
+            stats = Statistics.objects.get(date=end_date)
+            stats_list.append(stats)
+            continue
+        except Statistics.DoesNotExist:
+            stats = Statistics(date=end_date)
 
-    try:
-        # Weekly stats are stored in the end_date of the week
-        stats = Statistics.objects.get(date=end_date)
-        return stats
-    except Statistics.DoesNotExist:
-        stats = Statistics(date=end_date)
+            orders = Order.objects.filter(
+                status='complete',
+                type='sell',
+                terminated_date__gt=start_date,
+                terminated_date__lte=end_date).order_by(
+                '-terminated_date').exclude(
+                associated__membership=True).exclude(
+                company__membership=True)
 
-        orders = Order.objects.filter(
-            status='complete',
-            type='sell',
-            terminated_date__gt=start_date,
-            terminated_date__lte=end_date).order_by(
-            '-terminated_date').exclude(
-            associated__membership=True).exclude(
-            company__membership=True)
+            if not orders:
+                stats_list.append(stats)
+                continue
 
-        if not orders:
-            return stats
+            costs = Cost.objects.filter(date__gt=start_date,
+                                        date__lte=end_date).order_by("-date")
 
-        costs = Cost.objects.filter(date__gt=start_date,
-                                    date__lte=end_date).order_by("-date")
+            pending_payments = PendingPayment.objects.filter(
+                created_date__gt=start_date,
+                created_date__lte=end_date).order_by("-created_date")
 
-        pending_payments = PendingPayment.objects.filter(
-            created_date__gt=start_date,
-            created_date__lte=end_date).order_by("-created_date")
+            context = computeReport(orders, costs, pending_payments)
 
-        context = computeReport(orders, costs, pending_payments)
+            stats.completed_orders = len(orders)
+            stats.gross_income = context['total']['gross']
+            stats.profit_before_costs = context['total']['net']
+            stats.labor_income = context['orders'].labor
+            stats.discount = context['total']['discount']
+            stats.third_party = context['total']['third_party']
+            stats.supplies = context['total']['consumable']
+            stats.costs = context['costs'].total
+            stats.parts_cost = context['parts_cost']
+            stats.parts_price = context['parts_price']
+            stats.payment_amount = context['payment_total']
+            stats.transactions = context['payment_transactions']
+            stats.debt_paid = context['debt_paid']
 
-        stats.completed_orders = len(orders)
-        stats.gross_income = context['total']['gross']
-        stats.profit_before_costs = context['total']['net']
-        stats.labor_income = context['orders'].labor
-        stats.discount = context['total']['discount']
-        stats.third_party = context['total']['third_party']
-        stats.supplies = context['total']['consumable']
-        stats.costs = context['costs'].total
-        stats.parts_cost = context['parts_cost']
-        stats.parts_price = context['parts_price']
-        stats.payment_amount = context['payment_total']
-        stats.transactions = context['payment_transactions']
-        stats.debt_paid = context['debt_paid']
+            stats.debt_created = 0
+            for cat in context['payment_cats']:
+                if cat.name == "debt":
+                    stats.debt_created = cat.amount
+                    break
 
-        stats.debt_created = 0
-        for cat in context['payment_cats']:
-            if cat.name == "debt":
-                stats.debt_created = cat.amount
-                break
+            # Membership stats
 
-        # Membership stats
+            orders = Order.objects.filter(
+                status='complete',
+                type='sell',
+                terminated_date__gt=start_date,
+                terminated_date__lte=end_date).order_by(
+                '-terminated_date').exclude(
+                company__membership=False).exclude(
+                company=None)
 
-        orders = Order.objects.filter(
-            status='complete',
-            type='sell',
-            terminated_date__gt=start_date,
-            terminated_date__lte=end_date).order_by(
-            '-terminated_date').exclude(
-            company__membership=False).exclude(
-            company=None)
+            context = computeReport(orders, costs, pending_payments)
 
-        context = computeReport(orders, costs, pending_payments)
+            stats.membership_orders = len(context['orders'])
+            stats.membership_amount = context['total']['net']
 
-        stats.membership_orders = len(context['orders'])
-        stats.membership_amount = context['total']['net']
+            stats.save()
+            stats_list.append(stats)
 
-        print(stats)
-        stats.save()
-        return stats
+    return stats_list

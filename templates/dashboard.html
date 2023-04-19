@@ -15,12 +15,15 @@
                 <div class="d-flex align-items-end row">
                     <div class="col-sm-7">
                         <div class="card-body">
-                            <h5 class="card-title text-primary">Congratulations John! 🎉</h5>
+                            <h5 class="card-title text-primary">
+                                Business Insights <strong>{{ last_date|date:"M, d" }}</strong>
+                            </h5>
                             <p class="mb-4">
                                 You have done <span class="fw-bold">72%</span> more sales today. Check your new badge in
                                 your profile.
                             </p>
-                            <a href="javascript:;" class="btn btn-sm btn-outline-primary">View Badges</a>
+                            <a href="{% url 'weekly-report-date' last_date|date:"mdY" %}"
+                               class="btn btn-sm btn-outline-primary">Week details</a>
                         </div>
                     </div>
                     <div class="col-sm-5 text-center text-sm-left">
@@ -69,12 +72,199 @@
                                     {% else %}
                                         <i class="bx bx-down-arrow-alt"></i>
                                     {% endif %}
-                                {{ indicator.increment }}%</small>
+                                {{ indicator.increment|floatformat:"-2" }}%</small>
                             </div>
                         </div>
                     </div>
                 {% endfor %}
             </div>
         </div>
+        <!--Graph overview-->
+        <div class="col-md-6 col-lg-6 order-1 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <ul class="nav nav-pills" role="tablist">
+                        {% for indicator in indicators %}
+                            {% if indicator.series %}
+                                <li class="nav-item">
+                                    <button type="button"
+                                            class="nav-link {% if forloop.counter0 < 1 %}active{% endif %}"
+                                            role="tab"
+                                            data-bs-toggle="tab"
+                                            data-bs-target="#navs-tabs-line-card-{{ indicator.name }}"
+                                            aria-controls="navs-tabs-line-card-{{ indicator.name }}"
+                                            aria-selected="true">
+                                        {{ indicator.name }}
+                                    </button>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card-body px-0">
+                    <div class="tab-content p-0">
+                        {% for indicator in indicators %}
+                            {% if indicator.series %}
+                                <div class="tab-pane fade {% if forloop.counter0 < 1 %}show active{% endif %}"
+                                     id="navs-tabs-line-card-{{ indicator.name }}"
+                                     role="tabpanel"
+                                     style="position: relative;">
+                                    <div class="d-flex p-4 pt-3">
+                                        <div class="avatar flex-shrink-0 me-3">
+                                            <img src="{% static indicator.icon %}" alt="chart success" class="rounded">
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">{{ indicator.name }}</small>
+                                            <div class="d-flex align-items-center">
+                                                <h6 class="mb-0 me-1">${{ indicator.amount|floatformat:"0" }}</h6>
+                                                <small class="text-success fw-semibold">
+                                                    <i class="bx bx-chevron-up"></i> <!--TODO fix this-->
+                                                    {{ indicator.increment|floatformat:"-2" }}%
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="{{ indicator.name }}Chart"></div>
+                                    <div class="resize-triggers">
+                                        <div class="expand-trigger">
+                                            <div style="width: 650px; height: 377px;"></div>
+                                        </div>
+                                        <div class="contract-trigger"></div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endlocalize %}
+    <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
+    <script>
+        let cardColor, headingColor, axisColor, shadeColor, borderColor;
+
+        cardColor = config.colors.white;
+        headingColor = config.colors.headingColor;
+        axisColor = config.colors.axisColor;
+        borderColor = config.colors.borderColor;
+        (function () {
+
+        let selector, time_labels, profit_data
+
+        time_labels = [{% for label in time_labels %}'{{label}}',{% endfor %}];
+        {% for indicator in indicators %}
+            {% if indicator.series %}
+                data = [{% for value in indicator.series %}{{value}},{% endfor %}];
+                plotChart('#{{indicator.name}}Chart', time_labels, data, "{{indicator.name}}");
+            {% endif %}
+        {% endfor %}
+        })();
+
+        // Area chart
+        // --------------------------------------------------------------------
+        function plotChart(selector, time_labels, data, indicator){
+            const chartEl = document.querySelector(selector),
+            chartConfig = {
+            series: [
+                {
+                data: data,
+                name: indicator
+                }
+            ],
+            chart: {
+                height: 215,
+                parentHeightOffset: 0,
+                parentWidthOffset: 0,
+                toolbar: {
+                show: false
+                },
+                type: 'area'
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return '$' + parseInt(val);
+                      }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                width: 2,
+                curve: 'smooth'
+            },
+            legend: {
+                show: false
+            },
+            markers: {
+                size: 6,
+                colors: 'transparent',
+                strokeColors: 'transparent',
+                strokeWidth: 4,
+                discrete: [
+                {
+                    fillColor: config.colors.white,
+                    seriesIndex: 0,
+                    dataPointIndex: data.length-1,
+                    strokeColor: config.colors.primary,
+                    strokeWidth: 2,
+                    size: 6,
+                    radius: 8
+                }
+                ],
+                hover: {
+                size: 7
+                }
+            },
+            colors: [config.colors.primary],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                shade: shadeColor,
+                shadeIntensity: 0.6,
+                opacityFrom: 0.5,
+                opacityTo: 0.25,
+                stops: [0, 95, 100]
+                }
+            },
+            grid: {
+                borderColor: borderColor,
+                strokeDashArray: 3,
+                padding: {
+                top: -20,
+                bottom: -8,
+                left: -10,
+                right: 8
+                }
+            },
+            xaxis: {
+                categories: time_labels,
+                axisBorder: {
+                show: false
+                },
+                axisTicks: {
+                show: false
+                },
+                labels: {
+                show: true,
+                style: {
+                    fontSize: '13px',
+                    colors: axisColor
+                }
+                }
+            },
+            yaxis: {
+                labels: {
+                show: false
+                },
+                tickAmount: 5
+            }
+            };
+        if (typeof chartEl !== undefined && chartEl !== null) {
+            const chart = new ApexCharts(chartEl, chartConfig);
+            chart.render();
+        }
+        }
+    </script>
 {% endblock content %}
