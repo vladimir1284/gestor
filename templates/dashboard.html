@@ -117,8 +117,8 @@
                                             <small class="text-muted d-block">{{ indicator.name }}</small>
                                             <div class="d-flex align-items-center">
                                                 <h6 class="mb-0 me-1">${{ indicator.amount|floatformat:"0" }}</h6>
-                                                <small class="text-success fw-semibold">
-                                                    <i class="bx bx-chevron-up"></i> <!--TODO fix this-->
+                                                <small class="text-{% if indicator.positive %}success{% else %}danger{% endif %} fw-semibold">
+                                                    <i class="bx bx-chevron-{% if indicator.increment > 0 %}up{% else %}down{% endif %}"></i> <!--TODO fix this-->
                                                     {{ indicator.increment|floatformat:"-2" }}%
                                                 </small>
                                             </div>
