@@ -105,7 +105,7 @@ def getOrderBalance(order: Order, products: dict):
 
 
 @login_required
-def monthly_report(request, year, month):
+def monthly_report(request, year=None, month=None):
     # Prepare dashboard from last close
     ((previousMonth, previousYear),
         (currentMonth, currentYear),
@@ -230,7 +230,7 @@ def weekly_report(request, date=None):
 
 @login_required
 def dashboard(request):
-    stats_list = weekly_stats()
+    stats_list = weekly_stats(n=7)
 
     # Profit
     current_profit = stats_list[0].profit_before_costs - stats_list[0].costs
@@ -280,7 +280,7 @@ def dashboard(request):
         {'name': 'Profit',
          'amount': current_profit,
          'increment': profit_increment,
-         'positive': current_profit > 0,
+         'positive': profit_increment > 0,
          'series': profit_data,
          'icon': 'images/icons/profit.png'},
         {'name': 'Parts',
@@ -311,12 +311,12 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
-@login_required
-def monthly_report(request):
-    if (request.user.profile_user.role == 2):  # Mechanic
-        return redirect('list-service-order')
-    else:
-        return monthly_membership_report(request, year=None, month=None)
+# @login_required
+# def monthly_report(request):
+#     if (request.user.profile_user.role == 2):  # Mechanic
+#         return redirect('list-service-order')
+#     else:
+#         return monthly_report(request, year=None, month=None)
 
 
 def computeReport(orders, costs, pending_payments):
