@@ -65,7 +65,7 @@
                                     </div>
                                 </div>
                                 <span class="fw-semibold d-block mb-1">{{ indicator.name }}</span>
-                                <h3 class="card-title mb-2">${{ indicator.amount|floatformat:"0"|intcomma }}</h3>
+                                <h4 class="card-title mb-2">${{ indicator.amount|floatformat:"0"|intcomma }}</h4>
                                 <small class="{% if indicator.positive %}text-success fw-semibold{% else %}text-danger fw-semibold{% endif %}">
                                     {% if indicator.increment > 0 %}
                                         <i class="bx bx-up-arrow-alt"></i>

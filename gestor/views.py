@@ -7,9 +7,9 @@ from django.shortcuts import (
     get_object_or_404,
 )
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 
-
-from inventory.models import ProductTransaction
+from inventory.models import ProductTransaction, Product
 from services.models import (
     Expense,
     ServiceTransaction,
@@ -265,6 +265,29 @@ def dashboard(request):
     if current_debt_balance > 0:
         debt_increment = 100*(current_debt_balance -
                               previous_debt_balance)/current_debt_balance
+    # Stock costs
+    current_stock_cost = Product.objects.aggregate(
+        Sum("stock_price"))['stock_price__sum']
+
+    # Purchase orders
+    (start_date, end_date, previousWeek, nextWeek) = getWeek()  # This week
+    (start_date, end_date, previousWeek, nextWeek) = getWeek(
+        previousWeek.strftime("%m%d%Y"))  # Previous week
+    purchase_orders = Order.objects.filter(status='complete',
+                                           type='purchase',
+                                           terminated_date__gt=start_date,
+                                           terminated_date__lte=end_date)
+    # Stock costs added
+    transactions = ProductTransaction.objects.filter(
+        order__in=purchase_orders)
+    added = 0
+    for trans in transactions:
+        added += trans.getAmount()
+
+    stock_cost_increment = 0
+    if (current_stock_cost > 0):
+        stock_cost_increment = 100 * \
+            (added - stats_list[0].parts_cost)/current_stock_cost
 
     # Time series
     stats_list.reverse()
@@ -301,6 +324,12 @@ def dashboard(request):
          'positive': debt_increment < 0,
          'series': None,
          'icon': 'images/icons/debt.png'},
+        {'name': 'Stock',
+         'amount': current_stock_cost,
+         'increment': stock_cost_increment,
+         'positive': stock_cost_increment < 0,
+         'series': None,
+         'icon': 'images/icons/inventory.png'},
     ]
 
     context = {
