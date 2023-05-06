@@ -1,4 +1,5 @@
 import os
+from typing import List
 from services.views import computeOrderAmount
 from django.urls import reverse_lazy
 from datetime import datetime, timedelta
@@ -249,15 +250,26 @@ def getDebtOrders(debtor):
 
 @login_required
 def list_debtor(request):
-    debtors = Associated.objects.filter(
+    debtors: List[Associated] = Associated.objects.filter(
         debt__gt=0, active=True).order_by("name", "alias")
+    total = 0
+    debtors_list = []
     for client in debtors:
+        total += client.debt
+        debtors_list.append(client)
         client.oldest_debt = getDebtOrders(client)[0]
         client.overdue = client.oldest_debt.terminated_date < (
             datetime.now(pytz.timezone('UTC')) - timedelta(days=14))
         client.last_order = Order.objects.filter(
             associated=client).order_by("-created_date").first()
-    return render(request, 'users/debtor_list.html', {'associateds': debtors})
+
+    # Sort by last debt date
+    debtors_list.sort(
+        key=lambda x: x.oldest_debt.terminated_date, reverse=True)
+
+    context = {'associateds': debtors_list,
+               'total': total}
+    return render(request, 'users/debtor_list.html', context)
 
 
 def processOrders(orders):

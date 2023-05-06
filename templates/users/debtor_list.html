@@ -4,7 +4,9 @@
     {{ title }}
 {% endblock title %}
 {% block Ttitle %}
-    <h5 class="card-header">Debtors</h5>
+    <h5 class="card-header">
+        Debtors <strong>(${{ total|floatformat:"0" }})</strong>
+    </h5>
 {% endblock Ttitle %}
 {% block Theader %}
     <th>Name</th>
