@@ -1,4 +1,7 @@
 import os
+from twilio.rest import Client
+from django.conf import settings
+
 from django.urls import reverse_lazy
 from django.utils import timezone
 from weasyprint import HTML
@@ -740,7 +743,6 @@ def generate_invoice_pdf(context):
     return main_doc.write_pdf()
 
 
-@login_required
 def generate_invoice(request, id):
     context = getOrderContext(id)
     result = generate_invoice_pdf(context)
@@ -767,6 +769,18 @@ def sendMail(context, address, send_copy=False):
     sender.gmail_send_invoice(
         send_to, invoice, context['order'], context['expenses'])
 
+
+@login_required
+def sendSMS(context, order_id):
+    client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
+    message = client.messages.create(
+        body="Hola desde twilio!",
+        from_='+13203563490',
+        to='+13058336104'
+    )
+
+    print(message.sid)
+    return redirect('detail-service-order', order_id)
 
 # -------------------- Expense ----------------------------
 

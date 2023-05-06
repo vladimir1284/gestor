@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+from dotenv import load_dotenv
 import os
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -169,3 +171,9 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
     BASE_DIR, "trailer-rental-323614-d43be7453c41.json")
+
+# SMS
+load_dotenv('twilio.env')
+
+TWILIO_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
