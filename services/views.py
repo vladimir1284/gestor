@@ -824,7 +824,7 @@ def sendMail(context, address, send_copy=False):
 
 @login_required
 def sendSMS(context, order_id):
-    order = get_object_or_404(id=order_id)
+    order = get_object_or_404(Order, id=order_id)
     twilioSendSMS(order, order.status)
     return redirect('detail-service-order', order_id)
 
