@@ -502,11 +502,63 @@ def update_order_status(request, id, status):
                 for transaction in transactions:
                     reverse_transaction(transaction)
 
+        if status == 'processing':
+            twilioSendSMS(order, status)
         order.status = status
         order.save()
     except NotEnoughStockError as error:
         print(error)
     return redirect('list-service-order')
+
+
+# SMS strings
+PAYMENT_STR = "Zelle: towitrepairs@gmail.com - Towit Repairs LLC. Cash App: $towithouston - Daniel Hernandez. "
+
+RECHARGE_DICT = {
+    'english': "Card payment fee: 3%.",
+    'spanish': "Recargo pago con tarjeta: 3%."
+}
+
+INTRO_DICT = {
+    'english': "Your service at TOWIT is ready. Due: ${}. See details at: ",
+    'spanish': "Su servicio en TOWIT está listo. A pagar: ${}. Vea detalles en: "
+}
+
+THANKS_DICT = {
+    'english': "Thank you for choosing TOWIT. Follow us at: ",
+    'spanish': "Gracias por elegir TOWIT. Síguenos en: "
+}
+
+INVOICE_DICT = {
+    'english': "Check your invoice at: ",
+    'spanish': "Vea su factura en: "
+}
+
+PDF_URL = "towit.pythonanywhere.com/services/pdf-invoice/{}. "
+
+SOCIAL_NETWORK = "www.tiktok.com/@towithouston - www.facebook.com/towithouston. "
+
+
+def twilioSendSMS(order: Order, status: str):
+    client = order.associated
+    if client:
+        if status == "complete":
+            body = THANKS_DICT[client.language] + SOCIAL_NETWORK + \
+                INVOICE_DICT[client.language] + PDF_URL.format(order.id)
+        else:
+            computeOrderAmount(order)
+            body = INTRO_DICT[client.language].format(int(
+                order.amount + order.tax)) + PDF_URL.format(order.id) + PAYMENT_STR + RECHARGE_DICT[client.language]
+
+        sms_client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
+        message = sms_client.messages.create(
+            body=body,
+            from_='+13203563490',
+            to=str(client.phone_number)
+        )
+
+        print(message.sid)
+        # print(body)
 
 
 def reverse_transaction(transaction: Transaction):
@@ -772,14 +824,8 @@ def sendMail(context, address, send_copy=False):
 
 @login_required
 def sendSMS(context, order_id):
-    client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
-    message = client.messages.create(
-        body="Hola desde twilio!",
-        from_='+13203563490',
-        to='+13058336104'
-    )
-
-    print(message.sid)
+    order = get_object_or_404(id=order_id)
+    twilioSendSMS(order, order.status)
     return redirect('detail-service-order', order_id)
 
 # -------------------- Expense ----------------------------
@@ -989,6 +1035,7 @@ def process_payment(request, order_id):
             order.terminated_date = timezone.now()
             order.status = "complete"
             order.save()
+            twilioSendSMS(order, order.status)
             return redirect('detail-service-order', order_id)
         else:
             return redirect('process-payment', order_id)
