@@ -535,12 +535,16 @@ Gracias"""
 THANKS_DICT = {
     'english':
     """Thank you for choosing TOWIT. Follow us at:
+TikTok:
 www.tiktok.com/@towithouston
+Facebook:
 www.facebook.com/towithouston
 Check your invoice at the following link: towit.pythonanywhere.com/services/pdf-invoice/{}""",
     'spanish':
     """Gracias por elegir TOWITHOUSTON. Síganos en:
+TikTok:
 www.tiktok.com/@towithouston
+Facebook:
 www.facebook.com/towithouston
 Vea su factura en el siguiente enlace: towit.pythonanywhere.com/services/pdf-invoice/{}"""
 }

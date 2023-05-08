@@ -75,6 +75,12 @@ class Payment(models.Model):
                               on_delete=models.CASCADE,
                               related_name='service_payment')
 
+    def __str__(self):
+        name = ""
+        if self.order.associated:
+            name = self.order.associated.name
+        return "order: {} client: {} amount: {}".format(self.order.id, name, self.amount)
+
 
 class PendingPayment(models.Model):
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
