@@ -511,44 +511,51 @@ def update_order_status(request, id, status):
     return redirect('list-service-order')
 
 
-# SMS strings
-PAYMENT_STR = "Zelle: towitrepairs@gmail.com - Towit Repairs LLC. Cash App: $towithouston - Daniel Hernandez. "
-
-RECHARGE_DICT = {
-    'english': "Card payment fee: 3%.",
-    'spanish': "Recargo pago con tarjeta: 3%."
-}
-
-INTRO_DICT = {
-    'english': "Your service at TOWIT is ready. Due: ${}. See details at: ",
-    'spanish': "Su servicio en TOWIT está listo. A pagar: ${}. Vea detalles en: "
+PAYMENT_DICT = {
+    'english':
+    """Dear {}, your vehicle at TOWITHOUSTON is ready!
+Due: ${}
+Check the following link for details: towit.pythonanywhere.com/services/pdf-invoice/{}
+You can make your payment using Zelle by registering the e-mail: towitrepairs@gmail.com owned by Towit Repairs LLC
+For Cash App, please register the user $towithouston owned by Daniel Hernández
+You can also pay with credit or debit card with an extra fee of 3% for the Square platform
+We also accept cash
+Thanks""",
+    'spanish':
+    """Estimado {}, su vehículo en TOWITHOUSTON está listo!
+Total a pagar: ${}
+Ver detalles en el siguiente enlace: towit.pythonanywhere.com/services/pdf-invoice/{}
+Para realizar el pago a través de Zelle registre el correo: towitrepairs@gmail.com le aparecerá la cuenta a nombre de Towit Repairs LLC
+Para realizar el pago via Cash App registre el usuario $towithouston le aparecerá la cuenta a nombre de Daniel Hernández
+Puede pagar con targeta de credito o debito con un recargo del 3% de la plataforma Square
+Además aceptamos efectivo
+Gracias"""
 }
 
 THANKS_DICT = {
-    'english': "Thank you for choosing TOWIT. Follow us at: ",
-    'spanish': "Gracias por elegir TOWIT. Síguenos en: "
+    'english':
+    """Thank you for choosing TOWIT. Follow us at:
+www.tiktok.com/@towithouston
+www.facebook.com/towithouston
+Check your invoice at the following link: towit.pythonanywhere.com/services/pdf-invoice/{}""",
+    'spanish':
+    """Gracias por elegir TOWITHOUSTON. Síganos en:
+www.tiktok.com/@towithouston
+www.facebook.com/towithouston
+Vea su factura en el siguiente enlace: towit.pythonanywhere.com/services/pdf-invoice/{}"""
 }
-
-INVOICE_DICT = {
-    'english': "Check your invoice at: ",
-    'spanish': "Vea su factura en: "
-}
-
-PDF_URL = "towit.pythonanywhere.com/services/pdf-invoice/{}. "
-
-SOCIAL_NETWORK = "www.tiktok.com/@towithouston - www.facebook.com/towithouston. "
 
 
 def twilioSendSMS(order: Order, status: str):
     client = order.associated
     if client:
         if status == "complete":
-            body = THANKS_DICT[client.language] + SOCIAL_NETWORK + \
-                INVOICE_DICT[client.language] + PDF_URL.format(order.id)
+            body = THANKS_DICT[client.language].format(order.id)
         else:
             computeOrderAmount(order)
-            body = INTRO_DICT[client.language].format(int(
-                order.amount + order.tax)) + PDF_URL.format(order.id) + PAYMENT_STR + RECHARGE_DICT[client.language]
+            body = PAYMENT_DICT[client.language].format(
+                client.name,
+                int(order.amount + order.tax), order.id)
 
         sms_client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
         message = sms_client.messages.create(
