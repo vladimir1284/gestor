@@ -549,12 +549,27 @@ www.facebook.com/towithouston
 Vea su factura en el siguiente enlace: towit.pythonanywhere.com/services/pdf-invoice/{}"""
 }
 
+DEBT_REMINDER = {
+    'english':
+    """You have a pending payment of ${}.
+Remember that your deadline will be in 15 days!""",
+    'spanish':
+    """Usted quedó debiendo ${}. 
+Recuerde que tiene 15 días para pagarlo!"""
+}
+
 
 def twilioSendSMS(order: Order, status: str):
     client = order.associated
     if client:
         if status == "complete":
             body = THANKS_DICT[client.language].format(order.id)
+            payments = Payment.objects.filter(order=order)
+            for payment in payments:
+                if payment.category.name == 'debt':
+                    body += "\n" + \
+                        DEBT_REMINDER[client.language].format(payment.amount)
+                    break
         else:
             computeOrderAmount(order)
             body = PAYMENT_DICT[client.language].format(
@@ -1025,6 +1040,7 @@ def process_payment(request, order_id):
 
     if request.method == 'POST':
         valid = False
+        do_save = True
         for form in forms:
             if form.is_valid():
                 if form.cleaned_data['amount'] > 0:
@@ -1032,8 +1048,17 @@ def process_payment(request, order_id):
                     payment.order = order
                     payment.category = form.category
                     payment.extra_charge = payment.category.extra_charge
-                    payment.save()
+                    payments = Payment.objects.filter(order=order)
+
+                    # Check for existing payment in the database
+                    for pay in payments:
+                        if pay.category == payment.category:
+                            do_save = False
+                            break
+                    if do_save:
+                        payment.save()  # Save if not repeated
                     valid = True
+
                     # Account for client's debt
                     if payment.category == debt:
                         if order.associated is not None:
