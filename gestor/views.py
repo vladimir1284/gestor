@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from django.conf import settings
 from typing import List
 from itertools import chain
 from django.shortcuts import (
@@ -8,6 +9,7 @@ from django.shortcuts import (
 )
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
+import openai
 
 from inventory.models import ProductTransaction, Product
 from services.models import (
@@ -230,7 +232,8 @@ def weekly_report(request, date=None):
 
 @login_required
 def dashboard(request):
-    stats_list = weekly_stats(n=7)
+    N = 7  # number of weeks in the dashboard
+    stats_list = weekly_stats(n=N)
 
     # Profit
     current_profit = stats_list[0].profit_before_costs - stats_list[0].costs
@@ -332,20 +335,86 @@ def dashboard(request):
          'icon': 'images/icons/inventory.png'},
     ]
 
+    # Get gpt insights is needed
+    if stats_list[0].gpt_insights is None:
+        stats_list[0].gpt_insights = get_gpt_insights(current_profit,
+                                                      profit_increment,
+                                                      current_parts_profit,
+                                                      parts_profit_increment,
+                                                      current_debt_balance,
+                                                      debt_increment,
+                                                      current_stock_cost,
+                                                      stock_cost_increment,
+                                                      N,
+                                                      profit_data,
+                                                      parts_data,
+                                                      expenses_data)
+        stats_list[0].save()
+
     context = {
         'indicators': indicators,
         'last_date': stats_list[0].date - timedelta(days=1),  # TODO fix this
         'time_labels': time_labels,
+        'insights': stats_list[0].gpt_insights
     }
     return render(request, 'dashboard.html', context)
 
 
-# @login_required
-# def monthly_report(request):
-#     if (request.user.profile_user.role == 2):  # Mechanic
-#         return redirect('list-service-order')
-#     else:
-#         return monthly_report(request, year=None, month=None)
+def get_gpt_insights(current_profit,
+                     profit_increment,
+                     current_parts_profit,
+                     parts_profit_increment,
+                     current_debt_balance,
+                     debt_increment,
+                     current_stock_cost,
+                     stock_cost_increment,
+                     N,
+                     profit_data,
+                     parts_data,
+                     expenses_data):
+
+    prompt = F"""Using the following business data corresponding to the last week:
+The total profit of the week was ${int(current_profit)}, having a {int(profit_increment)}% increment regarding the previous week. 
+The profit from parts sells of the week was ${int(current_parts_profit)}, having a {int(parts_profit_increment)}% increment regarding the previous week. 
+The operational costs of the week where ${int(current_parts_profit)}, having a {int(parts_profit_increment)}% increment regarding the previous week. 
+The debt balance of the week was ${int(current_debt_balance)}, having a {int(debt_increment)}% increment regarding the previous week. 
+The inventory costs this week is ${int(current_stock_cost)}, having a {int(stock_cost_increment)}% increment regarding the previous week. 
+The average values for the last {int(N)} weeks is:
+total profit: ${int(sum(profit_data) / len(profit_data))}
+parts sell profit: ${int(sum(parts_data) / len(parts_data))}
+operational costs: ${int(sum(expenses_data) / len(expenses_data))}
+This is a repairs business for trailers and trucks called TOWITHOUSTON. 
+The total profit includes the profit generated from the sell of parts, which are used in the repairs.
+The debt accounts for the money that some clients left to be payed with in the next two weeks.
+
+Create a summary paragraph for the user dashboard. 
+Use rounded numbers only in the response. 
+Negative increase should be interpreted as positive decrease.
+Do not use the data given above literally, since it is already shown in the page.
+Use html format in your response for highlighting relevant data."""
+
+    # Define additional options (optional)
+    options = {
+        'temperature': 0.5,
+        'max_tokens': 1000,
+        'top_p': 0.8,
+        'frequency_penalty': 0.0,
+        'presence_penalty': 0.0
+    }
+
+    openai.organization = settings.OPEN_AI_ORG
+    openai.api_key = settings.OPENAI_API_KEY
+
+    # Generate a completion
+    response = openai.Completion.create(
+        engine='text-davinci-003',
+        prompt=prompt,
+        **options
+    )
+
+    # Access the generated text
+    completion_text = response.choices[0].text.strip()
+    return completion_text
 
 
 def computeReport(orders, costs, pending_payments):

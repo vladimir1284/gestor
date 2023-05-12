@@ -177,3 +177,7 @@ load_dotenv('twilio.env')
 
 TWILIO_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+
+# Chat GPT
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPEN_AI_ORG = os.getenv('OPEN_AI_ORG')

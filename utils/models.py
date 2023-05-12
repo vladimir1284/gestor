@@ -160,3 +160,6 @@ class Statistics(models.Model):
 
     # Sunday after the week
     date = models.DateField()
+
+    # GPT insights for the week
+    gpt_insights = models.TextField(max_length=1000, blank=True, null=True)
