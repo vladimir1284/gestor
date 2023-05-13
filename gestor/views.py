@@ -336,7 +336,7 @@ def dashboard(request):
     ]
 
     # Get gpt insights is needed
-    if stats_list[0].gpt_insights is None:
+    if stats_list[0].gpt_insights is None or stats_list[0].gpt_insights == "":
         stats_list[0].gpt_insights = get_gpt_insights(current_profit,
                                                       profit_increment,
                                                       current_parts_profit,
@@ -374,11 +374,11 @@ def get_gpt_insights(current_profit,
                      expenses_data):
 
     prompt = F"""Using the following business data corresponding to the last week:
-The total profit of the week was ${int(current_profit)}, having a {int(profit_increment)}% increment regarding the previous week. 
-The profit from parts sells of the week was ${int(current_parts_profit)}, having a {int(parts_profit_increment)}% increment regarding the previous week. 
-The operational costs of the week where ${int(current_parts_profit)}, having a {int(parts_profit_increment)}% increment regarding the previous week. 
-The debt balance of the week was ${int(current_debt_balance)}, having a {int(debt_increment)}% increment regarding the previous week. 
-The inventory costs this week is ${int(current_stock_cost)}, having a {int(stock_cost_increment)}% increment regarding the previous week. 
+The total profit of the week was ${int(current_profit)}. 
+The profit from parts sells of the week was ${int(current_parts_profit)}. 
+The operational costs of the week where ${int(current_parts_profit)}. 
+The debt balance of the week was ${int(current_debt_balance)}. 
+The inventory costs this week is ${int(current_stock_cost)}. 
 The average values for the last {int(N)} weeks is:
 total profit: ${int(sum(profit_data) / len(profit_data))}
 parts sell profit: ${int(sum(parts_data) / len(parts_data))}
@@ -389,7 +389,7 @@ The debt accounts for the money that some clients left to be payed with in the n
 
 Create a summary paragraph for the user dashboard. 
 Use rounded numbers only in the response. 
-Negative increase should be interpreted as positive decrease.
+Use percentage when comparing to average values.
 Do not use the data given above literally, since it is already shown in the page.
 Use html format in your response for highlighting relevant data."""
 
