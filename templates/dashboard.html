@@ -10,7 +10,7 @@
 {% block content %}
     {% localize on %}
     <div class="row">
-        <div class="col-lg-8 mb-4 order-0">
+        <div class="col-lg-12 mb-4 order-0">
             <div class="card">
                 <div class="d-flex align-items-end row">
                     <div class="col-sm-7">
@@ -35,109 +35,108 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4 col-md-4 order-1">
-            <div class="row">
-                {% for indicator in indicators %}
-                    <div class="col-lg-6 col-md-12 col-6 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="card-title d-flex align-items-start justify-content-between">
-                                    <div class="avatar flex-shrink-0">
-                                        <img src="{% static indicator.icon %}" alt="chart success" class="rounded">
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn p-0"
-                                                type="button"
-                                                id="cardOpt3"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end"
-                                             aria-labelledby="cardOpt3"
-                                             style="">
-                                            <a class="dropdown-item" href="javascript:void(0);">View More</a>
-                                        </div>
-                                    </div>
+    </div>
+    <div class="row">
+        {% for indicator in indicators %}
+            <div class="col-lg-3 col-md-4 col-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                                <img src="{% static indicator.icon %}" alt="chart success" class="rounded">
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn p-0"
+                                        type="button"
+                                        id="cardOpt3"
+                                        data-bs-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end"
+                                     aria-labelledby="cardOpt3"
+                                     style="">
+                                    <a class="dropdown-item" href="javascript:void(0);">View More</a>
                                 </div>
-                                <span class="fw-semibold d-block mb-1">{{ indicator.name }}</span>
-                                <h4 class="card-title mb-2">${{ indicator.amount|floatformat:"0"|intcomma }}</h4>
-                                <small class="{% if indicator.positive %}text-success fw-semibold{% else %}text-danger fw-semibold{% endif %}">
-                                    {% if indicator.increment > 0 %}
-                                        <i class="bx bx-up-arrow-alt"></i>
-                                    {% else %}
-                                        <i class="bx bx-down-arrow-alt"></i>
-                                    {% endif %}
-                                {{ indicator.increment|floatformat:"-2" }}%</small>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        <!--Graph overview-->
-        <div class="col-md-6 col-lg-6 order-1 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <ul class="nav nav-pills" role="tablist">
-                        {% for indicator in indicators %}
-                            {% if indicator.series %}
-                                <li class="nav-item">
-                                    <button type="button"
-                                            class="nav-link {% if forloop.counter0 < 1 %}active{% endif %}"
-                                            role="tab"
-                                            data-bs-toggle="tab"
-                                            data-bs-target="#navs-tabs-line-card-{{ indicator.name }}"
-                                            aria-controls="navs-tabs-line-card-{{ indicator.name }}"
-                                            aria-selected="true">
-                                        {{ indicator.name }}
-                                    </button>
-                                </li>
+                        <span class="fw-semibold d-block mb-1">{{ indicator.name }}</span>
+                        <h4 class="card-title mb-2">${{ indicator.amount|floatformat:"0"|intcomma }}</h4>
+                        <small class="{% if indicator.positive %}text-success fw-semibold{% else %}text-danger fw-semibold{% endif %}">
+                            {% if indicator.increment > 0 %}
+                                <i class="bx bx-up-arrow-alt"></i>
+                            {% else %}
+                                <i class="bx bx-down-arrow-alt"></i>
                             {% endif %}
-                        {% endfor %}
-                    </ul>
+                        {{ indicator.increment|floatformat:"-2" }}%</small>
+                    </div>
                 </div>
-                <div class="card-body px-0">
-                    <div class="tab-content p-0">
-                        {% for indicator in indicators %}
-                            {% if indicator.series %}
-                                <div class="tab-pane fade {% if forloop.counter0 < 1 %}show active{% endif %}"
-                                     id="navs-tabs-line-card-{{ indicator.name }}"
-                                     role="tabpanel"
-                                     style="position: relative">
-                                    <div class="d-flex p-4 pt-3">
-                                        <div class="avatar flex-shrink-0 me-3">
-                                            <img src="{% static indicator.icon %}" alt="chart success" class="rounded">
-                                        </div>
-                                        <div>
-                                            <small class="text-muted d-block">{{ indicator.name }}</small>
-                                            <div class="d-flex align-items-center">
-                                                <h6 class="mb-0 me-1">${{ indicator.amount|floatformat:"0" }}</h6>
-                                                <small class="text-{% if indicator.positive %}success{% else %}danger{% endif %} fw-semibold">
-                                                    <i class="bx bx-chevron-{% if indicator.increment > 0 %}up{% else %}down{% endif %}"></i> <!--TODO fix this-->
-                                                    {{ indicator.increment|floatformat:"-2" }}%
-                                                </small>
-                                            </div>
-                                        </div>
+            </div>
+        {% endfor %}
+    </div>
+    <!--Graph overview-->
+    <div class="col-md-6 col-lg-6 order-1 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <ul class="nav nav-pills" role="tablist">
+                    {% for indicator in indicators %}
+                        {% if indicator.series %}
+                            <li class="nav-item">
+                                <button type="button"
+                                        class="nav-link {% if forloop.counter0 < 1 %}active{% endif %}"
+                                        role="tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#navs-tabs-line-card-{{ indicator.name }}"
+                                        aria-controls="navs-tabs-line-card-{{ indicator.name }}"
+                                        aria-selected="true">
+                                    {{ indicator.name }}
+                                </button>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card-body px-0">
+                <div class="tab-content p-0">
+                    {% for indicator in indicators %}
+                        {% if indicator.series %}
+                            <div class="tab-pane fade {% if forloop.counter0 < 1 %}show active{% endif %}"
+                                 id="navs-tabs-line-card-{{ indicator.name }}"
+                                 role="tabpanel"
+                                 style="position: relative">
+                                <div class="d-flex p-4 pt-3">
+                                    <div class="avatar flex-shrink-0 me-3">
+                                        <img src="{% static indicator.icon %}" alt="chart success" class="rounded">
                                     </div>
-                                    <div id="{{ indicator.name }}Chart"></div>
-                                    <div class="resize-triggers">
-                                        <div class="expand-trigger">
-                                            <div style="width: 650px; height: 377px;"></div>
+                                    <div>
+                                        <small class="text-muted d-block">{{ indicator.name }}</small>
+                                        <div class="d-flex align-items-center">
+                                            <h6 class="mb-0 me-1">${{ indicator.amount|floatformat:"0" }}</h6>
+                                            <small class="text-{% if indicator.positive %}success{% else %}danger{% endif %} fw-semibold">
+                                                <i class="bx bx-chevron-{% if indicator.increment > 0 %}up{% else %}down{% endif %}"></i> <!--TODO fix this-->
+                                                {{ indicator.increment|floatformat:"-2" }}%
+                                            </small>
                                         </div>
-                                        <div class="contract-trigger"></div>
                                     </div>
                                 </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
+                                <div id="{{ indicator.name }}Chart"></div>
+                                <div class="resize-triggers">
+                                    <div class="expand-trigger">
+                                        <div style="width: 650px; height: 377px;"></div>
+                                    </div>
+                                    <div class="contract-trigger"></div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
-    {% endlocalize %}
-    <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
-    <script>
+    </div>
+{% endlocalize %}
+<script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
+<script>
         let cardColor, headingColor, axisColor, shadeColor, borderColor;
 
         cardColor = config.colors.white;
@@ -269,5 +268,5 @@
             chart.render();
         }
         }
-    </script>
+</script>
 {% endblock content %}

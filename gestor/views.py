@@ -336,26 +336,26 @@ def dashboard(request):
     ]
 
     # Get gpt insights is needed
-    if stats_list[0].gpt_insights is None or stats_list[0].gpt_insights == "":
-        stats_list[0].gpt_insights = get_gpt_insights(current_profit,
-                                                      profit_increment,
-                                                      current_parts_profit,
-                                                      parts_profit_increment,
-                                                      current_debt_balance,
-                                                      debt_increment,
-                                                      current_stock_cost,
-                                                      stock_cost_increment,
-                                                      N,
-                                                      profit_data,
-                                                      parts_data,
-                                                      expenses_data)
+    if stats_list[-1].gpt_insights is None or stats_list[-1].gpt_insights == "":
+        stats_list[-1].gpt_insights = get_gpt_insights(current_profit,
+                                                       profit_increment,
+                                                       current_parts_profit,
+                                                       parts_profit_increment,
+                                                       current_debt_balance,
+                                                       debt_increment,
+                                                       current_stock_cost,
+                                                       stock_cost_increment,
+                                                       N,
+                                                       profit_data,
+                                                       parts_data,
+                                                       expenses_data)
         stats_list[0].save()
 
     context = {
         'indicators': indicators,
-        'last_date': stats_list[0].date - timedelta(days=1),  # TODO fix this
+        'last_date': stats_list[-1].date - timedelta(days=1),  # TODO fix this
         'time_labels': time_labels,
-        'insights': stats_list[0].gpt_insights
+        'insights': stats_list[-1].gpt_insights
     }
     return render(request, 'dashboard.html', context)
 
