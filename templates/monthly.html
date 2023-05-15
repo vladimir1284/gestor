@@ -1,4 +1,4 @@
-{% extends 'statistics.html' %}
+{% extends "statistics.html" %}
 {% load static %}
 {% load month_name %}
 {% block nav %}
@@ -19,3 +19,6 @@
         </div>
     </div>
 {% endblock nav %}
+{% block amount %}
+    {% include "payment_amount.html" with interval="month" week="" year=currentYear month=currentMonth %}
+{% endblock amount %}

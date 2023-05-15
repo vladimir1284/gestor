@@ -1,0 +1,61 @@
+{% extends 'base/base_list.html' %}
+{% load static %}
+{% block title %}
+    Payment ({{ category.name }})
+{% endblock title %}
+{% block Ttitle %}
+    <div class="d-flex p-4">
+        <div class="avatar flex-shrink-0 me-3">
+            <img {% if category.icon %} src="{{ category.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
+                 alt=""
+                 class="rounded"/>
+        </div>
+        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+            <div class="me-2">
+                <h5 class="mb-0">{{ category.name }} ${{ total|floatformat:"0" }}</h5>
+                <span class="text-muted">{{ transactions }} transactions</span>
+            </div>
+            <div class="user-progress">
+                <a type="button"
+                   href="{% url 'weekly-payments' category.id '05072023' %}">
+                    <small class="badge bg-{% if forloop.counter0 > 2 and payment_cats|length > 4 %}secondary{% else %}{{ category.style }}{% endif %}">${{ category.amount|floatformat:"0" }}</small>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>Client</th>
+    <th>Order</th>
+    <th>Amount</th>
+    <th>Date</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for payment in payments %}
+        <tr>
+            <td>
+                {% if payment.order.associated.id %}
+                    <a href={% url 'detail-associated' payment.order.associated.id %}>{{ payment.order.associated.name }}</a>
+                {% endif %}
+            </td>
+            <td>
+                <a href={% url 'detail-service-order' payment.order.id %}>{{ payment.order.concept }}</a>
+            </td>
+            <td>${{ payment.amount|floatformat:"2" }}</td>
+            <td>{{ payment.order.terminated_date|date:"SHORT_DATE_FORMAT" }}</td>
+        </tr>
+    {% endfor %}
+    {% for payment in pending_payments %}
+        <tr>
+            <td>
+                <a href={% url 'detail-associated' payment.client.id %}>{{ payment.client }}</a>
+            </td>
+            <td>Pending payment</td>
+            <td>${{ payment.amount|floatformat:"2" }}</td>
+            <td>{{ payment.created_date|date:"SHORT_DATE_FORMAT" }}</td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block add %}
+    hidden
+{% endblock add %}

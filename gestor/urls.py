@@ -25,6 +25,8 @@ from .views import (
     weekly_membership_report,
     monthly_report,
     monthly_membership_report,
+    weekly_payments,
+    monthly_payments,
 )
 
 urlpatterns = [
@@ -33,12 +35,15 @@ urlpatterns = [
     # Weekly reports
     path('weekly/', weekly_report, name='weekly-report'),
     path('weekly/<date>', weekly_report, name='weekly-report-date'),
+    path('weekly/<category_id>/<date>', weekly_payments, name='weekly-payments'),
     path('weekly_membership/', weekly_membership_report, name='weekly-membership'),
     path('weekly_membership/<date>', weekly_membership_report,
          name='weekly-membership-date'),
     # Monthly reports
     path('monthly/', monthly_report, name='monthly-report'),
     path('monthly/<year>/<month>', monthly_report, name='monthly-report-date'),
+    path('monthly/<category_id>/<year>/<month>',
+         monthly_payments, name='monthly-payments'),
     path('monthly_membership/', monthly_membership_report,
          name='monthly-membership'),
     path('monthly_membership/<year>/<month>', monthly_membership_report,

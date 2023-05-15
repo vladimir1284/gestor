@@ -212,7 +212,8 @@
                                         <small class="text-muted">{{ cat.transactions }} transactions</small>
                                     </div>
                                     <div class="user-progress">
-                                        <small class="badge bg-{% if forloop.counter0 > 2 and payment_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</small>
+                                        {% block amount %}
+                                        {% endblock amount %}
                                     </div>
                                 </div>
                             </li>

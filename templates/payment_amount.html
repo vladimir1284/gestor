@@ -1,0 +1,17 @@
+{% if cat.id %}
+    {% if interval != 'month' %}
+        <a type="button" href="{% url 'weekly-payments' cat.id week %}">
+            <small class="badge bg-{% if forloop.counter0 > 2 and payment_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</small>
+        </a>
+    {% else %}
+        <a type="button" href="{% url 'monthly-payments' cat.id year month %}">
+            <small class="badge bg-{% if forloop.counter0 > 2 and payment_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</small>
+        </a>
+    {% endif %}
+{% else %}
+    {% if interval != 'month' %}
+        <small class="badge bg-{% if forloop.counter0 > 2 and payment_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</small>
+    {% else %}
+        <small class="badge bg-{% if forloop.counter0 > 2 and payment_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</small>
+    {% endif %}
+{% endif %}

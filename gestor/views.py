@@ -16,7 +16,8 @@ from services.models import (
     Expense,
     ServiceTransaction,
     PendingPayment,
-    Payment
+    Payment,
+    PaymentCategory,
 )
 from costs.models import Cost
 from utils.models import Order, Statistics
@@ -140,6 +141,34 @@ def monthly_report(request, year=None, month=None):
 
 
 @login_required
+def monthly_payments(request, category_id, year, month):
+    category = get_object_or_404(PaymentCategory, id=category_id)
+
+    # Prepare dashboard from last close
+    ((previousMonth, previousYear),
+        (currentMonth, currentYear),
+        (nextMonth, nextYear)) = getMonthYear(month, year)
+
+    orders = Order.objects.filter(
+        status='complete',
+        type='sell',
+        terminated_date__year=currentYear,
+        terminated_date__month=currentMonth).order_by(
+        '-terminated_date').exclude(
+        associated__membership=True).exclude(
+        company__membership=True)
+
+    pending_payments = PendingPayment.objects.filter(
+        category=category,
+        created_date__year=currentYear,
+        created_date__month=currentMonth).order_by("-created_date")
+
+    context = getPaymentContext(orders, category, pending_payments)
+
+    return render(request, 'payments.html', context)
+
+
+@login_required
 def weekly_membership_report(request, date=None):
 
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
@@ -225,9 +254,52 @@ def weekly_report(request, date=None):
     context = computeReport(orders, costs, pending_payments)
     context.setdefault('start_date', start_date)
     context.setdefault('end_date', end_date - timedelta(days=1))
+    context.setdefault('currentDate', start_date.strftime("%m%d%Y"))
     context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
     context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
     return render(request, 'weekly.html', context)
+
+
+@login_required
+def weekly_payments(request, category_id, date):
+    category = get_object_or_404(PaymentCategory, id=category_id)
+
+    (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
+
+    orders = Order.objects.filter(
+        status='complete',
+        type='sell',
+        terminated_date__gt=start_date,
+        terminated_date__lte=end_date).order_by(
+        '-terminated_date').exclude(
+        associated__membership=True).exclude(
+        company__membership=True)
+
+    pending_payments = PendingPayment.objects.filter(
+        category=category,
+        created_date__gt=start_date,
+        created_date__lte=end_date).order_by("-created_date")
+
+    context = getPaymentContext(orders, category, pending_payments)
+
+    return render(request, 'payments.html', context)
+
+
+def getPaymentContext(orders, category, pending_payments):
+    payments = Payment.objects.filter(order__in=orders,
+                                      category=category)
+    total = 0
+    for payment in payments:
+        total += payment.amount
+
+    for payment in pending_payments:
+        total += payment.amount
+
+    return {'payments': payments,
+            'total': total,
+            'transactions': len(payments) + len(pending_payments),
+            'pending_payments': pending_payments,
+            'category': category}
 
 
 @login_required
@@ -288,7 +360,10 @@ def dashboard(request):
         added += trans.getAmount()
 
     stock_cost_increment = 0
-    if (current_stock_cost > 0):
+
+    if not current_stock_cost:
+        current_stock_cost = 0
+    else:
         stock_cost_increment = 100 * \
             (added - stats_list[0].parts_cost)/current_stock_cost
 
@@ -337,19 +412,23 @@ def dashboard(request):
 
     # Get gpt insights is needed
     if stats_list[-1].gpt_insights is None or stats_list[-1].gpt_insights == "":
-        stats_list[-1].gpt_insights = get_gpt_insights(current_profit,
-                                                       profit_increment,
-                                                       current_parts_profit,
-                                                       parts_profit_increment,
-                                                       current_debt_balance,
-                                                       debt_increment,
-                                                       current_stock_cost,
-                                                       stock_cost_increment,
-                                                       N,
-                                                       profit_data,
-                                                       parts_data,
-                                                       expenses_data)
-        stats_list[0].save()
+
+        try:
+            stats_list[-1].gpt_insights = get_gpt_insights(current_profit,
+                                                           profit_increment,
+                                                           current_parts_profit,
+                                                           parts_profit_increment,
+                                                           current_debt_balance,
+                                                           debt_increment,
+                                                           current_stock_cost,
+                                                           stock_cost_increment,
+                                                           N,
+                                                           profit_data,
+                                                           parts_data,
+                                                           expenses_data)
+            stats_list[0].save()
+        except Exception as e:
+            print(e)
 
     context = {
         'indicators': indicators,
@@ -401,7 +480,6 @@ Use html format in your response for highlighting relevant data."""
         'frequency_penalty': 0.0,
         'presence_penalty': 0.0
     }
-
     openai.organization = settings.OPEN_AI_ORG
     openai.api_key = settings.OPENAI_API_KEY
 
