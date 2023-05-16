@@ -577,16 +577,18 @@ def twilioSendSMS(order: Order, status: str):
             body = PAYMENT_DICT[client.language].format(
                 client.name,
                 int(order.amount + order.tax), order.id)
+        try:
+            sms_client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
+            message = sms_client.messages.create(
+                body=body,
+                from_='+13203563490',
+                to=str(client.phone_number)
+            )
 
-        sms_client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
-        message = sms_client.messages.create(
-            body=body,
-            from_='+13203563490',
-            to=str(client.phone_number)
-        )
-
-        print(message.sid)
-        # print(body)
+            print(message.sid)
+            # print(body)
+        except Exception as e:
+            print(e)
 
 
 def reverse_transaction(transaction: Transaction):
