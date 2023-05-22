@@ -543,14 +543,15 @@ def computeReport(orders, costs, pending_payments):
     chart_costs = []
 
     for i, cat in enumerate(sorted_cats):
-        cat.style = STYLE_COLOR[cat.chartColor]
-        cat.amount = cats[cat][0]
-        cat.items = cats[cat][1]
+        if cat is not None:
+            cat.style = STYLE_COLOR[cat.chartColor]
+            cat.amount = cats[cat][0]
+            cat.items = cats[cat][1]
 
-        if i > 2 and len(sorted_cats) > 4:
-            otherCosts.amount += cat.amount
-        else:
-            chart_costs.append(cat)
+            if i > 2 and len(sorted_cats) > 4:
+                otherCosts.amount += cat.amount
+            else:
+                chart_costs.append(cat)
 
     if len(sorted_cats) > 4:
         chart_costs.append(otherCosts)
