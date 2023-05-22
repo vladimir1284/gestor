@@ -392,6 +392,9 @@
                                         Gross
                                     </th>
                                     <th>
+                                        Method
+                                    </th>
+                                    <th>
                                         Net
                                     </th>
                                     <th>
@@ -432,6 +435,17 @@
                                             <div class="float-end">
                                                 ${{ order.amount|floatformat:"2" }}
                                             </div>
+                                        </td>
+                                        <td>
+                                            <ul class="list-unstyled users-list m-0 d-flex align-items-center">
+                                                {% for payment in order.payments %}
+                                                    <li class="avatar">
+                                                        <img {% if payment.category.icon %} src="{{ payment.category.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
+                                                             alt="…"
+                                                             class="">
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
                                         </td>
                                         <td>
                                             <div class="float-end">

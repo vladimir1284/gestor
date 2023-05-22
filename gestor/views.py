@@ -516,6 +516,9 @@ def computeReport(orders, costs, pending_payments):
         tax += order.tax
         discount += order.discount
 
+        # Payments
+        order.payments = Payment.objects.filter(order=order)
+
     total = {
         'parts': parts,
         'consumable': consumable,
