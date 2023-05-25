@@ -21,6 +21,7 @@ from services.models import (
 )
 from costs.models import Cost
 from utils.models import Order, Statistics
+from users.views import get_debtor
 from services.views import (
     computeOrderAmount,  # TODO remove this import and make a custom function here
 )
@@ -454,6 +455,8 @@ def dashboard(request):
         'time_labels': time_labels,
         'insights': stats_list[-1].gpt_insights
     }
+    context = dict(context, **get_debtor(request))
+
     return render(request, 'dashboard.html', context)
 
 

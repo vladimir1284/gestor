@@ -250,6 +250,11 @@ def getDebtOrders(debtor):
 
 @login_required
 def list_debtor(request):
+    context = get_debtor(request)
+    return render(request, 'users/debtor_list.html', context)
+
+
+def get_debtor(request):
     debtors: List[Associated] = Associated.objects.filter(
         debt__gt=0, active=True).order_by("name", "alias")
     total = 0
@@ -267,9 +272,8 @@ def list_debtor(request):
     debtors_list.sort(
         key=lambda x: x.oldest_debt.terminated_date, reverse=True)
 
-    context = {'associateds': debtors_list,
-               'total': total}
-    return render(request, 'users/debtor_list.html', context)
+    return {'associateds': debtors_list,
+            'total': total}
 
 
 def processOrders(orders):
