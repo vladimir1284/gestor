@@ -386,6 +386,14 @@ def dashboard(request):
         stock_cost_increment = 100 * \
             (added - stats_list[0].parts_cost)/current_stock_cost
 
+    # Memebership
+    current_membership = stats_list[0].membership_amount
+    previous_membership = stats_list[1].membership_amount
+    membership_increment = 0
+    if current_membership > 0:
+        membership_increment = 100*(current_membership -
+                                    previous_membership)/current_membership
+
     # Time series
     stats_list.reverse()
 
@@ -427,6 +435,12 @@ def dashboard(request):
          'positive': stock_cost_increment < 0,
          'series': None,
          'icon': 'images/icons/inventory.png'},
+        {'name': 'TOWIT',
+         'amount': current_membership,
+         'increment': membership_increment,
+         'positive': membership_increment < 0,
+         'series': None,
+         'icon': 'images/icons/TOWIT.png'},
     ]
 
     # Get gpt insights is needed
