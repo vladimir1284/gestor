@@ -27,8 +27,10 @@
                     <div class="d-flex justify-content-between align-items-center mb-3"
                          style="position: relative">
                         <div class="d-flex flex-column align-items-center gap-1">
-                            <h4 class="mb-2">${{ total.net|floatformat:"0" }}</h4>
-                            <span>Profit before costs</span>
+                            {% comment %} <h4 class="mb-2">${{ total.net|floatformat:"0" }}</h4>
+                            <span>Profit before costs</span> {% endcomment %}
+                            <h4 class="mb-2">${{ membership|floatformat:"0" }}</h4>
+                            <span>TOWIT trailers</span>
                         </div>
                         <div id="orderStatisticsChart"></div>
                         <div class="resize-triggers">
@@ -83,32 +85,50 @@
                         </li>
                         <li class="d-flex mb-4 pb-1">
                             <div class="avatar flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded bg-label-success"><i class="bx bx-credit-card"></i></span>
+                                <span class="avatar-initial rounded bg-label-danger"><i class="bx bx-dollar"></i></span>
                             </div>
                             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                 <div class="me-2">
-                                    <h6 class="mb-0">Third Party</h6>
-                                    <small class="text-muted">Outsourced services</small>
+                                    <h6 class="mb-0">Tax</h6>
+                                    <small class="text-muted">Taxes collected</small>
                                 </div>
                                 <div class="user-progress">
-                                    <small class="fw-semibold">${{ total.third_party|floatformat:"0" }}</small>
+                                    <small class="fw-semibold">${{ total.tax|floatformat:"0" }}</small>
                                 </div>
                             </div>
                         </li>
-                        <li class="d-flex">
-                            <div class="avatar flex-shrink-0 me-3">
-                                <span class="avatar-initial rounded bg-label-info"><i class="bx bx-archive"></i></span>
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">Supplies</h6>
-                                    <small class="text-muted">Cost of supplies</small>
+                        {% if total.third_party > 0 %}
+                            <li class="d-flex mb-4 pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded bg-label-success"><i class="bx bx-credit-card"></i></span>
                                 </div>
-                                <div class="user-progress">
-                                    <small class="fw-semibold">${{ total.consumable|floatformat:"0" }}</small>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0">Third Party</h6>
+                                        <small class="text-muted">Outsourced services</small>
+                                    </div>
+                                    <div class="user-progress">
+                                        <small class="fw-semibold">${{ total.third_party|floatformat:"0" }}</small>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
+                            </li>
+                        {% endif %}
+                        {% if total.consumable > 0 %}
+                            <li class="d-flex">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <span class="avatar-initial rounded bg-label-info"><i class="bx bx-archive"></i></span>
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0">Supplies</h6>
+                                        <small class="text-muted">Cost of supplies</small>
+                                    </div>
+                                    <div class="user-progress">
+                                        <small class="fw-semibold">${{ total.consumable|floatformat:"0" }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -126,7 +146,9 @@
                     <div class="d-flex justify-content-between align-items-center mb-3"
                          style="position: relative">
                         <div class="d-flex flex-column align-items-center gap-1">
-                            <h4 class="mb-2">${{ profit|floatformat:"0" }}</h4>
+                            <h4 class="mb-2">
+                                ${{ profit|floatformat:"0" }}
+                            </h4>
                             <span>Total Profit</span>
                         </div>
                         <div id="costStatisticsChart">

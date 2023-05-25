@@ -137,6 +137,10 @@ def monthly_report(request, year=None, month=None):
     context.setdefault('previousYear', previousYear)
     context.setdefault('currentYear', currentYear)
     context.setdefault('nextYear', nextYear)
+
+    context.setdefault('membership', getMonthlyMembership(
+        currentYear, currentMonth)['total']['gross'])
+
     return render(request, 'monthly.html', context)
 
 
@@ -173,6 +177,16 @@ def weekly_membership_report(request, date=None):
 
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
 
+    context = getWeekMembership(start_date, end_date)
+
+    context.setdefault('start_date', start_date)
+    context.setdefault('end_date', end_date - timedelta(days=1))
+    context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
+    context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
+    return render(request, 'weekly_membership.html', context)
+
+
+def getWeekMembership(start_date, end_date):
     orders = Order.objects.filter(
         status='complete',
         type='sell',
@@ -189,12 +203,7 @@ def weekly_membership_report(request, date=None):
         created_date__gt=start_date,
         created_date__lte=end_date).order_by("-created_date")
 
-    context = computeReport(orders, costs, pending_payments)
-    context.setdefault('start_date', start_date)
-    context.setdefault('end_date', end_date - timedelta(days=1))
-    context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
-    context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
-    return render(request, 'weekly_membership.html', context)
+    return computeReport(orders, costs, pending_payments)
 
 
 @login_required
@@ -204,6 +213,18 @@ def monthly_membership_report(request, year=None, month=None):
         (currentMonth, currentYear),
         (nextMonth, nextYear)) = getMonthYear(month, year)
 
+    context = getMonthlyMembership(currentYear, currentMonth)
+
+    context.setdefault('previousMonth', previousMonth)
+    context.setdefault('currentMonth', currentMonth)
+    context.setdefault('nextMonth', nextMonth)
+    context.setdefault('previousYear', previousYear)
+    context.setdefault('currentYear', currentYear)
+    context.setdefault('nextYear', nextYear)
+    return render(request, 'monthly_membership.html', context)
+
+
+def getMonthlyMembership(currentYear, currentMonth):
     orders = Order.objects.filter(
         status='complete',
         type='sell',
@@ -220,14 +241,7 @@ def monthly_membership_report(request, year=None, month=None):
         created_date__year=currentYear,
         created_date__month=currentMonth).order_by("-created_date")
 
-    context = computeReport(orders, costs, pending_payments)
-    context.setdefault('previousMonth', previousMonth)
-    context.setdefault('currentMonth', currentMonth)
-    context.setdefault('nextMonth', nextMonth)
-    context.setdefault('previousYear', previousYear)
-    context.setdefault('currentYear', currentYear)
-    context.setdefault('nextYear', nextYear)
-    return render(request, 'monthly_membership.html', context)
+    return computeReport(orders, costs, pending_payments)
 
 
 @login_required
@@ -257,6 +271,10 @@ def weekly_report(request, date=None):
     context.setdefault('currentDate', start_date.strftime("%m%d%Y"))
     context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
     context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
+
+    context.setdefault('membership', getWeekMembership(
+        start_date, end_date)['total']['gross'])
+
     return render(request, 'weekly.html', context)
 
 
