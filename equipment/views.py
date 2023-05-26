@@ -88,7 +88,7 @@ def select_equipment(request):
         return appendEquipment(request, id)
 
     if type == 'trailer':
-        trailers = Trailer.objects.all()
+        trailers = Trailer.objects.all().order_by('-year')
         context = {
             'trailers': trailers,
         }
