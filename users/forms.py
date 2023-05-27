@@ -322,7 +322,8 @@ class AssociatedCreateForm(BaseContactForm):
 class ProviderCreateForm(AssociatedCreateForm):
 
     class Meta(AssociatedCreateForm.Meta):
-        fields = AssociatedCreateForm.Meta.fields + ['outsource']
+        fields = AssociatedCreateForm.Meta.fields + ['outsource', 
+            'active']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -334,6 +335,10 @@ class ProviderCreateForm(AssociatedCreateForm):
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field('type'),
+            Div(
+                Field('active'),
+                css_class="mb-3"
+            ),
             Div(
                 Field('outsource'),
                 css_class="mb-3"

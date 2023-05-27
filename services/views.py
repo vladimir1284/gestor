@@ -878,7 +878,7 @@ def create_expense(request, order_id):
             return redirect('detail-service-order', order_id)
     context = {
         'form': form,
-        'outsource': Associated.objects.filter(type='provider',
+        'outsource': Associated.objects.filter(type='provider', active=True,
                                                outsource=True).order_by("name", "alias"),
         'title': _("Add third party expense")
     }
@@ -910,7 +910,7 @@ def update_expense(request, id):
     # add form dictionary to context
     context = {
         'form': form,
-        'outsource': Associated.objects.filter(type='provider',
+        'outsource': Associated.objects.filter(type='provider', active=True,
                                                outsource=True).order_by("name", "alias"),
         'expense': expense,
         'title': _("Update third party expense")
