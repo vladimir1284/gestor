@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'services.apps.ServicesConfig',
     'equipment.apps.EquipmentConfig',
     'costs.apps.CostsConfig',
+    'rent.apps.RentConfig',
     'django.contrib.humanize',
 ]
 
