@@ -27,34 +27,31 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="{% url 'list-debtor' %}" class="menu-link">
-                <div data-i18n="Pending Payments<">Pending Payments</div>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="{% url 'list-client' %}" class="menu-link">
-                <div data-i18n="Clientes">Clientes</div>
-            </a>
-        </li>
-        <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-stats"></i>
                 <div data-i18n="Reportes">Reportes</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{% url 'weekly-report' %}" class="menu-link">
-                        <div data-i18n="Weekly">Weekly</div>
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <div data-i18n="Reportes">MANTENIMIENTO</div>
                     </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{% url 'monthly-report' %}" class="menu-link">
-                        <div data-i18n="Weekly">Monthly</div>
-                    </a>
+                    <ul class="menu-sub">
+                        <li class="menu-item">
+                            <a href="{% url 'weekly-report' %}" class="menu-link">
+                                <div data-i18n="Weekly">Weekly</div>
+                            </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="{% url 'monthly-report' %}" class="menu-link">
+                                <div data-i18n="Weekly">Monthly</div>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="menu-item">
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
-                        <div data-i18n="Reportes">TOWIT</div>
+                        <div data-i18n="Reportes">RENTA</div>
                     </a>
                     <ul class="menu-sub">
                         <li class="menu-item">
@@ -78,6 +75,11 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
+                    <a href="{% url 'list-client' %}" class="menu-link">
+                        <div data-i18n="Clientes">Clientes</div>
+                    </a>
+                </li>
+                <li class="menu-item">
                     <a href="{% url 'list-company' %}" class="menu-link">
                         <div data-i18n="Companies">Compañías</div>
                     </a>
@@ -91,21 +93,22 @@
                 {% endif %}
             </ul>
         </li>
-        <!-- Negocio -->
+        <!-- MANTENIMIENTO -->
         <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Negocio</span>
+            <span class="menu-header-text">MANTENIMIENTO</span>
+        </li>
+        <li class="menu-item">
+            <a href="{% url 'list-service-order' %}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-wrench"></i>
+                <div data-i18n="Sells">Órdenes</div>
+            </a>
         </li>
         <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-cog"></i>
-                <div data-i18n="Account Settings">Mantenimientos</div>
+                <div data-i18n="Account Settings">Configuración</div>
             </a>
             <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{% url 'list-service-order' %}" class="menu-link">
-                        <div data-i18n="Sells">Órdenes</div>
-                    </a>
-                </li>
                 {% if perms.can_add_user %}
                     <li class="menu-item">
                         <a href="{% url 'list-service' %}" class="menu-link">
@@ -118,8 +121,8 @@
                         </a>
                     </li>
                     <li class="menu-item">
-                        <a href="{% url 'list-equipment' %}" class="menu-link">
-                            <div data-i18n="Vehículos">Vehículos</div>
+                        <a href="{% url 'list-payment-category' %}" class="menu-link">
+                            <div data-i18n="Payments">Pagos</div>
                         </a>
                     </li>
                 {% endif %}
@@ -144,30 +147,95 @@
                     </li>
                 </ul>
             </li>
+        {% endif %}
+        <!-- RENTA -->
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">RENTA</span>
+        </li>
+        <li class="menu-item">
+            <a href="{% url 'list-service-order' %}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-wrench"></i>
+                <div data-i18n="Sells">Trailers</div>
+            </a>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-cog"></i>
+                <div data-i18n="Account Settings">Configuración</div>
+            </a>
+            <ul class="menu-sub">
+                {% if perms.can_add_user %}
+                    <li class="menu-item">
+                        <a href="{% url 'list-service' %}" class="menu-link">
+                            <div data-i18n="Usuarios">
+                                Servicios
+                            </div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{% url 'list-service-category' %}" class="menu-link">
+                            <div data-i18n="Clientes">
+                                Categorías
+                            </div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{% url 'list-payment-category' %}" class="menu-link">
+                            <div data-i18n="Payments">
+                                Pagos
+                            </div>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </li>
+        {% if perms.can_add_user %}
             <li class="menu-item">
-                <a href="{% url 'list-payment-category' %}" class="menu-link">
-                    <i class="menu-icon tf-icons bx bx-money"></i>
-                    <div data-i18n="Payments">Pagos</div>
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-credit-card"></i>
+                    <div data-i18n="Account Settings">
+                        Gastos
+                    </div>
                 </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a href="{% url 'list-cost' %}" class="menu-link">
+                            <div data-i18n="Sells">
+                                Gastos
+                            </div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{% url 'list-costs-category' %}" class="menu-link">
+                            <div data-i18n="Clientes">
+                                Categorías
+                            </div>
+                        </a>
+                    </li>
+                </ul>
             </li>
         {% endif %}
+        <!--Inventario-->
         {% if perms.can_add_user %}
             <li class="menu-header small text-uppercase">
                 <span class="menu-header-text">Inventario</span>
             </li>
             <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <a href={% url 'list-product' %} class="menu-link">
                     <i class="menu-icon tf-icons bx bx-collection"></i>
-                    <div data-i18n="Account Settings">Productos</div>
+                    <div data-i18n="Inventario">
+                        Productos
+                    </div>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-cog"></i>
+                    <div data-i18n="Account Settings">
+                        Configuración
+                    </div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item">
-                        <a href={% url 'list-product' %} class="menu-link">
-                            <div data-i18n="Inventario">
-                                Inventario
-                            </div>
-                        </a>
-                    </li>
                     <li class="menu-item">
                         <a href={% url 'list-kit' %} class="menu-link">
                             <div data-i18n="Inventario">
