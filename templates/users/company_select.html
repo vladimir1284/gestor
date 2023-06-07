@@ -4,11 +4,23 @@
 {% endblock title %}
 {% block Ctitle %}
     Select company
-    {% if skip %}
-        <a href="{% url 'select-equipment-type' %}"
-           type="button"
-           class="btn btn-outline-primary float-end">Skip</a>
-    {% endif %}
+    <form enctype="multipart/form-data" method="post" id="update-form">
+        {% csrf_token %}
+        <div>
+            <input type="hidden" name="next" value="{{ next }}" />
+        </div>
+        <div>
+            <input type="hidden" name="id" value="{{ towit.id }}" />
+        </div>
+        <div class="float-end">
+            <button class="btn btn-outline-primary" type="submit">TOWIT</button>
+            {% if skip %}
+                <a href="{% url 'create-service-order' %}"
+                   type="button"
+                   class="btn btn-outline-primary">Skip</a>
+            {% endif %}
+        </div>
+    </form>
 {% endblock Ctitle %}
 {% block Cards %}
     {% for company in companies %}

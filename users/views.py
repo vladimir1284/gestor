@@ -1,19 +1,13 @@
 import os
 from typing import List
-from services.views import computeOrderAmount
-from django.urls import reverse_lazy
+from services.views.order import computeOrderAmount
 from datetime import datetime, timedelta
 import pytz
-from django.views.generic.edit import (
-    UpdateView,
-)
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import (
     render,
     redirect,
     get_object_or_404,
 )
-from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import permission_required, login_required
 
 from .forms import (
@@ -389,12 +383,19 @@ def update_company(request, id):
 
 @login_required
 def select_company(request):
+    towit, created = Company.objects.get_or_create(
+        name='Towithouston',
+        defaults={'name': 'Towithouston'}
+    )
     if request.method == 'POST':
         company = get_object_or_404(Company, id=request.POST.get('id'))
         request.session['company_id'] = company.id
         order_data = request.session.get('creating_order')
         if order_data is not None:
-            return redirect('select-equipment-type')
+            if company.id == towit.id:
+                return redirect('select-trailer')
+            else:
+                return redirect('create-service-order')
         else:
             order_id = request.session.get('order_detail')
             if order_id is not None:
@@ -406,6 +407,7 @@ def select_company(request):
         return redirect(next)
     companies = Company.objects.filter(active=True).order_by("name", "alias")
     context = {'companies': companies,
+               'towit': towit,
                'skip': True}
     order_id = request.session.get('order_detail')
     if order_id is not None:

@@ -7,6 +7,7 @@ from django.shortcuts import (
 from django.contrib.auth.decorators import login_required
 
 from users.views import processOrders
+from users.models import Company
 from .models import (
     Trailer,
 )
@@ -36,35 +37,36 @@ def list_equipment(request):
 
 
 def appendEquipment(request, id):
-    type = request.session.get("equipment_type")
     order_id = request.session.get('order_detail')
     if order_id is not None:
         order = get_object_or_404(Order, id=order_id)
-    if type == 'trailer':
-        trailer = Trailer.objects.get(id=id)
-        order.trailer = trailer
-        order.equipment_type = 'trailer'
+    trailer = Trailer.objects.get(id=id)
+    order.trailer = trailer
+    order.equipment_type = 'trailer'
     order.save()
     return redirect('detail-service-order', id=order_id)
 
 
 @login_required
-def select_equipment(request):
-    type = request.session.get("equipment_type")
+def select_towit(request):
+    # Create the Towithouston company if it doesn't exists
+    company, created = Company.objects.get_or_create(
+        name='Towithouston',
+        defaults={'name': 'Towithouston'}
+    )
+    request.session['company_id'] = company.id
+    return redirect('select-company', request=request)
+
+
+@login_required
+def select_trailer(request):
     order_id = None
-    if type is None:
-        order_id = request.session.get('order_detail')
-        order = get_object_or_404(Order, id=order_id)
-        type = order.equipment_type
     if request.method == 'POST':
-        if type is None:
-            type = request.POST.get('type')
         order_data = request.session.get('creating_order')
         id = request.POST.get('id')
         if order_data is not None:
-            if type == 'trailer':
-                trailer = Trailer.objects.get(id=id)
-                request.session['trailer_id'] = trailer.id
+            trailer = Trailer.objects.get(id=id)
+            request.session['trailer_id'] = trailer.id
             return redirect('create-service-order')
         return appendEquipment(request, id)
 
