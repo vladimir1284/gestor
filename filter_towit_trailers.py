@@ -8,10 +8,10 @@ id_list = []
 
 for trailer in trailers:
     last_service = Order.objects.filter(trailer=trailer).last()
-    new_trailers = NewTrailer.objects.filter(vin=trailer.vin)
     if last_service.company:
         print("--------------------------------")
         print(F"Company: {last_service.company}")
+        new_trailers = NewTrailer.objects.filter(vin=trailer.vin)
         if last_service.company.name.lower().find("towit") != -1:
             if last_service.associated:
                 print(F"Client: {last_service.associated}")
