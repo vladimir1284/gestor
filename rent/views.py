@@ -24,11 +24,11 @@ from django.utils.translation import gettext_lazy as _
 @login_required
 def list_equipment(request):
     trailers = Trailer.objects.all()
-    # for trailer in trailers:
-    #     last_order = Order.objects.filter(
-    #         trailer=trailer).order_by("-created_date").first()
-    #     if last_order is not None:
-    #         trailer.last_order = last_order
+    for trailer in trailers:
+        last_order = Order.objects.filter(
+            trailer=trailer).order_by("-created_date").first()
+        if last_order is not None:
+            trailer.last_order = last_order
     context = {
         'trailers': trailers,
     }
@@ -44,10 +44,6 @@ def appendEquipment(request, id):
         trailer = Trailer.objects.get(id=id)
         order.trailer = trailer
         order.equipment_type = 'trailer'
-    elif type == 'vehicle':
-        vehicle = Vehicle.objects.get(id=id)
-        order.vehicle = vehicle
-        order.equipment_type = 'vehicle'
     order.save()
     return redirect('detail-service-order', id=order_id)
 
@@ -69,9 +65,6 @@ def select_equipment(request):
             if type == 'trailer':
                 trailer = Trailer.objects.get(id=id)
                 request.session['trailer_id'] = trailer.id
-            elif type == 'vehicle':
-                vehicle = Vehicle.objects.get(id=id)
-                request.session['vehicle_id'] = vehicle.id
             return redirect('create-service-order')
         return appendEquipment(request, id)
 
@@ -152,10 +145,10 @@ def update_trailer(request, id):
 def detail_trailer(request, id):
     # fetch the object related to passed id
     trailer = get_object_or_404(Trailer, id=id)
-    # orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
-    # processOrders(orders)
+    orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
+    processOrders(orders)
     context = {
-        # 'orders': orders,
+        'orders': orders,
         'equipment': trailer,
         'type': 'trailer',
         'title': _("Trailer details")
