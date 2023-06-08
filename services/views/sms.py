@@ -71,7 +71,7 @@ def twilioSendSMS(order: Order, status: str):
                         DEBT_REMINDER[client.language].format(payment.amount)
                     break
         else:
-            from order import computeOrderAmount
+            from .order import computeOrderAmount
             computeOrderAmount(order)
             body = PAYMENT_DICT[client.language].format(
                 client.name,
