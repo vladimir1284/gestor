@@ -173,12 +173,16 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
     BASE_DIR, "trailer-rental-323614-d43be7453c41.json")
 
-# SMS
-load_dotenv('twilio.env')
 
+load_dotenv('.env')
+
+# SMS
 TWILIO_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 
 # Chat GPT
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPEN_AI_ORG = os.getenv('OPEN_AI_ORG')
+
+# ENVIRONMENT
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'production')
