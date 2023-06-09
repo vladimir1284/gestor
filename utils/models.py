@@ -2,7 +2,8 @@ from django.db import models
 from PIL import Image
 
 from users.models import User, Associated, Company
-from equipment.models import Vehicle, Trailer
+from equipment.models import Vehicle
+from rent.models import Trailer
 from django.utils.translation import gettext_lazy as _
 
 

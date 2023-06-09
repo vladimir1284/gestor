@@ -23,10 +23,10 @@ urlpatterns = [
     path('select-equipment', select_equipment, name='select-equipment'),
     path('select-type/', select_equipment_type, name='select-equipment-type'),
     # -------------------- Trailer ----------------------------
-    path('create-trailer', create_trailer, name='create-trailer'),
-    path('update-trailer/<id>', update_trailer, name='update-trailer'),
-    path('delete-trailer/<id>', delete_trailer, name='delete-trailer'),
-    path('detail-trailer/<id>', detail_trailer, name='detail-trailer'),
+    path('create-trailer', create_trailer, name='create-old-trailer'),
+    path('update-trailer/<id>', update_trailer, name='update-old-trailer'),
+    path('delete-trailer/<id>', delete_trailer, name='delete-old-trailer'),
+    path('detail-trailer/<id>', detail_trailer, name='detail-old-trailer'),
     # -------------------- Vehicle ----------------------------
     path('create-vehicle', create_vehicle, name='create-vehicle'),
     path('update-vehicle/<id>', update_vehicle, name='update-vehicle'),

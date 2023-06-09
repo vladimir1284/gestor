@@ -22,7 +22,7 @@ from services.models import (
 from costs.models import Cost
 from utils.models import Order, Statistics
 from users.views import get_debtor
-from services.views import (
+from services.views.order import (
     computeOrderAmount,  # TODO remove this import and make a custom function here
 )
 

@@ -15087,11 +15087,11 @@ html:not(.layout-menu-fixed) .menu-inner-shadow {
 }
 .menu-vertical .menu-item .menu-link,
 .menu-vertical .menu-block {
-  padding: 0.625rem 1rem;
+  padding: 0.25rem 1rem;
 }
 .menu-vertical .menu-header {
   margin: 1rem 0 0.5rem 0;
-  padding: 0.625rem 2rem 0.625rem 2rem;
+  padding: 0.25rem 2rem 0.25rem 2rem;
 }
 .menu-vertical .menu-item .menu-link {
   font-size: 0.9375rem;

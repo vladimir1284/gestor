@@ -1,0 +1,44 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}
+    Add transaction
+{% endblock title %}
+{% block content %}
+    <div class="card">
+        <div class="card-header tabs pb-0">
+            <h5 class="mt-4 mb-4">
+                Trailers <spam id="filter_tag"></spam>
+            </h5>
+            <div class="table-responsive text-nowrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th>Vehicle</th>
+                            <th>Last Order</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for equipment in trailers %}
+                            <tr data-search="{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
+                                <td>
+                                    <a href={% url 'detail-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                </td>
+                                <td class="d-flex">{% include "rent/equipment_line.html" with equipment_type="trailer" %}</td>
+                                <td>
+                                    {% if equipment.last_order %}
+                                        <a href="{% url 'detail-service-order' equipment.last_order.id %}">{{ equipment.last_order.concept }}</a> ({{ equipment.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,18 @@
+{% extends "base/base_select.html" %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ctitle %}
+    Select trailer
+{% endblock Ctitle %}
+{% block Cards %}
+    {% for equipment in trailers %}
+        <div class="col-md-6 infocard">{% include "equipment/equipment_select_card.html" with trailer="true" %}</div>
+    {% endfor %}
+{% endblock Cards %}
+{% block createUrl %}
+    {% url 'create-trailer' %}
+{% endblock createUrl %}
+{% block help %}
+    New trailer
+{% endblock help %}
