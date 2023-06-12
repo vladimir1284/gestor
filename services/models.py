@@ -89,3 +89,18 @@ class PendingPayment(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(PaymentCategory, blank=True, null=True,
                                  on_delete=models.SET_NULL)
+
+
+class DebtStatus(models.Model):
+    debt = models.ForeignKey(Payment, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('pending', _('Pending')),
+        ('paid', _('Paid')),
+        ('cleared', _('Cleared')),
+        ('lost', _('Lost'))
+    ]
+    status = models.CharField(max_length=20,
+                              choices=STATUS_CHOICES, default='pending')
+
+    def __str__(self):
+        return "{} -> status: {}".format(self.debt, self.status)

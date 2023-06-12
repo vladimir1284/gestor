@@ -266,7 +266,7 @@ def get_debtor(request):
     debtors_list.sort(
         key=lambda x: x.oldest_debt.terminated_date, reverse=True)
 
-    return {'associateds': debtors_list,
+    return {'associates': debtors_list,
             'total': total}
 
 
@@ -302,12 +302,12 @@ def detail_associated(request, id):
 
 
 def list_associated(request, type):
-    associateds = Associated.objects.filter(
+    associates = Associated.objects.filter(
         type=type, active=True).order_by("name", "alias")
-    for associated in associateds:
+    for associated in associates:
         associated.last_order = Order.objects.filter(
             associated=associated).order_by("-created_date").first()
-    return render(request, 'users/associated_list.html', {'associateds': associateds,
+    return render(request, 'users/associated_list.html', {'associates': associates,
                                                           'type': type})
 
 

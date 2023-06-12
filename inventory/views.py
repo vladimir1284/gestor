@@ -144,9 +144,9 @@ def select_provider(request):
         provider = get_object_or_404(Associated, id=request.POST.get('id'))
         request.session['associated_id'] = provider.id
         return redirect(next)
-    associateds = Associated.objects.filter(
+    associates = Associated.objects.filter(
         type='provider', active=True).order_by("-created_date")
-    return render(request, 'inventory/provider_list.html', {'associateds': associateds})
+    return render(request, 'inventory/provider_list.html', {'associates': associates})
 
 
 @login_required

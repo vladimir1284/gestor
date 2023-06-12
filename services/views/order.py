@@ -127,10 +127,10 @@ def select_client(request):
                 return redirect('detail-service-order', id=order_id)
 
     # add form dictionary to context
-    associateds = Associated.objects.filter(
+    associates = Associated.objects.filter(
         type='client', active=True).order_by("name", "alias")
     context = {
-        'associateds': associateds,
+        'associates': associates,
         'skip': True
     }
     order_id = request.session.get('order_detail')

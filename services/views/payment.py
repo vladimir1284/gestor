@@ -164,13 +164,15 @@ def pay_debt(request, client_id):
         for form in forms:
             if form.is_valid():
                 if form.cleaned_data['amount'] > 0:
-                    payment = PendingPayment.objects.create(
-                        client=client,
-                        created_by=request.user,
-                        amount=form.cleaned_data['amount'],
-                        category=form.category)
-                    # Discount debt
-                    client.debt -= payment.amount
+                    # Check for double requests
+                    if client.debt > 0:
+                        payment = PendingPayment.objects.create(
+                            client=client,
+                            created_by=request.user,
+                            amount=form.cleaned_data['amount'],
+                            category=form.category)
+                        # Discount debt
+                        client.debt -= payment.amount
         client.save()
         return redirect('list-debtor')
 
