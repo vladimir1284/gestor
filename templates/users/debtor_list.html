@@ -12,6 +12,7 @@
     <th>Name</th>
     <th>Debt</th>
     <th>Date</th>
+    <th>Update</th>
     <th>Last Order</th>
 {% endblock Theader %}
 {% block Tbody %}
@@ -48,6 +49,18 @@
                     {{ associated.oldest_debt.terminated_date|date:"SHORT_DATE_FORMAT" }}
                 </a>
             </td>
+            <td>    
+                <div class="demo-inline-spacing">                    
+                    <button {% if not associated.overdue %}disabled{% endif %} type="button" class="btn btn-icon btn-outline-primary"
+                    onclick="updateDebt('{% url 'update-debt-status' associated.id 'clean' %}', '{{ associated.name }}', 'cancel')">
+                      <span class="tf-icons bx bx-x-circle"></span>
+                    </button>
+                    <button {% if not associated.overdue %}disabled{% endif %} type="button" class="btn btn-icon btn-outline-primary"
+                    onclick="updateDebt('{% url 'update-debt-status' associated.id 'lost' %}', '{{ associated.name }}', 'dismiss')">
+                      <span class="tf-icons bx bx-minus-circle"></span>
+                    </button>
+                  </div>
+        </td>
             <td>
                 {% if associated.last_order %}
                     <a href="{% url 'detail-service-order' associated.last_order.id %}">{{ associated.last_order.concept }}</a> ({{ associated.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
@@ -57,6 +70,14 @@
             </td>
         </tr>
     {% endfor %}
+    <script>
+        function updateDebt(url, name, action) {
+            let confirmAction = confirm("Are you sure to "+ action +" the debt of " + name + "?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+    </script>
 {% endblock Tbody %}
 {% block createUrl %}
     {% url 'create-client' %}

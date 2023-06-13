@@ -27,6 +27,7 @@ from .models import (
     Associated,
     Company,
 )
+from services.models import DebtStatus
 from utils.models import Order
 from django.utils.translation import gettext_lazy as _
 
@@ -254,13 +255,15 @@ def get_debtor(request):
     total = 0
     debtors_list = []
     for client in debtors:
-        total += client.debt
-        debtors_list.append(client)
-        client.oldest_debt = getDebtOrders(client)[0]
-        client.overdue = client.oldest_debt.terminated_date < (
-            datetime.now(pytz.timezone('UTC')) - timedelta(days=14))
-        client.last_order = Order.objects.filter(
-            associated=client).order_by("-created_date").first()
+        debt_status = DebtStatus.objects.filter(client=client)[0]
+        if debt_status.status == 'pending':
+            total += client.debt
+            debtors_list.append(client)
+            client.oldest_debt = getDebtOrders(client)[0]
+            client.overdue = client.oldest_debt.terminated_date < (
+                datetime.now(pytz.timezone('UTC')) - timedelta(days=14))
+            client.last_order = Order.objects.filter(
+                associated=client).order_by("-created_date").first()
 
     # Sort by last debt date
     debtors_list.sort(

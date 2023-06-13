@@ -77,12 +77,13 @@ urlpatterns = [
          payment.update_payment_category, name='update-payment-category'),
     path('delete-payment-category/<id>',
          payment.delete_payment_category, name='delete-payment-category'),
-    path('update-payment/<id>', payment.update_payment, name='update-payment'),
     path('delete-payment/<id>/<int:order_id>',
          payment.delete_payment, name='delete-payment'),
     path('process-payment/<int:order_id>',
          payment.process_payment, name='process-payment'),
     path('pay-debt/<int:client_id>',
          payment.pay_debt, name='pay-debt'),
+    path('update-debt-status/<int:client_id>/<status>',
+         payment.update_debt_status, name='update-debt-status'),
 
 ]

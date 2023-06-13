@@ -92,10 +92,9 @@ class PendingPayment(models.Model):
 
 
 class DebtStatus(models.Model):
-    debt = models.ForeignKey(Payment, on_delete=models.CASCADE)
+    client = models.ForeignKey(Associated, on_delete=models.CASCADE)
     STATUS_CHOICES = [
         ('pending', _('Pending')),
-        ('paid', _('Paid')),
         ('cleared', _('Cleared')),
         ('lost', _('Lost'))
     ]
@@ -103,4 +102,4 @@ class DebtStatus(models.Model):
                               choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
-        return "{} -> status: {}".format(self.debt, self.status)
+        return "{} (${}) -> status: {}".format(self.client, self.client.debt, self.status)

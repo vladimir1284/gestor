@@ -19,6 +19,7 @@ from services.models import (
     Payment,
     PaymentCategory,
     PendingPayment,
+    DebtStatus,
 )
 from services.forms import (
     PaymentCategoryCreateForm,
@@ -173,6 +174,10 @@ def pay_debt(request, client_id):
                             category=form.category)
                         # Discount debt
                         client.debt -= payment.amount
+                        # Delete debt status data
+                        if client.debt == 0:
+                            debt_status = DebtStatus.objects.get(client=client)
+                            debt_status.delete()
         client.save()
         return redirect('list-debtor')
 
@@ -183,8 +188,11 @@ def pay_debt(request, client_id):
 
 
 @login_required
-def update_payment(request, id, order_id):
-    pass
+def update_debt_status(request, client_id, status):
+    debt_status = get_object_or_404(DebtStatus, client__id=client_id)
+    debt_status.status = status
+    debt_status.save()
+    return redirect('list-debtor')
 
 
 @login_required

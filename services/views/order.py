@@ -22,6 +22,7 @@ from services.models import (
     Expense,
     ServicePicture,
     Payment,
+    DebtStatus,
 )
 from services.forms import (
     DiscountForm,
@@ -296,6 +297,10 @@ def getOrderContext(id):
     # Profit
     profit = order.amount - expenses.amount - consumable_cost - parts_cost
 
+    if order.associated:
+        if order.associated.debt > 0:
+            order.associated.debt_status = DebtStatus.objects.filter(
+                client=order.associated)[0].status
     try:
         order.associated.phone_number = order.associated.phone_number.as_national
     except:
