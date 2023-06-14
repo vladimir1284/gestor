@@ -190,8 +190,14 @@ def pay_debt(request, client_id):
 @login_required
 def update_debt_status(request, client_id, status):
     debt_status = get_object_or_404(DebtStatus, client__id=client_id)
-    debt_status.status = status
-    debt_status.save()
+    if status == 'cleared':
+        client = get_object_or_404(Associated, id=client_id)
+        client.debt = 0
+        client.save()
+        debt_status.delete()
+    else:
+        debt_status.status = status
+        debt_status.save()
     return redirect('list-debtor')
 
 
