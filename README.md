@@ -1,6 +1,6 @@
 # Gestor
 
-This is a custom ERP for a small trailer repair business.
+This is a custom ERP for a small trailer repair and rental business.
 
 ## Models
 

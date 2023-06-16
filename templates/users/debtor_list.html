@@ -57,12 +57,12 @@
             <td>    
                 <div class="demo-inline-spacing">                    
                     <button {% if not associated.overdue %}disabled{% endif %} type="button" class="btn btn-icon btn-outline-primary"
-                    onclick="updateDebt('{% url 'update-debt-status' associated.id 'clean' %}', '{{ associated.name }}', 'cancel')">
-                      <span class="tf-icons bx bx-x-circle"></span>
+                    onclick="updateDebt('{% url 'update-debt-status' associated.id 'cleared' %}', '{{ associated.name }}', 'delete')">
+                      <span class="tf-icons bx bx-trash"></span>
                     </button>
                     <button {% if not associated.overdue %}disabled{% endif %} type="button" class="btn btn-icon btn-outline-primary"
                     onclick="updateDebt('{% url 'update-debt-status' associated.id 'lost' %}', '{{ associated.name }}', 'dismiss')">
-                      <span class="tf-icons bx bx-minus-circle"></span>
+                      <span class="tf-icons bx bx-angry"></span>
                     </button>
                   </div>
         </td>
