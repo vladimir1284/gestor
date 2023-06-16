@@ -127,6 +127,13 @@ def process_payment(request, order_id):
                     if payment.category == debt:
                         if order.associated is not None:
                             order.associated.debt += payment.amount
+                            debt_status = DebtStatus.objects.create(
+                                client=order.associated)
+                            # Payment facilities
+                            if form.cleaned_data['weeks'] > 0:
+                                debt_status.weeks = form.cleaned_data['weeks']
+                                debt_status.amount_due_per_week = payment.amount/debt_status.weeks
+                                debt_status.save()
                             order.associated.save()
         if valid:
             transactions = ProductTransaction.objects.filter(order=order)
@@ -174,10 +181,14 @@ def pay_debt(request, client_id):
                             category=form.category)
                         # Discount debt
                         client.debt -= payment.amount
-                        # Delete debt status data
+                        debt_status = DebtStatus.objects.get(client=client)
                         if client.debt == 0:
-                            debt_status = DebtStatus.objects.get(client=client)
+                            # Delete debt status data
                             debt_status.delete()
+                        else:
+                            debt_status.weeks -= 1
+                            debt_status.save()
+
         client.save()
         return redirect('list-debtor')
 

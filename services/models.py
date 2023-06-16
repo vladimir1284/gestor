@@ -100,6 +100,10 @@ class DebtStatus(models.Model):
     ]
     status = models.CharField(max_length=20,
                               choices=STATUS_CHOICES, default='pending')
+    last_modified_date = models.DateField(auto_now=True)
+    weeks = models.PositiveIntegerField(default=0)
+    amount_due_per_week = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
         return "{} (${}) -> status: {}".format(self.client, self.client.debt, self.status)

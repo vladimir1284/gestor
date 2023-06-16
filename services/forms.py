@@ -97,6 +97,8 @@ class PendingPaymentCreateForm(BaseForm):
 
 
 class PaymentCreateForm(BaseForm):
+    weeks = forms.IntegerField(
+        required=False, initial=0)  # Add the "weeks" field
 
     class Meta:
         model = Payment
@@ -108,11 +110,17 @@ class PaymentCreateForm(BaseForm):
         self.fields['amount'].label = self.category.name
         if self.category.extra_charge > 0:
             self.fields['amount'].help_text = F"Extra charge: {self.category.extra_charge}%"
+
         self.helper.layout = Layout(
             Div(
                 Div(
                     PrependedText('amount', '$')
-                )
+                ),
+                Div(
+                    'weeks',  # Add the "weeks" field to the layout
+                    # Hide the field based on condition
+                    css_class='d-none' if self.category.name != 'debt' else ''
+                ),
             )
         )
 

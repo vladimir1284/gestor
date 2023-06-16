@@ -264,6 +264,10 @@ def get_debtor(request):
                 datetime.now(pytz.timezone('UTC')) - timedelta(days=14))
             client.last_order = Order.objects.filter(
                 associated=client).order_by("-created_date").first()
+            if debt_status.weeks > 0:
+                client.weekly_payment = debt_status.amount_due_per_week
+                client.overdue = debt_status.last_modified_date < (
+                    datetime.now(pytz.timezone('UTC')).date() - timedelta(days=7))
 
     # Sort by last debt date
     debtors_list.sort(

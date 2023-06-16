@@ -47,7 +47,9 @@
 
         window.onload = function(){  
             // Inputs 
-            payment_inputs = document.getElementsByClassName("numberinput");
+            payment_inputs = Array.from(
+                document.getElementsByClassName("numberinput")).
+                filter(element => !element.name.includes("week"));
 
             // Report
             total_value = document.getElementById("total_value");

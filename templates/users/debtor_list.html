@@ -48,6 +48,11 @@
                    href="{% url 'detail-service-order' associated.oldest_debt.id %}">
                     {{ associated.oldest_debt.terminated_date|date:"SHORT_DATE_FORMAT" }}
                 </a>
+                {% if associated.weekly_payment %}
+                    <br> <span {% if associated.late %}class="text-danger"{% endif %}>
+                        ${{ associated.weekly_payment|floatformat:"0" }}/week
+                        <span>
+                {% endif %}
             </td>
             <td>    
                 <div class="demo-inline-spacing">                    
