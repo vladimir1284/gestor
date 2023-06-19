@@ -99,9 +99,10 @@ class Product(models.Model):
     def computeAvailable(self, current_transaction=None):
         # Compute the remaining products in stock
         available = self.quantity
-        transactions = ProductTransaction.objects.filter(order__type="sell",
-                                                         order__status="processing",
-                                                         product=self)
+        transactions = ProductTransaction.objects.filter(
+            order__type="sell",
+            order__status="processing",
+            product=self).exclude(order__quotation=True)
         for trans in transactions:
             if (trans.id != current_transaction):
                 available -= trans.quantity
