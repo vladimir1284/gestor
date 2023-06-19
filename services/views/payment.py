@@ -185,7 +185,7 @@ def pay_debt(request, client_id):
                         if client.debt == 0:
                             # Delete debt status data
                             debt_status.delete()
-                        else:
+                        elif debt_status.weeks > 0:
                             debt_status.weeks -= 1
                             debt_status.save()
 
