@@ -11,6 +11,7 @@ from inventory.models import (
     ProductKit,
     KitElement,
 )
+from utils.models import Order
 from inventory.views import (
     convertUnit,
     prepare_product_list,
@@ -77,8 +78,8 @@ def service_list_metadata(services: List[Service]):
 
 
 def prepare_service_list(order_id=None):
-    services = Service.objects.all()
-    products = Product.objects.filter(quantity__gt=0).order_by('name')
+    services = Service.objects.all().order_by('name')
+    products = Product.objects.all().order_by('name')
     products_in_order = []
 
     # Don't include products in the current order
@@ -92,6 +93,11 @@ def prepare_service_list(order_id=None):
             product.available = product.computeAvailable()
             if product.available > 0:
                 product_list.append(product)
+            elif order_id is not None:
+                order = get_object_or_404(Order, pk=order_id)
+                if order.quotation:
+                    product_list.append(product)
+
     context = prepare_product_list(product_list)
     context.setdefault('services', services)
     context.setdefault('categories', service_list_metadata(services))

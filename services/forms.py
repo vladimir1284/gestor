@@ -42,7 +42,8 @@ class OrderCreateForm(BaseForm):
         fields = (
             'concept',
             'note',
-            'badge'
+            'badge',
+            'quotation',
         )
 
     def __init__(self, *args, **kwargs):
@@ -51,6 +52,12 @@ class OrderCreateForm(BaseForm):
             Div(
                 Div(
                     Field('concept')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('quotation')
                 ),
                 css_class="mb-3"
             ),
