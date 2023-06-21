@@ -111,9 +111,15 @@ class CommonContactLayout(Layout):
             ),
             Div(
                 Div(
-                    Field('membership')
+                    Field('membership'),
+                    css_class="col-6"
                 ),
-                css_class="mb-3"
+
+                Div(
+                    Field('active'),
+                    css_class="col-6"
+                ),
+                css_class="mb-3 row" 
             )
         )
 
@@ -280,7 +286,8 @@ class BaseContactForm(forms.ModelForm):
             'avatar',
             'phone_number',
             'language',
-            'membership'
+            'membership',
+            'active'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -322,8 +329,7 @@ class AssociatedCreateForm(BaseContactForm):
 class ProviderCreateForm(AssociatedCreateForm):
 
     class Meta(AssociatedCreateForm.Meta):
-        fields = AssociatedCreateForm.Meta.fields + ['outsource', 
-            'active']
+        fields = AssociatedCreateForm.Meta.fields + ['outsource']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -335,10 +341,7 @@ class ProviderCreateForm(AssociatedCreateForm):
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field('type'),
-            Div(
-                Field('active'),
-                css_class="mb-3"
-            ),
+            
             Div(
                 Field('outsource'),
                 css_class="mb-3"
