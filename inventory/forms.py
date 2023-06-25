@@ -181,7 +181,7 @@ class TransactionCreateForm(forms.ModelForm):
 
     def clean_quantity(self):
         quantity = self.cleaned_data['quantity']
-        if self.order.type == "sell":
+        if self.order.type == "sell" and not self.order.quotation:
             error_msg = ""
             unit = Unit.objects.get(id=int(self.data['unit']))
             available = self.product.computeAvailable(self.id)
