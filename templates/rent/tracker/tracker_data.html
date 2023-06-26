@@ -1,4 +1,4 @@
-{% extends 'towit/tracker/tracker.html' %}
+{% extends "./tracker.html" %}
 {% load tz %}
 {% load static %}
 {% block map_scripts %}
@@ -9,9 +9,9 @@
     <script type="text/javascript" src="{% static '/js/leaflet.js' %}"></script>
     <script type="text/javascript" src="{% static '/js/date.format.js' %}"></script>
     <style>#map { height: 450px; }</style>
-{% endblock %}
+{% endblock map_scripts %}
 {% block map %}
-    <div id ="map"></div>
+    <div id="map"></div>
     Last update: <b class="datetime"
     style="background: {% if online == True %} #b9ec94 {% else %} #FF0000 {% endif %};">{{ data.timestamp|utc|date:'m/d/Y h:i:s A' }}</b>
     <script>
@@ -45,19 +45,12 @@
             document.getElementById("lon").innerHTML=lon
             document.getElementById("datetime").innerHTML=dt
          }
-
-         function uploadHistory() {
-            let confirmAction = confirm("Do you want to export all historical data to Traccar?");
-            if (confirmAction) {
-                 window.location = "/towit/tracker_export/{{ tracker.id }}";
-            }
-        }
     </script>
-{% endblock %}
+{% endblock map %}
 {% block table %}
-    <hr class="mt-0 mb-4">
+    <hr class="mt-0 mb-4"/>
     <h4 class="mt-3">
-    History </b>
+    <b>History </b>
     <button onclick="uploadHistory()"
             class="btn btn-primary data-toggle="
             tooltip
@@ -65,9 +58,9 @@
             title="Copy to clipboard">
         <i class="fa fa-share"></i>
     </button>
-    <a href="/towit/tracker_detail/{{ tracker.id }}/100">
+    {% comment %} <a href="/towit/tracker_detail/{{ tracker.id }}/100">
         <i class="fa fa-search"></i>
-    </a>
+    </a> {% endcomment %}
 </h4>
 <div class="row">
     <div class="table-responsive-md col-6 overflow-auto"
@@ -90,8 +83,13 @@
                 {% for element in history %}
                     <tr>
                         <td>
-                        {{ element.sequence }} </a>
-                    </td>
+                            <a>{{ element.sequence }}</a>
+                            {% if element.source == "LTE" %}
+                                <i class="fa fa-signal"></i>
+                            {% else %}
+                                <i class="fa fa-location-arrow"></i>
+                            {% endif %}
+                        </td>
                     <td>
                         <button class="datetime"
                                 onclick="update_map({{ element.latitude }}, {{ element.longitude }}, {{ element.speed }}, '{{ element.timestamp }}')">
@@ -101,7 +99,7 @@
                     <!-- <td>{{ element.latitude }}</td>
                     <td>{{ element.longitude }}</td>
                     <td>{{ element.speed }}</td> -->
-                    <td style="background: {% if element.mode  == 0 %} #b9ec94 {% else %} #f5ada1 {% endif %};">
+                    <td style="background: {% if element.mode == 0 %} #b9ec94 {% else %} #f5ada1 {% endif %};">
                         {{ element.battery|floatformat:"0" }}%
                     </td>
                 </tr>
@@ -132,4 +130,4 @@
 
         updateTZ();
 </script>
-{% endblock %}
+{% endblock table %}

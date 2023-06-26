@@ -1,14 +1,10 @@
-{% extends 'towit/dataTableBase.html' %}
+{% extends "../../base/base_list.html" %}
 {% load tz %}
 {% load static %}
-{% block table_head %}
+{% block page %}
     <script type="text/javascript" src="{% static '/js/date.format.js' %}"></script>
-{% endblock %}
-{% block nav %}
-    <li>
-        <a href="/towit/trackers_map/">Map</a>
-    </li>
-{% endblock %}
+{% endblock page %}
+
 {% block content %}
     <div class="table-responsive-md">
         <table id="table"
@@ -28,11 +24,11 @@
                 {% for tracker in trackers %}
                     <tr>
                         <td>
-                            <a class="tracker-link" href="/towit/tracker_detail/{{ tracker.id }}">{{ tracker.id }}</a>
+                            <a class="tracker-link" href="{% url 'tracker-detail' tracker.id %}">{{ tracker.id }}</a>
                         </td>
                         <td>{{ tracker.lessee_name }}</td>
                         <td>{{ tracker.trailer_description }}</td>
-                        <td style="background: {% if tracker.mode  == 0 %} #b9ec94 {% else %} #f5ada1 {% endif %};
+                        <td style="background: {% if tracker.mode == 0 %} #b9ec94 {% else %} #f5ada1 {% endif %};
                                    text-align: center;">
                             {{ tracker.bat|floatformat:"0" }}%
                         </td>
@@ -58,4 +54,4 @@
         updateTZ();
 
     </script>
-{% endblock %}
+{% endblock content %}

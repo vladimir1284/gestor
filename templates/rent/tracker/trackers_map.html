@@ -1,10 +1,8 @@
-{% extends 'towit/base.html' %}
-
+{% extends "../../base/base.html" %}
 {% load tz %}
-
 {% load static %}
 
-{% block head %}   
+{% block page %}   
     {% block map_scripts %}  
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
     integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
@@ -41,27 +39,13 @@
                content: '';
             }
         </style>
-    {% endblock %} 
+    {% endblock map_scripts %} 
     
-   <script>    
-        function deleteTracker() {
-            let confirmAction = confirm("Are you sure to delete the tracker?");
-            if (confirmAction) {
-                window.location = "/towit/delete_tracker/{{ tracker.id }}";
-            }
-        }
-    </script>
-
-    
-{% endblock %} 
-	           
-{% block nav %}
-    <li><a href="/towit/trackers/">Trackers</a></li>
-{% endblock %} 
+{% endblock page %} 
 
 {% block content %}
 
-    <div id ="map"></div>
+    <div id="map"></div>
    
     <script>
          // Creating map options
@@ -94,17 +78,10 @@
             document.getElementById("lon").innerHTML=lon
             document.getElementById("datetime").innerHTML=dt
          }
-
-         function uploadHistory() {
-            let confirmAction = confirm("Do you want to export all historical data to Traccar?");
-            if (confirmAction) {
-                 window.location = "/towit/tracker_export/{{ tracker.id }}";
-            }
-        }
         $.getJSON('data', function(data) {
             let trackers = data.data;
             
-            markerDict = {true: "{% static '/pictures/icon_green.png' %}", false: "{% static '/pictures/icon_red.png' %}"}
+            markerDict = {true: "{% static '/images/icons/icon_green.png' %}", false: "{% static '/images/icons/icon_red.png' %}"}
             let minLon = 0;
             let maxLon = -180;
             let minLat = 90;
@@ -143,4 +120,4 @@
         })
      </script>
 
-{% endblock %} 
+{% endblock content %} 
