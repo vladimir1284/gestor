@@ -228,12 +228,17 @@ def prepareListOrder(request, status_list):
 
 def computeOrderAmount(order: Order):
     transactions = ProductTransaction.objects.filter(order=order)
+    transactions.satisfied = True
     services = ServiceTransaction.objects.filter(order=order)
     expenses = Expense.objects.filter(order=order)
     # Compute amount
     amount = 0
     tax = 0
     for transaction in transactions:
+        transaction.satisfied = transaction.product.computeAvailable() >= 0
+        if not transaction.satisfied:
+            transactions.satisfied=False
+
         transaction.amount = transaction.getAmount()
         amount += transaction.amount
         transaction.total_tax = transaction.getTax()
@@ -266,6 +271,7 @@ def getOrderContext(id):
     consumable_tax = 0
     parts_tax = 0
     consumables = False
+    
     for trans in transactions:
         if (trans.product.type == 'part'):
             parts_amount += trans.amount
@@ -359,6 +365,7 @@ def detail_order(request, id):
     context.setdefault('images', images)
 
     if context['terminated']:
+
         # Payments
         context.setdefault(
             'payments', Payment.objects.filter(order=context['order']))

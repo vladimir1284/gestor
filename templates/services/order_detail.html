@@ -105,7 +105,7 @@
                                 </button>
                             </li>
                         {% endif %}
-                        {% if order.status != 'complete' %}
+                        {% if order.status != 'complete' and satisfied%}
                             <li>
                                 <a class="dropdown-item badge bg-success"
                                    href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
@@ -195,7 +195,11 @@
                                     <td>
                                         <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
                                     </td>
-                                    <td>{{ trans.quantity|floatformat:"-2" }}</td>
+                                    
+                                    <td {% if  not trans.satisfied %}
+                                    class="text-danger"
+                                    
+                                    {% endif %}> {{ trans.quantity|floatformat:"-2" }}</td>
                                     <td>{{ trans.unit }}</td>
                                     <td>${{ trans.price|floatformat:"2" }}</td>
                                     <td>${{ trans.amount|floatformat:"2" }}</td>
