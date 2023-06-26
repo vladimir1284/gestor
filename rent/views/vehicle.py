@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from users.views import processOrders
 from users.models import Company
-from .models import (
+from .models.vehicle import (
     Trailer,
 )
 from utils.models import (

@@ -186,3 +186,6 @@ OPEN_AI_ORG = os.getenv('OPEN_AI_ORG')
 
 # ENVIRONMENT
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'production')
+
+# Open Cell ID
+OCELLID_KEY = os.environ.get('OCELLID_KEY')

@@ -1,0 +1,146 @@
+{% extends 'towit/base.html' %}
+
+{% load tz %}
+
+{% load static %}
+
+{% block head %}   
+    {% block map_scripts %}  
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""/>
+    
+    <script type="text/javascript" src="{% static '/js/leaflet.js' %}"></script>
+    <script type="text/javascript" src="{% static '/js/date.format.js' %}"></script>
+        
+        <style>
+            #map { height: 950px; }
+            #map .leaflet-div-icon {
+                width:0;
+                height:0;
+                border: 0;
+                padding: 0;
+                background: transparent;
+              }
+            div.counter {
+                position: relative;
+                display: inline-block;
+            }
+            div.counter span {
+                position: absolute;    
+                text-align: center;
+                color: white;
+                font-size: 18px;
+                height: 100%;
+                width: 100%;
+            }
+            div.counter span:before {
+               display: inline-block;
+               vertical-align: -90%;
+               height: 100%;
+               content: '';
+            }
+        </style>
+    {% endblock %} 
+    
+   <script>    
+        function deleteTracker() {
+            let confirmAction = confirm("Are you sure to delete the tracker?");
+            if (confirmAction) {
+                window.location = "/towit/delete_tracker/{{ tracker.id }}";
+            }
+        }
+    </script>
+
+    
+{% endblock %} 
+	           
+{% block nav %}
+    <li><a href="/towit/trackers/">Trackers</a></li>
+{% endblock %} 
+
+{% block content %}
+
+    <div id ="map"></div>
+   
+    <script>
+         // Creating map options
+         var mapOptions = {
+         center: [39.8, -98.45],
+         zoom: 4
+         }
+         
+         // Creating a map object
+         var map = new L.map("map", mapOptions);
+         
+         // Creating a Layer object
+         var layer = new  L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+         
+         // Adding layer to the map
+         map.addLayer(layer);
+         
+        //var marker = L.marker([{{ data.latitude }}, {{ data.longitude }}]).addTo(map);
+         
+         function update_map(lat, lon, speed, dt){
+             // Update MAP
+            if (marker != undefined) {
+              map.removeLayer(marker);
+            };
+            marker = L.marker([lat, lon]).addTo(map);
+            map.panTo(new L.LatLng(lat, lon));
+            // Update data
+            document.getElementById("speed").innerHTML=speed
+            document.getElementById("lat").innerHTML=lat
+            document.getElementById("lon").innerHTML=lon
+            document.getElementById("datetime").innerHTML=dt
+         }
+
+         function uploadHistory() {
+            let confirmAction = confirm("Do you want to export all historical data to Traccar?");
+            if (confirmAction) {
+                 window.location = "/towit/tracker_export/{{ tracker.id }}";
+            }
+        }
+        $.getJSON('data', function(data) {
+            let trackers = data.data;
+            
+            markerDict = {true: "{% static '/pictures/icon_green.png' %}", false: "{% static '/pictures/icon_red.png' %}"}
+            let minLon = 0;
+            let maxLon = -180;
+            let minLat = 90;
+            let maxLat = 0;
+            trackers.forEach(tracker => {
+                let date = new Date(tracker.timestamp);
+
+                // Creating a custom icon
+                let icon = L.divIcon({html: `<div class='counter'> <span>${tracker.tracker}</span> <img src=${markerDict[tracker.online]} > </div>`,
+                                        iconSize: [50, 50],
+                                        iconAnchor: [25, 50],
+                                        popupAnchor: [0, -51]});
+
+                let marker = L.marker([tracker.latitude, tracker.longitude], {icon: icon}).addTo(map);
+
+                marker.bindPopup(`<div style="font-size: 24px;"> <a href="/towit/tracker_detail/${tracker.tracker}">Tracker ${tracker.tracker}</a></br>
+                                    Bat:  <span style="background-color:
+                                            ${{1:'lightcoral', 0:'lightgreen'}[tracker.mode]}">
+                                            ${Math.round(tracker.battery * 100) / 100}V
+                                        </span></br>
+                                    ${date.format("mmm dd, h:MMtt")}</br>
+                                    Speed: ${tracker.speed}km/h</div>`);
+                marker.addTo(map); // Adding marker to the map
+                if (tracker.latitude > maxLat) maxLat = tracker.latitude;
+                if (tracker.longitude > maxLon) maxLon = tracker.longitude;
+                if (tracker.latitude < minLat) minLat = tracker.latitude;
+                if (tracker.longitude < minLon) minLon = tracker.longitude;                    
+            });
+            const deltaLat = 0.1*(maxLat - minLat);
+            const deltaLon = 0.1*(maxLon - minLon);
+            map.fitBounds([
+                [minLat - deltaLat, minLon - deltaLon],
+                [maxLat + deltaLat, maxLon + deltaLon]
+                ]);
+            //L.geoJson(data).addTo(map);
+        })
+     </script>
+
+{% endblock %} 
