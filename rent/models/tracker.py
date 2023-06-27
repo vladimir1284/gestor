@@ -1,7 +1,7 @@
 from django.db import models
 from datetime import datetime
 from django.urls import reverse
-from vehicle import Trailer
+from .vehicle import Trailer
 
 
 class Tracker(models.Model):

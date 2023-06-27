@@ -2,7 +2,7 @@ import pytz
 from typing import List
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, UpdateView
-from ..forms.tracker import TrackerForm, TrackerLesseeForm
+from rent.forms.tracker import TrackerForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.http import HttpResponse

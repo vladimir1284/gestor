@@ -28,7 +28,7 @@ from services.forms import (
     DiscountForm,
     OrderCreateForm,
 )
-from rent.models import Trailer
+from rent.models.vehicle import Trailer
 from django.utils.translation import gettext_lazy as _
 
 
@@ -237,7 +237,7 @@ def computeOrderAmount(order: Order):
     for transaction in transactions:
         transaction.satisfied = transaction.product.computeAvailable() >= 0
         if not transaction.satisfied:
-            transactions.satisfied=False
+            transactions.satisfied = False
 
         transaction.amount = transaction.getAmount()
         amount += transaction.amount
@@ -271,7 +271,7 @@ def getOrderContext(id):
     consumable_tax = 0
     parts_tax = 0
     consumables = False
-    
+
     for trans in transactions:
         if (trans.product.type == 'part'):
             parts_amount += trans.amount

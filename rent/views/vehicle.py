@@ -8,13 +8,13 @@ from django.contrib.auth.decorators import login_required
 
 from users.views import processOrders
 from users.models import Company
-from .models.vehicle import (
+from rent.models.vehicle import (
     Trailer,
 )
 from utils.models import (
     Order,
 )
-from .forms import (
+from rent.forms.vehicle import (
     TrailerCreateForm,
 )
 from django.utils.translation import gettext_lazy as _
