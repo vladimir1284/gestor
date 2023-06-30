@@ -10,12 +10,16 @@ from users.views import processOrders
 from users.models import Company
 from rent.models.vehicle import (
     Trailer,
+    Manufacturer,
+    TrailerPicture,
 )
 from utils.models import (
     Order,
 )
 from rent.forms.vehicle import (
     TrailerCreateForm,
+    ManufacturerForm,
+    TrailerPictureForm,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -165,3 +169,89 @@ def delete_trailer(request, id):
     trailer = get_object_or_404(Trailer, id=id)
     trailer.delete()
     return redirect('list-equipment', id=trailer.order.id)
+
+
+# -------------------- Manufacturer ----------------------------
+
+def manufacturer_list(request):
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'manufacturer_list.html', {'manufacturers': manufacturers})
+
+
+def manufacturer_create(request):
+    if request.method == 'POST':
+        form = ManufacturerForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('manufacturer-list')
+    else:
+        form = ManufacturerForm()
+    return render(request, 'manufacturer_create.html', {'form': form})
+
+
+def manufacturer_update(request, pk):
+    manufacturer = Manufacturer.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = ManufacturerForm(
+            request.POST, request.FILES, instance=manufacturer)
+        if form.is_valid():
+            form.save()
+            return redirect('manufacturer-list')
+    else:
+        form = ManufacturerForm(instance=manufacturer)
+    return render(request, 'manufacturer_create.html', {'form': form})
+
+
+def manufacturer_delete(request, pk):
+    manufacturer = Manufacturer.objects.get(pk=pk)
+    manufacturer.delete()
+    return redirect('manufacturer-list')
+
+
+# -------------------- Picture ----------------------------
+
+def trailer_picture_create(request, trailer_id):
+    """
+    Create a new TrailerPicture object for the specified Trailer.
+    """
+    trailer = get_object_or_404(Trailer, pk=trailer_id)
+
+    if request.method == 'POST':
+        form = TrailerPictureForm(request.POST, request.FILES)
+        if form.is_valid():
+            picture = form.save(commit=False)
+            picture.trailer = trailer
+            picture.save()
+            return redirect('detail-trailer', trailer_id=trailer_id)
+    else:
+        form = TrailerPictureForm()
+
+    context = {'form': form, 'trailer': trailer}
+    return render(request, 'trailer_picture_create.html', context)
+
+
+def trailer_picture_update(request, pk):
+    """
+    Update an existing TrailerPicture object.
+    """
+    trailer_picture = get_object_or_404(TrailerPicture, pk=pk)
+    if request.method == 'POST':
+        form = TrailerPictureForm(
+            request.POST, request.FILES, instance=trailer_picture)
+        if form.is_valid():
+            form.save()
+            return redirect('detail-trailer', trailer_id=trailer_picture.trailer.id)
+    else:
+        form = TrailerPictureForm(instance=trailer_picture)
+    context = {'form': form}
+    return render(request, 'trailer_picture_create.html', context)
+
+
+def trailer_picture_delete(request, pk):
+    """
+    Delete an existing TrailerPicture object.
+    """
+    trailer_picture = get_object_or_404(TrailerPicture, pk=pk)
+    if request.method == 'POST':
+        trailer_picture.delete()
+        return redirect('detail-trailer', trailer_id=trailer_picture.trailer.id)

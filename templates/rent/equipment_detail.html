@@ -23,6 +23,57 @@
             transform: translate(25px, 0);
         }
     </style>
+    <script>
+        function getSelectedImages(){
+            /* Get the text field */
+            let imgs =  document.getElementsByClassName("img-cb");
+          
+            /* Select the text field */
+            let urls = "";
+            
+            for (let item of imgs) {
+                  if(item.checked){
+                      urls += item.value + ",";
+                  }
+            }
+            return urls
+          }
+      
+          function shareImages() {  
+              let imgs = getSelectedImages();
+              if (imgs.length > 0){
+                  window.open("/towit/share_images/"+imgs, '_blank');   
+              } else {
+                  alert("Please, select at least one picture!")
+              }
+          }
+          
+          function deletePictures() {        
+              let imgs = getSelectedImages();
+              if (imgs.length > 0){
+                  let confirmAction = confirm("Are you sure to delete the selected pictures?");
+                  if (confirmAction) {
+                       window.location = "/towit/delete_trailer_images/"+imgs;
+                  }
+              } else {
+                  alert("Please, select at least one picture!")
+              }
+          }
+          
+          function deleteTrailer() {
+              let confirmAction = confirm("Are you sure to delete the current trailer?");
+              if (confirmAction) {
+                   window.location = "/towit/delete_trailer/{{ trailer.id }}";
+              }
+          }
+          
+          function deleteTracker() {
+              let confirmAction = confirm("Are you sure to delete the tracker?");
+              if (confirmAction) {
+                   window.location = "/towit/delete_tracker/{{ tracker.id }}";
+              }
+          }
+          </script>
 {% endblock page %}
 {% block content %}
     <div class="card">
@@ -62,6 +113,31 @@
             </a>
         </div>
     </div>
+    <!-- Gallery -->    
+    <h4 id="gallery" class="mt-3">Gallery </b>
+        <button onclick="shareImages()" class="btn btn-primary data-toggle="tooltip" data-placement="left" title="Copy to clipboard"">
+		    <i class="fa fa-share"></i>
+	    </button>
+		<a href="{% url 'trailer-picture-create' trailer.id %}">
+			<button class="btn btn-primary data-toggle="tooltip" data-placement="left" title="Edit trailer"">
+			    <i class="fa fa-plus"></i>
+			</button>
+		</a>   
+        <button onclick="deletePictures()" class="btn btn-danger float-right data-toggle="tooltip" data-placement="left" title="Remove current picture"">
+            <i class="fa fa-trash"></i>
+        </button>
+    </h4>  
+    <hr class="mt-0 mb-4"/>
+    <div class="row col-12">
+    {% for img in images %}        
+	    <div class="col-6 col-md-4 text-center">
+			<input value={{ img.id }} id="trigger-{{ img.id }}" type="checkbox" style="display: none;" class="img-cb">
+			<label for="trigger-{{ img.id }}" class="img-border">
+			    <img class="checker" src="{{ img.image.url }}" alt="Trailer picture">
+			</label>
+	    </div>
+    {% endfor %}
+    </div>  
     <div class="card-header">
         <h5>
             <strong>Service orders</strong> - ${{ orders.total|floatformat:"2" }}

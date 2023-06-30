@@ -2,6 +2,7 @@ import datetime
 from django.db import models
 from PIL import Image
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 
 def year_choices():
@@ -15,22 +16,30 @@ class Equipment(models.Model):
     year = models.IntegerField(_('year'), choices=year_choices())
     vin = models.CharField(_('VIN number'), max_length=50)
     note = models.TextField(blank=True)
-    IMAGE_SIZE = 500
-    image = models.ImageField(upload_to='images/equipment',
-                              blank=True)
     plate = models.CharField(max_length=50, blank=True)
+
+
+class Manufacturer(models.Model):
+    brand_name = models.CharField(max_length=50)
+    url = models.URLField()
+    ICON_SIZE = 500
+    icon = models.ImageField(upload_to='images/manufacturers',
+                             blank=True)
 
     def save(self, *args, **kwargs):
         super(Equipment, self).save(*args, **kwargs)
         try:
-            img = Image.open(self.image.path)
+            img = Image.open(self.icon.path)
 
-            if img.height > self.IMAGE_SIZE or img.width > self.IMAGE_SIZE:
-                output_size = (self.IMAGE_SIZE, self.IMAGE_SIZE)
+            if img.height > self.ICON_SIZE or img.width > self.ICON_SIZE:
+                output_size = (self.ICON_SIZE, self.ICON_SIZE)
                 img.thumbnail(output_size)
-            img.save(self.image.path)
+            img.save(self.icon.path)
         except Exception as error:
             print(error)
+
+    def __str__(self):
+        return self.brand_name
 
 
 class Trailer(Equipment):
@@ -43,17 +52,12 @@ class Trailer(Equipment):
         ('other', _('Other')),
     )
     type = models.CharField(max_length=20, choices=TYPE_CHOICE)
-    MANUFACTURER_CHOICE = (
-        ('pj', 'PJ'),
-        ('bigtex', 'Bigtex'),
-        ('Load trail', 'Load Trail'),
-        ('kaufman', 'Kaufman'),
-        ('lamar', 'Lamar'),
-        ('delco', 'Delco'),
-        ('gatormade', 'Gatormade'),
-        ('other', _('Other')),
+    manufacturer = models.ForeignKey(
+        Manufacturer,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
-    manufacturer = models.CharField(max_length=20, choices=MANUFACTURER_CHOICE)
     AXIS_CHIOCES = [(1, 1), (2, 2), (3, 3)]
     axis_number = models.IntegerField(
         _('Number of axles'), choices=AXIS_CHIOCES)
@@ -64,3 +68,15 @@ class Trailer(Equipment):
         (12, 12000)
     )
     load = models.IntegerField(_('Axle load capacity'), choices=LOAD_CHOICE)
+
+
+class TrailerPicture(models.Model):
+    trailer = models.ForeignKey(Trailer,
+                                on_delete=models.CASCADE,
+                                related_name='trailer_picture')
+    # image = models.ImageField(upload_to='pictures')
+    image = models.ImageField(upload_to='images/equipment',
+                              blank=True)
+
+    def get_absolute_url(self):
+        return reverse('detail-trailer', kwargs={'id': self.trailer.id}) + '#gallery'

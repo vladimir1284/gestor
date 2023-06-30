@@ -4,6 +4,8 @@ from django.utils.translation import gettext_lazy as _
 
 from rent.models.vehicle import (
     Trailer,
+    Manufacturer,
+    TrailerPicture
 )
 from utils.forms import (
     BaseForm,
@@ -49,11 +51,52 @@ class PictureLayout(Layout):
         )
 
 
+class ManufacturerForm(forms.ModelForm):
+    class Meta:
+        model = Manufacturer
+        fields = ('brand_name', 'url', 'icon')
+
+    def __init__(self, *args, **kwargs):
+        super(ManufacturerForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field('brand_name')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('url')
+                ),
+                css_class="mb-3"
+            ),
+            HTML(
+                """
+                <img id="preview" 
+                {% if form.icon.value %}
+                    class="img-responsive" 
+                    src="/media/{{ form.icon.value }}"
+                {% endif %}">
+                """
+            ),
+            Div(
+                Div(
+                    Field('icon', css_class="form-select")
+                ),
+                css_class="mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
 class TrailerCreateForm(BaseForm):
     class Meta:
         model = Trailer
         fields = (
-            'image',
             'note',
             'vin',
             'year',
@@ -116,5 +159,24 @@ class TrailerCreateForm(BaseForm):
             ButtonHolder(
                 Submit('submit', 'Enviar',
                        css_class='btn btn-success')
+            )
+        )
+
+
+class TrailerPictureForm(forms.ModelForm):
+    class Meta:
+        model = TrailerPicture
+        fields = ('image',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Field('image'),
+                css_class="row mb-3"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
             )
         )

@@ -23,4 +23,19 @@ urlpatterns = [
     path('trackers-map/',  tracker.trackers, name='trackers-map'),
     path('trackers/',  tracker.trackers_table, name='trackers-table'),
     path('tracker-upload', tracker.tracker_upload, name='tracker-upload'),
+    # -------------------- Manufacturer ----------------------------
+    path('manufacturer-list', vehicle.manufacturer_list, name='manufacturer-list'),
+    path('manufacturer-create/', vehicle.manufacturer_create,
+         name='manufacturer-create'),
+    path('manufacturer-update/<int:pk>',
+         vehicle.manufacturer_update, name='manufacturer-update'),
+    path('manufacturer-delete/<int:pk>',
+         vehicle.manufacturer_delete, name='manufacturer-delete'),
+    # -------------------- Manufacturer ----------------------------
+    path('<int:trailer_id>/picture/create/',
+         vehicle.trailer_picture_create, name='trailer-picture-create'),
+    path('picture/<int:pk>/update/', vehicle.trailer_picture_update,
+         name='trailer-picture-update'),
+    path('picture/<int:pk>/delete/', vehicle.trailer_picture_delete,
+         name='trailer-picture-delete'),
 ]
