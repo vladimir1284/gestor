@@ -259,15 +259,18 @@ def get_debtor(request):
         if debt_status.status == 'pending':
             total += client.debt
             debtors_list.append(client)
-            client.oldest_debt = getDebtOrders(client)[0]
-            client.overdue = client.oldest_debt.terminated_date < (
-                datetime.now(pytz.timezone('UTC')) - timedelta(days=14))
-            client.last_order = Order.objects.filter(
-                associated=client).order_by("-created_date").first()
-            if debt_status.weeks > 0:
-                client.weekly_payment = debt_status.amount_due_per_week
-                client.overdue = debt_status.last_modified_date < (
-                    datetime.now(pytz.timezone('UTC')).date() - timedelta(days=7))
+            try:
+                client.oldest_debt = getDebtOrders(client)[0]
+                client.overdue = client.oldest_debt.terminated_date < (
+                    datetime.now(pytz.timezone('UTC')) - timedelta(days=14))
+                client.last_order = Order.objects.filter(
+                    associated=client).order_by("-created_date").first()
+                if debt_status.weeks > 0:
+                    client.weekly_payment = debt_status.amount_due_per_week
+                    client.overdue = debt_status.last_modified_date < (
+                        datetime.now(pytz.timezone('UTC')).date() - timedelta(days=7))
+            except Exception as err:
+                print(err)
 
     # Sort by last debt date
     debtors_list.sort(
