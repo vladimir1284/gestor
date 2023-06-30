@@ -257,10 +257,10 @@ def get_debtor(request):
     for client in debtors:
         debt_status = DebtStatus.objects.filter(client=client)[0]
         if debt_status.status == 'pending':
-            total += client.debt
-            debtors_list.append(client)
             try:
                 client.oldest_debt = getDebtOrders(client)[0]
+                total += client.debt
+                debtors_list.append(client)
                 client.overdue = client.oldest_debt.terminated_date < (
                     datetime.now(pytz.timezone('UTC')) - timedelta(days=14))
                 client.last_order = Order.objects.filter(
