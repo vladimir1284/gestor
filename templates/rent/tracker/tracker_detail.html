@@ -6,7 +6,7 @@
         function deleteTracker() {
             let confirmAction = confirm("Are you sure to delete the tracker?");
             if (confirmAction) {
-                 window.location = "/towit/delete_tracker/{{ tracker.id }}";
+                 window.location = "{% url 'delete-tracker' tracker.id %}";
             }
         }
   </script>
@@ -24,40 +24,26 @@
   </h3>
   {% block map %}{% endblock map %}
   {% block table %}{% endblock table %}
-  <hr class="mt-0 mb-4">
-<div class="container">
-  <div class="row">
-    <div class="col-md-8 offset-md-2">
+  <hr class="mt-0 mb-4"/>
       <div class="card">
         <div class="card-header">
           <h3>Tracker Information</h3>
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="trailer">Trailer:</label>
-                <p class="form-control-static">{{ tracker.trailer }}</p>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="last_update">Last Update:</label>
-                <p class="form-control-static">{{ tracker.last_update }}</p>
-              </div>
-            </div>
+                <p>Last Update: {{ tracker.last_update }}</p>
           </div>
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
                 <label for="imei">IMEI:</label>
-                <p class="form-control-static">{{ tracker.imei }}</p>
+                <p>{{ tracker.imei }}</p>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label for="device_password">Device Password:</label>
-                <p class="form-control-static">{{ tracker.device_password }}</p>
+                <label for="Mode">Mode:</label>
+                <p>{{ tracker.get_Mode_display }}</p>
               </div>
             </div>
           </div>
@@ -65,41 +51,35 @@
             <div class="col-md-6">
               <div class="form-group">
                 <label for="device_id">Device ID:</label>
-                <p class="form-control-static">{{ tracker.device_id }}</p>
+                <p>{{ tracker.device_id }}</p>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label for="Mode">Mode:</label>
-                <p class="form-control-static">{{ tracker.get_Mode_display }}</p>
+                <label for="device_password">Device Password:</label>
+                <p>{{ tracker.device_password }}</p>
               </div>
             </div>
           </div>
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-4">
               <div class="form-group">
                 <label for="Tint">Tint:</label>
-                <p class="form-control-static">{{ tracker.Tint }}</p>
+                <p>{{ tracker.Tint }}</p>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-4">
               <div class="form-group">
                 <label for="TGPS">TGPS:</label>
-                <p class="form-control-static">{{ tracker.TGPS }}</p>
+                <p>{{ tracker.TGPS }}</p>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
+            <div class="col-4">
               <div class="form-group">
                 <label for="Tsend">Tsend:</label>
-                <p class="form-control-static">{{ tracker.Tsend }}</p>
+                <p>{{ tracker.Tsend }}</p>
               </div>
             </div>
           </div>
-        </div>
       </div>
-    </div>
-  </div>
-</div>
 {% endblock content %}

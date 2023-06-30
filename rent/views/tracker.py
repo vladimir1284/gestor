@@ -25,6 +25,11 @@ class TrackerUpdateView(LoginRequiredMixin, UpdateView):
     form_class = TrackerForm
     template_name = 'rent/tracker/tracker_create.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Update tracker'
+        return context
+
 
 class TrackerCreateView(LoginRequiredMixin, CreateView):
     model = Tracker
@@ -32,7 +37,16 @@ class TrackerCreateView(LoginRequiredMixin, CreateView):
     template_name = 'rent/tracker/tracker_create.html'
 
     def get_initial(self):
-        return {'trailer': self.kwargs['trailer_id']}
+        try:
+            trailer_id = self.kwargs['trailer_id']
+        except:
+            trailer_id = None
+        return {'trailer': trailer_id}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create tracker'
+        return context
 
 
 @login_required

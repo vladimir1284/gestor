@@ -13,6 +13,8 @@ urlpatterns = [
     path('select-towit', vehicle.select_towit, name='select-towit'),
     # -------------------- Tracker ----------------------------
     path('create-tracker/<int:trailer_id>',
+         tracker.TrackerCreateView.as_view(), name='create-trailer-tracker'),
+    path('create-tracker/',
          tracker.TrackerCreateView.as_view(), name='create-tracker'),
     path('update-tracker/<slug:pk>',
          tracker.TrackerUpdateView.as_view(), name='update-tracker'),

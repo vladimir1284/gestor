@@ -21,7 +21,7 @@ class Tracker(models.Model):
     Tsend = models.IntegerField(default=3)
 
     def get_absolute_url(self):
-        return reverse('tracker_detail', kwargs={'id': self.id})
+        return reverse('detail-tracker', kwargs={'id': self.id})
 
 
 class TrackerUpload(models.Model):
