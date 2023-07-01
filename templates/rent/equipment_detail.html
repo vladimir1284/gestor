@@ -22,6 +22,35 @@
             left: 50%; /* position the left edge of the element at the middle of the parent */      
             transform: translate(25px, 0);
         }
+        .hidden{
+            visibility: hidden;
+        }
+        .dot {
+          height: 1em;
+          width: 1em;
+          background-color: {{trailer.color.code}};
+          border-radius: 50%;
+          display: inline-block;
+          padding-top:5px;
+        }
+        .bottom-space {
+            margin-bottom: 1em;
+        }
+    
+        #trigger {
+          display: none;
+        }
+        .checker {
+            object-fit: cover;
+            object-position: center;
+            height: 200px;
+            width: 200px;
+          }
+        {% for img in images %}   
+            #trigger-{{ img.id }}:checked + .img-border {
+              border:3px solid blue;
+            }
+        {% endfor %}
     </style>
     <script>
         function getSelectedImages(){
@@ -42,7 +71,7 @@
           function shareImages() {  
               let imgs = getSelectedImages();
               if (imgs.length > 0){
-                  window.open("/towit/share_images/"+imgs, '_blank');   
+                  window.open("{% url 'share-pictures' ids='PLACEHOLDER' %}".replace('PLACEHOLDER', imgs), '_blank');   
               } else {
                   alert("Please, select at least one picture!")
               }
@@ -53,27 +82,13 @@
               if (imgs.length > 0){
                   let confirmAction = confirm("Are you sure to delete the selected pictures?");
                   if (confirmAction) {
-                       window.location = "/towit/delete_trailer_images/"+imgs;
+                       window.location ="{% url 'delete-trailer-pictures' ids='PLACEHOLDER' %}".replace('PLACEHOLDER', imgs);
                   }
               } else {
                   alert("Please, select at least one picture!")
               }
           }
-          
-          function deleteTrailer() {
-              let confirmAction = confirm("Are you sure to delete the current trailer?");
-              if (confirmAction) {
-                   window.location = "/towit/delete_trailer/{{ trailer.id }}";
-              }
-          }
-          
-          function deleteTracker() {
-              let confirmAction = confirm("Are you sure to delete the tracker?");
-              if (confirmAction) {
-                   window.location = "/towit/delete_tracker/{{ tracker.id }}";
-              }
-          }
-          </script>
+    </script>
 {% endblock page %}
 {% block content %}
     <div class="card">
@@ -114,29 +129,37 @@
         </div>
     </div>
     <!-- Gallery -->    
-    <h4 id="gallery" class="mt-3">Gallery </b>
-        <button onclick="shareImages()" class="btn btn-primary data-toggle="tooltip" data-placement="left" title="Copy to clipboard"">
-		    <i class="fa fa-share"></i>
-	    </button>
-		<a href="{% url 'trailer-picture-create' trailer.id %}">
-			<button class="btn btn-primary data-toggle="tooltip" data-placement="left" title="Edit trailer"">
-			    <i class="fa fa-plus"></i>
-			</button>
-		</a>   
-        <button onclick="deletePictures()" class="btn btn-danger float-right data-toggle="tooltip" data-placement="left" title="Remove current picture"">
-            <i class="fa fa-trash"></i>
-        </button>
-    </h4>  
-    <hr class="mt-0 mb-4"/>
-    <div class="row col-12">
-    {% for img in images %}        
-	    <div class="col-6 col-md-4 text-center">
-			<input value={{ img.id }} id="trigger-{{ img.id }}" type="checkbox" style="display: none;" class="img-cb">
-			<label for="trigger-{{ img.id }}" class="img-border">
-			    <img class="checker" src="{{ img.image.url }}" alt="Trailer picture">
-			</label>
-	    </div>
-    {% endfor %}
+    <div class="card-body">
+        <h4 id="gallery" class="mb-3">Gallery </b>
+            <div class="demo-inline-spacing">
+                <a class="btn btn-icon btn-outline-primary"
+                onclick="shareImages()"
+                type="button">
+                    <span class="tf-icons bx bx-share-alt"></span>
+                </a>
+                <a class="btn btn-icon btn-outline-primary"
+                type="button"
+                href="{% url 'trailer-picture-create' equipment.id %}">
+                    <span class="tf-icons bx bx-plus"></span>
+                </a>
+                <a onclick="deletePictures()"
+                type="button"
+                class="btn btn-icon btn-outline-danger float-end">
+                    <span class="tf-icons bx bx-trash"></span>
+                </a>
+            </div>
+        </h4>  
+        <hr class="mt-0 mb-4"/>
+        <div class="row col-12">
+        {% for img in images %}        
+            <div class="col-6 col-md-4 text-center">
+                <input value={{ img.id }} id="trigger-{{ img.id }}" type="checkbox" style="display: none;" class="img-cb">
+                <label for="trigger-{{ img.id }}" class="img-border">
+                    <img class="checker" src="{{ img.image.url }}" alt="Trailer picture">
+                </label>
+            </div>
+        {% endfor %}
+        </div>  
     </div>  
     <div class="card-header">
         <h5>

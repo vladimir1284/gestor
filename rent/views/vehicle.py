@@ -152,10 +152,12 @@ def detail_trailer(request, id):
     # fetch the object related to passed id
     trailer = get_object_or_404(Trailer, id=id)
     orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
+    images = TrailerPicture.objects.filter(trailer=trailer)
     processOrders(orders)
     context = {
         'orders': orders,
         'equipment': trailer,
+        'images': images,
         'type': 'trailer',
         'title': _("Trailer details")
     }
@@ -173,11 +175,13 @@ def delete_trailer(request, id):
 
 # -------------------- Manufacturer ----------------------------
 
+@login_required
 def manufacturer_list(request):
     manufacturers = Manufacturer.objects.all()
-    return render(request, 'manufacturer_list.html', {'manufacturers': manufacturers})
+    return render(request, 'rent/manufacturer_list.html', {'manufacturers': manufacturers})
 
 
+@login_required
 def manufacturer_create(request):
     if request.method == 'POST':
         form = ManufacturerForm(request.POST, request.FILES)
@@ -186,9 +190,10 @@ def manufacturer_create(request):
             return redirect('manufacturer-list')
     else:
         form = ManufacturerForm()
-    return render(request, 'manufacturer_create.html', {'form': form})
+    return render(request, 'rent/manufacturer_create.html', {'form': form})
 
 
+@login_required
 def manufacturer_update(request, pk):
     manufacturer = Manufacturer.objects.get(pk=pk)
     if request.method == 'POST':
@@ -199,9 +204,10 @@ def manufacturer_update(request, pk):
             return redirect('manufacturer-list')
     else:
         form = ManufacturerForm(instance=manufacturer)
-    return render(request, 'manufacturer_create.html', {'form': form})
+    return render(request, 'rent/manufacturer_create.html', {'form': form})
 
 
+@login_required
 def manufacturer_delete(request, pk):
     manufacturer = Manufacturer.objects.get(pk=pk)
     manufacturer.delete()
@@ -210,6 +216,7 @@ def manufacturer_delete(request, pk):
 
 # -------------------- Picture ----------------------------
 
+@login_required
 def trailer_picture_create(request, trailer_id):
     """
     Create a new TrailerPicture object for the specified Trailer.
@@ -222,36 +229,30 @@ def trailer_picture_create(request, trailer_id):
             picture = form.save(commit=False)
             picture.trailer = trailer
             picture.save()
-            return redirect('detail-trailer', trailer_id=trailer_id)
+            return redirect('detail-trailer', id=trailer_id)
     else:
         form = TrailerPictureForm()
 
     context = {'form': form, 'trailer': trailer}
-    return render(request, 'trailer_picture_create.html', context)
+    return render(request, 'rent/trailer_picture_create.html', context)
 
 
-def trailer_picture_update(request, pk):
-    """
-    Update an existing TrailerPicture object.
-    """
-    trailer_picture = get_object_or_404(TrailerPicture, pk=pk)
-    if request.method == 'POST':
-        form = TrailerPictureForm(
-            request.POST, request.FILES, instance=trailer_picture)
-        if form.is_valid():
-            form.save()
-            return redirect('detail-trailer', trailer_id=trailer_picture.trailer.id)
-    else:
-        form = TrailerPictureForm(instance=trailer_picture)
-    context = {'form': form}
-    return render(request, 'trailer_picture_create.html', context)
+def share_pictures(request, ids):
+    pks = list(map(int, ids.split(',')[:-1]))
+    pictures = TrailerPicture.objects.filter(pk__in=pks)
+    return render(request, 'rent/trailer_pictures.html',
+                  {'images': pictures, 'trailer': pictures[0].trailer})
 
 
-def trailer_picture_delete(request, pk):
+@login_required
+def delete_trailer_pictures(request, ids):
     """
     Delete an existing TrailerPicture object.
     """
-    trailer_picture = get_object_or_404(TrailerPicture, pk=pk)
-    if request.method == 'POST':
-        trailer_picture.delete()
-        return redirect('detail-trailer', trailer_id=trailer_picture.trailer.id)
+    pks = list(map(int, ids.split(',')[:-1]))
+    pictures = TrailerPicture.objects.filter(pk__in=pks)
+    trailer_id = pictures[0].trailer.id
+    for img in pictures:
+        img.delete()
+    return redirect('detail-trailer',
+                    id=trailer_id)

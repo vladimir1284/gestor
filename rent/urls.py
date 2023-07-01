@@ -32,10 +32,9 @@ urlpatterns = [
     path('manufacturer-delete/<int:pk>',
          vehicle.manufacturer_delete, name='manufacturer-delete'),
     # -------------------- Manufacturer ----------------------------
-    path('<int:trailer_id>/picture/create/',
+    path('picture/create/<int:trailer_id>',
          vehicle.trailer_picture_create, name='trailer-picture-create'),
-    path('picture/<int:pk>/update/', vehicle.trailer_picture_update,
-         name='trailer-picture-update'),
-    path('picture/<int:pk>/delete/', vehicle.trailer_picture_delete,
-         name='trailer-picture-delete'),
+    path('share_pictures/<ids>',  vehicle.share_pictures, name='share-pictures'),
+    path('delete_trailer_pictures/<ids>',
+         vehicle.delete_trailer_pictures, name='delete-trailer-pictures'),
 ]
