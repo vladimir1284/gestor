@@ -76,6 +76,28 @@
                   alert("Please, select at least one picture!")
               }
           }
+
+          function getNumberArrayFromString(str) {
+            // First, remove any extraneous commas from the beginning or end of the string
+            str = str.replace(/^,|,$/g, '');
+          
+            if (str === '') {
+              // If the string is empty after removing commas, return an empty array
+              return [];
+            } else {
+              // Otherwise, split the string into an array of substrings and convert each substring to a number
+              return str.split(',').map((s) => parseInt(s.trim()));
+            }
+          }
+
+          function updatePinned() {  
+              let imgs = getNumberArrayFromString(getSelectedImages());
+              if (imgs.length === 1){
+                  window.location = ("{% url 'update-pinned-picture' pk='9999' %}".replace('9999', imgs[0]));   
+              } else {
+                  alert("Please, select exactly one picture!")
+              }
+          }
           
           function deletePictures() {        
               let imgs = getSelectedImages();
@@ -99,7 +121,7 @@
         </div>
         <div class="card-body text-center">
             <div class="demo-inline-spacing mb-2 associated-pic">
-                <img {% if equipment.image %} src="{{ equipment.image.url }}" {% else %} {% if type == 'trailer' %} src="{% static 'images/icons/trailer.png' %}" {% else %} src="{% static 'images/icons/truck.jpg' %}" {% endif %}
+                <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} {% if type == 'trailer' %} src="{% static 'images/icons/trailer.png' %}" {% else %} src="{% static 'images/icons/truck.jpg' %}" {% endif %}
                      {% endif %}
                      alt="image"
                      height="100px"
@@ -130,7 +152,7 @@
     </div>
     <!-- Gallery -->    
     <div class="card-body">
-        <h4 id="gallery" class="mb-3">Gallery </b>
+        <h5 id="gallery" class="mb-3"><strong>Gallery</strong>
             <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
                 onclick="shareImages()"
@@ -142,13 +164,18 @@
                 href="{% url 'trailer-picture-create' equipment.id %}">
                     <span class="tf-icons bx bx-plus"></span>
                 </a>
+                <a class="btn btn-icon btn-outline-primary"
+                type="button"
+                onclick="updatePinned()">
+                    <span class="tf-icons bx bx-pin"></span>
+                </a>
                 <a onclick="deletePictures()"
                 type="button"
                 class="btn btn-icon btn-outline-danger float-end">
                     <span class="tf-icons bx bx-trash"></span>
                 </a>
             </div>
-        </h4>  
+        </h5>  
         <hr class="mt-0 mb-4"/>
         <div class="row col-12">
         {% for img in images %}        

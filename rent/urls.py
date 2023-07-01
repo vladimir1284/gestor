@@ -31,10 +31,12 @@ urlpatterns = [
          vehicle.manufacturer_update, name='manufacturer-update'),
     path('manufacturer-delete/<int:pk>',
          vehicle.manufacturer_delete, name='manufacturer-delete'),
-    # -------------------- Manufacturer ----------------------------
+    # -------------------- Picture ----------------------------
     path('picture/create/<int:trailer_id>',
          vehicle.trailer_picture_create, name='trailer-picture-create'),
     path('share_pictures/<ids>',  vehicle.share_pictures, name='share-pictures'),
     path('delete_trailer_pictures/<ids>',
          vehicle.delete_trailer_pictures, name='delete-trailer-pictures'),
+    path('update_pinned_picture/<int:pk>/',
+         vehicle.update_pinned_picture, name='update-pinned-picture'),
 ]

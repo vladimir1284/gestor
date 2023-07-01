@@ -77,6 +77,7 @@ class TrailerPicture(models.Model):
     # image = models.ImageField(upload_to='pictures')
     image = models.ImageField(upload_to='images/equipment',
                               blank=True)
+    pinned = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse('detail-trailer', kwargs={'id': self.trailer.id}) + '#gallery'

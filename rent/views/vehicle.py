@@ -22,6 +22,7 @@ from rent.forms.vehicle import (
     TrailerPictureForm,
 )
 from django.utils.translation import gettext_lazy as _
+from django.http import JsonResponse
 
 # -------------------- Equipment ----------------------------
 
@@ -153,10 +154,16 @@ def detail_trailer(request, id):
     trailer = get_object_or_404(Trailer, id=id)
     orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
     images = TrailerPicture.objects.filter(trailer=trailer)
+    pinned_image = None
+    for image in images:
+        if image.pinned:
+            pinned_image = image
+            break
     processOrders(orders)
     context = {
         'orders': orders,
         'equipment': trailer,
+        'pinned_image': pinned_image,
         'images': images,
         'type': 'trailer',
         'title': _("Trailer details")
@@ -256,3 +263,21 @@ def delete_trailer_pictures(request, ids):
         img.delete()
     return redirect('detail-trailer',
                     id=trailer_id)
+
+
+@login_required
+def update_pinned_picture(request, pk):
+    # Get the TrailerPicture instance to update
+    picture = get_object_or_404(TrailerPicture, pk=pk)
+
+    # Set the pinned attribute of the selected picture to True
+    picture.pinned = True
+    picture.save()
+
+    # Set the pinned attribute of all other pictures related to the same trailer to False
+    trailer_pictures = TrailerPicture.objects.filter(
+        trailer=picture.trailer).exclude(pk=pk)
+    trailer_pictures.update(pinned=False)
+
+    return redirect('detail-trailer',
+                    id=picture.trailer.id)
