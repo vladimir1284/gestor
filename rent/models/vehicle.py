@@ -1,3 +1,4 @@
+from django.utils import timezone
 import datetime
 from django.db import models
 from PIL import Image
@@ -81,3 +82,48 @@ class TrailerPicture(models.Model):
 
     def get_absolute_url(self):
         return reverse('detail-trailer', kwargs={'id': self.trailer.id}) + '#gallery'
+
+
+class TrailerDocument(models.Model):
+    DOCUMENT_TYPES = (
+        ('PDF', 'PDF'),
+        ('DOC', 'DOC'),
+        ('XLS', 'XLS'),
+        ('PNG', 'PNG'),
+        ('JPG', 'JPG'),
+    )
+
+    REMAINDER_CHOICES = (
+        (1, _('1 day')),
+        (7, _('1 week')),
+        (30, _('1 month')),
+    )
+
+    trailer = models.ForeignKey(
+        'Trailer',
+        on_delete=models.CASCADE,
+        related_name='documents',
+    )
+    name = models.CharField(max_length=255)
+    note = models.TextField(blank=True)
+    document_type = models.CharField(max_length=3, choices=DOCUMENT_TYPES)
+    expiration_date = models.DateField()
+    remainder_days = models.IntegerField(
+        choices=REMAINDER_CHOICES, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return F"{self.name} ({self.trailer})"
+
+    def is_expired(self):
+        return timezone.now().date() > self.expiration_date
+
+    def save(self, *args, **kwargs):
+        if self.remainder_days:
+            remainder_date = self.expiration_date - \
+                timezone.timedelta(days=self.remainder_days)
+            if remainder_date < timezone.now().date():
+                raise ValueError(_('Reminder date cannot be in the past.'))
+        super().save(*args, **kwargs)

@@ -1,3 +1,6 @@
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.shortcuts import render, get_object_or_404, redirect
 from typing import List
 from django.shortcuts import (
     render,
@@ -12,6 +15,7 @@ from rent.models.vehicle import (
     Trailer,
     Manufacturer,
     TrailerPicture,
+    TrailerDocument,
 )
 from utils.models import (
     Order,
@@ -20,6 +24,7 @@ from rent.forms.vehicle import (
     TrailerCreateForm,
     ManufacturerForm,
     TrailerPictureForm,
+    TrailerDocumentForm,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -283,3 +288,58 @@ def update_pinned_picture(request, pk):
 
     return redirect('detail-trailer',
                     id=picture.trailer.id)
+
+
+# -------------------- Document ----------------------------
+
+
+@login_required
+def create_document(request, trailer_id):
+    trailer = get_object_or_404(Trailer, id=trailer_id)
+    if request.method == 'POST':
+        form = TrailerDocumentForm(request.POST)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.trailer = trailer
+            document.save()
+            messages.success(request, 'Document created successfully.')
+            return redirect('trailer-detail', trailer_id=trailer_id)
+    else:
+        form = TrailerDocumentForm()
+    return render(request, 'create_document.html', {'form': form, 'trailer': trailer})
+
+
+@login_required
+def update_document(request, trailer_id, document_id):
+    trailer = get_object_or_404(Trailer, id=trailer_id)
+    document = get_object_or_404(
+        TrailerDocument, id=document_id, trailer=trailer)
+    if request.method == 'POST':
+        form = TrailerDocumentForm(request.POST, instance=document)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Document updated successfully.')
+            return redirect('trailer_detail', trailer_id=trailer_id)
+    else:
+        form = TrailerDocumentForm(instance=document)
+    return render(request, 'update_document.html', {'form': form, 'trailer': trailer, 'document': document})
+
+
+@login_required
+def delete_document(request, trailer_id, document_id):
+    trailer = get_object_or_404(Trailer, id=trailer_id)
+    document = get_object_or_404(
+        TrailerDocument, id=document_id, trailer=trailer)
+    if request.method == 'POST':
+        document.delete()
+        messages.success(request, 'Document deleted successfully.')
+        return redirect('trailer_detail', trailer_id=trailer_id)
+    return render(request, 'delete_document.html', {'trailer': trailer, 'document': document})
+
+
+@login_required
+def document_detail(request, trailer_id, document_id):
+    trailer = get_object_or_404(Trailer, id=trailer_id)
+    document = get_object_or_404(
+        TrailerDocument, id=document_id, trailer=trailer)
+    return render(request, 'document_detail.html', {'trailer': trailer, 'document': document})

@@ -1,11 +1,14 @@
 
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from crispy_forms.bootstrap import PrependedText
+from django.utils import timezone
 
 from rent.models.vehicle import (
     Trailer,
     Manufacturer,
-    TrailerPicture
+    TrailerPicture,
+    TrailerDocument,
 )
 from utils.forms import (
     BaseForm,
@@ -19,6 +22,7 @@ from crispy_forms.layout import (
     Div,
     HTML,
     Field,
+    Fieldset,
 )
 
 
@@ -180,3 +184,64 @@ class TrailerPictureForm(forms.ModelForm):
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )
         )
+
+
+class TrailerDocumentForm(forms.ModelForm):
+    class Meta:
+        model = TrailerDocument
+        fields = ('name', 'note', 'document_type',
+                  'expiration_date', 'remainder_days', 'is_active')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Fieldset(
+                'Document Information',
+                Div(
+                    Field('name', placeholder='Name'),
+                    css_class='col-md-6'
+                ),
+                Div(
+                    Field('note', placeholder='Note'),
+                    css_class='col-md-6'
+                ),
+                Div(
+                    Field('document_type', placeholder='Document type'),
+                    css_class='col-md-6'
+                ),
+                Div(
+                    PrependedText('expiration_date', '<i class="fa fa-calendar"></i>',
+                                  placeholder='Expiration date', autocomplete='off'),
+                    css_class='col-md-6'
+                ),
+                Div(
+                    Field('remainder_days', placeholder='Remainder days'),
+                    css_class='col-md-6'
+                ),
+                Div(
+                    Field('is_active'),
+                    css_class='col-md-6'
+                ),
+                css_class='row'
+            ),
+            Div(
+                HTML('<hr>'),
+                Field('trailer', type='hidden'),
+                HTML('{% crispy form %}'),
+            ),
+            HTML('{% crispy form.helper %}'),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        expiration_date = cleaned_data.get('expiration_date')
+        remainder_days = cleaned_data.get('remainder_days')
+        if remainder_days and expiration_date:
+            remainder_date = expiration_date - \
+                timezone.timedelta(days=remainder_days)
+            if remainder_date < timezone.now().date():
+                raise forms.ValidationError(
+                    'Reminder date cannot be in the past.')
+        return cleaned_data

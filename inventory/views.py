@@ -1,5 +1,4 @@
 import os
-from django.core.checks.messages import Error
 import pygsheets
 import json
 from django.http import JsonResponse
