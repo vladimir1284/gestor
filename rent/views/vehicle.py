@@ -22,7 +22,6 @@ from rent.forms.vehicle import (
     TrailerPictureForm,
 )
 from django.utils.translation import gettext_lazy as _
-from django.http import JsonResponse
 
 # -------------------- Equipment ----------------------------
 
@@ -31,6 +30,9 @@ from django.http import JsonResponse
 def list_equipment(request):
     trailers = Trailer.objects.all()
     for trailer in trailers:
+        images, pinned_image = getImages(trailer)
+        trailer.images = images
+        trailer.pinned_image = pinned_image
         last_order = Order.objects.filter(
             trailer=trailer).order_by("-created_date").first()
         if last_order is not None:
@@ -75,19 +77,14 @@ def select_trailer(request):
             return redirect('create-service-order')
         return appendEquipment(request, id)
 
-    if type == 'trailer':
-        trailers = Trailer.objects.all().order_by('-year')
-        context = {
-            'trailers': trailers,
-        }
-    try:
-        context.setdefault("type", type)
-    except Exception as err:
-        print(err)
-        trailers = Trailer.objects.all()
-        context = {
-            'trailers': trailers,
-        }
+    trailers = Trailer.objects.all().order_by('-year')
+    for trailer in trailers:
+        images, pinned_image = getImages(trailer)
+        trailer.images = images
+        trailer.pinned_image = pinned_image
+    context = {
+        'trailers': trailers,
+    }
     if order_id is not None:
         context.setdefault('skip', False)
     else:
@@ -148,17 +145,22 @@ def update_trailer(request, id):
     return render(request, 'rent/equipment_create.html', context)
 
 
-@login_required
-def detail_trailer(request, id):
-    # fetch the object related to passed id
-    trailer = get_object_or_404(Trailer, id=id)
-    orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
+def getImages(trailer: Trailer):
     images = TrailerPicture.objects.filter(trailer=trailer)
     pinned_image = None
     for image in images:
         if image.pinned:
             pinned_image = image
             break
+    return (images, pinned_image)
+
+
+@login_required
+def detail_trailer(request, id):
+    # fetch the object related to passed id
+    trailer = get_object_or_404(Trailer, id=id)
+    orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
+    images, pinned_image = getImages(trailer)
     processOrders(orders)
     context = {
         'orders': orders,

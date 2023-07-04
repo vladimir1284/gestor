@@ -26,7 +26,7 @@
                                 <td>
                                     <a href={% url 'detail-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
                                 </td>
-                                <td class="d-flex">{% include "rent/equipment_line.html" with equipment_type="trailer" %}</td>
+                                <td class="d-flex">{% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}</td>
                                 <td>
                                     {% if equipment.last_order %}
                                         <a href="{% url 'detail-service-order' equipment.last_order.id %}">{{ equipment.last_order.concept }}</a> ({{ equipment.last_order.created_date|date:"SHORT_DATE_FORMAT" }})

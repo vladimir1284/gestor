@@ -68,7 +68,7 @@
             {% elif order.vehicle %}
                 {% include "equipment/equipment_line.html" with equipment=order.vehicle equipment_type="vehicle" %}
             {% else %}
-                <a href="{% url 'select-equipment-type' %}"
+                <a href="{% url 'select-trailer' %}"
                    type="button"
                    class="btn btn-outline-primary float-end">Add vehicle</a>
             {% endif %}

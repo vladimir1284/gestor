@@ -33,7 +33,7 @@
         </div>
         <div class="card-body text-center">
             <div class="demo-inline-spacing mb-2 associated-pic">
-                <img {% if equipment.image %} src="{{ equipment.image.url }}" {% else %} {% if type == 'trailer' %} src="{% static 'images/icons/trailer.png' %}" {% else %} src="{% static 'images/icons/truck.jpg' %}" {% endif %}
+                <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} {% if type == 'trailer' %} src="{% static 'images/icons/trailer.png' %}" {% else %} src="{% static 'images/icons/truck.jpg' %}" {% endif %}
                      {% endif %}
                      alt="image"
                      height="100px"
