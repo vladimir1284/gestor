@@ -89,8 +89,8 @@ class TrailerDocument(models.Model):
         ('PDF', 'PDF'),
         ('DOC', 'DOC'),
         ('XLS', 'XLS'),
-        ('PNG', 'PNG'),
-        ('JPG', 'JPG'),
+        ('IMG', 'IMG'),
+        ('BIN', 'BIN'),
     )
 
     REMAINDER_CHOICES = (
