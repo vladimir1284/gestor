@@ -22,7 +22,7 @@
 #             'password2': "SeS@m084",
 #             'first_name':"Ariel",
 #             'last_name':"Casanova",
-#             'email': 'towithouston@gmail.com',
+#             'email': 'info@towithouston.com',
 #         }
 #         form = UserCreateForm(data=post_dict)
 #         self.assertTrue(form.is_valid())
@@ -42,7 +42,7 @@
 #                 'username': "ariel",
 #                 'password1': "SeS@m084",
 #                 'password2': "SeS@m084",
-#                 'email': 'towithouston@gmail.com',
+#                 'email': 'info@towithouston.com',
 #                 'role': 1,
 #                 'avatar': fp})
 #         self.assertEqual(User.objects.last().username, "ariel")
