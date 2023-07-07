@@ -1,7 +1,5 @@
 from django.contrib import messages
-from django.urls import reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect
-from typing import List
 from django.shortcuts import (
     render,
     redirect,
@@ -25,8 +23,10 @@ from rent.forms.vehicle import (
     ManufacturerForm,
     TrailerPictureForm,
     TrailerDocumentForm,
+    TrailerDocumentUpdateForm,
 )
 from django.utils.translation import gettext_lazy as _
+from .tracker import Tracker
 
 # -------------------- Equipment ----------------------------
 
@@ -160,6 +160,16 @@ def getImages(trailer: Trailer):
     return (images, pinned_image)
 
 
+FILES_ICONS = {
+    'PDF': 'icn_pdf.svg',
+    'DOC': 'icn_doc.svg',
+    'XLS': 'icn_xlm.svg',
+    'IMG': 'icn_png.svg',
+    'ZIP': 'icn_zip.svg',
+    'BIN': 'icn_bin.png'
+}
+
+
 @login_required
 def detail_trailer(request, id):
     # fetch the object related to passed id
@@ -172,6 +182,11 @@ def detail_trailer(request, id):
     for document in documents:
         document.is_expired = document.is_expired()
         document.alarm = document.remainder()
+        document.icon = 'assets/img/icons/' + \
+            FILES_ICONS[document.document_type]
+    # Get tracker
+    tracker = Tracker.objects.filter(trailer=trailer).first()
+    print(tracker)
 
     processOrders(orders)
     context = {
@@ -181,6 +196,7 @@ def detail_trailer(request, id):
         'pinned_image': pinned_image,
         'images': images,
         'type': 'trailer',
+        'tracker': tracker,
         'title': _("Trailer details")
     }
 
@@ -300,7 +316,6 @@ def update_pinned_picture(request, pk):
 
 # -------------------- Document ----------------------------
 
-
 @login_required
 def create_document(request, trailer_id):
     trailer = get_object_or_404(Trailer, id=trailer_id)
@@ -323,9 +338,9 @@ def create_document(request, trailer_id):
 @login_required
 def update_document(request, id):
     document = get_object_or_404(TrailerDocument, id=id)
-    form = TrailerDocumentForm(request.POST or None,
-                               request.FILES or None,
-                               instance=document)
+    form = TrailerDocumentUpdateForm(request.POST or None,
+                                     request.FILES or None,
+                                     instance=document)
     if request.method == 'POST':
         if form.is_valid():
             form.save()

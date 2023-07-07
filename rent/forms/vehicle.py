@@ -26,35 +26,6 @@ from crispy_forms.layout import (
 )
 
 
-class PictureLayout(Layout):
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            Div(
-                HTML(
-                    """
-                {% load static %}
-                <img id="preview"
-                alt="vehicle picture"
-                class="d-block rounded"
-                height="100" width="100"
-                {% if form.image %}
-                    src="/media/{{ form.image.value }}"
-                {% else %}
-                    src="{% static 'images/icons/no_image.jpg' %}"
-                {% endif %}>
-                """
-                ),
-                css_class="d-flex align-items-start align-items-sm-center gap-4"
-            ),
-            Div(
-                Div(
-                    Field('image')
-                ),
-                css_class="mb-3"
-            )
-        )
-
-
 class ManufacturerForm(forms.ModelForm):
     class Meta:
         model = Manufacturer
@@ -75,15 +46,6 @@ class ManufacturerForm(forms.ModelForm):
                     Field('url')
                 ),
                 css_class="mb-3"
-            ),
-            HTML(
-                """
-                <img id="preview" 
-                {% if form.icon.value %}
-                    class="img-responsive" 
-                    src="/media/{{ form.icon.value }}"
-                {% endif %}">
-                """
             ),
             Div(
                 Div(
@@ -116,7 +78,6 @@ class TrailerCreateForm(BaseForm):
         super().__init__(*args, **kwargs)
 
         self.helper.layout = Layout(
-            PictureLayout(),
             Div(
                 Field('manufacturer',
                       css_class="form-select"),
@@ -186,49 +147,73 @@ class TrailerPictureForm(forms.ModelForm):
         )
 
 
-class TrailerDocumentForm(forms.ModelForm):
+class CommonDocumentLayout(Layout):
+    def __init__(self, *args, **kwargs):
+        super().__init__(Fieldset(
+            'Document Information',
+            Div(
+                Field('name', placeholder='Name'),
+                css_class='mb-3'
+            ),
+            Div(
+                Field('file', placeholder='Name'),
+                css_class='mb-3'
+            ),
+            Div(
+                Field('note', placeholder='Note', rows='2'),
+                css_class='mb-3'
+            ),
+            Div(
+                Field('is_active'),
+                css_class='mb-3'
+            ),
+            css_class='row mb-3'
+        )
+        )
+
+
+class TrailerDocumentUpdateForm(forms.ModelForm):
     class Meta:
         model = TrailerDocument
-        fields = ('name', 'note', 'document_type', 'file',
-                  'expiration_date', 'remainder_days', 'is_active')
+        fields = ('name', 'note', 'file', 'is_active')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
-            Fieldset(
-                'Document Information',
-                Div(
-                    Field('name', placeholder='Name'),
-                    css_class='mb-3'
-                ),
-                Div(
-                    Field('file', placeholder='Name'),
-                    css_class='mb-3'
-                ),
-                Div(
-                    Field('note', placeholder='Note', rows='2'),
-                    css_class='mb-3'
-                ),
-                Div(
-                    Field('document_type', placeholder='Document type'),
-                    css_class='mb-3'
-                ),
-                Div(
-                    PrependedText('expiration_date', '<i class="fa fa-calendar"></i>',
-                                  placeholder='Expiration date', autocomplete='off'),
-                    css_class='mb-3'
-                ),
-                Div(
-                    Field('remainder_days', placeholder='Remainder days'),
-                    css_class='mb-3'
-                ),
-                Div(
-                    Field('is_active'),
-                    css_class='mb-3'
-                ),
-                css_class='row mb-3'
+            CommonDocumentLayout(),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class TrailerDocumentForm(forms.ModelForm):
+    class Meta:
+        model = TrailerDocument
+        fields = ('name', 'note', 'file',
+                  'expiration_date', 'remainder_days', 'is_active')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['expiration_date'] = forms.DateTimeField(
+            widget=forms.DateInput(
+                attrs={'type': 'date'},
+            ),
+            required=False
+        )
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            CommonDocumentLayout(),
+            Div(
+                Field('expiration_date'),
+                css_class="mb-3"
+            ),
+            Div(
+                Field('remainder_days', placeholder='Remainder days'),
+                css_class='mb-3'
             ),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
@@ -242,7 +227,7 @@ class TrailerDocumentForm(forms.ModelForm):
         if remainder_days and expiration_date:
             remainder_date = expiration_date - \
                 timezone.timedelta(days=remainder_days)
-            if remainder_date < timezone.now().date():
+            if remainder_date < timezone.now():
                 raise forms.ValidationError(
                     'Reminder date cannot be in the past.')
         return cleaned_data

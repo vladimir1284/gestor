@@ -15,6 +15,10 @@ class TrackerForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Div(
+                'trailer',
+                css_class='row mb-3'
+            ),
             Fieldset(
                 'Tracker device',
                 Div(

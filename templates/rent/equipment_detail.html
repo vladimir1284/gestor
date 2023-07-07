@@ -43,8 +43,8 @@
         .checker {
             object-fit: cover;
             object-position: center;
-            height: 200px;
-            width: 200px;
+            width: min(35vw, 200px);
+            height: min(35vw, 200px);
           }
         {% for img in images %}   
             #trigger-{{ img.id }}:checked + .img-border {
@@ -131,7 +131,7 @@
                      alt="image"
                      height="100px"
                      width="100px"
-                     class="w-px-100 h-px-100 rounded-circle card-img-top"/>
+                     class="w-px-100 h-px-100 rounded-circle card-img-top" />
             </div>
             <h5 class="card-title">
                 {% if equipment_type == 'trailer' %}
@@ -146,149 +146,155 @@
                 <a class="btn btn-icon btn-outline-primary"
                    type
                    None="button"
-                   {% if type == 'trailer' %}
                    href="{% url 'update-trailer' equipment.id %}">
-                {% elif type == 'vehicle' %}
-                    href="{% url 'update-vehicle' equipment.id %}">
+                    <span class="tf-icons bx bx-edit"></span>
+                </a>
+                {% if tracker %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type
+                       None="button"
+                       href="{% url 'detail-tracker' tracker.id %}">
+                        <span class="tf-icons bx bx-map"></span>
+                    </a>
                 {% endif %}
-                <span class="tf-icons bx bx-edit"></span>
-            </a>
+            </div>
         </div>
     </div>
-    <!-- Gallery -->    
+    <!-- Gallery -->
     <div class="card-body">
-        <h5 id="gallery" class="mb-3"><strong>Gallery</strong>
+        <h5 id="gallery" class="mb-3">
+            <strong>Gallery</strong>
             <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
-                onclick="shareImages()"
-                type="button">
+                   onclick="shareImages()"
+                   type="button">
                     <span class="tf-icons bx bx-share-alt"></span>
                 </a>
                 <a class="btn btn-icon btn-outline-primary"
-                type="button"
-                href="{% url 'trailer-picture-create' equipment.id %}">
+                   type="button"
+                   href="{% url 'trailer-picture-create' equipment.id %}">
                     <span class="tf-icons bx bx-plus"></span>
                 </a>
                 <a class="btn btn-icon btn-outline-primary"
-                type="button"
-                onclick="updatePinned()">
+                   type="button"
+                   onclick="updatePinned()">
                     <span class="tf-icons bx bx-pin"></span>
                 </a>
                 <a onclick="deletePictures()"
-                type="button"
-                class="btn btn-icon btn-outline-danger float-end">
+                   type="button"
+                   class="btn btn-icon btn-outline-danger float-end">
                     <span class="tf-icons bx bx-trash"></span>
                 </a>
             </div>
-        </h5>  
-        <hr class="mt-0 mb-4"/>
+        </h5>
+        <hr class="mt-0 mb-2" />
         <div class="row col-12">
-        {% for img in images %}        
-            <div class="col-6 col-md-4 text-center">
-                <input value={{ img.id }} id="trigger-{{ img.id }}" type="checkbox" style="display: none;" class="img-cb">
-                <label for="trigger-{{ img.id }}" class="img-border">
-                    <img class="checker" src="{{ img.image.url }}" alt="Trailer picture">
-                </label>
-            </div>
-        {% endfor %}
-        </div>  
-    </div>  
-    <!-- Documents -->      
+            {% for img in images %}
+                <div class="col-6 col-md-4 text-center mb-2">
+                    <input value={{ img.id }} id="trigger-{{ img.id }}" type="checkbox" style="display: none;" class="img-cb">
+                    <label for="trigger-{{ img.id }}" class="img-border">
+                        <img class="checker" src="{{ img.image.url }}" alt="Trailer picture">
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Documents -->
     <div class="card-header">
         <h5>
-            <strong>Documents</strong> 
+            <strong>Documents</strong>
             <a class="btn btn-icon btn-outline-primary ms-3"
-            type="button"
-            href="{% url 'trailer-document-create' equipment.id %}">
+               type="button"
+               href="{% url 'trailer-document-create' equipment.id %}">
                 <span class="tf-icons bx bx-plus"></span>
             </a>
         </h5>
-        <hr class="mt-0"/>
+        <hr class="mt-0" />
         <div class="row">
-          {% for document in documents %}
-          <div class="col-md-4">
-            <div class="card mb-3 shadow-sm">
-              <div class="card-body">
-                <div class="d-flex mb-4 pb-1">
-                    <div class="avatar flex-shrink-0 me-3">
-                        <img src="{% static 'images/icons/icn_pdf.svg' %}"
-                             alt=""/>
-                    </div>
-                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                        <div class="me-2">
-                            <h6 class="mb-0">
-                                {{ document.name }}
-                            </h6>
-                            <small class="{% if document.is_expired %}text-danger{% else %}text-muted{% endif %}">Expires: {{ document.expiration_date|date:"SHORT_DATE_FORMAT" }}</small>
+            {% for document in documents %}
+                <div class="col-md-4">
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex mb-4 pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    <img src="{% static document.icon %}" alt="" />
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0">{{ document.name }}</h6>
+                                        {% if document.expiration_date %}
+                                            <small class="{% if document.is_expired %}text-danger{% else %}text-muted{% endif %}">Expires: {{ document.expiration_date|date:"SHORT_DATE_FORMAT" }}</small>
+                                        {% else %}
+                                            <small class="text-muted">Permanent</small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="user-progress">
+                                        {% if document.remainder_days %}
+                                            {% if document.alarm %}
+                                                <span class="tf-icons bx bx-alarm-exclamation text-danger"></span>
+                                            {% else %}
+                                                <span class="tf-icons bx bx-alarm"></span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="card-text">
+                                {{ document.note }}
+                                <div class="demo-inline-spacing">
+                                    <a class="btn btn-icon btn-outline-primary ms-3"
+                                       type="button"
+                                       target="_blank"
+                                       href="{{ document.file.url }}">
+                                        <span class="tf-icons bx bx-download"></span>
+                                    </a>
+                                    <a class="btn btn-icon btn-outline-primary ms-3"
+                                       type="button"
+                                       href="{% url 'update-trailer-document' document.id %}">
+                                        <span class="tf-icons bx bx-edit"></span>
+                                    </a>
+                                    <a class="btn btn-icon btn-outline-danger float-end"
+                                       type="button"
+                                       onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
+                                        <span class="tf-icons bx bx-trash"></span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="user-progress">
-                            {% if document.remainder_days %}
-                                {% if document.alarm %}
-                                    <span class="tf-icons bx bx-alarm-exclamation text-danger"></span> 
-                                {% else %}
-                                    <span class="tf-icons bx bx-alarm"></span> 
-                                {% endif %}
-                            {% endif %}
-                        </div>
                     </div>
-                </div>
-                <p class="card-text">{{ document.note }}
-                <div class="demo-inline-spacing">
-                    <a class="btn btn-icon btn-outline-primary ms-3"
-                    type="button"
-                    target="_blank"
-                    href="{{ document.file.url }}">
-                        <span class="tf-icons bx bx-download"></span>
-                    </a>
-                    <a class="btn btn-icon btn-outline-primary ms-3"
-                    type="button"
-                    href="{% url 'update-trailer-document' document.id %}">
-                        <span class="tf-icons bx bx-edit"></span>
-                    </a>
-                    <a class="btn btn-icon btn-outline-danger float-end"
-                    type="button"
-                    onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
-                        <span class="tf-icons bx bx-trash"></span>
-                    </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-    <!-- Orders -->    
-    <div class="card-header">
-        <h5>
-            <strong>Service orders</strong> - ${{ orders.total|floatformat:"2" }}
-        </h5>
-    </div>
-    <div class="table-responsive text-nowrap">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Order</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                    <tr data-search="{{ order.concept }}">
-                        <td>
-                            <a href="{% url 'detail-service-order' order.id %}"><strong>{{ order.concept }}</strong></a>
-                        </td>
-                        <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
-                        <td>
-                            <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
-                                {{ order.status }}
-                            </span>
-                        </td>
-                        <td>${{ order.amount|floatformat:"2" }}</td>
-                    </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endblock content %}
+            </div>
+            <!-- Orders -->
+            <h5 class="mt-3">
+                <strong>Service orders</strong> - ${{ orders.total|floatformat:"2" }}
+            </h5>
+            <div class="table-responsive text-nowrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr data-search="{{ order.concept }}">
+                                <td>
+                                    <a href="{% url 'detail-service-order' order.id %}"><strong>{{ order.concept }}</strong></a>
+                                </td>
+                                <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
+                                <td>
+                                    <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td>${{ order.amount|floatformat:"2" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endblock content %}

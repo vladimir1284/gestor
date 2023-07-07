@@ -4,6 +4,7 @@ from django.db import models
 from PIL import Image
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+import os
 
 
 def year_choices():
@@ -84,6 +85,22 @@ class TrailerPicture(models.Model):
         return reverse('detail-trailer', kwargs={'id': self.trailer.id}) + '#gallery'
 
 
+def classify_file(filename):
+    extension = os.path.splitext(filename)[1].lower()
+    if extension == ".pdf":
+        return "PDF"
+    elif extension in [".doc", ".docx"]:
+        return "DOC"
+    elif extension in [".xls", ".xlsx"]:
+        return "XLS"
+    elif extension in [".jpg", ".jpeg", ".png", ".gif"]:
+        return "IMG"
+    elif extension in [".zip", ".rar", ".tar", ".gz", ".7z"]:
+        return "ZIP"
+    else:
+        return "BIN"
+
+
 class TrailerDocument(models.Model):
     DOCUMENT_TYPES = (
         ('PDF', 'PDF'),
@@ -108,7 +125,7 @@ class TrailerDocument(models.Model):
     name = models.CharField(max_length=255)
     note = models.TextField(blank=True)
     document_type = models.CharField(max_length=3, choices=DOCUMENT_TYPES)
-    expiration_date = models.DateField()
+    expiration_date = models.DateField(null=True, blank=True)
     remainder_days = models.IntegerField(
         choices=REMAINDER_CHOICES, null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -120,12 +137,17 @@ class TrailerDocument(models.Model):
         return F"{self.name} ({self.trailer})"
 
     def is_expired(self):
-        return timezone.now().date() > self.expiration_date
+        if self.expiration_date is not None:
+            return timezone.now().date() > self.expiration_date
+        return False
 
     def remainder(self):
-        return timezone.now().date() > self.remainder_date
+        if self.remainder_date is not None:
+            return timezone.now().date() > self.remainder_date
+        return False
 
     def save(self, *args, **kwargs):
+        self.document_type = classify_file(self.file.name)
         if self.remainder_days:
             self.remainder_date = self.expiration_date - \
                 timezone.timedelta(days=self.remainder_days)
