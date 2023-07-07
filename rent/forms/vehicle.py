@@ -189,7 +189,7 @@ class TrailerPictureForm(forms.ModelForm):
 class TrailerDocumentForm(forms.ModelForm):
     class Meta:
         model = TrailerDocument
-        fields = ('name', 'note', 'document_type',
+        fields = ('name', 'note', 'document_type', 'file',
                   'expiration_date', 'remainder_days', 'is_active')
 
     def __init__(self, *args, **kwargs):
@@ -201,37 +201,38 @@ class TrailerDocumentForm(forms.ModelForm):
                 'Document Information',
                 Div(
                     Field('name', placeholder='Name'),
-                    css_class='col-md-6'
+                    css_class='mb-3'
                 ),
                 Div(
-                    Field('note', placeholder='Note'),
-                    css_class='col-md-6'
+                    Field('file', placeholder='Name'),
+                    css_class='mb-3'
+                ),
+                Div(
+                    Field('note', placeholder='Note', rows='2'),
+                    css_class='mb-3'
                 ),
                 Div(
                     Field('document_type', placeholder='Document type'),
-                    css_class='col-md-6'
+                    css_class='mb-3'
                 ),
                 Div(
                     PrependedText('expiration_date', '<i class="fa fa-calendar"></i>',
                                   placeholder='Expiration date', autocomplete='off'),
-                    css_class='col-md-6'
+                    css_class='mb-3'
                 ),
                 Div(
                     Field('remainder_days', placeholder='Remainder days'),
-                    css_class='col-md-6'
+                    css_class='mb-3'
                 ),
                 Div(
                     Field('is_active'),
-                    css_class='col-md-6'
+                    css_class='mb-3'
                 ),
-                css_class='row'
+                css_class='row mb-3'
             ),
-            Div(
-                HTML('<hr>'),
-                Field('trailer', type='hidden'),
-                HTML('{% crispy form %}'),
-            ),
-            HTML('{% crispy form.helper %}'),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
         )
 
     def clean(self):

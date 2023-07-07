@@ -166,9 +166,17 @@ def detail_trailer(request, id):
     trailer = get_object_or_404(Trailer, id=id)
     orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
     images, pinned_image = getImages(trailer)
+
+    documents = TrailerDocument.objects.filter(trailer=trailer, is_active=True)
+    # Check for document expiration
+    for document in documents:
+        document.is_expired = document.is_expired()
+        document.alarm = document.remainder()
+
     processOrders(orders)
     context = {
         'orders': orders,
+        'documents': documents,
         'equipment': trailer,
         'pinned_image': pinned_image,
         'images': images,
@@ -297,49 +305,50 @@ def update_pinned_picture(request, pk):
 def create_document(request, trailer_id):
     trailer = get_object_or_404(Trailer, id=trailer_id)
     if request.method == 'POST':
-        form = TrailerDocumentForm(request.POST)
+        form = TrailerDocumentForm(request.POST, request.FILES)
         if form.is_valid():
             document = form.save(commit=False)
             document.trailer = trailer
             document.save()
             messages.success(request, 'Document created successfully.')
-            return redirect('trailer-detail', trailer_id=trailer_id)
+            return redirect('detail-trailer', id=trailer_id)
     else:
         form = TrailerDocumentForm()
-    return render(request, 'create_document.html', {'form': form, 'trailer': trailer})
+
+    context = {'form': form,
+               'title': _('Add document')}
+    return render(request, 'rent/trailer_document_create.html', context)
 
 
 @login_required
-def update_document(request, trailer_id, document_id):
-    trailer = get_object_or_404(Trailer, id=trailer_id)
-    document = get_object_or_404(
-        TrailerDocument, id=document_id, trailer=trailer)
+def update_document(request, id):
+    document = get_object_or_404(TrailerDocument, id=id)
+    form = TrailerDocumentForm(request.POST or None,
+                               request.FILES or None,
+                               instance=document)
     if request.method == 'POST':
-        form = TrailerDocumentForm(request.POST, instance=document)
         if form.is_valid():
             form.save()
             messages.success(request, 'Document updated successfully.')
-            return redirect('trailer_detail', trailer_id=trailer_id)
-    else:
-        form = TrailerDocumentForm(instance=document)
-    return render(request, 'update_document.html', {'form': form, 'trailer': trailer, 'document': document})
+            return redirect('detail-trailer', id=document.trailer.id)
+
+    context = {'form': form,
+               'title': _('Update document')}
+    return render(request, 'rent/trailer_document_create.html', context)
 
 
 @login_required
-def delete_document(request, trailer_id, document_id):
-    trailer = get_object_or_404(Trailer, id=trailer_id)
+def delete_document(request, id):
     document = get_object_or_404(
-        TrailerDocument, id=document_id, trailer=trailer)
-    if request.method == 'POST':
-        document.delete()
-        messages.success(request, 'Document deleted successfully.')
-        return redirect('trailer_detail', trailer_id=trailer_id)
-    return render(request, 'delete_document.html', {'trailer': trailer, 'document': document})
+        TrailerDocument, id=id)
+    document.delete()
+    messages.success(request, 'Document deleted successfully.')
+    return redirect('detail-trailer', id=document.trailer.id)
 
 
-@login_required
-def document_detail(request, trailer_id, document_id):
-    trailer = get_object_or_404(Trailer, id=trailer_id)
-    document = get_object_or_404(
-        TrailerDocument, id=document_id, trailer=trailer)
-    return render(request, 'document_detail.html', {'trailer': trailer, 'document': document})
+# @login_required
+# def document_detail(request, trailer_id, id):
+#     trailer = get_object_or_404(Trailer, id=trailer_id)
+#     document = get_object_or_404(
+#         TrailerDocument, id=id, trailer=trailer)
+#     return render(request, 'document_detail.html', {'document': document})

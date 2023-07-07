@@ -1,4 +1,4 @@
-{% extends 'base/base.html' %}
+{% extends "base/base.html" %}
 {% load static %}
 {% block page %}
     <style>
@@ -99,6 +99,12 @@
               }
           }
           
+          function deleteDocument(name, id) {     
+            let confirmAction = confirm("Are you sure to delete the document: " + name + "?");
+            if (confirmAction) {
+                    window.location ="{% url 'delete-trailer-document' id='PLACEHOLDER' %}".replace('PLACEHOLDER', id);
+            }
+        }
           function deletePictures() {        
               let imgs = getSelectedImages();
               if (imgs.length > 0){
@@ -187,6 +193,70 @@
         {% endfor %}
         </div>  
     </div>  
+    <!-- Documents -->      
+    <div class="card-header">
+        <h5>
+            <strong>Documents</strong> 
+            <a class="btn btn-icon btn-outline-primary ms-3"
+            type="button"
+            href="{% url 'trailer-document-create' equipment.id %}">
+                <span class="tf-icons bx bx-plus"></span>
+            </a>
+        </h5>
+        <hr class="mt-0"/>
+        <div class="row">
+          {% for document in documents %}
+          <div class="col-md-4">
+            <div class="card mb-3 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex mb-4 pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <img src="{% static 'images/icons/icn_pdf.svg' %}"
+                             alt=""/>
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="me-2">
+                            <h6 class="mb-0">
+                                {{ document.name }}
+                            </h6>
+                            <small class="{% if document.is_expired %}text-danger{% else %}text-muted{% endif %}">Expires: {{ document.expiration_date|date:"SHORT_DATE_FORMAT" }}</small>
+                        </div>
+                        <div class="user-progress">
+                            {% if document.remainder_days %}
+                                {% if document.alarm %}
+                                    <span class="tf-icons bx bx-alarm-exclamation text-danger"></span> 
+                                {% else %}
+                                    <span class="tf-icons bx bx-alarm"></span> 
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <p class="card-text">{{ document.note }}
+                <div class="demo-inline-spacing">
+                    <a class="btn btn-icon btn-outline-primary ms-3"
+                    type="button"
+                    target="_blank"
+                    href="{{ document.file.url }}">
+                        <span class="tf-icons bx bx-download"></span>
+                    </a>
+                    <a class="btn btn-icon btn-outline-primary ms-3"
+                    type="button"
+                    href="{% url 'update-trailer-document' document.id %}">
+                        <span class="tf-icons bx bx-edit"></span>
+                    </a>
+                    <a class="btn btn-icon btn-outline-danger float-end"
+                    type="button"
+                    onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
+                        <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+    <!-- Orders -->    
     <div class="card-header">
         <h5>
             <strong>Service orders</strong> - ${{ orders.total|floatformat:"2" }}

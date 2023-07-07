@@ -104,6 +104,7 @@ class TrailerDocument(models.Model):
         on_delete=models.CASCADE,
         related_name='documents',
     )
+    file = models.FileField(upload_to='documents/trailer')
     name = models.CharField(max_length=255)
     note = models.TextField(blank=True)
     document_type = models.CharField(max_length=3, choices=DOCUMENT_TYPES)
@@ -113,6 +114,7 @@ class TrailerDocument(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    remainder_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return F"{self.name} ({self.trailer})"
@@ -120,10 +122,13 @@ class TrailerDocument(models.Model):
     def is_expired(self):
         return timezone.now().date() > self.expiration_date
 
+    def remainder(self):
+        return timezone.now().date() > self.remainder_date
+
     def save(self, *args, **kwargs):
         if self.remainder_days:
-            remainder_date = self.expiration_date - \
+            self.remainder_date = self.expiration_date - \
                 timezone.timedelta(days=self.remainder_days)
-            if remainder_date < timezone.now().date():
+            if self.remainder_date < timezone.now().date():
                 raise ValueError(_('Reminder date cannot be in the past.'))
         super().save(*args, **kwargs)
