@@ -1,5 +1,3 @@
-
-from weasyprint import HTML
 import tempfile
 from django.template.loader import render_to_string
 from django.http import HttpResponse
@@ -56,8 +54,12 @@ def generate_invoice_pdf(context, request):
     context.setdefault('image', image)
     html_string = render_to_string('services/invoice_pdf.html', context)
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
-    main_doc = html.render(presentational_hints=True)
-    return main_doc.write_pdf()
+    if settings.ENVIRONMENT == 'production':
+        from weasyprint import HTML
+        html = HTML(string=html_string)
+        main_doc = html.render(presentational_hints=True)
+        return main_doc.write_pdf()
+    return None
 
 
 def generate_invoice(request, id):

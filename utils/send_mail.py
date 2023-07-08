@@ -13,7 +13,6 @@ from googleapiclient.errors import HttpError
 import base64
 from email.message import EmailMessage
 import tempfile
-from weasyprint import Document
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://mail.google.com/']
@@ -46,7 +45,7 @@ class MailSender():
 
     def gmail_send_invoice(self,
                            to_addreses,
-                           doc: Document,
+                           doc,
                            order: Order,
                            expenses=[]):
         """Create and send an email message
@@ -108,13 +107,15 @@ info@towithouston.com
             mime_type = "application"
             mime_subtype = "pdf"
             with tempfile.NamedTemporaryFile() as output:
-                output.write(doc)
-                output.flush()
-                with open(output.name, 'rb') as file:
-                    message.add_attachment(file.read(),
-                                           maintype=mime_type,
-                                           subtype=mime_subtype,
-                                           filename=F"invoice_towit_{order.id}.pdf")
+                if settings.ENVIRONMENT == 'production':
+                    from weasyprint import Document
+                    output.write(doc)
+                    output.flush()
+                    with open(output.name, 'rb') as file:
+                        message.add_attachment(file.read(),
+                                               maintype=mime_type,
+                                               subtype=mime_subtype,
+                                               filename=F"invoice_towit_{order.id}.pdf")
 
             # encoded message
             encoded_message = base64.urlsafe_b64encode(message.as_bytes()) \
