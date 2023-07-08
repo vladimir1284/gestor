@@ -53,10 +53,9 @@ def generate_invoice_pdf(context, request):
     # Render
     context.setdefault('image', image)
     html_string = render_to_string('services/invoice_pdf.html', context)
-    html = HTML(string=html_string, base_url=request.build_absolute_uri())
     if settings.ENVIRONMENT == 'production':
         from weasyprint import HTML
-        html = HTML(string=html_string)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
         main_doc = html.render(presentational_hints=True)
         return main_doc.write_pdf()
     return None
@@ -66,17 +65,19 @@ def generate_invoice(request, id):
     context = getOrderContext(id)
     result = generate_invoice_pdf(context, request)
 
-    # Creating http response
-    response = HttpResponse(content_type='application/pdf;')
-    response['Content-Disposition'] = 'inline; filename=invoice_towit.pdf'
-    response['Content-Transfer-Encoding'] = 'binary'
-    with tempfile.NamedTemporaryFile() as output:
-        output.write(result)
-        output.flush()
-        output = open(output.name, 'rb')
-        response.write(output.read())
+    if result is not None:
+        # Creating http response
+        response = HttpResponse(content_type='application/pdf;')
+        response['Content-Disposition'] = 'inline; filename=invoice_towit.pdf'
+        response['Content-Transfer-Encoding'] = 'binary'
+        with tempfile.NamedTemporaryFile() as output:
+            output.write(result)
+            output.flush()
+            output = open(output.name, 'rb')
+            response.write(output.read())
 
-    return response
+        return response
+    return None
 
 # -------------------- Mail ----------------------------
 
