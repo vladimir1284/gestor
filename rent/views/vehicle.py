@@ -228,7 +228,9 @@ def manufacturer_create(request):
             return redirect('manufacturer-list')
     else:
         form = ManufacturerForm()
-    return render(request, 'rent/manufacturer_create.html', {'form': form})
+    context = {'form': form,
+               'title': _('Create manufacturer')}
+    return render(request, 'rent/manufacturer_create.html', context)
 
 
 @login_required
@@ -242,7 +244,9 @@ def manufacturer_update(request, pk):
             return redirect('manufacturer-list')
     else:
         form = ManufacturerForm(instance=manufacturer)
-    return render(request, 'rent/manufacturer_create.html', {'form': form})
+    context = {'form': form,
+               'title': _('Update manufacturer')}
+    return render(request, 'rent/manufacturer_create.html', context)
 
 
 @login_required

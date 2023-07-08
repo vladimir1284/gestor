@@ -20,7 +20,6 @@ from crispy_forms.layout import (
     ButtonHolder,
     Submit,
     Div,
-    HTML,
     Field,
     Fieldset,
 )

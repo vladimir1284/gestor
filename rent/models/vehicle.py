@@ -29,7 +29,7 @@ class Manufacturer(models.Model):
                              blank=True)
 
     def save(self, *args, **kwargs):
-        super(Equipment, self).save(*args, **kwargs)
+        super(Manufacturer, self).save(*args, **kwargs)
         try:
             img = Image.open(self.icon.path)
 

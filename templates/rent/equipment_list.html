@@ -1,44 +1,39 @@
-{% extends "base/base.html" %}
-{% load static %}
+{% extends "base/base_list.html" %}
 {% block title %}
-    Add transaction
+    {{ title }}
 {% endblock title %}
-{% block content %}
-    <div class="card">
-        <div class="card-header tabs pb-0">
-            <h5 class="mt-4 mb-4">
-                Trailers <spam id="filter_tag"></spam>
-            </h5>
-            <div class="table-responsive text-nowrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>
-                                <i class="bx bx-cog"></i>
-                            </th>
-                            <th>Vehicle</th>
-                            <th>Last Order</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        {% for equipment in trailers %}
-                            <tr data-search="{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
-                                <td>
-                                    <a href={% url 'detail-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
-                                </td>
-                                <td class="d-flex">{% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}</td>
-                                <td>
-                                    {% if equipment.last_order %}
-                                        <a href="{% url 'detail-service-order' equipment.last_order.id %}">{{ equipment.last_order.concept }}</a> ({{ equipment.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
-                                    {% else %}
-                                        None
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-{% endblock content %}
+{% block Ttitle %}
+    <h5 class="card-header">Trailers</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
+    <th>Vehicle</th>
+    <th>Last Order</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for equipment in trailers %}
+        <tr data-search="{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
+            <td>
+                <a href={% url 'detail-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+            <td class="d-flex">
+                {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
+            </td>
+            <td>
+                {% if equipment.last_order %}
+                    <a href="{% url 'detail-service-order' equipment.last_order.id %}">{{ equipment.last_order.concept }}</a> ({{ equipment.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'create-trailer' %}
+{% endblock createUrl %}
+{% block help %}
+    Add trailer
+{% endblock help %}
