@@ -2,8 +2,7 @@
 <div class="avatar flex-shrink-0 me-3">
     <a {% if equipment_type == 'trailer' %} href="{% url 'detail-trailer' equipment.id %}" {% else %} href="{% url 'detail-vehicle' equipment.id %}" {% endif %}>
         <span class="avatar-initial rounded-circle bg-label-primary">
-            <img {% if equipment.image %} src="{{ equipment.image.url }}" {% else %} {% if equipment_type == 'trailer' %} src="{% static 'images/icons/trailer.png' %}" {% else %} src="{% static 'images/icons/truck.jpg' %}" {% endif %}
-                 {% endif %}
+            <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'images/icons/trailer.png' %}" {% endif %}
                  alt="image"
                  height="100px"
                  width="100px"

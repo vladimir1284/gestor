@@ -1,4 +1,5 @@
-from typing import List
+from django.contrib import messages
+from django.shortcuts import render, get_object_or_404, redirect
 from django.shortcuts import (
     render,
     redirect,
@@ -10,14 +11,22 @@ from users.views import processOrders
 from users.models import Company
 from rent.models.vehicle import (
     Trailer,
+    Manufacturer,
+    TrailerPicture,
+    TrailerDocument,
 )
 from utils.models import (
     Order,
 )
 from rent.forms.vehicle import (
     TrailerCreateForm,
+    ManufacturerForm,
+    TrailerPictureForm,
+    TrailerDocumentForm,
+    TrailerDocumentUpdateForm,
 )
 from django.utils.translation import gettext_lazy as _
+from .tracker import Tracker
 
 # -------------------- Equipment ----------------------------
 
@@ -26,6 +35,9 @@ from django.utils.translation import gettext_lazy as _
 def list_equipment(request):
     trailers = Trailer.objects.all()
     for trailer in trailers:
+        images, pinned_image = getImages(trailer)
+        trailer.images = images
+        trailer.pinned_image = pinned_image
         last_order = Order.objects.filter(
             trailer=trailer).order_by("-created_date").first()
         if last_order is not None:
@@ -70,19 +82,14 @@ def select_trailer(request):
             return redirect('create-service-order')
         return appendEquipment(request, id)
 
-    if type == 'trailer':
-        trailers = Trailer.objects.all().order_by('-year')
-        context = {
-            'trailers': trailers,
-        }
-    try:
-        context.setdefault("type", type)
-    except Exception as err:
-        print(err)
-        trailers = Trailer.objects.all()
-        context = {
-            'trailers': trailers,
-        }
+    trailers = Trailer.objects.all().order_by('-year')
+    for trailer in trailers:
+        images, pinned_image = getImages(trailer)
+        trailer.images = images
+        trailer.pinned_image = pinned_image
+    context = {
+        'trailers': trailers,
+    }
     if order_id is not None:
         context.setdefault('skip', False)
     else:
@@ -143,16 +150,53 @@ def update_trailer(request, id):
     return render(request, 'rent/equipment_create.html', context)
 
 
+def getImages(trailer: Trailer):
+    images = TrailerPicture.objects.filter(trailer=trailer)
+    pinned_image = None
+    for image in images:
+        if image.pinned:
+            pinned_image = image
+            break
+    return (images, pinned_image)
+
+
+FILES_ICONS = {
+    'PDF': 'icn_pdf.svg',
+    'DOC': 'icn_doc.svg',
+    'XLS': 'icn_xlm.svg',
+    'IMG': 'icn_png.svg',
+    'ZIP': 'icn_zip.svg',
+    'BIN': 'icn_bin.png'
+}
+
+
 @login_required
 def detail_trailer(request, id):
     # fetch the object related to passed id
     trailer = get_object_or_404(Trailer, id=id)
     orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
+    images, pinned_image = getImages(trailer)
+
+    documents = TrailerDocument.objects.filter(trailer=trailer, is_active=True)
+    # Check for document expiration
+    for document in documents:
+        document.is_expired = document.is_expired()
+        document.alarm = document.remainder()
+        document.icon = 'assets/img/icons/' + \
+            FILES_ICONS[document.document_type]
+    # Get tracker
+    tracker = Tracker.objects.filter(trailer=trailer).first()
+    print(tracker)
+
     processOrders(orders)
     context = {
         'orders': orders,
+        'documents': documents,
         'equipment': trailer,
+        'pinned_image': pinned_image,
+        'images': images,
         'type': 'trailer',
+        'tracker': tracker,
         'title': _("Trailer details")
     }
 
@@ -165,3 +209,165 @@ def delete_trailer(request, id):
     trailer = get_object_or_404(Trailer, id=id)
     trailer.delete()
     return redirect('list-equipment', id=trailer.order.id)
+
+
+# -------------------- Manufacturer ----------------------------
+
+@login_required
+def manufacturer_list(request):
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'rent/manufacturer_list.html', {'manufacturers': manufacturers})
+
+
+@login_required
+def manufacturer_create(request):
+    if request.method == 'POST':
+        form = ManufacturerForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('manufacturer-list')
+    else:
+        form = ManufacturerForm()
+    context = {'form': form,
+               'title': _('Create manufacturer')}
+    return render(request, 'rent/manufacturer_create.html', context)
+
+
+@login_required
+def manufacturer_update(request, pk):
+    manufacturer = Manufacturer.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = ManufacturerForm(
+            request.POST, request.FILES, instance=manufacturer)
+        if form.is_valid():
+            form.save()
+            return redirect('manufacturer-list')
+    else:
+        form = ManufacturerForm(instance=manufacturer)
+    context = {'form': form,
+               'title': _('Update manufacturer')}
+    return render(request, 'rent/manufacturer_create.html', context)
+
+
+@login_required
+def manufacturer_delete(request, pk):
+    manufacturer = Manufacturer.objects.get(pk=pk)
+    manufacturer.delete()
+    return redirect('manufacturer-list')
+
+
+# -------------------- Picture ----------------------------
+
+@login_required
+def trailer_picture_create(request, trailer_id):
+    """
+    Create a new TrailerPicture object for the specified Trailer.
+    """
+    trailer = get_object_or_404(Trailer, pk=trailer_id)
+
+    if request.method == 'POST':
+        form = TrailerPictureForm(request.POST, request.FILES)
+        if form.is_valid():
+            picture = form.save(commit=False)
+            picture.trailer = trailer
+            picture.save()
+            return redirect('detail-trailer', id=trailer_id)
+    else:
+        form = TrailerPictureForm()
+
+    context = {'form': form, 'trailer': trailer}
+    return render(request, 'rent/trailer_picture_create.html', context)
+
+
+def share_pictures(request, ids):
+    pks = list(map(int, ids.split(',')[:-1]))
+    pictures = TrailerPicture.objects.filter(pk__in=pks)
+    return render(request, 'rent/trailer_pictures.html',
+                  {'images': pictures, 'trailer': pictures[0].trailer})
+
+
+@login_required
+def delete_trailer_pictures(request, ids):
+    """
+    Delete an existing TrailerPicture object.
+    """
+    pks = list(map(int, ids.split(',')[:-1]))
+    pictures = TrailerPicture.objects.filter(pk__in=pks)
+    trailer_id = pictures[0].trailer.id
+    for img in pictures:
+        img.delete()
+    return redirect('detail-trailer',
+                    id=trailer_id)
+
+
+@login_required
+def update_pinned_picture(request, pk):
+    # Get the TrailerPicture instance to update
+    picture = get_object_or_404(TrailerPicture, pk=pk)
+
+    # Set the pinned attribute of the selected picture to True
+    picture.pinned = True
+    picture.save()
+
+    # Set the pinned attribute of all other pictures related to the same trailer to False
+    trailer_pictures = TrailerPicture.objects.filter(
+        trailer=picture.trailer).exclude(pk=pk)
+    trailer_pictures.update(pinned=False)
+
+    return redirect('detail-trailer',
+                    id=picture.trailer.id)
+
+
+# -------------------- Document ----------------------------
+
+@login_required
+def create_document(request, trailer_id):
+    trailer = get_object_or_404(Trailer, id=trailer_id)
+    if request.method == 'POST':
+        form = TrailerDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.trailer = trailer
+            document.save()
+            messages.success(request, 'Document created successfully.')
+            return redirect('detail-trailer', id=trailer_id)
+    else:
+        form = TrailerDocumentForm()
+
+    context = {'form': form,
+               'title': _('Add document')}
+    return render(request, 'rent/trailer_document_create.html', context)
+
+
+@login_required
+def update_document(request, id):
+    document = get_object_or_404(TrailerDocument, id=id)
+    form = TrailerDocumentUpdateForm(request.POST or None,
+                                     request.FILES or None,
+                                     instance=document)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Document updated successfully.')
+            return redirect('detail-trailer', id=document.trailer.id)
+
+    context = {'form': form,
+               'title': _('Update document')}
+    return render(request, 'rent/trailer_document_create.html', context)
+
+
+@login_required
+def delete_document(request, id):
+    document = get_object_or_404(
+        TrailerDocument, id=id)
+    document.delete()
+    messages.success(request, 'Document deleted successfully.')
+    return redirect('detail-trailer', id=document.trailer.id)
+
+
+# @login_required
+# def document_detail(request, trailer_id, id):
+#     trailer = get_object_or_404(Trailer, id=trailer_id)
+#     document = get_object_or_404(
+#         TrailerDocument, id=id, trailer=trailer)
+#     return render(request, 'document_detail.html', {'document': document})

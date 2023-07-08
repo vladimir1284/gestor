@@ -3,7 +3,7 @@
 *.pot
 *.pyc
 __pycache__
-db.sqlite3
+db.sqlite3*
 media
 
 # Backup files # 
@@ -136,28 +136,26 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+# Others
 gestor/bin/*
 .idea/*
 inventory_management_system_using_django.zip
 inventory/pyvenv.cfg
 bin/*
-static/images/avatars/3ba3cfdb592c08cea6c0de2ea659ba0a_kgUXU8t.gif
-static/images/avatars/3ba3cfdb592c08cea6c0de2ea659ba0a.gif
-static/images/avatars/271986550_247122700880972_7710842035133034819_n.jpg
-static/images/avatars/21052013010236.jpg
-static/images/avatars/logo_20k_dMFfR1M.png
 sendgrid.env
-static/images/products/*
-static/images/avatars/*
 trailer-rental-323614-d43be7453c41.json
-static/images/equipment/*
 img_bk/*
-db.*
-static/images/icons/*
 quickstart.py
 invoice_towit.pdf
 credentials.json
 token.json
 twilio.env
 test_gpt.py
+tracker_data.pkl
+static/images/avatars/*
+static/images/equipment/*
+static/images/products/*
+static/documents/*
 .gitignore
+static/images/icons/*

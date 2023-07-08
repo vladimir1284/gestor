@@ -1,4 +1,4 @@
-{% extends 'base/base_list.html' %}
+{% extends "base/base_list.html" %}
 {% block title %}
     {{ title }}
 {% endblock title %}
@@ -34,9 +34,9 @@
                         {% if cost.related_to.profile_user.avatar %}
                             <img src="{{ cost.related_to.profile_user.avatar.url }}"
                                  alt=""
-                                 class="w-px-40 h-auto rounded-circle"/>
+                                 class="w-px-40 h-auto rounded-circle" />
                         {% else %}
-                            <span style="font-size:1.5em;"
+                            <span style="font-size:1.5em"
                                   class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
                                 {{ cost.related_to.first_name|first }}
                             </span>

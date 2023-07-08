@@ -2,7 +2,7 @@ import pytz
 from typing import List
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, UpdateView
-from ..forms.tracker import TrackerForm, TrackerLesseeForm
+from rent.forms.tracker import TrackerForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
@@ -20,85 +20,33 @@ from requests.auth import HTTPBasicAuth
 from .bat_percent import vbat2percent
 
 
-# Authentication
-usr = 'apikey'
-
-
-"""
-Response binary datagram
-
-Config changes pending:
-
-    Ndata | addr1 | low1 | high1 | ... | addrN | lowN | highN
-    
-No pending configs:
-
-    0
-    
-Error response:
-
-    error_code > 200
-"""
-
-addrs = {'Tcheck': 1,    # the EEPROM address used to store Tcheck
-         'Mode': 2,  # the EEPROM address used to store Mode
-         'Tint': 3,       # the EEPROM address used to store Tint (2 bytes)
-         'TintB': 5,      # the EEPROM address used to store TintB (2 bytes)
-         'TGPS': 7,       # the EEPROM address used to store TGPS
-         'TGPSB': 8,      # the EEPROM address used to store TGPSB
-         'SMART': 9,      # the EEPROM address used to store SMART
-         'Tsend': 10,     # the EEPROM address used to store Tsend
-         'TsendB': 11,    # the EEPROM address used to store TsendB
-         # the EEPROM address used to store trackerID (2 bytes)
-         'trackerID': 12
-         }
-
-error_codes = {"Wrong password": 200,
-               "Wrong IMEI": 201,
-               "Wrong FORMAT": 202,
-               }
-
-power_modes = {1: False,
-               0: True,
-               }
-
-SKEY = "c0ntr453n1a"
-
-
 class TrackerUpdateView(LoginRequiredMixin, UpdateView):
     model = Tracker
     form_class = TrackerForm
-    template_name = 'rent/trailer/new_tracker.html'
+    template_name = 'rent/tracker/tracker_create.html'
 
-    def form_valid(self, form):
-        resp = {}
-        if (Tracker.objects.get(id=self.kwargs['pk']).Tint != form.instance.Tint):
-            resp['Tint'] = form.instance.Tint
-        if (Tracker.objects.get(id=self.kwargs['pk']).TintB != form.instance.TintB):
-            resp['TintB'] = form.instance.TintB
-        if (Tracker.objects.get(id=self.kwargs['pk']).Mode != form.instance.Mode):
-            resp['Mode'] = form.instance.Mode
-        if (Tracker.objects.get(id=self.kwargs['pk']).TGPS != form.instance.TGPS):
-            resp['TGPS'] = form.instance.TGPS
-        if (Tracker.objects.get(id=self.kwargs['pk']).TGPSB != form.instance.TGPSB):
-            resp['TGPSB'] = form.instance.TGPSB
-        if (Tracker.objects.get(id=self.kwargs['pk']).SMART != form.instance.SMART):
-            resp['SMART'] = form.instance.SMART
-        if (Tracker.objects.get(id=self.kwargs['pk']).Tsend != form.instance.Tsend):
-            resp['Tsend'] = form.instance.Tsend
-        if (Tracker.objects.get(id=self.kwargs['pk']).TsendB != form.instance.TsendB):
-            resp['TsendB'] = form.instance.TsendB
-
-        return super(TrackerUpdateView, self).form_valid(form)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Update tracker'
+        return context
 
 
 class TrackerCreateView(LoginRequiredMixin, CreateView):
     model = Tracker
     form_class = TrackerForm
-    template_name = 'rent/trailer/new_tracker.html'
+    template_name = 'rent/tracker/tracker_create.html'
 
     def get_initial(self):
-        return {'trailer': self.kwargs['trailer_id']}
+        try:
+            trailer_id = self.kwargs['trailer_id']
+        except:
+            trailer_id = None
+        return {'trailer': trailer_id}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create tracker'
+        return context
 
 
 @login_required
@@ -107,45 +55,18 @@ def delete_tracker(request, id):
         tracker = Tracker.objects.get(id=id)
         trailer_id = tracker.trailer.id
         tracker.delete()
-        return redirect('/towit/trailer/%i' % trailer_id)
+        return redirect('detail-trailer', trailer_id)
     except:
-        return redirect('/towit/trailers/')
+        return redirect('list-trailer')
 
 
 @login_required
 def tracker_detail(request, id):
     tracker = Tracker.objects.get(id=id)
-    if request.method == 'POST':
-        form = TrackerLesseeForm(request.POST)
-        # check whether it's valid:
-        if form.is_valid():
-            tracker.lessee_name = form.cleaned_data['lessee_name']
-            tracker.save()
     data_v1 = TrackerUpload.objects.filter(
         tracker=tracker).order_by("-timestamp")
-    if data_v1:
-        return render(request, 'rent/tracker/tracker_upload.html', getTrackerUpload(id, 30))
-
-    return render(request, 'rent/tracker/tracker_data.html', getTrackerDetails(id, 30))
-
-
-def getTrackerUpload(tracker, data: List[TrackerUpload]):
-    for item in data:
-        if item.latitude is None:
-            url = F"http://opencellid.org/cell/get?key={settings.OCELLID_KEY}&mcc={item.mcc}&mnc={item.mnc}&lac={item.lac}&cellid={item.cellid}&format=json"            response = requests.get(url)
-            if response.status_code == 200:
-                print("Location data downloaded for Tracker {} at {}".format(
-                    tracker.id, item.timestamp))
-                json_data = response.json()
-                item.latitude = json_data['lat']
-                item.longitude = json_data['lon']
-                item.speed = 0
-                item.save()
-
-    return {'tracker': tracker,
-            'data': data[0],
-            'online': True,
-            'history': data}
+    return render(request, 'rent/tracker/tracker_data.html',
+                  getTrackerUpload(id, 30))
 
 
 def getTrackerUpload(id, n):
@@ -155,8 +76,22 @@ def getTrackerUpload(id, n):
         data = TrackerUpload.objects.filter(
             tracker=tracker).order_by("-timestamp")[:n]
 
-        for i, item in enumerate(data):
-            data[i].battery = vbat2percent(item.battery)
+        for item in data:
+            # Get coordinates remotely if the data came from LTE cell
+            if item.latitude is None:
+                url = F"http://opencellid.org/cell/get?key={settings.OCELLID_KEY}&mcc={item.mcc}&mnc={item.mnc}&lac={item.lac}&cellid={item.cellid}&format=json"
+                response = requests.get(url)
+                if response.status_code == 200:
+                    print("Location data downloaded for Tracker {} at {}".format(
+                        tracker.id, item.timestamp))
+                    json_data = response.json()
+                    item.latitude = json_data['lat']
+                    item.longitude = json_data['lon']
+                    item.speed = 0
+                    item.save()
+
+            # Get percent of charge
+            item.battery = vbat2percent(item.battery)
 
         if (data[0].charging):  # Powered
             max_elapsed_time = 4800
@@ -166,12 +101,12 @@ def getTrackerUpload(id, n):
         elapsed_time = (datetime.now().replace(tzinfo=pytz.timezone(
             settings.TIME_ZONE)) - data[0].timestamp).total_seconds()
 
-        print("elapsed_time: %is" % elapsed_time)
-        print("max_elapsed_time: %is" % max_elapsed_time)
+        # print("elapsed_time: %is" % elapsed_time)
+        # print("max_elapsed_time: %is" % max_elapsed_time)
 
         online = elapsed_time < max_elapsed_time
     except Exception as err:
-        raise err
+        print(err)
     return {'tracker': tracker,
             'data': data[0],
             'online': online,
@@ -186,9 +121,9 @@ def trackers(request):
 
 @login_required
 def trackers_table(request):
-    trcks = Tracker.objects.all()
+    trackers = Tracker.objects.all()
     trackers = []
-    for tracker in trcks:
+    for tracker in trackers:
         try:
             # V1.0
             data_v1 = TrackerUpload.objects.filter(
@@ -198,7 +133,7 @@ def trackers_table(request):
             if (td.charging):  # Powered
                 max_elapsed_time = 4800
             else:
-                max_elapsed_time = 80*tracker.Tint            
+                max_elapsed_time = 80*tracker.Tint
 
             elapsed_time = (datetime.now().replace(tzinfo=pytz.timezone(
                 settings.TIME_ZONE)) - td.timestamp).total_seconds()

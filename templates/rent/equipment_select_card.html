@@ -2,8 +2,7 @@
 <div class="d-flex pb-1">
     <div class="avatar flex-shrink-0 me-3">
         <span class="avatar-initial rounded-circle bg-label-primary">
-            <img {% if equipment.image %} src="{{ equipment.image.url }}" {% else %} {% if trailer %} src="{% static 'images/icons/trailer.png' %}" {% else %} src="{% static 'images/icons/truck.jpg' %}" {% endif %}
-                 {% endif %}
+            <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'images/icons/trailer.png' %}" {% endif %}
                  alt="icon"
                  height="100px"
                  width="100px"

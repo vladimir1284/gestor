@@ -15,44 +15,42 @@ class TrackerForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Div(
+                'trailer',
+                css_class='row mb-3'
+            ),
             Fieldset(
                 'Tracker device',
                 Div(
-                    Div(
-                        'imei',
-                        css_class='col-m-4'
-                    ),
-                    Div(
-                        'device_password',
-                        css_class='col-m-4'
-                    ),
-                    Div(
-                        'device_id',
-                        css_class='col-m-4'
-                    ),
-                    css_class='row'
+                    'imei',
+                    css_class='row mb-3'
+                ),
+                Div(
+                    'device_password',
+                    css_class='row mb-3'
+                ),
+                Div(
+                    'device_id',
+                    css_class='row mb-3'
                 )
             ),
             Div(
                 'Mode',
-                css_class='row'
+                css_class='row mb-3'
             ),
             Fieldset(
                 'Time intervals',
                 Div(
-                    Div(
-                        AppendedText('Tint', "min"),
-                        css_class='col-4'
-                    ),
-                    Div(
-                        AppendedText('Tsend', "min"),
-                        css_class='col-4'
-                    ),
-                    Div(
-                        AppendedText('TGPS', "min"),
-                        css_class='col-4'
-                    ),
-                    css_class='row'
+                    AppendedText('Tint', "min"),
+                    css_class='row mb-3'
+                ),
+                Div(
+                    AppendedText('Tsend', "min"),
+                    css_class='row mb-3'
+                ),
+                Div(
+                    AppendedText('TGPS', "min"),
+                    css_class='row mb-3'
                 )
             ),
             ButtonHolder(

@@ -1,27 +1,32 @@
 {% extends "base/base_card.html" %}
 {% load static %}
 {% block title %}
-    Categorías de productos
+    Manufacturers
 {% endblock title %}
 {% block Ctitle %}
-    <h5>Categorías de productos</h5>
+    <h5>Trailer manufacturers</h5>
 {% endblock Ctitle %}
 {% block Cards %}
-    {% for category in object_list %}
+    {% for manufacturer in manufacturers %}
         <div class="col-6 col-md-3 mb-3 text-center">
             <div class="card h-100">
                 <img class="card-img-top"
-                     {% if category.icon %} src="{{ category.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
-                     alt="{{ category.name }} icon">
+                     {% if manufacturer.icon %} src="{{ manufacturer.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
+                     alt="{{ manufacturer.name }} icon">
                 <div class="card-body">
-                    <h5 class="card-title">{{ category.name }}</h5>
+                    <h5 class="card-title">{{ manufacturer.brand_name }}</h5>
                     <div class="demo-inline-spacing">
                         <a class="btn btn-icon btn-outline-primary"
                            type="button"
-                           href="{% url 'update-category' category.id %}">
+                           href="{% url 'manufacturer-update' manufacturer.id %}">
                             <span class="tf-icons bx bx-edit"></span>
                         </a>
-                        <a onclick="deleteCategory('{% url 'delete-category' category.id %}', '{{ category.name }}')"
+                        <a {% if manufacturer.url %}href="{{ manufacturer.url }}"{% endif %}
+                           type="button"
+                           class="btn btn-icon btn-outline-primary">
+                            <span class="tf-icons bx bx-link"></span>
+                        </a>
+                        <a onclick="deleteManufacturer('{% url 'manufacturer-delete' manufacturer.id %}', '{{ manufacturer.name }}')"
                            type="button"
                            class="btn btn-icon btn-outline-danger">
                             <span class="tf-icons bx bx-trash"></span>
@@ -32,8 +37,8 @@
         </div>
     {% endfor %}
     <script>
-        function deleteCategory(url, name) {
-            let confirmAction = confirm("Are you sure to delete the category " + name + "?");
+        function deleteManufacturer(url, name) {
+            let confirmAction = confirm("Are you sure to delete the manufacturer " + name + "?");
             if (confirmAction) {
                 window.location = url;
             }
@@ -41,8 +46,8 @@
     </script>
 {% endblock Cards %}
 {% block createUrl %}
-    {% url 'create-category' %}
+    {% url 'manufacturer-create' %}
 {% endblock createUrl %}
 {% block help %}
-    New category
+    New manufacturer
 {% endblock help %}

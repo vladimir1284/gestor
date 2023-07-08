@@ -47,12 +47,13 @@ def html_invoice(request, id):
     return render(request, 'services/invoice_pdf.html', context)
 
 
-def generate_invoice_pdf(context):
+def generate_invoice_pdf(context, request):
     """Generate pdf."""
     image = settings.STATICFILES_DIRS[0]+'/images/icons/TOWIT.png'
     # Render
     context.setdefault('image', image)
     html_string = render_to_string('services/invoice_pdf.html', context)
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
     if settings.ENVIRONMENT == 'production':
         from weasyprint import HTML
         html = HTML(string=html_string)
@@ -63,7 +64,7 @@ def generate_invoice_pdf(context):
 
 def generate_invoice(request, id):
     context = getOrderContext(id)
-    result = generate_invoice_pdf(context)
+    result = generate_invoice_pdf(context, request)
 
     # Creating http response
     response = HttpResponse(content_type='application/pdf;')
@@ -85,6 +86,6 @@ def sendMail(context, address, send_copy=False):
     sender = MailSender()
     send_to = [address]
     if send_copy:
-        send_to.append('towithouston@gmail.com')
+        send_to.append('info@towithouston.com')
     sender.gmail_send_invoice(
         send_to, invoice, context['order'], context['expenses'])

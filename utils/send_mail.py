@@ -90,17 +90,17 @@ If you have any questions, please do not hesitate to contact us.
 
 Thank you, 
 TOWIT HOUSTON LLC
-9707 SH
-Orchard, TX 77464
+6011 Liberty Rd
+Houston, TX 77026
 (832) 963-5145 / (305) 833-6144
-towithouston@gmail.com
+info@towithouston.com
             '''
             # print(content_text)
             # return
             message.set_content(content_text)
 
             message['To'] = to_addreses
-            message['From'] = 'towithouston@gmail.com'
+            message['From'] = 'info@towithouston.com'
             message['Subject'] = f'Invoice for {order.concept}'
 
             # Attachment 9
