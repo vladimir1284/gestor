@@ -3,7 +3,7 @@ from PIL import Image
 
 from users.models import User, Associated, Company
 from equipment.models import Vehicle
-from rent.models.tracker.vehicle import Trailer
+from rent.models.vehicle import Trailer
 from django.utils.translation import gettext_lazy as _
 
 
