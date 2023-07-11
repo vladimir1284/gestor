@@ -134,11 +134,7 @@
                      class="w-px-100 h-px-100 rounded-circle card-img-top" />
             </div>
             <h5 class="card-title">
-                {% if equipment_type == 'trailer' %}
-                    {{ equipment.get_manufacturer_display }} {{ equipment.get_type_display }} ({{ equipment.get_year_display }})
-                {% else %}
-                    {{ equipment.get_manufacturer_display }} {{ equipment.get_model_display }} ({{ equipment.get_year_display }})
-                {% endif %}
+                {{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}
             </h5>
             <div class="card-subtitle text-muted mb-3">{{ equipment.vin }}</div>
             <p class="card-text">{{ equipment.note }}</p>
