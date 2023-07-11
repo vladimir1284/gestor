@@ -324,7 +324,7 @@ def getPaymentContext(orders, category, pending_payments):
 @login_required
 def dashboard(request):
     N = 7  # number of weeks in the dashboard
-    stats_list = weekly_stats(n=N)
+    stats_list = weekly_stats_array(n=N)
 
     # Profit
     current_profit = stats_list[0].profit_before_costs - stats_list[0].costs
@@ -751,7 +751,7 @@ def getMonthYear(month=None, year=None):
     return ((previousMonth, previousYear), (currentMonth, currentYear), (nextMonth, nextYear))
 
 
-def weekly_stats(date=None, n=12) -> List[Statistics]:
+def weekly_stats_array(date=None, n=12) -> List[Statistics]:
     # Compute weekly stats for a given date
     # Returns a list for several week stats
     # We get the data from the previous week
@@ -762,7 +762,7 @@ def weekly_stats(date=None, n=12) -> List[Statistics]:
         # Previous week
         (start_date, end_date, previousWeek, nextWeek) = getWeek(
             previousWeek.strftime("%m%d%Y"))
-
+    
         try:
             # Weekly stats are stored in the end_date of the week
             stats = Statistics.objects.get(date=end_date)
@@ -770,66 +770,89 @@ def weekly_stats(date=None, n=12) -> List[Statistics]:
             continue
         except Statistics.DoesNotExist:
             stats = Statistics(date=end_date)
-
-            orders = Order.objects.filter(
-                status='complete',
-                type='sell',
-                terminated_date__gt=start_date,
-                terminated_date__lte=end_date).order_by(
-                '-terminated_date').exclude(
-                associated__membership=True).exclude(
-                company__membership=True)
-
-            if not orders:
-                stats_list.append(stats)
-                continue
-
-            costs = Cost.objects.filter(date__gt=start_date,
-                                        date__lte=end_date).order_by("-date")
-
-            pending_payments = PendingPayment.objects.filter(
-                created_date__gt=start_date,
-                created_date__lte=end_date).order_by("-created_date")
-
-            context = computeReport(orders, costs, pending_payments)
-
-            stats.completed_orders = len(orders)
-            stats.gross_income = context['total']['gross']
-            stats.profit_before_costs = context['total']['net']
-            stats.labor_income = context['orders'].labor
-            stats.discount = context['total']['discount']
-            stats.third_party = context['total']['third_party']
-            stats.supplies = context['total']['consumable']
-            stats.costs = context['costs'].total
-            stats.parts_cost = context['parts_cost']
-            stats.parts_price = context['parts_price']
-            stats.payment_amount = context['payment_total']
-            stats.transactions = context['payment_transactions']
-            stats.debt_paid = context['debt_paid']
-
-            stats.debt_created = 0
-            for cat in context['payment_cats']:
-                if cat.name == "debt":
-                    stats.debt_created = cat.amount
-                    break
-
-            # Membership stats
-
-            orders = Order.objects.filter(
-                status='complete',
-                type='sell',
-                terminated_date__gt=start_date,
-                terminated_date__lte=end_date).order_by(
-                '-terminated_date').exclude(
-                company__membership=False).exclude(
-                company=None)
-
-            context = computeReport(orders, costs, pending_payments)
-
-            stats.membership_orders = len(context['orders'])
-            stats.membership_amount = context['total']['net']
-
-            stats.save()
+            calculate_stats(stats, start_date, end_date)
+            
             stats_list.append(stats)
 
     return stats_list
+
+
+def week_stats_recalculate(request, date):
+    
+    # Obtiene las fechas de la semana
+    
+    date = datetime.strptime(date, "%m%d%Y").date()  
+    start_date = date - timedelta(days=date.weekday())
+    end_date = start_date + timedelta(days=7)
+    
+
+    # Calcula las estadísticas de la semana
+    stats = get_object_or_404(Statistics, date=end_date)
+    
+    calculate_stats(stats,start_date, end_date)
+
+    # Renderiza la plantilla
+    return redirect("dashboard")
+
+def calculate_stats(stats, start_date, end_date):
+    
+
+    orders = Order.objects.filter(
+        status='complete',
+        type='sell',
+        terminated_date__gt=start_date,
+        terminated_date__lte=end_date).order_by(
+        '-terminated_date').exclude(
+        associated__membership=True).exclude(
+        company__membership=True)
+
+    # if not orders:
+    #     stats_list.append(stats)
+    #     continue
+
+    costs = Cost.objects.filter(date__gt=start_date,
+                                date__lte=end_date).order_by("-date")
+
+    pending_payments = PendingPayment.objects.filter(
+        created_date__gt=start_date,
+        created_date__lte=end_date).order_by("-created_date")
+
+    context = computeReport(orders, costs, pending_payments)
+
+    stats.completed_orders = len(orders)
+    stats.gross_income = context['total']['gross']
+    stats.profit_before_costs = context['total']['net']
+    stats.labor_income = context['orders'].labor
+    stats.discount = context['total']['discount']
+    stats.third_party = context['total']['third_party']
+    stats.supplies = context['total']['consumable']
+    stats.costs = context['costs'].total
+    stats.parts_cost = context['parts_cost']
+    stats.parts_price = context['parts_price']
+    stats.payment_amount = context['payment_total']
+    stats.transactions = context['payment_transactions']
+    stats.debt_paid = context['debt_paid']
+
+    stats.debt_created = 0
+    for cat in context['payment_cats']:
+        if cat.name == "debt":
+            stats.debt_created = cat.amount
+            break
+
+    # Membership stats
+
+    orders = Order.objects.filter(
+        status='complete',
+        type='sell',
+        terminated_date__gt=start_date,
+        terminated_date__lte=end_date).order_by(
+        '-terminated_date').exclude(
+        company__membership=False).exclude(
+        company=None)
+
+    context = computeReport(orders, costs, pending_payments)
+
+    stats.membership_orders = len(context['orders'])
+    stats.membership_amount = context['total']['net']
+
+    stats.save()
