@@ -14,7 +14,7 @@
 {% endblock Theader %}
 {% block Tbody %}
     {% for equipment in trailers %}
-        <tr data-search="{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
+        <tr data-search="{{ equipment.vin }}{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
             <td>
                 <a href={% url 'detail-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>

@@ -109,10 +109,11 @@ def create_trailer(request):
         if form.is_valid():
             trailer = form.save()
             order_data = request.session.get('creating_order')
-            request.session['trailer_id'] = trailer.id
-            if order_data is not None:
-                return redirect('create-service-order')
-            return appendEquipment(request, trailer.id)
+            return redirect('detail-trailer', trailer.id)
+            # request.session['trailer_id'] = trailer.id
+            # if order_data is not None:
+            #     return redirect('create-service-order')
+            # return appendEquipment(request, trailer.id)
 
     context = {
         'form': form,

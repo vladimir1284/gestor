@@ -39,7 +39,7 @@ urlpatterns = [
          vehicle.delete_trailer_pictures, name='delete-trailer-pictures'),
     path('update_pinned_picture/<int:pk>/',
          vehicle.update_pinned_picture, name='update-pinned-picture'),
-    # -------------------- Picture ----------------------------
+    # -------------------- Document ----------------------------
     path('document/create/<int:trailer_id>',
          vehicle.create_document, name='trailer-document-create'),
     path('update_trailer_document/<id>',
