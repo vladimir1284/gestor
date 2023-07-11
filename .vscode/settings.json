@@ -15,4 +15,5 @@
     "cSpell.words": [
         "towit"
     ],
+    "python.analysis.typeCheckingMode": "off",
 }

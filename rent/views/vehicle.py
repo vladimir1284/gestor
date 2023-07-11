@@ -35,9 +35,24 @@ from .tracker import Tracker
 def list_equipment(request):
     trailers = Trailer.objects.all()
     for trailer in trailers:
+        # Images
         images, pinned_image = getImages(trailer)
         trailer.images = images
         trailer.pinned_image = pinned_image
+        # Documents
+        doc_color = None
+        docs = TrailerDocument.objects.filter(trailer=trailer, is_active=True)
+        if docs:
+            doc_color = "green"
+        for doc in docs:
+            if doc.remainder():
+                doc_color = "orange"
+            if doc.is_expired():
+                doc_color = "red"
+                break
+        if doc_color is not None:
+            trailer.doc_color = F"assets/img/icons/doc_{doc_color}.png"
+        # Orders
         last_order = Order.objects.filter(
             trailer=trailer).order_by("-created_date").first()
         if last_order is not None:
@@ -108,7 +123,7 @@ def create_trailer(request):
         form = TrailerCreateForm(request.POST, request.FILES)
         if form.is_valid():
             trailer = form.save()
-            order_data = request.session.get('creating_order')
+            # order_data = request.session.get('creating_order')
             return redirect('detail-trailer', trailer.id)
             # request.session['trailer_id'] = trailer.id
             # if order_data is not None:
