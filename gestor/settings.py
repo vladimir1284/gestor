@@ -149,14 +149,14 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # AUTH_USER_MODEL = 'users.User'
-LOGIN_URL = '/users/login/'
+LOGIN_URL = '/erp/users/login/'
 
 MEDIA_ROOT = 'static/'
 MEDIA_URL = '/media/'
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/erp/'
 
-LOGOUT_REDIRECT_URL = '/users/login/'
+LOGOUT_REDIRECT_URL = '/erp/users/login/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
