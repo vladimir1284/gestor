@@ -15,8 +15,16 @@
                class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-chevron-right"></span>
             </a>
+    
         </div>
     </div>
+    <div class="text-center">
+    <div class="demo-inline-spacing pb-3">  
+            <a type="button" class="btn btn-outline-primary" href="{% url 'week-stats-recalculate' currentDate %}">stats recalculate</a>
+    </div>
+</div>
+
+
 {% endblock nav %}
 {% block amount %}
     {% include "payment_amount.html" with interval="week" week=currentDate year="" month="" %}
