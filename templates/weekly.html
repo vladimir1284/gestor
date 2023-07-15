@@ -19,10 +19,8 @@
         </div>
     </div>
     <div class="text-center">
-    <div class="demo-inline-spacing pb-3">
-        {% with formatted_date=date|date:"%m%d%Y" %}
-            <a type="button" class="btn btn-outline-primary" href="{% url 'week-stats-recalculate' formatted_date %}">stats recalculate</a>
-        {% endwith %}
+    <div class="demo-inline-spacing pb-3">  
+            <a type="button" class="btn btn-outline-primary" href="{% url 'week-stats-recalculate' currentDate %}">stats recalculate</a>
     </div>
 </div>
 
