@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'crispy_bootstrap3',
     'gdstorage',
     "phonenumber_field",
     'django_cleanup.apps.CleanupConfig',
