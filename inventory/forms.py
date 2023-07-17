@@ -1,5 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
+
 from .models import (
     KitElement,
     Product,
@@ -291,7 +293,8 @@ class TransactionProviderCreateForm(TransactionCreateForm):
                 Div(
                     Field(
                         PrependedText('associated',
-                                      '<i class="bx bx-user-circle"></i>',
+                                      mark_safe(
+                                          '<i class="bx bx-user-circle"></i>'),
                                       css_class="form-select")
                     ),
                     css_class="col-10"

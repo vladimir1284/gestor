@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.safestring import mark_safe
 
 from .models import (
     Category,
@@ -84,7 +85,8 @@ class OrderCreateForm(BaseForm):
                 Div(
                     Field(
                         PrependedText('associated',
-                                      '<i class="bx bx-user-circle"></i>',
+                                      mark_safe(
+                                          '<i class="bx bx-user-circle"></i>'),
                                       css_class="form-select")
                     ),
                     css_class="col-10"

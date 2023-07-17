@@ -25,7 +25,7 @@ class CommonUserLayout(Layout):
             Div(
                 Field(
                     PrependedText('last_name',
-                                  '<i class="bx bx-user"></i>'),
+                                  mark_safe('<i class="bx bx-user"></i>')),
                     css_class='form-control'
                 ),
                 css_class="row mb-3"
@@ -33,14 +33,15 @@ class CommonUserLayout(Layout):
             Div(
                 Field(
                     PrependedText('username',
-                                  '<i class="bx bx-user-circle"></i>')
+                                  mark_safe('<i class="bx bx-user-circle"></i>'))
                 ),
                 css_class="row mb-3"
             ),
             Div(
                 Field(
                     PrependedAppendedText('email',
-                                          '<i class="bx bx-envelope"></i>',
+                                          mark_safe(
+                                              '<i class="bx bx-envelope"></i>'),
                                           '@ejemplo.com')
                 ),
                 css_class="row mb-3"
@@ -55,20 +56,20 @@ class CommonContactLayout(Layout):
             Div(
                 Field(
                     PrependedText('name',
-                                  '<i class="bx bx-user-circle"></i>')
+                                  mark_safe('<i class="bx bx-user-circle"></i>'))
                 )
             ),
             Div(
                 Field(
                     PrependedText('alias',
-                                  '<i class="bx bx-user-circle"></i>')
+                                  mark_safe('<i class="bx bx-user-circle"></i>'))
                 ),
                 css_class="row mb-3"
             ),
             Div(
                 Field(
                     PrependedText('phone_number',
-                                  '<i class="bx bx-phone"></i>')
+                                  mark_safe('<i class="bx bx-phone"></i>'))
                 ),
                 css_class="row"
             ),
@@ -80,7 +81,8 @@ class CommonContactLayout(Layout):
             Div(
                 Field(
                     PrependedAppendedText('email',
-                                          '<i class="bx bx-envelope"></i>',
+                                          mark_safe(
+                                              '<i class="bx bx-envelope"></i>'),
                                           '@ejemplo.com')
                 ),
                 css_class="row mb-3"
@@ -257,14 +259,15 @@ class UserProfileForm(forms.ModelForm):
             Div(
                 Field(
                     PrependedText('phone_number',
-                                  '<i class="bx bx-phone"></i>')
+                                  mark_safe('<i class="bx bx-phone"></i>'))
                 ),
                 css_class="row"
             ),
             Div(
                 Field(
                     PrependedText('role',
-                                  '<i class="bx bx-certification"></i>',
+                                  mark_safe(
+                                      '<i class="bx bx-certification"></i>'),
                                   css_class="form-select")
                 ),
                 css_class="row mb-3"
