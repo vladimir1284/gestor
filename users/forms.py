@@ -9,6 +9,7 @@ from .models import *
 from django.forms import HiddenInput
 from django import forms
 from phonenumber_field.widgets import RegionalPhoneNumberWidget
+from django.utils.safestring import mark_safe
 
 
 class CommonUserLayout(Layout):
@@ -17,7 +18,7 @@ class CommonUserLayout(Layout):
             Div(
                 Field(
                     PrependedText('first_name',
-                                  '<i class="bx bx-user"></i>')
+                                  mark_safe('<i class="bx bx-user"></i>'))
                 ),
                 css_class="row mb-3"
             ),
@@ -119,7 +120,7 @@ class CommonContactLayout(Layout):
                     Field('active'),
                     css_class="col-6"
                 ),
-                css_class="mb-3 row" 
+                css_class="mb-3 row"
             )
         )
 
@@ -341,7 +342,7 @@ class ProviderCreateForm(AssociatedCreateForm):
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field('type'),
-            
+
             Div(
                 Field('outsource'),
                 css_class="mb-3"
