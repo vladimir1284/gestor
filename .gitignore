@@ -160,3 +160,6 @@ static/images/products/*
 static/documents/*
 .gitignore
 static/images/icons/*
+costs.pickle
+.gitignore
+import_costs.py
