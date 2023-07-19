@@ -233,7 +233,8 @@ def getMonthlyMembership(currentYear, currentMonth):
         terminated_date__month=currentMonth).order_by(
         '-terminated_date').exclude(
         company__membership=False).exclude(
-        company=None)
+        company=None).exclude(
+        associated__isnull=False)
 
     costs = Cost.objects.filter(date__year=currentYear,
                                 date__month=currentMonth).order_by("-date")
@@ -762,7 +763,7 @@ def weekly_stats_array(date=None, n=12) -> List[Statistics]:
         # Previous week
         (start_date, end_date, previousWeek, nextWeek) = getWeek(
             previousWeek.strftime("%m%d%Y"))
-    
+
         try:
             # Weekly stats are stored in the end_date of the week
             stats = Statistics.objects.get(date=end_date)
@@ -771,31 +772,30 @@ def weekly_stats_array(date=None, n=12) -> List[Statistics]:
         except Statistics.DoesNotExist:
             stats = Statistics(date=end_date)
             calculate_stats(stats, start_date, end_date)
-            
+
             stats_list.append(stats)
 
     return stats_list
 
 
 def week_stats_recalculate(request, date):
-    
+
     # Obtiene las fechas de la semana
-    
-    date = datetime.strptime(date, "%m%d%Y").date()  
+
+    date = datetime.strptime(date, "%m%d%Y").date()
     start_date = date - timedelta(days=date.weekday())
     end_date = start_date + timedelta(days=7)
-    
 
     # Calcula las estadísticas de la semana
     stats = get_object_or_404(Statistics, date=end_date)
-    
-    calculate_stats(stats,start_date, end_date)
+
+    calculate_stats(stats, start_date, end_date)
 
     # Renderiza la plantilla
     return redirect("dashboard")
 
+
 def calculate_stats(stats, start_date, end_date):
-    
 
     orders = Order.objects.filter(
         status='complete',
