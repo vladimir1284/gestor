@@ -158,6 +158,8 @@ static/images/avatars/*
 static/images/equipment/*
 static/images/products/*
 static/documents/*
+static/admin/*
+static/django_extensions/*
 .gitignore
 static/images/icons/*
 costs.pickle
