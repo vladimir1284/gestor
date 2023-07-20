@@ -205,8 +205,21 @@ def detail_trailer(request, id):
     print(tracker)
 
     processOrders(orders)
+
+    # Separate the towit orders
+    towit_total = 0
+    client_total = 0
+    for order in orders:
+        if order.status == 'complete':
+            if order.associated is None:
+                towit_total += order.amount
+            else:
+                client_total += order.amount
+
     context = {
         'orders': orders,
+        'towit_total': towit_total,
+        'client_total': client_total,
         'documents': documents,
         'equipment': trailer,
         'pinned_image': pinned_image,

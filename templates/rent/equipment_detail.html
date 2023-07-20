@@ -131,7 +131,7 @@
                      alt="image"
                      height="100px"
                      width="100px"
-                     class="w-px-100 h-px-100 rounded-circle card-img-top" />
+                     class="w-px-100 h-px-100 rounded-circle card-img-top"/>
             </div>
             <h5 class="card-title">
                 {{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}
@@ -260,37 +260,103 @@
                     </div>
                 {% endfor %}
             </div>
+            <hr class="mt-0 mb-2" />
             <!-- Orders -->
-            <h5 class="mt-3">
-                <strong>Service orders</strong> - ${{ orders.total|floatformat:"2" }}
-            </h5>
-            <div class="table-responsive text-nowrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Order</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for order in orders %}
-                            <tr data-search="{{ order.concept }}">
-                                <td>
-                                    <a href="{% url 'detail-service-order' order.id %}"><strong>{{ order.concept }}</strong></a>
-                                </td>
-                                <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
-                                <td>
-                                    <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
-                                        {{ order.status }}
-                                    </span>
-                                </td>
-                                <td>${{ order.amount|floatformat:"2" }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            {% if towit_total > 0 %}
+                <div class="card mb-3 mt-3">
+                    <h5 class="mt-3 card-header">
+                        <strong>Towit orders</strong> - ${{ towit_total|floatformat:"2" }}
+                    </h5>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                    {% if not order.associated %}
+                                        <tr data-search="{{ order.concept }}">
+                                            <td>
+                                                <a href="{% url 'detail-service-order' order.id %}"><strong>{{ order.concept }}</strong></a>
+                                            </td>
+                                            <td>
+                                                {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
+                                                    {{ order.status }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                ${{ order.amount|floatformat:"2" }}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+            {% if client_total > 0 %}
+                <div class="card">
+                    <h5 class="mt-3 card-header">
+                        <strong>Client orders</strong> - ${{ client_total|floatformat:"2" }}
+                    </h5>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Order
+                                    </th>
+                                    <th>
+                                        Client
+                                    </th>
+                                    <th>
+                                        Date
+                                    </th>
+                                    <th>
+                                        Status
+                                    </th>
+                                    <th>
+                                        Amount
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                    {% if order.associated %}
+                                        <tr data-search="{{ order.concept }}">
+                                            <td>
+                                                <a href="{% url 'detail-service-order' order.id %}"><strong>{{ order.concept }}</strong></a>
+                                            </td>
+                                            <td>
+                                                {{ order.associated }}
+                                            </td>
+                                            <td>
+                                                {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
+                                                    {{ order.status }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                ${{ order.amount|floatformat:"2" }}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     {% endblock content %}
