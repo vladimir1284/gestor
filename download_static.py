@@ -4,7 +4,7 @@ import requests
 base_dir = "/home/vladimir/Sync/JA/ERM/"
 fname = base_dir+"static_dir_2912.txt"
 
-base_url = "http://towit.pythonanywhere.com/media/"
+base_url = "http://towithouston.com/erp/media/"
 
 with open(fname, 'r') as f:
     lines = f.readlines()

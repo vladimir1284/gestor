@@ -13,7 +13,7 @@ PAYMENT_DICT = {
     'english':
     """Dear {}, your vehicle at TOWITHOUSTON is ready!
 Due: ${}
-Check the following link for details: towit.pythonanywhere.com/services/pdf-invoice/{}
+Check the following link for details: towithouston.com/erp/services/pdf-invoice/{}
 You can make your payment using Zelle by registering the e-mail: towitrepairs@gmail.com owned by Towit Repairs LLC
 For Cash App, please register the user $towithouston owned by Daniel Hernández
 You can also pay with credit or debit card with an extra fee of 3% for the Square platform
@@ -22,7 +22,7 @@ Thanks""",
     'spanish':
     """Estimado {}, su vehículo en TOWITHOUSTON está listo!
 Total a pagar: ${}
-Ver detalles en el siguiente enlace: towit.pythonanywhere.com/services/pdf-invoice/{}
+Ver detalles en el siguiente enlace: towithouston.com/erp/services/pdf-invoice/{}
 Para realizar el pago a través de Zelle registre el correo: towitrepairs@gmail.com le aparecerá la cuenta a nombre de Towit Repairs LLC
 Para realizar el pago via Cash App registre el usuario $towithouston le aparecerá la cuenta a nombre de Daniel Hernández
 Puede pagar con targeta de credito o debito con un recargo del 3% de la plataforma Square
@@ -37,7 +37,7 @@ TikTok:
 www.tiktok.com/@towithouston
 Facebook:
 www.facebook.com/towithouston
-Check your invoice at the following link: towit.pythonanywhere.com/services/pdf-invoice/{}""",
+Check your invoice at the following link: towithouston.com/erp/services/pdf-invoice/{}""",
     'spanish':
     """Gracias por elegir TOWITHOUSTON. Síganos en:
 TikTok:
@@ -46,7 +46,7 @@ Facebook:
 www.facebook.com/towithouston
 Google Maps:
 goo.gl/maps/GLyCCRaLECF2HcGW8?coh=178571&entry=tt
-Vea su factura en el siguiente enlace: towit.pythonanywhere.com/services/pdf-invoice/{}"""
+Vea su factura en el siguiente enlace: towithouston.com/erp/services/pdf-invoice/{}"""
 }
 
 DEBT_REMINDER = {
