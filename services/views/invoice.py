@@ -49,7 +49,7 @@ def html_invoice(request, id):
 
 def generate_invoice_pdf(context, request):
     """Generate pdf."""
-    image = settings.STATICFILES_DIRS[0]+'/images/icons/TOWIT.png'
+    image = settings.STATIC_ROOT+'/images/icons/TOWIT.png'
     # Render
     context.setdefault('image', image)
     html_string = render_to_string('services/invoice_pdf.html', context)
