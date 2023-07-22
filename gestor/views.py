@@ -54,6 +54,17 @@ STYLE_COLOR = {
 
 
 def getOrderBalance(order: Order, products: dict):
+    """ 
+    This function calculates the balance of an order by computing the
+    transactions, services, and expenses associated with it. It then computes
+    the labor income, consumables and parts, and third party expenses. The
+    product transactions are used to update the product dictionary, which
+    stores information about the products involved in the order. The function
+    also updates the order object with the parts cost, consumable expenses,
+    third party expenses, net amount, and tax amount. Overall, this function
+    provides a comprehensive view of the financial aspects of an order.
+    """
+
     (transactions, services, expenses) = computeOrderAmount(order)
 
     # compute labor income
@@ -110,6 +121,35 @@ def getOrderBalance(order: Order, products: dict):
 
 @login_required
 def monthly_report(request, year=None, month=None):
+    """
+    The function takes optional parameters for the year and month, allowing
+    the user to specify the time period for the report. If no parameters are
+    provided, the function will default to the current year and month.
+
+    The function begins by calculating the previous, current, and next months
+    and years based on the provided or default values. It then retrieves a
+    list of completed sell orders for the specified month and year, excluding
+    any orders associated with a membership. The orders are sorted in
+    descending order based on the termination date.
+
+    Next, the function retrieves a list of costs for the specified month and
+    year, sorted in descending order by date. It also retrieves a list of
+    pending payments for the specified month and year, sorted by the creation
+    date in descending order.
+
+    The function then calls the "computeReport" function to compute the
+    necessary data for the report. The computed data is stored in the
+    "context" dictionary.
+
+    Finally, the function sets additional values in the "context" dictionary,
+    such as the previous and next months and years, and the total membership
+    for the current month and year. It renders the "monthly.html" template,
+    passing the "context" dictionary as the context.
+
+    Overall, this function provides a convenient way to generate monthly
+    reports with relevant data for analysis and decision-making.
+    """
+
     # Prepare dashboard from last close
     ((previousMonth, previousYear),
         (currentMonth, currentYear),
@@ -188,6 +228,24 @@ def weekly_membership_report(request, date=None):
 
 
 def getWeekMembership(start_date, end_date):
+    """
+    The given code is a function named "getWeekMembership" that takes two
+    parameters: "start_date" and "end_date".
+     The function retrieves a list of completed sell orders from the database,
+    filtered by the specified start and end dates. The orders are then sorted
+    in descending order based on their termination date.
+     The function also excludes any orders that belong to companies with a
+    membership set to False, as well as any orders that have no associated
+    company.
+     Additionally, the function retrieves a list of costs and pending payments
+    from the database, filtered by the specified start and end dates. The
+    costs are sorted in descending order based on their date.
+     Finally, the function calls another function named "computeReport" and
+    passes the retrieved orders, costs, and pending payments as arguments.
+    The result of the "computeReport" function is returned as the output of
+    the "getWeekMembership" function. 
+    """
+
     orders = Order.objects.filter(
         status='complete',
         type='sell',
@@ -306,6 +364,20 @@ def weekly_payments(request, category_id, date):
 
 
 def getPaymentContext(orders, category, pending_payments):
+    """ 
+    Overall, this function is useful for obtaining the payment context for a 
+    specific category and set of orders, including both completed payments and 
+    pending payments.
+    This function retrieves the payment context for a given set of orders, a 
+    specified category, and a list of pending payments. It first filters the 
+    Payment objects based on the provided orders and category. Then, it 
+    calculates the total amount by iterating over the retrieved payments and 
+    adding up their amounts. Next, it adds the amounts of the pending payments 
+    to the total. The function returns a dictionary containing the retrieved 
+    payments, the total amount, the number of transactions (which is the sum of 
+    the retrieved payments and the pending payments), the list of pending 
+    payments, and the specified category. 
+   """
     payments = Payment.objects.filter(order__in=orders,
                                       category=category)
     total = 0
@@ -487,6 +559,8 @@ def get_gpt_insights(current_profit,
                      profit_data,
                      parts_data,
                      expenses_data):
+    """ Gets a paragraph in natural language from chat GPT with the stats of the 
+    week """
 
     prompt = F"""Using the following business data corresponding to the last week:
 The total profit of the week was ${int(current_profit)}. 
@@ -532,6 +606,31 @@ Use html format in your response for highlighting relevant data."""
 
 
 def computeReport(orders, costs, pending_payments):
+    """ 
+    The function  `computeReport`  is designed to generate a report based on 
+    several parameters: orders, costs, and pending payments. 
+    The function first initializes a number of variables to track various 
+    aspects of the orders, such as the number of parts and consumables, the 
+    gross and net amounts, taxes, discounts, and third-party costs. It also 
+    creates a dictionary to store product information. 
+    Next, the function iterates over each order. For each order, it updates the 
+    respective variables and calculates the order balance. It also fetches all 
+    payments associated with the order.
+    Then, the function calculates the total costs and categorizes them. It sorts 
+    the categories based on the amount and prepares them for chart representation. 
+    If there are more than 4 categories, it groups the remaining ones under 
+    "Others".
+    The function then calculates the profit for each product type (parts and 
+    consumables) and sorts the products based on profit. It also calculates the 
+    efficiency of each product.
+    Next, it handles the payments. It fetches all payments associated with the 
+    orders and includes any pending payments. It calculates the total payment 
+    amount and the amount of debt paid. It categorizes the payments and sorts them 
+    based on the amount. It also prepares the payment categories for chart 
+    representation, grouping any extra categories under "Others".
+    Finally, the function returns a dictionary containing all the calculated and 
+    sorted data, which can be used to generate a detailed report.
+    """
     parts = 0
     consumable = 0
     gross = 0
@@ -697,9 +796,11 @@ def computeReport(orders, costs, pending_payments):
 
 
 def computeTransactionProfit(transaction: ProductTransaction, procedure="min"):
-    # Procedure for computing profit
-    # min    - Discount the product minimum price
-    # profit - Compute total profit
+    """
+    Procedure for computing profit
+    min    - Discount the product minimum price
+    profit - Compute total profit
+    """
     if procedure == "min":
         return (transaction.getAmount()
                 - transaction.getMinCost())
@@ -709,6 +810,23 @@ def computeTransactionProfit(transaction: ProductTransaction, procedure="min"):
 
 
 def getWeek(dt=None):
+    """ 
+    The given code defines a function called "getWeek" which takes an optional 
+    argument "dt". If no argument is provided, the current date and time are 
+    obtained using the "datetime.now()" method. If an argument is provided, it 
+    is expected to be a string in the format "mmddyyyy" and is converted to a 
+    datetime object using the "datetime.strptime()" method. 
+    The function then calculates the start and end dates of the week containing 
+    the provided or current date. The start date is obtained by subtracting the 
+    number of days equal to the weekday of the date. The end date is obtained by 
+    adding 7 days to the start date. 
+    Additionally, the function calculates the previous week by subtracting 7 
+    days from the provided or current date, and the next week by adding 7 days 
+    to the provided or current date. 
+    Finally, the function returns a tuple containing the start and end dates of 
+    the week, the previous week, and the next week
+    """
+
     if dt is None:
         dt = datetime.now()
     else:
@@ -721,6 +839,23 @@ def getWeek(dt=None):
 
 
 def getMonthYear(month=None, year=None):
+    """ 
+    This function,  `getMonthYear` , takes in two optional parameters,  
+    `month`  and  `year` , and returns a tuple containing three tuples. 
+    The first tuple within the result contains the previous month and year. 
+    If the current month is January, the previous month will be December of the 
+    previous year. 
+    The second tuple within the result contains the current month and year. 
+    If no values are provided for  `month`  and  `year` , the current month and 
+    year are determined using the  `datetime.now()`  function. 
+    The third tuple within the result contains the next month and year. If the 
+    current month is December, the next month will be January of the next year. 
+    If the  `month`  parameter is provided, it is validated to ensure it is a 
+    valid month value (between 1 and 12). If it is not valid, a  `ValueError`  
+    is raised. 
+    If the  `year`  parameter is provided, it is converted to an integer. 
+    The function returns the three tuples as a result.
+    """
     # Current
     if month is None:
         currentMonth = datetime.now().month
@@ -753,9 +888,11 @@ def getMonthYear(month=None, year=None):
 
 
 def weekly_stats_array(date=None, n=12) -> List[Statistics]:
-    # Compute weekly stats for a given date
-    # Returns a list for several week stats
-    # We get the data from the previous week
+    """ 
+    Compute weekly stats for a given date
+    Returns a list for several week stats
+    We get the data from the previous week 
+    """
 
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)  # This week
     stats_list = []
@@ -779,9 +916,16 @@ def weekly_stats_array(date=None, n=12) -> List[Statistics]:
 
 
 def week_stats_recalculate(request, date):
+    """ 
+    This function first converts the date parameter from a string format to a 
+    date object. Then, it calculates the start and end dates of the week based 
+    on the given date.  
+    Then, it calls the calculate_stats function to recalculate the statistics 
+    for the week, using the start and end dates.  
+    Finally, it redirects the user to the "dashboard" page.  
+    """
 
     # Obtiene las fechas de la semana
-
     date = datetime.strptime(date, "%m%d%Y").date()
     start_date = date - timedelta(days=date.weekday())
     end_date = start_date + timedelta(days=7)
@@ -796,6 +940,23 @@ def week_stats_recalculate(request, date):
 
 
 def calculate_stats(stats, start_date, end_date):
+    """
+    The "calculate_stats" function calculates various statistics based on the 
+    given parameters: "stats" (an object that stores the calculated stats), 
+    "start_date" (the start date for the data range), and "end_date" (the end 
+    date for the data range). 
+    The function first retrieves a list of completed sell orders within the 
+    specified date range, excluding any associated with a membership or company 
+    membership. It then fetches the costs and pending payments within the same 
+    date range. 
+    The function calls the "computeReport" function to compute the report based 
+    on the retrieved data. The computed values are then assigned to the 
+    corresponding attributes of the "stats" object. 
+    The function also calculates membership-related statistics by filtering the 
+    orders based on company membership. The computed values are again assigned 
+    to the relevant attributes of the "stats" object. 
+    Finally, the "stats" object is saved in the database. 
+    """
 
     orders = Order.objects.filter(
         status='complete',
@@ -805,10 +966,6 @@ def calculate_stats(stats, start_date, end_date):
         '-terminated_date').exclude(
         associated__membership=True).exclude(
         company__membership=True)
-
-    # if not orders:
-    #     stats_list.append(stats)
-    #     continue
 
     costs = Cost.objects.filter(date__gt=start_date,
                                 date__lte=end_date).order_by("-date")
@@ -840,7 +997,6 @@ def calculate_stats(stats, start_date, end_date):
             break
 
     # Membership stats
-
     orders = Order.objects.filter(
         status='complete',
         type='sell',
