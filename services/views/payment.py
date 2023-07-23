@@ -127,7 +127,7 @@ def process_payment(request, order_id):
                     if payment.category == debt:
                         if order.associated is not None:
                             order.associated.debt += payment.amount
-                            debt_status = DebtStatus.objects.create(
+                            debt_status, created = DebtStatus.objects.get_or_create(
                                 client=order.associated)
                             # Payment facilities
                             if form.cleaned_data['weeks'] > 0:
