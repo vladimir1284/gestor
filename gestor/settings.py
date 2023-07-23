@@ -142,13 +142,6 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
 # AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/erp/users/login/'
 
@@ -191,3 +184,13 @@ ENVIRONMENT = os.environ.get('ENVIRONMENT', 'production')
 
 # Open Cell ID
 OCELLID_KEY = os.environ.get('OCELLID_KEY')
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.0/howto/static-files/
+
+STATIC_URL = '/static/'
+if ENVIRONMENT == 'production':
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+else:
+    STATICFILES_DIRS = ['static/',]
