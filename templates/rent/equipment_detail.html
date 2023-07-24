@@ -145,6 +145,12 @@
                    href="{% url 'update-trailer' equipment.id %}">
                     <span class="tf-icons bx bx-edit"></span>
                 </a>
+                <a class="btn btn-icon btn-outline-primary"
+                   type
+                   None="button"
+                   href="{% url 'select-leasee' equipment.id %}">
+                    <span class="tf-icons bx bx-key"></span>
+                </a>
                 {% if tracker %}
                     <a class="btn btn-icon btn-outline-primary"
                        type
@@ -274,7 +280,9 @@
                                     <th>Order</th>
                                     <th>Date</th>
                                     <th>Status</th>
-                                    <th>Amount</th>
+                                    <th>
+                                        Amount
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>

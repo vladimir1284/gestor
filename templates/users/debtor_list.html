@@ -18,28 +18,7 @@
 {% block Tbody %}
     {% for associated in associates %}
         <tr data-search="{{ associated.name }}{{ associated.phone_number }}">
-            <td>
-                <div class="d-flex pb-1">
-                    <div class="avatar flex-shrink-0 me-3">
-                        <a href={% url 'detail-associated' associated.id %}>
-                            <span class="avatar-initial rounded-circle bg-label-primary">
-                                <img {% if associated.avatar %} src="{{ associated.avatar.url }}" {% else %} src="{% static 'images/icons/user.png' %}" {% endif %}
-                                     alt="Avatar"
-                                     height="100px"
-                                     width="100px"
-                                     class="w-px-40 h-auto rounded-circle"/>
-                            </span>
-                        </a>
-                    </div>
-                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                        <div data-tag="{{ associated.name }}{{ associated.phone_number }}"
-                             class="me-2  associated-data">
-                            <h6 class="mb-0">{{ associated.name }}</h6>
-                            <small class="text-muted">{{ associated.phone_number }}</small>
-                        </div>
-                    </div>
-                </div>
-            </td>
+            <td>{% include "user/associated_line.html" %}</td>
             <td>
                 <a href="{% url 'pay-debt' associated.id %}">${{ associated.debt|floatformat:"2" }}</a>
             </td>
@@ -49,44 +28,49 @@
                     {{ associated.oldest_debt.terminated_date|date:"SHORT_DATE_FORMAT" }}
                 </a>
                 {% if associated.weekly_payment %}
-                    <br> <span {% if associated.late %}class="text-danger"{% endif %}>
+                    <br>
+                    <span {% if associated.late %}class="text-danger"{% endif %}>
                         ${{ associated.weekly_payment|floatformat:"0" }}/week
                         <span>
-                {% endif %}
-            </td>
-            <td>    
-                <div class="demo-inline-spacing">                    
-                    <button {% if not associated.overdue %}disabled{% endif %} type="button" class="btn btn-icon btn-outline-primary"
-                    onclick="updateDebt('{% url 'update-debt-status' associated.id 'cleared' %}', '{{ associated.name }}', 'delete')">
-                      <span class="tf-icons bx bx-trash"></span>
-                    </button>
-                    <button {% if not associated.overdue %}disabled{% endif %} type="button" class="btn btn-icon btn-outline-primary"
-                    onclick="updateDebt('{% url 'update-debt-status' associated.id 'lost' %}', '{{ associated.name }}', 'dismiss')">
-                      <span class="tf-icons bx bx-angry"></span>
-                    </button>
-                  </div>
-        </td>
-            <td>
-                {% if associated.last_order %}
-                    <a href="{% url 'detail-service-order' associated.last_order.id %}">{{ associated.last_order.concept }}</a> ({{ associated.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
-                {% else %}
-                    None
-                {% endif %}
-            </td>
-        </tr>
-    {% endfor %}
-    <script>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="demo-inline-spacing">
+                            <button {% if not associated.overdue %}disabled{% endif %}
+                                    type="button"
+                                    class="btn btn-icon btn-outline-primary"
+                                    onclick="updateDebt('{% url 'update-debt-status' associated.id 'cleared' %}', '{{ associated.name }}', 'delete')">
+                                <span class="tf-icons bx bx-trash"></span>
+                            </button>
+                            <button {% if not associated.overdue %}disabled{% endif %}
+                                    type="button"
+                                    class="btn btn-icon btn-outline-primary"
+                                    onclick="updateDebt('{% url 'update-debt-status' associated.id 'lost' %}', '{{ associated.name }}', 'dismiss')">
+                                <span class="tf-icons bx bx-angry"></span>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        {% if associated.last_order %}
+                            <a href="{% url 'detail-service-order' associated.last_order.id %}">{{ associated.last_order.concept }}</a> ({{ associated.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
+                        {% else %}
+                            None
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            <script>
         function updateDebt(url, name, action) {
             let confirmAction = confirm("Are you sure to "+ action +" the debt of " + name + "?");
             if (confirmAction) {
                 window.location = url;
             }
         }
-    </script>
-{% endblock Tbody %}
-{% block createUrl %}
-    {% url 'create-client' %}
-{% endblock createUrl %}
-{% block help %}
-    New client
-{% endblock help %}
+            </script>
+        {% endblock Tbody %}
+        {% block createUrl %}
+            {% url 'create-client' %}
+        {% endblock createUrl %}
+        {% block help %}
+            New client
+        {% endblock help %}

@@ -18,7 +18,7 @@ class Lease(models.Model):
         ('missing', 'Missing data'),
     )
     stage = models.CharField(max_length=10, choices=STAGE_CHOICES)
-    location = models.CharField(max_length=500)
+    location = models.TextField()
     location_file = models.FileField(upload_to='rental/locations', blank=True)
     effective_date = models.DateField()
     contract_end_date = models.DateField()

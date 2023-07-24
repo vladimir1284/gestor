@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import vehicle, tracker
+from .views import vehicle, tracker, lease
 
 
 urlpatterns = [
@@ -46,4 +46,21 @@ urlpatterns = [
          vehicle.update_document, name='update-trailer-document'),
     path('delete_trailer_document/<id>',
          vehicle.delete_document, name='delete-trailer-document'),
+    # -------------------- Contracts ----------------------------
+    path('create_contract/<int:lessee_id>/<int:trailer_id>/',
+         lease.lease_create_view, name='create-contract'),
+    path('contract/<int:id>',  lease.contract_detail, name='detail-contract'),
+    path('select_leasee/<int:trailer_id>/',
+         lease.select_leasee, name='select-leasee'),
+    path('contract_signed/<int:id>',  lease.contract_detail_signed,
+         name='contract-signed'),
+    path('upload_contract_document/<int:id>',
+         lease.ContractDocumentCreateView.as_view(), name='create-contract-document'),
+    path('contracts/',  lease.contracts, name='contracts'),
+    path('update_contract/<slug:pk>',
+         lease.ContractUpdateView.as_view(), name='update-contract'),
+    path('update_contract_stage/<slug:id>/<int:stage>',
+         lease.update_contract_stage, name='update-contract-stage'),
+    path('capture_signature/<int:lease_id>/<position>',
+         lease.HandWritingCreateView.as_view(), name='capture-signature'),
 ]

@@ -400,3 +400,19 @@ def delete_document(request, id):
 #     document = get_object_or_404(
 #         TrailerDocument, id=id, trailer=trailer)
 #     return render(request, 'document_detail.html', {'document': document})
+
+# @login_required
+# def trailer_json(request, id):
+#     trailer = Trailer.objects.get(id=id)
+#     return JsonResponse({'type': trailer.type.name,
+#                          'size': trailer.size,
+#                          'id': trailer.id,
+#                          'current_tires_condition': trailer.get_current_tires_condition_display(),
+#                          'number_of_axles': trailer.get_number_of_axles_display(),
+#                          'bed_type': trailer.get_bed_type_display(),
+#                          'bed_comments': trailer.bed_comments,
+#                          'has_spare_tire': trailer.get_has_spare_tire_display(),
+#                          'number_of_ramps': trailer.number_of_ramps,
+#                          'ramps_material': trailer.get_ramps_material_display(),
+#                          'ramps_length': trailer.get_ramps_length_display(),
+#                          'electrical_instalation': trailer.electrical_instalation})

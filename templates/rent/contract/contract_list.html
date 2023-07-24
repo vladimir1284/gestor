@@ -1,23 +1,35 @@
 {% extends "base/base_list.html" %}
 {% load static %}
-{% block content %}
-  {% block Ttitle %}
-    Contracts
-  {% endblock Ttitle %}
-  {% block Theader %}
-    <th class="th-sm">Trailer - Lessee</th>
-    <th class="th-sm">Stage</th>
-    <th class="th-sm">Effective</th>
-    <th class="th-sm">End</th>
-  {% endblock Theader %}
-  {% block Tbody %}
-    {% for contract in contracts %}
-      <td>
-        <a class="trailer-link" href="/towit/contract/{{ contract.id }}">{{ contract.trailer }} - {{ contract.lessee }}</a>
-      </td>
-      <td class="text-center">{{ contract.stage }}</td>
-      <td class="text-center">{{ contract.effective_date|date:"Y/m/d" }}</td>
-      <td class="text-center">{{ contract.contract_end_date|date:"Y/m/d" }}</td>
-    {% endfor %}
-  {% endblock Tbody %}
-{% endblock content %}
+{% block title %}
+  Contracts
+{% endblock title %}
+{% block Ttitle %}
+  <h5 class="card-header">Contracts</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+  <th>
+    <i class="bx bx-cog"></i>
+  </th>
+  <th class="th-sm">Lessee</th>
+  <th class="th-sm">Trailer</th>
+  <th class="th-sm">Stage</th>
+  <th class="th-sm">Effective</th>
+  <th class="th-sm">End</th>
+{% endblock Theader %}
+{% block Tbody %}
+  {% for contract in contracts %}
+    <td>
+      <a class="trailer-link" href={% url 'detail-contract' contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+    </td>
+    <td>{% include "user/associated_line.html" with associated=contract.leasee %}</td>
+    <td class="d-flex">
+      {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
+    </td>
+    <td class="text-center">{{ contract.stage }}</td>
+    <td class="text-center">{{ contract.effective_date|date:"Y/m/d" }}</td>
+    <td class="text-center">{{ contract.contract_end_date|date:"Y/m/d" }}</td>
+  {% endfor %}
+{% endblock Tbody %}
+{% block add %}
+  hidden
+{% endblock add %}
