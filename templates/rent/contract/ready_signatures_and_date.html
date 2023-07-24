@@ -1,0 +1,23 @@
+   {% load static %}
+   <p class="bottom-three" id="contract_detail_sign"><strong>LESSORS</strong>:</p>
+   <div>
+            By: <img class="signature" src={% static  signature_daniel %} >
+            Date: <img class="date" src={% static  date_daniel %} >
+    </div>
+   <p class="bottom-three-left-two">    Daniel Hernández Duarte</p>
+   
+    <div>
+            By: <img class="signature" src={% static  signature_ariel %} >
+            Date: <img class="date" src={% static  date_ariel %} >
+    </div>
+   <p class="bottom-three-left-two">    Jose Ariel Casanova</p>
+
+   <div style="margin-top: 3em;"></div>
+   <p class="bottom-three"><strong>LESSEE</strong>:</p>
+   
+    <div>
+           By: <img class="signature" src={% static  signature_lessee %} >
+           Date: <img class="date" src={% static  date_lessee %} >
+    </div>
+   <p class="bottom-three-left-two"><mark>{{ contract.lessee.name }}</mark></p>   
+	   

@@ -1,0 +1,93 @@
+{% extends "base/base.html" %}
+{% block content %}
+    <div class="card mb-3">
+        <div class="card-header">
+            Lessee: <b> {{ contract.lessee.name }}</b>
+            <spam class="float-right">
+            <a href="tel:{{ contract.lessee.phone }}">
+                <button class="btn btn-success data-toggle="
+                        tooltip
+                        "
+                        data-placement="left"
+                        title="Call contact"
+                        ">
+                    <i class="fa fa-phone"></i>
+                </button>
+            </a>
+            <a href="sendto:{{ contract.lessee.mail }}">
+                <button class="btn btn-success data-toggle="
+                        tooltip
+                        "
+                        data-placement="left"
+                        title="send email to contact"
+                        ">
+                    <i class="fa fa-envelope"></i>
+                </button>
+            </a>
+            </spam>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Address:    {{ contract.lessee.address }}</li>
+            <li class="list-group-item">
+                {% if contract.lessee.insurance_file != "" %}
+                    Insurance: <a href="{{ contract.lessee.insurance_file.url }}"><b> {{ contract.lessee.insurance_number }} </b></a>
+                {% else %}
+                    Insurance: <b> {{ contract.lessee.insurance_number }} </b>
+                {% endif %}
+            </li>
+            <li class="list-group-item">
+                {% if contract.lessee.license_file != "" %}
+                    License:  <a href="{{ contract.lessee.license_file.url }}"><b> {{ contract.lessee.license_number }} </b></a>
+                {% else %}
+                    License: <b> {{ contract.lessee.license_number }} </b>
+                {% endif %}
+            </li>
+        </ul>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">Contract details:</div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                Trailer: <a class="trailer-link" href="/towit/trailer/{{ contract.trailer.id }}">{{ contract.trailer.name }}</a>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-6">
+                        Start: <b>{{ contract.effective_date|date:'M d, Y' }}</b>
+                    </div>
+                    <div class="col-6">
+                        End: <b>{{ contract.effective_date|date:'M d, Y' }}</b>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-6">
+                        <b>{{ contract.number_of_payments }}</b> payment(s)
+                    </div>
+                    <div class="col-6">
+                        Amount: <b>${{ contract.payment_amount }}</b>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        Service: <b>${{ contract.service_charge }}</b>
+                    </div>
+                    <div class="col-6">
+                        Deposit: <b>${{ contract.security_deposit }}</b>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">Associated files:</div>
+        <ul class="list-group list-group-flush">
+            {% for document in documents %}
+                <li class="list-group-item">
+                    <a href="{{ document.document.url }}">{{ document.document }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock content %}

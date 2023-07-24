@@ -1,0 +1,23 @@
+{% extends "base/base_list.html" %}
+{% load static %}
+{% block content %}
+  {% block Ttitle %}
+    Contracts
+  {% endblock Ttitle %}
+  {% block Theader %}
+    <th class="th-sm">Trailer - Lessee</th>
+    <th class="th-sm">Stage</th>
+    <th class="th-sm">Effective</th>
+    <th class="th-sm">End</th>
+  {% endblock Theader %}
+  {% block Tbody %}
+    {% for contract in contracts %}
+      <td>
+        <a class="trailer-link" href="/towit/contract/{{ contract.id }}">{{ contract.trailer }} - {{ contract.lessee }}</a>
+      </td>
+      <td class="text-center">{{ contract.stage }}</td>
+      <td class="text-center">{{ contract.effective_date|date:"Y/m/d" }}</td>
+      <td class="text-center">{{ contract.contract_end_date|date:"Y/m/d" }}</td>
+    {% endfor %}
+  {% endblock Tbody %}
+{% endblock content %}

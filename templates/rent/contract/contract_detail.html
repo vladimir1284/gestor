@@ -1,0 +1,100 @@
+{% extends "base/base.html" %}
+{% block page %}
+    <meta charset="utf-8" />
+    <style>
+    {% block mark %}    
+      mark { 
+         background-color: yellow;
+         color: black;
+      }
+    {% endblock %}
+     .bottom-three-left-two {
+         margin-left: 3em;
+         margin-top: -4em;
+         z-index:-1;
+     }
+     
+    .date_btn {
+        margin-left: 3.5em;
+    }
+     
+    .date {
+        margin-bottom: 2em;
+        max-width: 300px;
+    }
+     
+    .signature_btn {
+        margin-left: 4em;
+        margin-right: 3em;
+    }
+     
+	.signature {
+	    margin-bottom: 2.5em;
+        max-width: 350px;
+        z-index:1;
+	}
+     .center {
+	      text-align: center;
+      }
+      p, li {
+	      text-align: justify;
+      }
+      div.break {
+         page-break-before:always;
+      }
+    .left-space {
+        margin-left: 1em;
+        margin-right: 0.5em;
+    }
+    </style>
+    <script>
+       function deleteContract() {
+            let confirmAction = confirm("Are you sure to delete the current contract?");
+            if (confirmAction) {
+                 window.location = "/towit/delete_contract/{{ contract.id }}";
+            }
+        }
+       function approveContract() {
+            let confirmAction = confirm("Are you sure to approve the contract? A pdf copy will be send to the lessee.");
+            if (confirmAction) {
+                 window.location = "/towit/change_contract_stage/{{ contract.id }}/2";
+            }
+        }
+       function finishContract() {
+            let confirmAction = confirm(`Are you sure to finish the contract? 
+                                        A signed copy will be send to the lessee.
+                                        An event will be added to the calendar.`);
+            if (confirmAction) {
+                 window.location = "/towit/change_contract_stage/{{ contract.id }}/3";
+            }
+        }
+       function archiveContract() {
+            let confirmAction = confirm(`Are you sure to finish the contract? 
+                                        A signed copy will be send to the lessee.
+                                        An event will be added to the calendar.`);
+            if (confirmAction) {
+                 window.location = "/towit/change_contract_stage/{{ contract.id }}/5";
+            }
+        }
+    </script>
+{% endblock page %}
+{% block content %}
+    {% include "contract_body.html" %}
+    {% include "signatures_and_date.html" %}
+    <div class="break"></div>
+    <p class="center">
+        <strong>EXHIBIT A</strong>
+    </p>
+    <p>
+        <strong>Equipment Schedule</strong>
+    </p>
+    <p>
+        Equipment Description: <mark>{{ contract.trailer.type }} {{ contract.trailer.size }}'</mark> VIN:<mark>{{ contract.trailer.vin }}</mark>
+    </p>
+    <p>Lease End Purchase Price: Market Price</p>
+    <p>
+        Email: <mark>{{ contract.lessee.mail }}</mark>
+    </p>
+    {% include "trailer_condition_report.html" %}
+    {% include "signatures_and_date.html" %}
+{% endblock content %}

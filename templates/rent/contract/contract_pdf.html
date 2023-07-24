@@ -1,0 +1,51 @@
+{% load static %}
+<head>
+   <meta charset="utf-8" />
+   <style>
+     .bottom-three-left-two {
+         margin-left: 1em;
+        margin-bottom: 2cm;
+     }
+     
+	.signature {
+	    margin-bottom: -3.70em;
+	    margin-left: 2em;
+	}
+     .bottom-three {	
+        margin-bottom: 2cm;
+     }
+     .center {
+	      text-align: center;
+      }
+      p, li {
+	      text-align: justify;
+      }
+      mark { 
+         background-color: white;
+         color: black;
+      }
+      div.break {
+         page-break-before:always;
+      }
+   </style>
+</head>
+<body>
+   {% include "contract_body.html" %}
+   {% include "empty_signatures_and_date.html" %}
+   <div class="break"></div>
+   <p class="center">
+      <strong>EXHIBIT A</strong>
+   </p>
+   <p>
+      <strong>Equipment Schedule</strong>
+   </p>
+   <p>
+      Equipment Description: <mark>{{ contract.trailer.type }} {{ contract.trailer.size }}'</mark> VIN:<mark>{{ contract.trailer.vin }}</mark>
+   </p>
+   <p>Lease End Purchase Price: Market Price</p>
+   <p>
+      Email: <mark>{{ contract.lessee.mail }}</mark>
+   </p>
+   {% include "trailer_condition_report.html" %}
+   {% include "empty_signatures_and_date.html" %}
+</body>

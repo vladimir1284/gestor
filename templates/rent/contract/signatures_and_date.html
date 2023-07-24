@@ -1,0 +1,60 @@
+{% load static %}
+{% if contract.stage == 1 %}
+    {% include "empty_signatures_and_date.html" %}
+{% else %}
+    <p class="bottom-three" id="contract_detail_sign">
+        <strong>LESSORS</strong>:
+    </p>
+    <div>
+        By:
+        {% if signature_daniel %}
+            <img class="signature" src={% static signature_daniel %}>
+        {% else %}
+            <a class="signature_btn"
+               href="/towit/capture_signature/{{ contract.id }}/signature_daniel">
+                <button class="btn btn-primary">Capture</button>
+            </a>
+        {% endif %}
+        Date:
+        {% if date_daniel %}
+            <img class="date" src={% static  date_daniel %}>
+        {% else %}
+            <a class="date_btn"
+               href="/towit/capture_signature/{{ contract.id }}/date_daniel">
+                <button class="btn btn-primary">Capture</button>
+            </a>
+        {% endif %}
+    </div>
+    <p class="bottom-three-left-two"
+       {% if signature_daniel %} {% else %} {% if date_daniel %} style="margin-top: -3em;" {% else %} style="margin-top: 0em;" {% endif %}
+       {% endif %}>Daniel Hernández Duarte</p>
+    <div style="margin-top: 3em;"></div>
+    <p class="bottom-three">
+        <strong>LESSEE</strong>:
+    </p>
+    <div>
+        By:
+        {% if signature_lessee %}
+            <img class="signature" src={% static signature_lessee %}>
+        {% else %}
+            <a class="signature_btn"
+               href="/towit/capture_signature/{{ contract.id }}/signature_lessee">
+                <button class="btn btn-primary">Capture</button>
+            </a>
+        {% endif %}
+        Date:
+        {% if date_lessee %}
+            <img class="date" src={% static  date_lessee %}>
+        {% else %}
+            <a class="date_btn"
+               href="/towit/capture_signature/{{ contract.id }}/date_lessee">
+                <button class="btn btn-primary">Capture</button>
+            </a>
+        {% endif %}
+    </div>
+    <p class="bottom-three-left-two"
+       {% if signature_lessee %} {% else %} {% if date_lessee %} style="margin-top: -3em;" {% else %} style="margin-top: 0em;" {% endif %}
+       {% endif %}>
+        <mark>{{ contract.lessee.name }}</mark>
+    </p>
+{% endif %}
