@@ -35,7 +35,7 @@ class Lease(models.Model):
     )
 
     def __str__(self):
-        return self.trailer.name + " -> " + self.lessee.name
+        return self.trailer.__str__() + " -> " + self.lessee.__str__()
 
     class Meta:
         ordering = ('-effective_date',)

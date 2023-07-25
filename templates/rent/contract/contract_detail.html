@@ -79,8 +79,8 @@
     </script>
 {% endblock page %}
 {% block content %}
-    {% include "contract_body.html" %}
-    {% include "signatures_and_date.html" %}
+    {% include "./contract_body.html" %}
+    {% include "./signatures_and_date.html" %}
     <div class="break"></div>
     <p class="center">
         <strong>EXHIBIT A</strong>
@@ -95,6 +95,6 @@
     <p>
         Email: <mark>{{ contract.lessee.mail }}</mark>
     </p>
-    {% include "trailer_condition_report.html" %}
-    {% include "signatures_and_date.html" %}
+    {% include "./trailer_condition_report.html" %}
+    {% include "./signatures_and_date.html" %}
 {% endblock content %}

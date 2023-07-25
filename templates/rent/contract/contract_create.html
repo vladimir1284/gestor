@@ -3,59 +3,6 @@
 {% block title %}
     {{ title }}
 {% endblock title %}
-{% block page %}
-    <script>
-        jQuery(document).ready(function(){
-		    $('#id_trailer').on('change', function() {
-	          $.getJSON( "/towit/trailer_json/"+this.value, function( data ) {
-               let specs = `
-               <div class="row">
-	               <div class="col-6">
-	                   Trailer type: <b>` + data.type +" "+ data.size +`'</b>
-	               </div>
-                   <div class="col-6">
-                    Number of axles: <b>` + data.number_of_axles +`</b>
-                   </div>
-               </div>
-               <div class="row">
-                   <div class="col-6">
-                       Has spare tire: <b>` + data.has_spare_tire +`</b>
-                   </div>
-                   <div class="col-6">
-                    Current tires condition: <b>` + data.current_tires_condition +`</b>
-                   </div>
-               </div>
-               <div class="row">
-	               <div class="col-6 card">
-	                   <div class="card-header">
-	                       Bed type: <b>` + data.bed_type +`</b>
-	                   </div>
-	                   <div class="card-body">
-	                    ` + data.bed_comments +`</b>
-	                   </div>
-	               </div>
-	               <div class="col-6 card">
-	                   <div class="card-header">
-	                       Electrical instalation
-	                   </div>
-	                   <div class="card-body">
-	                    ` + data.electrical_instalation +`</b>
-	                   </div>
-	               </div>
-               </div>
-               <div class="row">
-                The trailer has &nbsp<b>` + data.number_of_ramps +" "+ 
-                data.ramps_material +` </b>&nbsp ramps, &nbsp<b>`+ 
-                data.ramps_length +`</b>&nbsp feet long each.</div>
-               </div>
-               <hr class="mt-0 mb-4">
-               `
-				$("#id_trailer_conditions").html(specs);
-				});
-			});
-        });
-    </script>
-{% endblock page %}
 {% block content %}
     <!-- Basic with Icons -->
     <div class="col-xxl">

@@ -11,7 +11,7 @@
             <img class="signature" src={% static signature_daniel %}>
         {% else %}
             <a class="signature_btn"
-               href="/towit/capture_signature/{{ contract.id }}/signature_daniel">
+               href="{% url 'capture-signature' contract.id 'signature_daniel' %}">
                 <button class="btn btn-primary">Capture</button>
             </a>
         {% endif %}
@@ -20,7 +20,7 @@
             <img class="date" src={% static  date_daniel %}>
         {% else %}
             <a class="date_btn"
-               href="/towit/capture_signature/{{ contract.id }}/date_daniel">
+               href="{% url 'capture-signature' contract.id 'date_daniel' %}">
                 <button class="btn btn-primary">Capture</button>
             </a>
         {% endif %}
@@ -38,16 +38,16 @@
             <img class="signature" src={% static signature_lessee %}>
         {% else %}
             <a class="signature_btn"
-               href="/towit/capture_signature/{{ contract.id }}/signature_lessee">
+               href="{% url 'capture-signature' contract.id 'signature_lessee' %}">
                 <button class="btn btn-primary">Capture</button>
             </a>
         {% endif %}
         Date:
         {% if date_lessee %}
-            <img class="date" src={% static  date_lessee %}>
+            <img class="date" src={% static date_lessee %}>
         {% else %}
             <a class="date_btn"
-               href="/towit/capture_signature/{{ contract.id }}/date_lessee">
+               href="{% url 'capture-signature' contract.id 'date_lessee' %}">
                 <button class="btn btn-primary">Capture</button>
             </a>
         {% endif %}

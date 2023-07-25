@@ -52,7 +52,7 @@ class HandWritingCreateView(LoginRequiredMixin, CreateView):
 @login_required
 def contract_detail(request, id):
     contract = Lease.objects.get(id=id)
-    if (contract.stage.id > 2):
+    if (contract.stage in ('active', 'signed')):
         return redirect('contract-signed', id)
     signatures = HandWriting.objects.filter(lease=contract)
     data = {'contract': contract}

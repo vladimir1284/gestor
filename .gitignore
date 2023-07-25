@@ -165,3 +165,4 @@ static/images/icons/*
 costs.pickle
 .gitignore
 import_costs.py
+static/rental/signatures/*
