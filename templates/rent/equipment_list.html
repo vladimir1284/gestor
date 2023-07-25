@@ -11,6 +11,7 @@
         <i class="bx bx-cog"></i>
     </th>
     <th>Vehicle</th>
+    <th>Rent</th>
     <th>Doc</th>
     <th>Last Order</th>
 {% endblock Theader %}
@@ -22,6 +23,15 @@
             </td>
             <td class="d-flex">
                 {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
+            </td>
+            <td>
+                {% if equipment.last_contract %}
+                    <img src="{% static 'assets/img/icons/contract.jpg' %}"
+                         alt="contract icon"
+                         height="100px"
+                         width="100px"
+                         class="w-px-40 h-auto" />
+                {% endif %}
             </td>
             <td>
                 {% if equipment.doc_color %}

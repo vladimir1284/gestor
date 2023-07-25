@@ -25,6 +25,9 @@ from rent.forms.vehicle import (
     TrailerDocumentForm,
     TrailerDocumentUpdateForm,
 )
+from rent.models.lease import (
+    Lease
+)
 from django.utils.translation import gettext_lazy as _
 from .tracker import Tracker
 
@@ -35,6 +38,11 @@ from .tracker import Tracker
 def list_equipment(request):
     trailers = Trailer.objects.all()
     for trailer in trailers:
+        # Contracts
+        contracts = Lease.objects.all().exclude(
+            stage='ended').order_by('-contract_end_date')
+        if contracts:
+            trailer.last_contract = contracts[0]
         # Images
         images, pinned_image = getImages(trailer)
         trailer.images = images

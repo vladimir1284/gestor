@@ -1,6 +1,7 @@
 from django.db import models
 from .vehicle import Trailer
 from users.models import Associated
+from django.urls import reverse
 
 
 class Lease(models.Model):
@@ -58,6 +59,9 @@ class HandWriting(models.Model):
 
     def __str__(self):
         return self.lease.__str__() + "-" + self.position
+
+    def get_absolute_url(self):
+        return reverse('detail-contract', args=[str(self.lease.id)])
 
 
 class LesseeData(models.Model):
