@@ -15,7 +15,13 @@
                         <td>
                             <strong>Date</strong>
                         </td>
-                        <td class="pt-0 pb-1 invoice-descrpition">{% now "m/d/Y" %}</td>
+                        <td class="pt-0 pb-1 invoice-descrpition">
+                            {% if order.terminated_date %}
+                                {{ order.terminated_date|date:"m/d/Y" }}
+                            {% else %}
+                                {% now "m/d/Y" %}
+                            {% endif %}
+                        </td>
                     </tr>
                     <tr>
                         <td>
@@ -31,7 +37,7 @@
                  alt=""
                  height="60px"
                  width="100px"
-                 class="h-px-60 w-auto float-end"/>
+                 class="h-px-60 w-auto float-end" />
         </div>
     </div>
 </div>
@@ -98,14 +104,10 @@
                         </tr>
                     {% endfor %}
                     <tr>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td>
                             <strong class="float-end">${{ service_amount|floatformat:"2" }}</strong>
                         </td>
@@ -115,67 +117,43 @@
         </div>
     {% endif %}
     {% if parts_amount %}
-        <h5 class="card-title mt-3 mb-0">
-            Parts
-        </h5>
+        <h5 class="card-title mt-3 mb-0">Parts</h5>
         <div class="table-responsive text-nowrap">
             <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th>
-                            Code
-                        </th>
-                        <th class="invoice-descrpition">
-                            Description
-                        </th>
-                        <th>
-                            Qty
-                        </th>
-                        <th>
-                            Each
-                        </th>
-                        <th>
-                            Amount
-                        </th>
+                        <th>Code</th>
+                        <th class="invoice-descrpition">Description</th>
+                        <th>Qty</th>
+                        <th>Each</th>
+                        <th>Amount</th>
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0">
                     {% for trans in transactions %}
                         {% if trans.product.type == 'part' %}
                             <tr>
-                                <td>
-                                    {{ trans.product.id|stringformat:"04i" }}
-                                </td>
+                                <td>{{ trans.product.id|stringformat:"04i" }}</td>
                                 <td>
                                     <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ trans.product.name }}</strong>
                                 </td>
                                 <td>
-                                    <div class="float-end">
-                                        {{ trans.quantity|floatformat:"-2" }}
-                                    </div>
+                                    <div class="float-end">{{ trans.quantity|floatformat:"-2" }}</div>
                                 </td>
                                 <td>
-                                    <div class="float-end">
-                                        ${{ trans.price|floatformat:"2" }}
-                                    </div>
+                                    <div class="float-end">${{ trans.price|floatformat:"2" }}</div>
                                 </td>
                                 <td>
-                                    <div class="float-end">
-                                        ${{ trans.amount|floatformat:"2" }}
-                                    </div>
+                                    <div class="float-end">${{ trans.amount|floatformat:"2" }}</div>
                                 </td>
                             </tr>
                         {% endif %}
                     {% endfor %}
                     <tr>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td>
                             <strong class="float-end">${{ parts_amount|floatformat:"2" }}</strong>
                         </td>
@@ -186,67 +164,43 @@
     {% endif %}
     <!-- Supplies -->
     {% if consumable_amount %}
-        <h5 class="card-title mt-3 mb-0">
-            Supplies
-        </h5>
+        <h5 class="card-title mt-3 mb-0">Supplies</h5>
         <div class="table-responsive text-nowrap">
             <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th>
-                            Code
-                        </th>
-                        <th class="invoice-descrpition">
-                            Description
-                        </th>
-                        <th>
-                            Qty
-                        </th>
-                        <th>
-                            Each
-                        </th>
-                        <th>
-                            Amount
-                        </th>
+                        <th>Code</th>
+                        <th class="invoice-descrpition">Description</th>
+                        <th>Qty</th>
+                        <th>Each</th>
+                        <th>Amount</th>
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0">
                     {% for trans in transactions %}
                         {% if trans.product.type == 'consumable' %}
                             <tr>
-                                <td>
-                                    {{ trans.product.id|stringformat:"04i" }}
-                                </td>
+                                <td>{{ trans.product.id|stringformat:"04i" }}</td>
                                 <td>
                                     <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ trans.product.name }}</strong>
                                 </td>
                                 <td>
-                                    <div class="float-end">
-                                        {{ trans.quantity|floatformat:"-2" }}
-                                    </div>
+                                    <div class="float-end">{{ trans.quantity|floatformat:"-2" }}</div>
                                 </td>
                                 <td>
-                                    <div class="float-end">
-                                        ${{ trans.price|floatformat:"2" }}
-                                    </div>
+                                    <div class="float-end">${{ trans.price|floatformat:"2" }}</div>
                                 </td>
                                 <td>
-                                    <div class="float-end">
-                                        ${{ trans.amount|floatformat:"2" }}
-                                    </div>
+                                    <div class="float-end">${{ trans.amount|floatformat:"2" }}</div>
                                 </td>
                             </tr>
                         {% endif %}
                     {% endfor %}
                     <tr>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td>
                             <strong class="float-end">${{ consumable_amount|floatformat:"2" }}</strong>
                         </td>
@@ -257,51 +211,34 @@
     {% endif %}
     <!-- Expenses -->
     {% if expenses %}
-        <h5 class="card-title mt-3 mb-0">
-            Third Party Expenses
-        </h5>
+        <h5 class="card-title mt-3 mb-0">Third Party Expenses</h5>
         <div class="table-responsive text-nowrap">
             <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th>
-                            Code
-                        </th>
-                        <th>
-                            Description
-                        </th>
-                        <th class="invoice-descrpition">
-                            Provider
-                        </th>
-                        <th>
-                            Cost
-                        </th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th class="invoice-descrpition">Provider</th>
+                        <th>Cost</th>
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0">
                     {% for expense in expenses %}
                         <tr data-tag="{{ expense.concept }}">
-                            <td>
-                                {{ expense.id|stringformat:"04i" }}
-                            </td>
+                            <td>{{ expense.id|stringformat:"04i" }}</td>
                             <td>
                                 <strong>{{ expense.concept|nbsp }}</strong>
                             </td>
                             <td>
                                 {% if expense.associated %}{{ expense.associated }}{% endif %}
                             </td>
-                            <td>
-                                ${{ expense.cost|floatformat:"2" }}
-                            </td>
+                            <td>${{ expense.cost|floatformat:"2" }}</td>
                         </tr>
                     {% endfor %}
                     <tr>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td>
                             <strong class="float-end">${{ expenses_amount|floatformat:"2" }}</strong>
                         </td>
@@ -316,49 +253,32 @@
             <table class="table table-borderless">
                 <tbody class="table-border-bottom-0">
                     <tr>
-                        <td class="invoice-descrpition">
-                        </td>
+                        <td class="invoice-descrpition"></td>
                         <td>
                             <table class="table table-borderless table-sm">
                                 <tbody class="table-border-bottom-0">
                                     <tr>
+                                        <td>Subtotal</td>
                                         <td>
-                                            Subtotal
-                                        </td>
-                                        <td>
-                                            <div class="float-end">
-                                                ${{ order.amount|floatformat:"2" }}
-                                            </div>
+                                            <div class="float-end">${{ order.amount|floatformat:"2" }}</div>
                                         </td>
                                     </tr>
                                     <tr>
+                                        <td>Tax&nbsp;({{ tax_percent|floatformat:"-2" }}%)</td>
                                         <td>
-                                            Tax&nbsp;({{ tax_percent|floatformat:"-2" }}%)
-                                        </td>
-                                        <td>
-                                            <div class="float-end">
-                                                ${{ order.tax|floatformat:"2" }}
-                                            </div>
+                                            <div class="float-end">${{ order.tax|floatformat:"2" }}</div>
                                         </td>
                                     </tr>
                                     <tr>
+                                        <td>Total</td>
                                         <td>
-                                            Total
-                                        </td>
-                                        <td>
-                                            <div class="float-end">
-                                                ${{ order.total|floatformat:"2" }}
-                                            </div>
+                                            <div class="float-end">${{ order.total|floatformat:"2" }}</div>
                                         </td>
                                     </tr>
                                     <tr>
+                                        <td>Discount</td>
                                         <td>
-                                            Discount
-                                        </td>
-                                        <td>
-                                            <div class="float-end">
-                                                ${{ order.discount|floatformat:"2" }}
-                                            </div>
+                                            <div class="float-end">${{ order.discount|floatformat:"2" }}</div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -375,9 +295,7 @@
                                         </td>
                                         <td>
                                             <div class="float-end">
-                                                <strong>
-                                                    ${{ order.total|floatformat:"2" }}
-                                                </strong>
+                                                <strong>${{ order.total|floatformat:"2" }}</strong>
                                             </div>
                                         </td>
                                     </tr>
