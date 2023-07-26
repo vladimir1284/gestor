@@ -56,6 +56,10 @@ urlpatterns = [
     path('service-invoice/<id>', invoice.view_invoice, name='service-invoice'),
     path('pdf-invoice/<id>', invoice.generate_invoice, name='pdf-invoice'),
     path('html-invoice/<id>', invoice.html_invoice, name='html-invoice'),
+    # -------------------- Labor ----------------------------
+    path('service-labor/<id>', invoice.view_labor, name='service-labor'),
+    path('pdf-labor/<id>', invoice.generate_labor, name='pdf-labor'),
+    path('html-labor/<id>', invoice.html_labor, name='html-labor'),
     # -------------------- Expense ----------------------------
     path('create-expense/<order_id>',
          expense.create_expense, name='create-expense'),

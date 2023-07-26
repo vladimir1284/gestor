@@ -64,9 +64,7 @@
                             data-bs-toggle="collapse"
                             data-bs-target="#discountCollapse"
                             aria-expanded="true"
-                            aria-controls="discountCollapse">
-                        ${{ order.discount|floatformat:"-2" }} discount
-                    </button>
+                            aria-controls="discountCollapse">${{ order.discount|floatformat:"-2" }} discount</button>
                     <div class="collapse mt-2" id="discountCollapse">
                         <form enctype="multipart/form-data"
                               method="post"
@@ -85,9 +83,7 @@
                     <button type="button"
                             class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% endif %} dropdown-toggle"
                             data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                        {{ order.get_status_display }}
-                    </button>
+                            aria-expanded="false">{{ order.get_status_display }}</button>
                     <ul class="dropdown-menu">
                         {% if order.status != 'pending' %}
                             <li>
@@ -120,7 +116,7 @@
                     {% for payment in payments %}
                         <li class="d-flex mb-4 pb-1">
                             <div class="avatar flex-shrink-0 me-3">
-                                {% if payment.category.icon %}<img src="{{ payment.category.icon.url }}" alt="" class="w-px-40 h-auto"/>{% endif %}
+                                {% if payment.category.icon %}<img src="{{ payment.category.icon.url }}" alt="" class="w-px-40 h-auto" />{% endif %}
                             </div>
                             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                 <div class="me-2">
@@ -143,6 +139,11 @@
                    type="button"
                    href="{% url 'service-invoice' order.id %}">
                     <span class="tf-icons bx bx-credit-card"></span>
+                </a>
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'service-labor' order.id %}">
+                    <span class="tf-icons bx bx-wrench"></span>
                 </a>
                 {% if not terminated %}
                     <a class="btn btn-icon btn-outline-primary"
@@ -195,11 +196,7 @@
                                     <td>
                                         <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
                                     </td>
-                                    
-                                    <td {% if  not trans.satisfied %}
-                                    class="text-danger"
-                                    
-                                    {% endif %}> {{ trans.quantity|floatformat:"-2" }}</td>
+                                    <td {% if  not trans.satisfied %}class="text-danger"{% endif %}>{{ trans.quantity|floatformat:"-2" }}</td>
                                     <td>{{ trans.unit }}</td>
                                     <td>${{ trans.price|floatformat:"2" }}</td>
                                     <td>${{ trans.amount|floatformat:"2" }}</td>
@@ -228,21 +225,11 @@
                             <th>
                                 <i class="bx bx-cog"></i>
                             </th>
-                            <th>
-                                Service
-                            </th>
-                            <th>
-                                Qty
-                            </th>
-                            <th>
-                                Price
-                            </th>
-                            <th>
-                                Amount
-                            </th>
-                            <th>
-                                Tax
-                            </th>
+                            <th>Service</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                            <th>Tax</th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
@@ -254,18 +241,10 @@
                                 <td>
                                     <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
                                 </td>
-                                <td>
-                                    {{ service.quantity|floatformat:"-2" }}
-                                </td>
-                                <td>
-                                    ${{ service.price|floatformat:"2" }}
-                                </td>
-                                <td>
-                                    ${{ service.amount|floatformat:"2" }}
-                                </td>
-                                <td>
-                                    ${{ service.total_tax|floatformat:"2" }}
-                                </td>
+                                <td>{{ service.quantity|floatformat:"-2" }}</td>
+                                <td>${{ service.price|floatformat:"2" }}</td>
+                                <td>${{ service.amount|floatformat:"2" }}</td>
+                                <td>${{ service.total_tax|floatformat:"2" }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -291,24 +270,12 @@
                             <th>
                                 <i class="bx bx-cog"></i>
                             </th>
-                            <th>
-                                Product
-                            </th>
-                            <th>
-                                Qty
-                            </th>
-                            <th>
-                                Unit
-                            </th>
-                            <th>
-                                Price
-                            </th>
-                            <th>
-                                Amount
-                            </th>
-                            <th>
-                                Tax
-                            </th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                            <th>Tax</th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
@@ -321,21 +288,11 @@
                                     <td>
                                         <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
                                     </td>
-                                    <td>
-                                        {{ trans.quantity|floatformat:"-2" }}
-                                    </td>
-                                    <td>
-                                        {{ trans.unit }}
-                                    </td>
-                                    <td>
-                                        ${{ trans.price|floatformat:"2" }}
-                                    </td>
-                                    <td>
-                                        ${{ trans.amount|floatformat:"2" }}
-                                    </td>
-                                    <td>
-                                        ${{ trans.total_tax|floatformat:"2" }}
-                                    </td>
+                                    <td>{{ trans.quantity|floatformat:"-2" }}</td>
+                                    <td>{{ trans.unit }}</td>
+                                    <td>${{ trans.price|floatformat:"2" }}</td>
+                                    <td>${{ trans.amount|floatformat:"2" }}</td>
+                                    <td>${{ trans.total_tax|floatformat:"2" }}</td>
                                 </tr>
                             {% endif %}
                         {% endfor %}
@@ -372,15 +329,9 @@
                                 <th>
                                     <i class="bx bx-cog"></i>
                                 </th>
-                                <th>
-                                    Concept
-                                </th>
-                                <th>
-                                    Provider
-                                </th>
-                                <th>
-                                    Cost
-                                </th>
+                                <th>Concept</th>
+                                <th>Provider</th>
+                                <th>Cost</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -400,9 +351,7 @@
                                             <a href={% url 'detail-associated' expense.associated.id %}>{{ expense.associated }}</a>
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        ${{ expense.cost|floatformat:"2" }}
-                                    </td>
+                                    <td>${{ expense.cost|floatformat:"2" }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -436,7 +385,7 @@
                 {% endif %}
             </div>
         </h5>
-        <hr class="mt-0 mb-4"/>
+        <hr class="mt-0 mb-4" />
         {% if images %}
             <div class="row col-12">
                 {% for img in images %}
