@@ -5,7 +5,7 @@
     <p class="bottom-three" id="contract_detail_sign">
         <strong>LESSORS</strong>:
     </p>
-    <div>
+    <section id="signature_daniel">
         By:
         {% if signature_daniel %}
             <img class="signature" src="{{ signature_daniel }}">
@@ -24,7 +24,7 @@
                 <button class="btn btn-primary">Capture</button>
             </a>
         {% endif %}
-    </div>
+    </section>
     <p class="bottom-three-left-two"
        {% if signature_daniel %} {% else %} {% if date_daniel %} style="margin-top: -3em;" {% else %} style="margin-top: 0em;" {% endif %}
        {% endif %}>Daniel Hernández Duarte</p>
@@ -32,7 +32,7 @@
     <p class="bottom-three">
         <strong>LESSEE</strong>:
     </p>
-    <div>
+    <section id="signature_lessee">
         By:
         {% if signature_lessee %}
             <img class="signature" src="{{ signature_lessee }}">
@@ -51,7 +51,7 @@
                 <button class="btn btn-primary">Capture</button>
             </a>
         {% endif %}
-    </div>
+    </section>
     <p class="bottom-three-left-two"
        {% if signature_lessee %} {% else %} {% if date_lessee %} style="margin-top: -3em;" {% else %} style="margin-top: 0em;" {% endif %}
        {% endif %}>

@@ -194,3 +194,4 @@ if ENVIRONMENT == 'production':
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 else:
     STATICFILES_DIRS = ['static/',]
+    ALLOWED_HOSTS.append("192.168.1.105")

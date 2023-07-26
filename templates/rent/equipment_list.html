@@ -21,25 +21,23 @@
             <td>
                 <a href={% url 'detail-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
-            <td class="d-flex">
-                {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
+            <td>
+                <div class="d-flex">
+                    {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
+                </div>
             </td>
             <td>
                 {% if equipment.last_contract %}
                     <img src="{% static 'assets/img/icons/contract.jpg' %}"
                          alt="contract icon"
-                         height="100px"
-                         width="100px"
-                         class="w-px-40 h-auto" />
+                         class="h-px-40 w-auto" />
                 {% endif %}
             </td>
             <td>
                 {% if equipment.doc_color %}
                     <img src="{% static equipment.doc_color %}"
                          alt="doc icon"
-                         height="100px"
-                         width="100px"
-                         class="w-px-40 h-auto" />
+                         class="h-px-40 w-auto" />
                 {% endif %}
             </td>
             <td>
