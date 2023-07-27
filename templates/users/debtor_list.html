@@ -18,7 +18,7 @@
 {% block Tbody %}
     {% for associated in associates %}
         <tr data-search="{{ associated.name }}{{ associated.phone_number }}">
-            <td>{% include "user/associated_line.html" %}</td>
+            <td>{% include "users/associated_line.html" %}</td>
             <td>
                 <a href="{% url 'pay-debt' associated.id %}">${{ associated.debt|floatformat:"2" }}</a>
             </td>

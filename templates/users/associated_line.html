@@ -1,12 +1,13 @@
+{% load static %}
 <div class="d-flex pb-1">
     <div class="avatar flex-shrink-0 me-3">
         <a href={% url 'detail-associated' associated.id %}>
             <span class="avatar-initial rounded-circle bg-label-primary">
-                <img {% if associated.avatar %} src="{{ associated.avatar.url }}" {% else %} src="{% static 'images/icons/user.png' %}" {% endif %}
-                     alt="Avatar"
+                <img src="{% if associated.avatar %} {{ associated.avatar.url }} {% else %} {% static 'assets/img/icons/user.png' %} {% endif %}"
+                     alt=" Avatar "
                      height="100px"
                      width="100px"
-                     class="w-px-40 h-auto rounded-circle"/>
+                     class="w-px-40 h-auto rounded-circle" />
             </span>
         </a>
     </div>
