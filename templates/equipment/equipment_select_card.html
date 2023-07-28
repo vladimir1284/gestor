@@ -2,12 +2,12 @@
 <div class="d-flex pb-1">
     <div class="avatar flex-shrink-0 me-3">
         <span class="avatar-initial rounded-circle bg-label-primary">
-            <img {% if equipment.image %} src="{{ equipment.image.url }}" {% else %} {% if trailer %} src="{% static 'assets/img/icons/trailer.png' %}" {% else %} src="{% static 'images/icons/truck.jpg' %}" {% endif %}
+            <img {% if equipment.image %} src="{{ equipment.image.url }}" {% else %} {% if trailer %} src="{% static 'assets/img/icons/trailer.png' %}" {% else %} src="{% static 'assets/img/icons/truck.jpg' %}" {% endif %}
                  {% endif %}
                  alt="icon"
                  height="100px"
                  width="100px"
-                 class="w-px-40 h-auto rounded-circle" />
+                 class="w-px-40 h-auto rounded-circle"/>
         </span>
     </div>
     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
@@ -25,7 +25,7 @@
                     <input type="hidden" name="id" value="{{ equipment.id }}" />
                     <input type="hidden"
                            name="type"
-                           value="{% if trailer %}trailer{% elif vehicle %}vehicle{% endif %}" />
+                           value="{% if trailer %}trailer{% elif vehicle %}vehicle{% endif %}"/>
                 </div>
                 <button class="btn btn-icon btn-outline-primary" type="submit">
                     <span class="tf-icons bx bx-check"></span>

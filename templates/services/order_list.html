@@ -42,7 +42,7 @@
             data-search="{{ order.associated.alias }}{{ order.associated.name }}{{ order.associated.phone_number }}">
             <td class="chapilla">
                 <a href={% url 'detail-service-order' order.id %}>
-                    <img {% if order.status == 'processing' %} src="{% static 'images/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'images/icons/done.png' %}" {% elif order.status == 'pending' %} src="{% static 'images/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'images/icons/tag-info.png' %}" {% elif order.status == 'decline' %} src="{% static 'images/icons/cancel.png' %}" {% endif %}
+                    <img {% if order.status == 'processing' %} src="{% static 'assets/img/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'assets/img/icons/done.png' %}" {% elif order.status == 'pending' %} src="{% static 'assets/img/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'assets/img/icons/tag-info.png' %}" {% elif order.status == 'decline' %} src="{% static 'assets/img/icons/cancel.png' %}" {% endif %}
                          alt="{{ order.badge }}"
                          height="32px"
                          width="20px"
@@ -66,7 +66,7 @@
                     <div class="avatar flex-shrink-0 me-3">
                         <a href={% url 'detail-associated' order.associated.id %}>
                             <span class="avatar-initial rounded-circle bg-label-primary">
-                                <img {% if order.associated.avatar %} src="{{ order.associated.avatar.url }}" {% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
+                                <img {% if order.associated.avatar %} src="{{ order.associated.avatar.url }}" {% else %} src="{% static 'assets/img/icons/user.png' %}" {% endif %}
                                      alt="Avatar"
                                      height="100px"
                                      width="100px"
@@ -87,7 +87,7 @@
                     <div class="avatar flex-shrink-0 me-3">
                         <a href={% url 'detail-company' order.company.id %}>
                             <span class="avatar-initial rounded-circle bg-label-primary">
-                                <img {% if order.company.avatar %} src="{{ order.company.avatar.url }}" {% else %} src="{% static 'images/icons/company.png' %}" {% endif %}
+                                <img {% if order.company.avatar %} src="{{ order.company.avatar.url }}" {% else %} src="{% static 'assets/img/icons/company.png' %}" {% endif %}
                                      alt="Avatar"
                                      height="100px"
                                      width="100px"

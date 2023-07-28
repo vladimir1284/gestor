@@ -141,7 +141,7 @@ class PictureLayout(Layout):
                 {% if form.avatar.value %}
                     src="/media/{{ form.avatar.value }}"
                 {% else %}
-                    src="{% static 'images/icons/client.png' %}"
+                    src="{% static 'assets/img/icons/user.png' %}"
                 {% endif %}>
                 """
                 ),

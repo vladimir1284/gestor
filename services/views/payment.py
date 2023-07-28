@@ -86,7 +86,7 @@ def process_payment(request, order_id):
     # Create the debt category if it doesn't exists
     debt, created = PaymentCategory.objects.get_or_create(
         name='debt',
-        defaults={'name': 'debt', 'icon': 'images/icons/debt.png'}
+        defaults={'name': 'debt', 'icon': 'assets/img/icons/debt.png'}
     )
 
     # Create a form for each category

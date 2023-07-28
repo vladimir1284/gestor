@@ -33,12 +33,12 @@
         </div>
         <div class="card-body text-center">
             <div class="demo-inline-spacing mb-2 associated-pic">
-                <img {% if contact.avatar %} src="{{ contact.avatar.url }}" {% elif type == 'company' %} src="{% static 'images/icons/company.png' %}" {% elif type == 'associated' %} src="{% static 'images/icons/client.png' %}" {% endif %}
+                <img {% if contact.avatar %} src="{{ contact.avatar.url }}" {% elif type == 'company' %} src="{% static 'assets/img/icons/company.png' %}" {% elif type == 'associated' %} src="{% static 'assets/img/icons/user.png' %}" {% endif %}
                      alt="Avatar"
                      height="100px"
                      width="100px"
                      class="w-px-100 h-px-100 rounded-circle card-img-top"/>
-                <img {% if contact.language == "english" %}src="{% static 'images/icons/en.png' %}"{% else %} src="{% static 'images/icons/es.png' %}" {% endif %}
+                <img {% if contact.language == "english" %}src="{% static 'assets/img/icons/en.png' %}"{% else %} src="{% static 'assets/img/icons/es.png' %}" {% endif %}
                      alt="Avatar"
                      height="40px"
                      width="40px"

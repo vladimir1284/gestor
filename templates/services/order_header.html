@@ -9,7 +9,7 @@
                 <div class="avatar flex-shrink-0 me-3">
                     <a href={% url 'detail-associated' order.associated.id %}>
                         <span class="avatar-initial rounded-circle bg-label-primary">
-                            <img {% if order.associated.avatar %} src="{{ order.associated.avatar.url }}" {% else %} src="{% static 'images/icons/client.png' %}" {% endif %}
+                            <img {% if order.associated.avatar %} src="{{ order.associated.avatar.url }}" {% else %} src="{% static 'assets/img/icons/user.png' %}" {% endif %}
                                  alt="Avatar"
                                  height="100px"
                                  width="100px"
@@ -20,15 +20,11 @@
                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                     <div class="me-2">
                         <h6 class="mb-0">{{ order.associated.name }}</h6>
-                            {% if order.associated.debt > 0 %}
-                                <small class="text-danger">
-                                    Debt: ${{ order.associated.debt }} ({{ order.associated.debt_status }})
-                                </small>
-                            {% else %}
-                                <small class="text-muted">
-                                    {{ order.associated.phone_number }}
-                                </small>
-                            {% endif %}
+                        {% if order.associated.debt > 0 %}
+                            <small class="text-danger">Debt: ${{ order.associated.debt }} ({{ order.associated.debt_status }})</small>
+                        {% else %}
+                            <small class="text-muted">{{ order.associated.phone_number }}</small>
+                        {% endif %}
                     </div>
                 </div>
             {% else %}
@@ -42,7 +38,7 @@
                 <div class="avatar flex-shrink-0 me-3">
                     <a href={% url 'detail-company' order.company.id %}>
                         <span class="avatar-initial rounded-circle bg-label-primary">
-                            <img {% if order.company.avatar %} src="{{ order.company.avatar.url }}" {% else %} src="{% static 'images/icons/company.png' %}" {% endif %}
+                            <img {% if order.company.avatar %} src="{{ order.company.avatar.url }}" {% else %} src="{% static 'assets/img/icons/company.png' %}" {% endif %}
                                  alt="Avatar"
                                  height="100px"
                                  width="100px"

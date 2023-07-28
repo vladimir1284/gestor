@@ -1,16 +1,14 @@
 {% extends "../../base/base.html" %}
 {% load tz %}
 {% load static %}
-
-{% block page %}   
-    {% block map_scripts %}  
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-    crossorigin=""/>
-    
-    <script type="text/javascript" src="{% static '/js/leaflet.js' %}"></script>
-    <script type="text/javascript" src="{% static '/js/date.format.js' %}"></script>
-        
+{% block page %}
+    {% block map_scripts %}
+        <link rel="stylesheet"
+              href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+              integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+              crossorigin=""/>
+        <script type="text/javascript" src="{% static '/js/leaflet.js' %}"></script>
+        <script type="text/javascript" src="{% static '/js/date.format.js' %}"></script>
         <style>
             #map { height: 950px; }
             #map .leaflet-div-icon {
@@ -39,14 +37,10 @@
                content: '';
             }
         </style>
-    {% endblock map_scripts %} 
-    
-{% endblock page %} 
-
+    {% endblock map_scripts %}
+{% endblock page %}
 {% block content %}
-
     <div id="map"></div>
-   
     <script>
          // Creating map options
          var mapOptions = {
@@ -81,7 +75,7 @@
         $.getJSON('data', function(data) {
             let trackers = data.data;
             
-            markerDict = {true: "{% static '/images/icons/icon_green.png' %}", false: "{% static '/images/icons/icon_red.png' %}"}
+            markerDict = {true: "{% static '/assets/img/icons/icon_green.png' %}", false: "{% static '/assets/img/icons/icon_red.png' %}"}
             let minLon = 0;
             let maxLon = -180;
             let minLat = 90;
@@ -98,8 +92,7 @@
                 let marker = L.marker([tracker.latitude, tracker.longitude], {icon: icon}).addTo(map);
 
                 marker.bindPopup(`<div style="font-size: 24px;"> <a href="/towit/tracker_detail/${tracker.tracker}">Tracker ${tracker.tracker}</a></br>
-                                    Bat:  <span style="background-color:
-                                            ${{1:'lightcoral', 0:'lightgreen'}[tracker.mode]}">
+                                    Bat:  <span style="background-color: ${{1:'lightcoral', 0:'lightgreen'}[tracker.mode]}">
                                             ${Math.round(tracker.battery * 100) / 100}V
                                         </span></br>
                                     ${date.format("mmm dd, h:MMtt")}</br>
@@ -118,6 +111,5 @@
                 ]);
             //L.geoJson(data).addTo(map);
         })
-     </script>
-
-{% endblock content %} 
+    </script>
+{% endblock content %}
