@@ -13,6 +13,9 @@ from services.models import (
 from services.forms import (
     SendMailForm,
 )
+from users.forms import (
+    UserProfile,
+)
 from utils.send_mail import MailSender
 from django.utils.translation import gettext_lazy as _
 
@@ -112,6 +115,9 @@ def view_labor(request, id):
     # Payments
     context.setdefault(
         'payments', Payment.objects.filter(order=context['order']))
+    # Workers
+    context.setdefault(
+        'workers', UserProfile.objects.filter(role=2))
 
     return render(request, 'services/labor_view.html', context)
 
@@ -127,6 +133,9 @@ def generate_labor_pdf(context, request):
     image = settings.STATIC_ROOT+'/assets/img/icons/TOWIT.png'
     # Render
     context.setdefault('image', image)
+    # Workers
+    context.setdefault(
+        'workers', UserProfile.objects.filter(role=2))
     html_string = render_to_string('services/labor_pdf.html', context)
     if settings.ENVIRONMENT == 'production':
         from weasyprint import HTML
