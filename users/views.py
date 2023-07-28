@@ -27,7 +27,7 @@ from .models import (
     Associated,
     Company,
 )
-from services.models import DebtStatus
+from services.models import DebtStatus, PendingPayment 
 from utils.models import Order
 from django.utils.translation import gettext_lazy as _
 
@@ -292,6 +292,8 @@ def processOrders(orders):
 def detail_associated(request, id):
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
+    pending_payments= PendingPayment.objects.filter(
+        client=associated).order_by("-created_date")
     orders = Order.objects.filter(
         associated=associated).order_by("-created_date", "-id")
     processOrders(orders)
@@ -307,7 +309,9 @@ def detail_associated(request, id):
     context = {'contact': associated,
                'orders': orders,
                'type': 'associated',
-               'title': 'Associated detail'}
+               'title': 'Associated detail',
+               'pending_payments': pending_payments}
+    print(pending_payments [0].amount)
     return render(request, 'users/contact_detail.html', context)
 
 
