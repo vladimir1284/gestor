@@ -127,11 +127,11 @@
         </div>
         <div class="card-body text-center">
             <div class="demo-inline-spacing mb-2 associated-pic">
-                <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'images/icons/trailer.png' %}" {% endif %}
+                <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'assets/img/icons/trailer.png' %}" {% endif %}
                      alt="image"
                      height="100px"
                      width="100px"
-                     class="w-px-100 h-px-100 rounded-circle card-img-top"/>
+                     class="w-px-100 h-px-100 rounded-circle card-img-top" />
             </div>
             <h5 class="card-title">
                 {{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}
@@ -280,9 +280,7 @@
                                     <th>Order</th>
                                     <th>Date</th>
                                     <th>Status</th>
-                                    <th>
-                                        Amount
-                                    </th>
+                                    <th>Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -292,17 +290,13 @@
                                             <td>
                                                 <a href="{% url 'detail-service-order' order.id %}"><strong>{{ order.concept }}</strong></a>
                                             </td>
-                                            <td>
-                                                {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
-                                            </td>
+                                            <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
                                             <td>
                                                 <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
                                                     {{ order.status }}
                                                 </span>
                                             </td>
-                                            <td>
-                                                ${{ order.amount|floatformat:"2" }}
-                                            </td>
+                                            <td>${{ order.amount|floatformat:"2" }}</td>
                                         </tr>
                                     {% endif %}
                                 {% endfor %}
@@ -320,21 +314,11 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>
-                                        Order
-                                    </th>
-                                    <th>
-                                        Client
-                                    </th>
-                                    <th>
-                                        Date
-                                    </th>
-                                    <th>
-                                        Status
-                                    </th>
-                                    <th>
-                                        Amount
-                                    </th>
+                                    <th>Order</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -344,20 +328,14 @@
                                             <td>
                                                 <a href="{% url 'detail-service-order' order.id %}"><strong>{{ order.concept }}</strong></a>
                                             </td>
-                                            <td>
-                                                {{ order.associated }}
-                                            </td>
-                                            <td>
-                                                {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
-                                            </td>
+                                            <td>{{ order.associated }}</td>
+                                            <td>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
                                             <td>
                                                 <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
                                                     {{ order.status }}
                                                 </span>
                                             </td>
-                                            <td>
-                                                ${{ order.amount|floatformat:"2" }}
-                                            </td>
+                                            <td>${{ order.amount|floatformat:"2" }}</td>
                                         </tr>
                                     {% endif %}
                                 {% endfor %}
