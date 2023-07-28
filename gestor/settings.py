@@ -145,7 +145,7 @@ USE_TZ = True
 # AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/erp/users/login/'
 
-MEDIA_ROOT = 'static/'
+MEDIA_ROOT = 'media/'
 MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = '/erp/'
@@ -189,9 +189,13 @@ OCELLID_KEY = os.environ.get('OCELLID_KEY')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+# Base directory for static files
 STATIC_URL = '/static/'
-if ENVIRONMENT == 'production':
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-else:
-    STATICFILES_DIRS = ['static/',]
-    ALLOWED_HOSTS.append("192.168.1.105")
+
+# Location for collected static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Directories to search for static files
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]

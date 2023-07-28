@@ -162,6 +162,7 @@ static/admin/*
 static/django_extensions/*
 .gitignore
 static/images/icons/*
+staticfiles/*
 costs.pickle
 .gitignore
 import_costs.py
