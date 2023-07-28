@@ -31,7 +31,7 @@ class CommonLayout(Layout):
                 {% if form.instance.image %}
                     src="{{ form.instance.image.url }}"
                 {% else %}
-                    src="{% static 'images/icons/no_image.jpg' %}"
+                    src="{% static 'assets/img/icons/no_image.jpg' %}"
                 {% endif %}>
                 """
                 ),

@@ -39,7 +39,7 @@
             </div>
             <div class="col-md-4 mb-3">
                 <img class="card-img card-img-right"
-                     src="{% if product.image %} {{ product.image.url }} {% else %} {% static 'images/icons/no_image.jpg' %} {% endif %}"
+                     src="{% if product.image %} {{ product.image.url }} {% else %} {% static 'assets/img/icons/no_image.jpg' %} {% endif %}"
                      alt="Category icon">
             </div>
             <div class="demo-inline-spacing card-body">
@@ -168,35 +168,21 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>
-                            Qty
-                        </th>
-                        <th>
-                            Unit
-                        </th>
-                        <th>
-                            Date
-                        </th>
-                        <th>
-                            Cost
-                        </th>
+                        <th>Qty</th>
+                        <th>Unit</th>
+                        <th>Date</th>
+                        <th>Cost</th>
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0">
                     {% for stock in stocks %}
                         <tr>
                             <td>
-                                <strong>{{ stock.quantity|floatformat:"-2"  }}</strong>
+                                <strong>{{ stock.quantity|floatformat:"-2" }}</strong>
                             </td>
-                            <td>
-                                {{ product.unit }}
-                            </td>
-                            <td>
-                                {{ stock.created_date|date:"SHORT_DATE_FORMAT" }}
-                            </td>
-                            <td>
-                                ${{ stock.cost|floatformat:"2" }}
-                            </td>
+                            <td>{{ product.unit }}</td>
+                            <td>{{ stock.created_date|date:"SHORT_DATE_FORMAT" }}</td>
+                            <td>${{ stock.cost|floatformat:"2" }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -205,35 +191,19 @@
     </div>
     <hr class="my-2">
     <div class="card">
-        <h5 class="card-header">
-            Purchases
-        </h5>
+        <h5 class="card-header">Purchases</h5>
         <div class="card-body">
-            <div class="card-subtitle text-muted mb-3">
-                {{ latest_order.associated }}
-            </div>
+            <div class="card-subtitle text-muted mb-3">{{ latest_order.associated }}</div>
             <div class="table-responsive text-nowrap">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>
-                                Qty
-                            </th>
-                            <th>
-                                Unit
-                            </th>
-                            <th>
-                                Date
-                            </th>
-                            <th>
-                                Provider
-                            </th>
-                            <th>
-                                Price
-                            </th>
-                            <th>
-                                Tax
-                            </th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Date</th>
+                            <th>Provider</th>
+                            <th>Price</th>
+                            <th>Tax</th>
                             <th>
                                 <i class="bx bx-cog"></i>
                             </th>
@@ -243,23 +213,15 @@
                         {% for purchase in purchases %}
                             <tr>
                                 <td>
-                                    <strong>{{ purchase.quantity|floatformat:"-2"  }}</strong>
+                                    <strong>{{ purchase.quantity|floatformat:"-2" }}</strong>
                                 </td>
-                                <td>
-                                    {{ purchase.unit }}
-                                </td>
-                                <td>
-                                    {{ purchase.order.created_date|date:"SHORT_DATE_FORMAT" }}
-                                </td>
+                                <td>{{ purchase.unit }}</td>
+                                <td>{{ purchase.order.created_date|date:"SHORT_DATE_FORMAT" }}</td>
                                 <td>
                                     <a href={% url 'detail-associated' purchase.order.associated.id %}>{{ purchase.order.associated }}</a>
                                 </td>
-                                <td>
-                                    ${{ purchase.price|floatformat:"2" }}
-                                </td>
-                                <td>
-                                    {{ purchase.tax }}%
-                                </td>
+                                <td>${{ purchase.price|floatformat:"2" }}</td>
+                                <td>{{ purchase.tax }}%</td>
                                 <td>
                                     <a href={% url 'detail-order' purchase.order.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
                                 </td>
@@ -296,15 +258,9 @@
                                 <th>
                                     <i class="bx bx-cog"></i>
                                 </th>
-                                <th>
-                                    Store
-                                </th>
-                                <th>
-                                    price
-                                </th>
-                                <th>
-                                    Date
-                                </th>
+                                <th>Store</th>
+                                <th>price</th>
+                                <th>Date</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -316,12 +272,8 @@
                                     <td>
                                         <a target="blank" href="{{ price.url }}"> <strong>{{ price.store }}</strong></a>
                                     </td>
-                                    <td>
-                                        ${{ price.price|floatformat:"2" }}
-                                    </td>
-                                    <td>
-                                        {{ price.updated_date|date:"SHORT_DATE_FORMAT" }}
-                                    </td>
+                                    <td>${{ price.price|floatformat:"2" }}</td>
+                                    <td>{{ price.updated_date|date:"SHORT_DATE_FORMAT" }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

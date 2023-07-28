@@ -11,7 +11,7 @@
         <div class="col-6 col-md-3 mb-3 text-center">
             <div class="card h-100">
                 <img class="card-img-top"
-                     {% if manufacturer.icon %} src="{{ manufacturer.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
+                     {% if manufacturer.icon %} src="{{ manufacturer.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
                      alt="{{ manufacturer.name }} icon">
                 <div class="card-body">
                     <h5 class="card-title">{{ manufacturer.brand_name }}</h5>

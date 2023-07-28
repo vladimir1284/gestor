@@ -46,7 +46,7 @@ class PictureLayout(Layout):
                 {% if form.image %}
                     src="/media/{{ form.image.value }}"
                 {% else %}
-                    src="{% static 'images/icons/no_image.jpg' %}"
+                    src="{% static 'assets/img/icons/no_image.jpg' %}"
                 {% endif %}>
                 """
                 ),

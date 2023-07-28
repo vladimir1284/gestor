@@ -6,9 +6,9 @@
 {% block Ttitle %}
     <div class="d-flex p-4">
         <div class="avatar flex-shrink-0 me-3">
-            <img {% if category.icon %} src="{{ category.icon.url }}" {% else %} src="{% static 'images/icons/no_image.jpg' %}" {% endif %}
+            <img {% if category.icon %} src="{{ category.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
                  alt=""
-                 class="rounded"/>
+                 class="rounded" />
         </div>
         <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
             <div class="me-2">
