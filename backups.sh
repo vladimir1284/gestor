@@ -17,4 +17,4 @@ find backups/ -type f -name "*.tar.gz" -mtime +14 -exec rm {} \;
 
 # Save all the images and documents to drive
 sleep 1
-rclone copy static remote:towit/backups/static
+rclone copy media remote:towit/backups/media
