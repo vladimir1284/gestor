@@ -90,9 +90,7 @@
                                             data-bs-toggle="tab"
                                             data-bs-target="#navs-tabs-line-card-{{ indicator.name }}"
                                             aria-controls="navs-tabs-line-card-{{ indicator.name }}"
-                                            aria-selected="true">
-                                        {{ indicator.name }}
-                                    </button>
+                                            aria-selected="true">{{ indicator.name }}</button>
                                 </li>
                             {% endif %}
                         {% endfor %}
@@ -156,28 +154,7 @@
                         <tbody class="table-border-bottom-0">
                             {% for associated in associates reversed %}
                                 <tr data-search="{{ associated.name }}{{ associated.phone_number }}">
-                                    <td>
-                                        <div class="d-flex pb-1">
-                                            <div class="avatar flex-shrink-0 me-3">
-                                                <a href={% url 'detail-associated' associated.id %}>
-                                                    <span class="avatar-initial rounded-circle bg-label-primary">
-                                                        <img {% if associated.avatar %} src="{{ associated.avatar.url }}" {% else %} src="{% static 'images/icons/user.png' %}" {% endif %}
-                                                             alt="Avatar"
-                                                             height="100px"
-                                                             width="100px"
-                                                             class="w-px-40 h-auto rounded-circle"/>
-                                                    </span>
-                                                </a>
-                                            </div>
-                                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                                <div data-tag="{{ associated.name }}{{ associated.phone_number }}"
-                                                     class="me-2  associated-data">
-                                                    <h6 class="mb-0">{{ associated.name }}</h6>
-                                                    <small class="text-muted">{{ associated.phone_number }}</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
+                                    <td>{% include "users/associated_line.html" %}</td>
                                     <td>
                                         <a href="{% url 'pay-debt' associated.id %}">${{ associated.debt|floatformat:"2" }}</a>
                                     </td>
@@ -187,22 +164,23 @@
                                             {{ associated.oldest_debt.terminated_date|date:"SHORT_DATE_FORMAT" }}
                                         </a>
                                         {% if associated.weekly_payment %}
-                                            <br> <span {% if associated.late %}class="text-danger"{% endif %}>
+                                            <br>
+                                            <span {% if associated.late %}class="text-danger"{% endif %}>
                                                 ${{ associated.weekly_payment|floatformat:"0" }}/week
                                                 <span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-{% endlocalize %}
-<script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
-<script>
+        {% endlocalize %}
+        <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
+        <script>
         let cardColor, headingColor, axisColor, shadeColor, borderColor;
 
         cardColor = config.colors.white;
@@ -334,5 +312,5 @@
             chart.render();
         }
         }
-</script>
-{% endblock content %}
+        </script>
+    {% endblock content %}
