@@ -79,6 +79,8 @@ class Order(models.Model):
     concept = models.CharField(max_length=120, default='Initial')
     note = models.TextField(blank=True)
     badge = models.IntegerField(blank=True, null=True)
+    invoice_data = models.TextField(blank=True)
+    vin = models.CharField(max_length=5, blank=True, null=True)
     created_date = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     associated = models.ForeignKey(Associated, blank=True, null=True,

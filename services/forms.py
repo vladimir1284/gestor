@@ -45,6 +45,8 @@ class OrderCreateForm(BaseForm):
             'note',
             'badge',
             'quotation',
+            'vin',
+            'invoice_data',
         )
 
     def __init__(self, *args, **kwargs):
@@ -58,6 +60,12 @@ class OrderCreateForm(BaseForm):
             ),
             Div(
                 Div(
+                    Field('vin')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
                     Field('quotation')
                 ),
                 css_class="mb-3"
@@ -65,6 +73,12 @@ class OrderCreateForm(BaseForm):
             Div(
                 Div(
                     Field('badge')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('invoice_data', rows='2')
                 ),
                 css_class="mb-3"
             ),
@@ -285,6 +299,9 @@ class ServiceCreateForm(forms.ModelForm):
                   'description',
                   'category',
                   'sell_tax',
+                  'tire',
+                  'internal',
+                  'marketing',
                   'suggested_price',)
 
     def __init__(self, *args, **kwargs):
@@ -355,6 +372,22 @@ class ServiceCreateForm(forms.ModelForm):
                             ),
                             css_class="mb-3"
                         ),
+                        Div(
+                            Div(
+                                Field('tire'),
+                                css_class="col-3"
+                            ),
+                            Div(
+                                Field('internal'),
+                                css_class="col-4"
+                            ),
+                            Div(
+                                Field('marketing'),
+                                css_class="col-5"
+                            ),
+                            css_class="row mb-3"
+                        ),
+
                         ButtonHolder(
                             Submit('submit', 'Enviar',
                                    css_class='btn btn-success')

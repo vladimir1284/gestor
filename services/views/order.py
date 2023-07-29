@@ -257,8 +257,8 @@ def computeOrderAmount(order: Order):
     return (transactions, services, expenses)
 
 
-def getOrderContext(id):
-    order = Order.objects.get(id=id)
+def getOrderContext(order_id):
+    order = Order.objects.get(id=order_id)
     (transactions, services, expenses) = computeOrderAmount(order)
     satisfied = transactions.satisfied
     # Order by amount

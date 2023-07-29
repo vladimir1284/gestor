@@ -22,9 +22,18 @@ from django.utils.translation import gettext_lazy as _
 # -------------------- Invoice ----------------------------
 
 
+def get_invoice_context(order_id):
+    context = getOrderContext(order_id)
+    # Filter special services
+    context['services'] = [trans for trans in context['services']
+                           if not (trans.service.marketing or trans.service.internal)]
+    return context
+
+
 @login_required
 def view_invoice(request, id):
-    context = getOrderContext(id)
+    context = get_invoice_context(id)
+
     mail_address = ""
     if context['order'].associated and context['order'].associated.email:
         mail_address = context['order'].associated.email
@@ -46,7 +55,7 @@ def view_invoice(request, id):
 
 @login_required
 def html_invoice(request, id):
-    context = getOrderContext(id)
+    context = get_invoice_context(id)
     return render(request, 'services/invoice_pdf.html', context)
 
 
@@ -65,7 +74,7 @@ def generate_invoice_pdf(context, request):
 
 
 def generate_invoice(request, id):
-    context = getOrderContext(id)
+    context = get_invoice_context(id)
     result = generate_invoice_pdf(context, request)
 
     if result is not None:

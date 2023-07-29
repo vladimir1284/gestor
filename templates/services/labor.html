@@ -10,42 +10,16 @@
 </style>
 <div class="card-header pb-0">
     <h3>
-        <strong>Order:</strong> {{ order.concept }}
-    </h3>
-    <h5>
         <strong>Client:</strong> {{ order.associated.name }}
-    </h5>
+        <strong>Vin:</strong> {{ order.vin }}
+        <span class="float-end"><strong>Date:</strong> {{ order.created_date|date:"SHORT_DATE_FORMAT" }}</span>
+    </h3>
+    <h3>
+        <strong>Concept:</strong> {{ order.concept }}
+        <span class="float-end"><strong>Pos:</strong> {{ order.badge }}</span>
+    </h3>
 </div>
 <div class="card-body pt-0">
-    {% if services %}
-        <h5 class="card-title mt-3 mb-0">Labor</h5>
-        <div class="table-responsive text-nowrap">
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th class="invoice-descrpition">Description</th>
-                        <th>Qty</th>
-                        {% for worker in workers %}<th>{{ worker.user.username }}</th>{% endfor %}
-                        <th>ok</th>
-                    </tr>
-                </thead>
-                <tbody class="table-border-bottom-0">
-                    {% for service in services %}
-                        <tr>
-                            <td>
-                                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
-                            </td>
-                            <td>
-                                <div class="float-end">{{ service.quantity|floatformat:"-2" }}</div>
-                            </td>
-                            {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
-                            <td class="cb">&#9634;</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
     {% if parts_amount %}
         <h5 class="card-title mt-3 mb-0">Parts</h5>
         <div class="table-responsive text-nowrap">
@@ -55,7 +29,7 @@
                         <th class="invoice-descrpition">Description</th>
                         <th>Qty</th>
                         <th>Unit</th>
-                        {% for worker in workers %}<th>{{ worker.user.username }}</th>{% endfor %}
+                        {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
                         <th>ok</th>
                     </tr>
                 </thead>
@@ -81,22 +55,156 @@
             </table>
         </div>
     {% endif %}
-    <!-- Supplies -->
+    {% if services %}
+        <h5 class="card-title mt-3 mb-0">Labor</h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th class="invoice-descrpition">Description</th>
+                        <th>Qty</th>
+                        {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
+                        <th>ok</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for service in services %}
+                        {% if not service.service.tire and not service.service.marketing and not service.service.internal %}
+                            <tr>
+                                <td>
+                                    <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
+                                </td>
+                                <td>
+                                    <div class="float-end">{{ service.quantity|floatformat:"-2" }}</div>
+                                </td>
+                                {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
+                                <td class="cb">&#9634;</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    <!--Tires-->
+    {% if tire %}
+        <div class="row">
+            <div id="tire" class="col-4">
+                <img src="{% static 'assets/img/tires.png' %}"
+                     height="3cm"
+                     width="5cm"
+                     alt="trailer skecht">
+            </div>
+            <div class="table-responsive text-nowrap col-8">
+                <h5 class="card-title mt-3 mb-0">Tires</h5>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th class="invoice-descrpition">Description</th>
+                            <th>Qty</th>
+                            {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
+                            <th>ok</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for service in services %}
+                            {% if service.service.tire %}
+                                <tr>
+                                    <td>
+                                        <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
+                                    </td>
+                                    <td>
+                                        <div class="float-end">{{ service.quantity|floatformat:"-2" }}</div>
+                                    </td>
+                                    {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
+                                    <td class="cb">&#9634;</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+<!--Internal-->
+{% if internal %}
+    <h5 class="card-title mt-3 mb-0">Internal</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th class="invoice-descrpition">Description</th>
+                    <th>Qty</th>
+                    {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
+                    <th>ok</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                {% for service in services %}
+                    {% if service.service.internal %}
+                        <tr>
+                            <td>
+                                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
+                            </td>
+                            <td>
+                                <div class="float-end">{{ service.quantity|floatformat:"-2" }}</div>
+                            </td>
+                            {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
+                            <td class="cb">&#9634;</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+<!--Marketing-->
+{% if marketing %}
+    <h5 class="card-title mt-3 mb-0">Marketing</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th class="invoice-descrpition">Description</th>
+                    <th>Qty</th>
+                    {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
+                    <th>ok</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                {% for service in services %}
+                    {% if service.service.marketing %}
+                        <tr>
+                            <td>
+                                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
+                            </td>
+                            <td>
+                                <div class="float-end">{{ service.quantity|floatformat:"-2" }}</div>
+                            </td>
+                            {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
+                            <td class="cb">&#9634;</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+<!-- Supplies
     {% if consumable_amount %}
         <h5 class="card-title mt-3 mb-0">Supplies</h5>
         <div class="table-responsive text-nowrap">
             <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th>Code</th>
                         <th class="invoice-descrpition">Description</th>
                         <th>Qty</th>
-                        <th>
-                            Each
-                        </th>
-                        <th>
-                            Amount
-                        </th>
+                        <th>Unit</th>
+                        {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
+                        <th>ok</th>
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0">
@@ -104,99 +212,36 @@
                         {% if trans.product.type == 'consumable' %}
                             <tr>
                                 <td>
-                                    {{ trans.product.id|stringformat:"04i" }}
-                                </td>
-                                <td>
                                     <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ trans.product.name }}</strong>
                                 </td>
                                 <td>
-                                    <div class="float-end">
-                                        {{ trans.quantity|floatformat:"-2" }}
-                                    </div>
+                                    <div class="float-end">{{ trans.quantity|floatformat:"-2" }}</div>
                                 </td>
                                 <td>
-                                    <div class="float-end">
-                                        ${{ trans.price|floatformat:"2" }}
-                                    </div>
+                                    <div class="float-end">{{ trans.unit }}</div>
                                 </td>
-                                <td>
-                                    <div class="float-end">
-                                        ${{ trans.amount|floatformat:"2" }}
-                                    </div>
-                                </td>
+                                {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
+                                <td class="cb">&#9634;</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
-                    <tr>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                            <strong class="float-end">${{ consumable_amount|floatformat:"2" }}</strong>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
-    {% endif %}
-    <!-- Expenses -->
-    {% if expenses %}
-        <h5 class="card-title mt-3 mb-0">
-            Third Party Expenses
-        </h5>
-        <div class="table-responsive text-nowrap">
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>
-                            Code
-                        </th>
-                        <th>
-                            Description
-                        </th>
-                        <th class="invoice-descrpition">
-                            Provider
-                        </th>
-                        <th>
-                            Cost
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="table-border-bottom-0">
-                    {% for expense in expenses %}
-                        <tr data-tag="{{ expense.concept }}">
-                            <td>
-                                {{ expense.id|stringformat:"04i" }}
-                            </td>
-                            <td>
-                                <strong>{{ expense.concept|nbsp }}</strong>
-                            </td>
-                            <td>
-                                {% if expense.associated %}{{ expense.associated }}{% endif %}
-                            </td>
-                            <td>
-                                ${{ expense.cost|floatformat:"2" }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    <tr>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                        </td>
-                        <td>
-                            <strong class="float-end">${{ expenses_amount|floatformat:"2" }}</strong>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    {% endif %}-->
+<div class="footer">
+    <div>
+        <strong>Note:</strong> {{ order.note }}
+    </div>
+    <div class="row">
+        <div class="col-2">
+            <strong>Operators:</strong>
         </div>
-    {% endif %}
+        {% for worker in workers %}
+            <div class="col-2 text-center">
+                <small><strong>{{ worker.id }}</strong>: {{ worker.user.username }}</small>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 </div>

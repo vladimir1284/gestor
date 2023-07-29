@@ -22,9 +22,23 @@ from django.utils.translation import gettext_lazy as _
 # -------------------- Labor ----------------------------
 
 
+def get_labor_context(order_id):
+    context = getOrderContext(order_id)
+    # Filter special services
+    for trans in context['services']:
+        if trans.service.tire:
+            context.setdefault('tire', True)
+        if trans.service.marketing:
+            context.setdefault('marketing', True)
+        if trans.service.internal:
+            context.setdefault('internal', True)
+
+    return context
+
+
 @login_required
 def view_labor(request, id):
-    context = getOrderContext(id)
+    context = get_labor_context(id)
     # Payments
     context.setdefault(
         'payments', Payment.objects.filter(order=context['order']))
@@ -37,7 +51,7 @@ def view_labor(request, id):
 
 @login_required
 def html_labor(request, id):
-    context = getOrderContext(id)
+    context = get_labor_context(id)
     return render(request, 'services/labor_pdf.html', context)
 
 
@@ -59,7 +73,7 @@ def generate_labor_pdf(context, request):
 
 
 def generate_labor(request, id):
-    context = getOrderContext(id)
+    context = get_labor_context(id)
     result = generate_labor_pdf(context, request)
 
     if result is not None:
