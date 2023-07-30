@@ -18,6 +18,7 @@
         <strong>Concept:</strong> {{ order.concept }}
         <span class="float-end"><strong>Pos:</strong> {{ order.position }}</span>
     </h3>
+    <strong>Note:</strong> {{ order.note }}
 </div>
 <div class="card-body pt-0">
     {% if parts_amount %}
@@ -90,10 +91,7 @@
     {% if tire %}
         <div class="row">
             <div id="tire" class="col-4">
-                <img src="{% static 'assets/img/tires.png' %}"
-                     height="3cm"
-                     width="5cm"
-                     alt="trailer skecht">
+                <img src="{% static 'assets/img/tires.png' %}" alt="trailer skecht">
             </div>
             <div class="table-responsive text-nowrap col-8">
                 <h5 class="card-title mt-3 mb-0">Tires</h5>
@@ -125,63 +123,60 @@
                 </table>
             </div>
         </div>
+    {% endif %}
+    <!--Internal-->
+    <h5 class="card-title mt-3 mb-0">Internal</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th class="invoice-descrpition">Description</th>
+                    {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
+                    <th>ok</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                {% for service in internal_services %}
+                    {% if service.internal %}
+                        <tr>
+                            <td>
+                                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.name }}</strong>
+                            </td>
+                            {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
+                            <td class="cb">&#9634;</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-{% endif %}
-<!--Internal-->
-<h5 class="card-title mt-3 mb-0">Internal</h5>
-<div class="table-responsive text-nowrap">
-    <table class="table table-sm">
-        <thead>
-            <tr>
-                <th class="invoice-descrpition">Description</th>
-                {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
-                <th>ok</th>
-            </tr>
-        </thead>
-        <tbody class="table-border-bottom-0">
-            {% for service in internal_services %}
-                {% if service.internal %}
-                    <tr>
-                        <td>
-                            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.name }}</strong>
-                        </td>
-                        {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
-                        <td class="cb">&#9634;</td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-</div>
-<!--Marketing-->
-<h5 class="card-title mt-3 mb-0">Marketing</h5>
-<div class="table-responsive text-nowrap">
-    <table class="table table-sm">
-        <thead>
-            <tr>
-                <th class="invoice-descrpition">Description</th>
-                {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
-                <th>ok</th>
-            </tr>
-        </thead>
-        <tbody class="table-border-bottom-0">
-            {% for service in marketing_services %}
-                {% if service.marketing %}
-                    <tr>
-                        <td>
-                            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.name }}</strong>
-                        </td>
-                        {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
-                        <td class="cb">&#9634;</td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-</div>
-<!-- Supplies
+    <!--Marketing-->
+    <h5 class="card-title mt-3 mb-0">Marketing</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th class="invoice-descrpition">Description</th>
+                    {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
+                    <th>ok</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                {% for service in marketing_services %}
+                    {% if service.marketing %}
+                        <tr>
+                            <td>
+                                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.name }}</strong>
+                            </td>
+                            {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
+                            <td class="cb">&#9634;</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Supplies
     {% if consumable_amount %}
         <h5 class="card-title mt-3 mb-0">Supplies</h5>
         <div class="table-responsive text-nowrap">
@@ -217,19 +212,4 @@
             </table>
         </div>
     {% endif %}-->
-<div class="footer">
-    <div>
-        <strong>Note:</strong> {{ order.note }}
-    </div>
-    <div class="row">
-        <div class="col-2">
-            <strong>Operators:</strong>
-        </div>
-        {% for worker in workers %}
-            <div class="col-2 text-center">
-                <small><strong>{{ worker.id }}</strong>: {{ worker.user.username }}</small>
-            </div>
-        {% endfor %}
-    </div>
-</div>
 </div>
