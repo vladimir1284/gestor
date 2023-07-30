@@ -43,7 +43,7 @@ class OrderCreateForm(BaseForm):
         fields = (
             'concept',
             'note',
-            'badge',
+            'position',
             'quotation',
             'vin',
             'invoice_data',
@@ -72,7 +72,7 @@ class OrderCreateForm(BaseForm):
             ),
             Div(
                 Div(
-                    Field('badge')
+                    Field('position')
                 ),
                 css_class="mb-3"
             ),

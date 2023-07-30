@@ -38,7 +38,7 @@ class OrderCreateForm(BaseOrderCreateForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['associated'].label = _("Provider")
-        self.fields['badge'].widget = HiddenInput()
+        self.fields['position'].widget = HiddenInput()
 
 
 class CommonTransactionLayout(Layout):

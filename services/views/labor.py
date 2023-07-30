@@ -9,6 +9,7 @@ from .order import getOrderContext
 from django.contrib.auth.decorators import login_required
 from services.models import (
     Payment,
+    Service,
 )
 from services.forms import (
     SendMailForm,
@@ -24,14 +25,16 @@ from django.utils.translation import gettext_lazy as _
 
 def get_labor_context(order_id):
     context = getOrderContext(order_id)
+    # Internal services
+    internal_services = Service.objects.filter(internal=True)
+    context.setdefault('internal_services', internal_services)
+    # Marketing services
+    marketing_services = Service.objects.filter(marketing=True)
+    context.setdefault('marketing_services', marketing_services)
     # Filter special services
     for trans in context['services']:
         if trans.service.tire:
             context.setdefault('tire', True)
-        if trans.service.marketing:
-            context.setdefault('marketing', True)
-        if trans.service.internal:
-            context.setdefault('internal', True)
 
     return context
 

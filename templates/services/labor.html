@@ -16,7 +16,7 @@
     </h3>
     <h3>
         <strong>Concept:</strong> {{ order.concept }}
-        <span class="float-end"><strong>Pos:</strong> {{ order.badge }}</span>
+        <span class="float-end"><strong>Pos:</strong> {{ order.position }}</span>
     </h3>
 </div>
 <div class="card-body pt-0">
@@ -29,7 +29,7 @@
                         <th class="invoice-descrpition">Description</th>
                         <th>Qty</th>
                         <th>Unit</th>
-                        {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
+                        {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
                         <th>ok</th>
                     </tr>
                 </thead>
@@ -63,7 +63,7 @@
                     <tr>
                         <th class="invoice-descrpition">Description</th>
                         <th>Qty</th>
-                        {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
+                        {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
                         <th>ok</th>
                     </tr>
                 </thead>
@@ -102,7 +102,7 @@
                         <tr>
                             <th class="invoice-descrpition">Description</th>
                             <th>Qty</th>
-                            {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
+                            {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
                             <th>ok</th>
                         </tr>
                     </thead>
@@ -128,71 +128,59 @@
     </div>
 {% endif %}
 <!--Internal-->
-{% if internal %}
-    <h5 class="card-title mt-3 mb-0">Internal</h5>
-    <div class="table-responsive text-nowrap">
-        <table class="table table-sm">
-            <thead>
-                <tr>
-                    <th class="invoice-descrpition">Description</th>
-                    <th>Qty</th>
-                    {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
-                    <th>ok</th>
-                </tr>
-            </thead>
-            <tbody class="table-border-bottom-0">
-                {% for service in services %}
-                    {% if service.service.internal %}
-                        <tr>
-                            <td>
-                                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
-                            </td>
-                            <td>
-                                <div class="float-end">{{ service.quantity|floatformat:"-2" }}</div>
-                            </td>
-                            {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
-                            <td class="cb">&#9634;</td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<h5 class="card-title mt-3 mb-0">Internal</h5>
+<div class="table-responsive text-nowrap">
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th class="invoice-descrpition">Description</th>
+                {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
+                <th>ok</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            {% for service in internal_services %}
+                {% if service.internal %}
+                    <tr>
+                        <td>
+                            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.name }}</strong>
+                        </td>
+                        {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
+                        <td class="cb">&#9634;</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-{% endif %}
+</div>
 <!--Marketing-->
-{% if marketing %}
-    <h5 class="card-title mt-3 mb-0">Marketing</h5>
-    <div class="table-responsive text-nowrap">
-        <table class="table table-sm">
-            <thead>
-                <tr>
-                    <th class="invoice-descrpition">Description</th>
-                    <th>Qty</th>
-                    {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
-                    <th>ok</th>
-                </tr>
-            </thead>
-            <tbody class="table-border-bottom-0">
-                {% for service in services %}
-                    {% if service.service.marketing %}
-                        <tr>
-                            <td>
-                                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
-                            </td>
-                            <td>
-                                <div class="float-end">{{ service.quantity|floatformat:"-2" }}</div>
-                            </td>
-                            {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
-                            <td class="cb">&#9634;</td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<h5 class="card-title mt-3 mb-0">Marketing</h5>
+<div class="table-responsive text-nowrap">
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th class="invoice-descrpition">Description</th>
+                {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
+                <th>ok</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            {% for service in marketing_services %}
+                {% if service.marketing %}
+                    <tr>
+                        <td>
+                            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.name }}</strong>
+                        </td>
+                        {% for worker in workers %}<td class="cb">&#9634;</td>{% endfor %}
+                        <td class="cb">&#9634;</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-{% endif %}
+</div>
 <!-- Supplies
     {% if consumable_amount %}
         <h5 class="card-title mt-3 mb-0">Supplies</h5>
@@ -203,7 +191,7 @@
                         <th class="invoice-descrpition">Description</th>
                         <th>Qty</th>
                         <th>Unit</th>
-                        {% for worker in workers %}<th>{{ worker.id }}</th>{% endfor %}
+                        {% for worker in workers %}<th>{{ worker.user.username|slice:"2"  }}</th>{% endfor %}
                         <th>ok</th>
                     </tr>
                 </thead>
