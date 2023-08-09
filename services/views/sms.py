@@ -77,7 +77,7 @@ def twilioSendSMS(order: Order, status: str):
                 client.name,
                 int(order.amount + order.tax), order.id)
         try:
-            if settings.ENVIRONMENT == 'production':
+            if False:  # settings.ENVIRONMENT == 'production':
                 sms_client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
                 message = sms_client.messages.create(
                     body=body,
