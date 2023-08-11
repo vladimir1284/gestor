@@ -72,7 +72,7 @@ class OrderCreateForm(BaseForm):
             'concept',
             'note',
             'associated',
-            'badge'
+            'position',
         )
 
     href = "{% url 'create-provider' %}?next={{ request.path|urlencode }}"
@@ -118,7 +118,7 @@ class OrderCreateForm(BaseForm):
             ),
             Div(
                 Div(
-                    Field('badge')
+                    Field('position')
                 ),
                 css_class="mb-3"
             ),

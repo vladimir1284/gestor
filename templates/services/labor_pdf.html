@@ -7,29 +7,31 @@
           class="template-customizer-core-css" />
     <style>
         @page {
-            size: A3;
-            margin: 20mm;
+            size: A4;
+            margin: 1.5cm;
         }
         body{
             background-color: white;
+            margin: 0;
+            font-family: Arial;
+            font-size: 9pt;
         }
         .invoice-descrpition{
             width: 100%;
         }
-        img {
+        .card-header .card-body{
+            padding: 0;
+        }
+        #tire img{
+            height: 3cm;
+            width: 5cm;
+        }
+        .footer{
             position: absolute;
-            top: 60px;
-            right: 40px;
+            bottom: 0cm;
+            left: 1.5cm;
+            width: 100%;
         }
     </style>
 </head>
-<body>
-    <div class="layout-page">
-        <!-- Content wrapper -->
-        <div class="content-wrapper">
-            <div class="container-xxl flex-grow-1 container-p-y">{% include "services/labor.html" %}</div>
-        </div>
-        <!-- Content wrapper -->
-    </div>
-    <!-- / Layout page -->
-</body>
+{% include "services/labor.html" %}

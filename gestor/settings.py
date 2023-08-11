@@ -158,18 +158,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
-EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
-# EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-# SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]
-# SENDGRID_SANDBOX_MODE_IN_DEBUG = False
-# DEFAULT_FROM_EMAIL = 'TOWIT <vladimir.rodriguezdiez@viep.com.mx>'
+
+load_dotenv('.env')
+
+# EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+# EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.ionos.com'
+EMAIL_USE_TLS = False
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'info@towithouston.com'
+EMAIL_HOST_PASSWORD = os.getenv('MAIL_PASS')
 
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
     BASE_DIR, "trailer-rental-323614-d43be7453c41.json")
 
-
-load_dotenv('.env')
 
 # SMS
 TWILIO_SID = os.getenv('TWILIO_ACCOUNT_SID')

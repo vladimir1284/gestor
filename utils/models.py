@@ -5,6 +5,7 @@ from users.models import User, Associated, Company
 from equipment.models import Vehicle
 from rent.models.vehicle import Trailer
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 def thumbnailField(image_field: models.ImageField, icon_size: int):
@@ -78,7 +79,16 @@ class Order(models.Model):
         max_length=20, choices=STATUS_CHOICE, default='pending')
     concept = models.CharField(max_length=120, default='Initial')
     note = models.TextField(blank=True)
-    badge = models.IntegerField(blank=True, null=True)
+    position = models.IntegerField(
+        blank=True,
+        null=True,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(8)
+        ]
+    )
+    invoice_data = models.TextField(blank=True)
+    vin = models.CharField(max_length=5, blank=True, null=True)
     created_date = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     associated = models.ForeignKey(Associated, blank=True, null=True,

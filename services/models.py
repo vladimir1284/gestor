@@ -25,6 +25,12 @@ class Service(models.Model):
                                  on_delete=models.SET_NULL)
     sell_tax = models.FloatField(blank=True, default=8.25)
     suggested_price = models.FloatField(blank=True)
+    # Special services
+    tire = models.BooleanField(default=False)  # Service associated to tires
+    # Services that doesn't appear in the invoice
+    internal = models.BooleanField(default=False)
+    # Actions related to marketing tha should be carried out by the employee
+    marketing = models.BooleanField(default=False)
 
     def __str__(self):
         return "{}-${}".format(self.name, self.suggested_price)
