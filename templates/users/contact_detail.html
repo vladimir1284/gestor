@@ -113,6 +113,40 @@
                 {% endfor %}
             </tbody>
         </table>
+    <div class="card-header mt-3">
+        <h5>
+            <strong>Pending Payments</strong> 
+        </h5>
+    </div>
+        <div class="table-responsive text-nowrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>amount</th>
+                    <th>category</th>
+                    <th>created_date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in pending_payments %}
+                    <tr data-search="{{payment.category}}">
+                        <td>
+                            ${{ payment.amount }}
+                        </td>
+                        <td>
+                            <div class="avatar">
+                                <img {% if payment.category.icon %} src="{{ payment.category.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
+                                     alt="…"
+                                     class="">
+                            </div>
+                        </td>
+                        <td>{{ payment.created_date|date:"SHORT_DATE_FORMAT" }}</td>
+                         
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
     </div>
 </div>
 {% endblock content %}
