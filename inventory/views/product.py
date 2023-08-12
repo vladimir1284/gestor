@@ -1,5 +1,6 @@
 import os
 import pygsheets
+import datetime
 import json
 from django.http import JsonResponse
 from urllib.parse import urlsplit
@@ -28,6 +29,9 @@ from inventory.forms import (
 )
 from django.utils.translation import gettext_lazy as _
 
+from django.db.models import Avg, Sum
+from statistics import mean
+
 
 class NotEnoughStockError(BaseException):
     """
@@ -37,6 +41,40 @@ class NotEnoughStockError(BaseException):
     pass
 
 # -------------------- Product ----------------------------
+
+
+def compute_product_stats(product):
+    # Monthly sells
+    monthly_sels = []
+    time_labels = []
+    current_month = datetime.datetime.now().month
+    for i in range(current_month, current_month - 12, -1):
+        if i <= 0:
+            i += 12
+        time_labels.append(datetime.date(1900, i, 1).strftime('%b'))
+        monthly_sels.append(
+            ProductTransaction.objects.filter(
+                order__type="sell",
+                order__status="complete",
+                order__terminated_date__month=i,
+                product=product).aggregate(Sum('quantity'))['quantity__sum'] or 0)
+
+    max_monthly_sel = max(monthly_sels)
+    total_monthly_sel = sum(monthly_sels)
+
+    # Overal statistics
+    transactions = ProductTransaction.objects.filter(
+        order__type="sell",
+        order__status="complete",
+        product=product)
+
+    avg_cost = mean([trans.cost for trans in transactions])
+
+    avg_price = mean([trans.price for trans in transactions])
+
+    avg_profit = avg_price - avg_cost
+
+    return time_labels, total_monthly_sel, monthly_sels, max_monthly_sel, avg_cost, avg_price, avg_profit
 
 
 def populate_product(type):
@@ -360,11 +398,23 @@ def detail_product(request, id):
         product.processing = processing
     # Price references
     price_references = PriceReference.objects.filter(product=product)
+
+    # Product statistics
+    (time_labels, total_monthly_sel, monthly_sels, max_monthly_sel, avg_cost,
+     avg_price, avg_profit) = compute_product_stats(product)
+
     return render(request, 'inventory/product_detail.html', {'product': product,
                                                              'stocks': stocks,
                                                              'purchases': purchases,
                                                              'latest_order': latest_order,
-                                                             'price_references': price_references})
+                                                             'price_references': price_references,
+                                                             'time_labels': time_labels,
+                                                             "total_monthly_sel": total_monthly_sel,
+                                                             "monthly_sels": monthly_sels,
+                                                             "max_monthly_sel": max_monthly_sel,
+                                                             "avg_cost": avg_cost,
+                                                             "avg_price": avg_price,
+                                                             "avg_profit": avg_profit})
 
 
 @ login_required

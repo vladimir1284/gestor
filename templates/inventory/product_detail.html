@@ -79,7 +79,16 @@
         <div class="card-header d-flex align-items-center justify-content-between pb-0">
             <div class="card-title mb-0">
                 <h5 class="m-0 me-2">Product Statistics</h5>
-                <small class="text-muted">Last month</small>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">Sells</small>
+                <div id="sellChart"></div>
+                <div class="resize-triggers">
+                    <div class="expand-trigger">
+                        <div style="width: 650px; height: 377px;"></div>
+                    </div>
+                    <div class="contract-trigger"></div>
+                </div>
             </div>
             <div class="dropdown">
                 <button class="btn p-0"
@@ -282,13 +291,124 @@
             {% endif %}
         </div>
     </div>
+    <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
     <script>
+        let cardColor, headingColor, axisColor, shadeColor, borderColor;
+
+        cardColor = config.colors.white;
+        headingColor = config.colors.headingColor;
+        axisColor = config.colors.axisColor;
+        borderColor = config.colors.borderColor;
+        (function () {
+
+        let selector, time_labels, profit_data
+
+        time_labels = [{% for label in time_labels %}'{{label}}',{% endfor %}];        
+        data = [{% for value in monthly_sels %}{{value}},{% endfor %}];
+        plotChart('#sellChart', time_labels, data, "sellChart");
+        })();
+
+        // Area chart
+        // --------------------------------------------------------------------
+        function plotChart(selector, time_labels, data, indicator){
+            const chartEl = document.querySelector(selector),
+            chartConfig = {
+            series: [
+                {
+                data: data,
+                name: indicator
+                }
+            ],
+            chart: {
+                height: 215,
+                parentHeightOffset: 0,
+                parentWidthOffset: 0,
+                toolbar: {
+                show: false
+                },
+                type: 'area'
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                width: 2,
+                curve: 'smooth'
+            },
+            legend: {
+                show: false
+            },
+            markers: {
+                size: 6,
+                colors: 'transparent',
+                strokeColors: 'transparent',
+                strokeWidth: 4,
+                discrete: [
+                {
+                    fillColor: config.colors.white,
+                    seriesIndex: 0,
+                    dataPointIndex: data.length-1,
+                    strokeColor: config.colors.primary,
+                    strokeWidth: 2,
+                    size: 6,
+                    radius: 8
+                }
+                ],
+                hover: {
+                size: 7
+                }
+            },
+            colors: [config.colors.primary],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                shade: shadeColor,
+                shadeIntensity: 0.6,
+                opacityFrom: 0.5,
+                opacityTo: 0.25,
+                stops: [0, 95, 100]
+                }
+            },
+            grid: {
+                borderColor: borderColor,
+                strokeDashArray: 3,
+                padding: {
+                top: -20,
+                bottom: -8,
+                left: 5,
+                right: 8
+                }
+            },
+            xaxis: {
+                categories: time_labels,
+                axisBorder: {
+                show: false
+                },
+                axisTicks: {
+                show: false
+                },
+                labels: {
+                show: true,
+                style: {
+                    fontSize: '13px',
+                    colors: axisColor
+                }
+                }
+            },
+            };
+            if (typeof chartEl !== undefined && chartEl !== null) {
+                const chart = new ApexCharts(chartEl, chartConfig);
+                chart.render();
+            }
+        }
+
         function deleteProduct(url, name) {
             let confirmAction = confirm("Are you sure to delete the product " + name + "?");
             if (confirmAction) {
                 window.location = url;
             }
         }
+
         function duplicateProduct(url, name) {
             let confirmAction = confirm("Do you want to duplicate the product " + name + "?");
             if (confirmAction) {
