@@ -559,6 +559,7 @@ def get_gpt_insights(current_profit,
                      profit_data,
                      parts_data,
                      expenses_data):
+    return ""
     """ Gets a paragraph in natural language from chat GPT with the stats of the 
     week """
 

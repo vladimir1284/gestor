@@ -36,7 +36,7 @@
 
 #     def test_create_user(self):
 #         with open('/home/vladimir/Pictures/3ba3cfdb592c08cea6c0de2ea659ba0a.gif', 'rb') as fp:
-#             self.client.post('/users/create-user/', {
+#             self.client.post('/erp/users/create-user/', {
 #                 'first_name':"Ariel",
 #                 'last_name':"Casanova",
 #                 'username': "ariel",

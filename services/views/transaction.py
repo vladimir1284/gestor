@@ -9,11 +9,15 @@ from inventory.models import (
     Product,
     Stock,
 )
-from inventory.views import (
-    getTransactionAmount,
+from inventory.models import (
     convertUnit,
-    NotEnoughStockError,
+)
+from inventory.views.product import (
     discountStockFIFO
+)
+from inventory.views.transaction import (
+    getTransactionAmount,
+    NotEnoughStockError,
 )
 from utils.models import (
     Transaction,

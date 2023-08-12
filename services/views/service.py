@@ -12,8 +12,8 @@ from inventory.models import (
     KitElement,
 )
 from utils.models import Order
-from inventory.views import (
-    convertUnit,
+from inventory.models import convertUnit
+from inventory.views.product import (
     prepare_product_list,
 )
 from services.models import (

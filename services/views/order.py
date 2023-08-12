@@ -13,7 +13,7 @@ from users.models import (
 from inventory.models import (
     ProductTransaction,
 )
-from inventory.views import (
+from inventory.views.transaction import (
     NotEnoughStockError,
 )
 from services.models import (

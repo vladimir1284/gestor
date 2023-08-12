@@ -18,7 +18,7 @@ class BaseModelTests(TestCase):
         UserProfile.objects.create(user=user)
         # send login data
         response = self.client.post(
-            '/users/login/', self.credentials, follow=True)
+            '/erp/users/login/', self.credentials, follow=True)
         # should be logged in now
         self.assertTrue(response.context['user'].is_active)
 

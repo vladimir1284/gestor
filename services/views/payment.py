@@ -139,7 +139,7 @@ def process_payment(request, order_id):
             transactions = ProductTransaction.objects.filter(order=order)
             for transaction in transactions:
                 handle_transaction(transaction)
-            order.terminated_date = timezone.now()
+            order.terminated_date = timezone.localtime(timezone.now())
             order.status = "complete"
             order.save()
             twilioSendSMS(order, order.status)

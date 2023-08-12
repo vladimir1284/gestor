@@ -45,7 +45,7 @@ class TestPurchaseOrder(BaseModelTests):
         # self.assertEqual(provider.name, self.provider_data['name'])
 
 
-class TestUnitConversion(TestCase):
+class TestUnitConversion(BaseModelTests):
     """
     This class contains tests that convert measurements from one
     unit of measurement to another.
@@ -63,7 +63,7 @@ class TestUnitConversion(TestCase):
         UserProfile.objects.create(user=user)
         # send login data
         response = self.client.post(
-            '/users/login/', self.credentials, follow=True)
+            '/erp/users/login/', self.credentials, follow=True)
         # should be logged in now
         self.assertTrue(response.context['user'].is_active)
 
@@ -86,20 +86,23 @@ class TestUnitConversion(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_unit_create(self):
-        self.client.post('/users/login/', self.credentials, follow=True)
+        self.client.post('/erp/erp/users/login/',
+                         self.credentials, follow=True)
         # kg (SI)
-        response = self.client.post('/inventory/create-unit/', self.kg_data)
+        response = self.client.post(
+            '/erp/inventory/create-unit/', self.kg_data)
         # should be logged in now
         kg = Unit.objects.get(name="kg")
         self.assertEqual(kg.factor, 1)
 
     def test_unit_convert(self):
-        self.client.post('/users/login/', self.credentials, follow=True)
+        self.client.post('/erp/erp/users/login/',
+                         self.credentials, follow=True)
         # g
-        self.client.post('/inventory/create-unit/', self.g_data)
+        self.client.post('/erp/inventory/create-unit/', self.g_data)
 
         # kg (SI)
-        self.client.post('/inventory/create-unit/', self.kg_data)
+        self.client.post('/erp/inventory/create-unit/', self.kg_data)
 
         rand_g = random.uniform(1, 1000000000)
         calculated_kg = rand_g/1000.
@@ -108,9 +111,10 @@ class TestUnitConversion(TestCase):
                                            value=rand_g), calculated_kg)
 
     def test_nonSI_unit_convert(self):
-        self.client.post('/users/login/', self.credentials, follow=True)
+        self.client.post('/erp/erp/users/login/',
+                         self.credentials, follow=True)
         # g
-        self.client.post('/inventory/create-unit/', self.g_data)
+        self.client.post('/erp/inventory/create-unit/', self.g_data)
 
         # lb
         lb_data = {
@@ -118,7 +122,7 @@ class TestUnitConversion(TestCase):
             'factor': "{}".format(1/2.2),
             'magnitude': "mass",
         }
-        self.client.post('/inventory/create-unit/', lb_data)
+        self.client.post('/erp/inventory/create-unit/', lb_data)
 
         rand_g = 1000
         calculated_lb = 2.2
@@ -127,9 +131,10 @@ class TestUnitConversion(TestCase):
                                            value=rand_g), calculated_lb)
 
     def test_incompatible_unit_convert(self):
-        self.client.post('/users/login/', self.credentials, follow=True)
+        self.client.post('/erp/erp/users/login/',
+                         self.credentials, follow=True)
         # g
-        self.client.post('/inventory/create-unit/', self.g_data)
+        self.client.post('/erp/inventory/create-unit/', self.g_data)
 
         # km
         km_data = {
@@ -137,7 +142,7 @@ class TestUnitConversion(TestCase):
             'factor': "1000",
             'magnitude': "distance",
         }
-        self.client.post('/inventory/create-unit/', km_data)
+        self.client.post('/erp/inventory/create-unit/', km_data)
 
         rand_g = 1000
         try:
@@ -167,7 +172,7 @@ class TestStockFIFO(TestCase):
         UserProfile.objects.create(user=user)
         # send login data
         response = self.client.post(
-            '/users/login/', self.credentials, follow=True)
+            '/erp/users/login/', self.credentials, follow=True)
         # should be logged in now
         self.assertTrue(response.context['user'].is_active)
 
@@ -175,20 +180,20 @@ class TestStockFIFO(TestCase):
 
     def test_fifo_exercise(self):
         response = self.client.post(
-            '/users/login/', self.credentials, follow=True)
+            '/erp/users/login/', self.credentials, follow=True)
         # kg (SI)
         kg_data = {
             'name': "kg",
             'factor': 1,
             'magnitude': "mass",
         }
-        self.client.post('/inventory/create-unit/', kg_data)
+        self.client.post('/erp/inventory/create-unit/', kg_data)
         self.assertEqual(Unit.objects.last().name, "kg")
         # food
         food = {
             'name': "comida",
         }
-        self.client.post('/inventory/create-category/', food)
+        self.client.post('/erp/inventory/create-category/', food)
         self.assertEqual(ProductCategory.objects.last().name, "comida")
 
         # provider
@@ -200,7 +205,7 @@ class TestStockFIFO(TestCase):
             "language": 'spanish',
             "active": True
         }
-        self.client.post('/users/create-provider/', provider)
+        self.client.post('/erp/users/create-provider/', provider)
         self.assertEqual(Associated.objects.last().name, "Pedro Vendedor")
 
         # client
@@ -212,7 +217,7 @@ class TestStockFIFO(TestCase):
             "language": 'spanish',
             "active": True
         }
-        self.client.post('/users/create-client/', client)
+        self.client.post('/erp/users/create-client/', client)
         self.assertEqual(Associated.objects.last().name, "Juan Comprador")
 
         # pescado congelado
@@ -222,7 +227,7 @@ class TestStockFIFO(TestCase):
             'category': 1,
             'type': 'consumable'
         }
-        self.client.post('/inventory/create-product/', pescado_congelado)
+        self.client.post('/erp/inventory/create-product/', pescado_congelado)
         self.assertEqual(Product.objects.last().name, "pescado congelado")
 
         # 1 de enero inicial
@@ -232,17 +237,17 @@ class TestStockFIFO(TestCase):
             'concept': 'inicial',
             'associated': 1,
         }
-        self.client.post('/inventory/create-order/', form_data)
+        self.client.post('/erp/inventory/create-order/', form_data)
         form_data = {
             'tax': 0,
             'price': 12,
             'unit': 1,
             'quantity': 100,
         }
-        self.client.post('/inventory/create-transaction/1/1', form_data)
+        self.client.post('/erp/inventory/create-transaction/1/1', form_data)
         trans = ProductTransaction.objects.get(product=1)
         print(trans)
-        self.client.post('/inventory/update-order-status/1/complete')
+        self.client.post('/erp/inventory/update-order-status/1/complete')
         product = Product.objects.get(id=1)
         self.assertEqual(product.quantity, 100)
         self.assertEqual(product.stock_price, 1200)
@@ -254,7 +259,7 @@ class TestStockFIFO(TestCase):
             'concept': 'compra',
             'associated': 1,
         }
-        self.client.post('/inventory/create-order/', form_data)
+        self.client.post('/erp/inventory/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,
@@ -262,8 +267,8 @@ class TestStockFIFO(TestCase):
             'unit': 1,
             'quantity': 200,
         }
-        self.client.post('/inventory/create-transaction/2/1', form_data)
-        self.client.post('/inventory/update-order-status/2/complete')
+        self.client.post('/erp/inventory/create-transaction/2/1', form_data)
+        self.client.post('/erp/inventory/update-order-status/2/complete')
         trans = ProductTransaction.objects.get(price=14.25)
         print(trans)
         product = Product.objects.get(id=1)
@@ -277,7 +282,7 @@ class TestStockFIFO(TestCase):
             'concept': 'venta',
             'associated': 2,
         }
-        self.client.post('/services/create-order/', form_data)
+        self.client.post('/erp/services/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,
@@ -285,8 +290,8 @@ class TestStockFIFO(TestCase):
             'unit': 1,
             'quantity': 150,
         }
-        self.client.post('/inventory/create-transaction/3/1', form_data)
-        self.client.post('/services/update-order-status/3/complete')
+        self.client.post('/erp/inventory/create-transaction/3/1', form_data)
+        self.client.post('/erp/services/update-order-status/3/complete')
         trans = ProductTransaction.objects.get(price=20)
         print(trans)
         product = Product.objects.get(id=1)
@@ -302,7 +307,7 @@ class TestStockFIFO(TestCase):
             'concept': 'compra',
             'associated': 1,
         }
-        self.client.post('/inventory/create-order/', form_data)
+        self.client.post('/erp/inventory/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,
@@ -310,8 +315,8 @@ class TestStockFIFO(TestCase):
             'unit': 1,
             'quantity': 225,
         }
-        self.client.post('/inventory/create-transaction/4/1', form_data)
-        self.client.post('/inventory/update-order-status/4/complete')
+        self.client.post('/erp/inventory/create-transaction/4/1', form_data)
+        self.client.post('/erp/inventory/update-order-status/4/complete')
         trans = ProductTransaction.objects.get(price=15)
         print(trans)
         product = Product.objects.get(id=1)
@@ -325,7 +330,7 @@ class TestStockFIFO(TestCase):
             'concept': 'venta',
             'associated': 2,
         }
-        self.client.post('/services/create-order/', form_data)
+        self.client.post('/erp/services/create-order/', form_data)
         form_data = {
             'product': 1,
             'tax': 0,
@@ -333,8 +338,8 @@ class TestStockFIFO(TestCase):
             'unit': 1,
             'quantity': 75,
         }
-        self.client.post('/inventory/create-transaction/5/1', form_data)
-        self.client.post('/services/update-order-status/5/complete')
+        self.client.post('/erp/inventory/create-transaction/5/1', form_data)
+        self.client.post('/erp/services/update-order-status/5/complete')
         trans = ProductTransaction.objects.get(price=30)
         print(trans)
         product = Product.objects.get(id=1)
