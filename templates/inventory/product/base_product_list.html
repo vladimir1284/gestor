@@ -12,6 +12,11 @@
                    href="{% url 'export-inventory' %}">
                     <span class="tf-icons bx bx-share-alt"></span>
                 </a>
+                <button class="btn btn-icon btn-outline-danger"
+                        type="button"
+                        onClick="filterLowStock()">
+                    <span class="tf-icons bx bx-box"></span>
+                </button>
             </h5>
         </div>
         <div class="card-body tabs">
@@ -77,6 +82,22 @@
             </div>
         </div>
     </div>
+    <script>
+        function filterLowStock() {
+            let i, j;
+            let tables = document.getElementsByTagName("tbody");
+            for (j = 0; j < tables.length; j++) {
+                tr = tables[j].getElementsByTagName("tr");
+                for (i = 0; i < tr.length; i++) {
+                    if (tr[i].dataset['stock']=='low') {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }                    
+                }
+            }
+        }
+    </script>
 {% endblock card %}
 {% block add %}
 {% endblock add %}
