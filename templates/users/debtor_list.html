@@ -25,7 +25,7 @@
             <td>
                 <a {% if associated.overdue %}class="bg-label-danger p-1 rounded"{% endif %}
                    href="{% url 'detail-service-order' associated.oldest_debt.id %}">
-                    {{ associated.oldest_debt.terminated_date|date:"SHORT_DATE_FORMAT" }}
+                    {{ associated.oldest_debt.terminated_date|date:"m/d/Y" }}
                 </a>
                 {% if associated.weekly_payment %}
                     <br>
@@ -52,7 +52,7 @@
                     </td>
                     <td>
                         {% if associated.last_order %}
-                            <a href="{% url 'detail-service-order' associated.last_order.id %}">{{ associated.last_order.concept }}</a> ({{ associated.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
+                            <a href="{% url 'detail-service-order' associated.last_order.id %}">{{ associated.last_order.concept }}</a> ({{ associated.last_order.created_date|date:"m/d/Y" }})
                         {% else %}
                             None
                         {% endif %}

@@ -42,7 +42,7 @@
             </td>
             <td>
                 {% if equipment.last_order %}
-                    <a href="{% url 'detail-service-order' equipment.last_order.id %}">{{ equipment.last_order.concept }}</a> ({{ equipment.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
+                    <a href="{% url 'detail-service-order' equipment.last_order.id %}">{{ equipment.last_order.concept }}</a> ({{ equipment.last_order.created_date|date:"m/d/Y" }})
                 {% else %}
                     None
                 {% endif %}

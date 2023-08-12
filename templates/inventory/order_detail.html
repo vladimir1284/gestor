@@ -14,9 +14,7 @@
                 <button type="button"
                         class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% endif %} dropdown-toggle"
                         data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    {{ order.get_status_display }}
-                </button>
+                        aria-expanded="false">{{ order.get_status_display }}</button>
                 <ul class="dropdown-menu">
                     {% if order.status != 'pending' %}
                         <li>
@@ -44,7 +42,7 @@
             {% endif %}
         </h5>
         <div class="card-subtitle text-muted mb-3">
-            <a href={% url 'detail-associated' order.associated.id %}>{{ order.associated }}</a> - {{ order.created_date|date:"SHORT_DATE_FORMAT" }}
+            <a href={% url 'detail-associated' order.associated.id %}>{{ order.associated }}</a> - {{ order.created_date|date:"m/d/Y" }}
         </div>
         <p class="card-text">{{ order.note }}</p>
         <div class="demo-inline-spacing">
@@ -105,7 +103,9 @@
     </script>
 {% endblock Tbody %}
 {% block add %}
-    {% if terminated %}hidden{% endif %}
+    {% if terminated %}
+        hidden
+    {% endif %}
 {% endblock add %}
 {% block createUrl %}
     {% url 'select-product' 'create-transaction' order.id %}

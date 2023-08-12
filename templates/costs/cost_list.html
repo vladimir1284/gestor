@@ -27,7 +27,7 @@
             <td>
                 {% if cost.category %}{{ cost.category.name }}{% endif %}
             </td>
-            <td>{{ cost.date|date:"SHORT_DATE_FORMAT" }}</td>
+            <td>{{ cost.date|date:"m/d/Y" }}</td>
             <td>
                 {% if cost.related_to %}
                     <div class="avatar avatar-online">

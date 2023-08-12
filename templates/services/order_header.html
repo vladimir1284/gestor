@@ -1,7 +1,7 @@
 {% load static %}
 <div class="container">
     <div class="row d-block pb-2">
-        Created: <strong>{{ order.created_date|date:"SHORT_DATE_FORMAT" }}</strong>
+        Created: <strong>{{ order.created_date|date:"m/d/Y" }}</strong>
     </div>
     <div class="row">
         <div class="col-md-4 d-flex pb-1">
@@ -13,7 +13,7 @@
                                  alt="Avatar"
                                  height="100px"
                                  width="100px"
-                                 class="w-px-40 h-auto rounded-circle"/>
+                                 class="w-px-40 h-auto rounded-circle" />
                         </span>
                     </a>
                 </div>
@@ -42,7 +42,7 @@
                                  alt="Avatar"
                                  height="100px"
                                  width="100px"
-                                 class="w-px-40 h-auto rounded-circle"/>
+                                 class="w-px-40 h-auto rounded-circle" />
                         </span>
                     </a>
                 </div>

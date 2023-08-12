@@ -7,7 +7,7 @@
                      alt="Avatar"
                      height="100px"
                      width="100px"
-                     class="w-px-100 h-px-100 rounded-circle card-img-top"/>
+                     class="w-px-100 h-px-100 rounded-circle card-img-top" />
             </div>
             <h5 class="card-title">{{ profile.user.first_name }} {{ profile.user.last_name }}</h5>
             <div class="card-subtitle text-muted mb-3">{{ profile.get_role_display }}</div>
@@ -15,7 +15,7 @@
             <p class="card-text">
                 <small class="text-muted">
                     {% if profile.user.last_login %}
-                        Last login: {{ profile.user.last_login|date:"SHORT_DATE_FORMAT" }}
+                        Last login: {{ profile.user.last_login|date:"m/d/Y" }}
                     {% else %}
                         Never has logged in
                     {% endif %}

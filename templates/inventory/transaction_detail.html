@@ -10,7 +10,7 @@
                 {{ transaction.product.name }} ({{ transaction.quantity|floatformat:"-2" }} {{ transaction.product.unit }})
             </h5>
             <div class="card-subtitle text-muted mb-3">
-                {{ transaction.order.concept }} - {{ transaction.order.created_date|date:"SHORT_DATE_FORMAT" }}
+                {{ transaction.order.concept }} - {{ transaction.order.created_date|date:"m/d/Y" }}
             </div>
             <p class="card-text">{{ transaction.note }}</p>
             <ul class="p-0 m-0">

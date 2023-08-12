@@ -29,7 +29,7 @@
                                      alt="Avatar"
                                      height="100px"
                                      width="100px"
-                                     class="w-px-40 h-auto rounded-circle"/>
+                                     class="w-px-40 h-auto rounded-circle" />
                             </span>
                         </a>
                     </div>
@@ -60,7 +60,7 @@
             </td>
             <td>
                 {% if company.last_order %}
-                    <a href="{% url 'detail-order' company.last_order.id %}">{{ company.last_order.concept }}</a> ({{ company.last_order.created_date|date:"SHORT_DATE_FORMAT" }})
+                    <a href="{% url 'detail-order' company.last_order.id %}">{{ company.last_order.concept }}</a> ({{ company.last_order.created_date|date:"m/d/Y" }})
                 {% else %}
                     None
                 {% endif %}
