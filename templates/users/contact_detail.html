@@ -37,12 +37,12 @@
                      alt="Avatar"
                      height="100px"
                      width="100px"
-                     class="w-px-100 h-px-100 rounded-circle card-img-top"/>
+                     class="w-px-100 h-px-100 rounded-circle card-img-top" />
                 <img {% if contact.language == "english" %}src="{% static 'assets/img/icons/en.png' %}"{% else %} src="{% static 'assets/img/icons/es.png' %}" {% endif %}
                      alt="Avatar"
                      height="40px"
                      width="40px"
-                     class="w-px-40 h-px-40 rounded-circle lang-flag"/>
+                     class="w-px-40 h-px-40 rounded-circle lang-flag" />
             </div>
             <h5 class="card-title">{{ contact.name }}</h5>
             {% if contact.alias %}<div class="card-subtitle text-muted mb-3">{{ contact.alias }}</div>{% endif %}
@@ -113,40 +113,44 @@
                 {% endfor %}
             </tbody>
         </table>
-    <div class="card-header mt-3">
-        <h5>
-            <strong>Pending Payments</strong> 
-        </h5>
+        {% if pending_payments %}
+            <div class="card-header mt-3">
+                <h5>
+                    <strong>Pending Payments</strong>
+                </h5>
+            </div>
+            <div class="table-responsive text-nowrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>amount</th>
+                            <th>category</th>
+                            <th>created_date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in pending_payments %}
+                            <tr data-search="{{ payment.category }}">
+                                <td>${{ payment.amount }}</td>
+                                <td>
+                                    <div class="avatar"
+                                         data-bs-toggle="tooltip"
+                                         data-popup="tooltip-custom"
+                                         data-bs-placement="top"
+                                         title=""
+                                         data-bs-html="true"
+                                         data-bs-original-title="{{ payment.category }}">
+                                        <img {% if payment.category.icon %} src="{{ payment.category.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
+                                             alt="…"
+                                             class="">
+                                    </div>
+                                </td>
+                                <td>{{ payment.created_date|date:"SHORT_DATE_FORMAT" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
     </div>
-        <div class="table-responsive text-nowrap">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>amount</th>
-                    <th>category</th>
-                    <th>created_date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for payment in pending_payments %}
-                    <tr data-search="{{payment.category}}">
-                        <td>
-                            ${{ payment.amount }}
-                        </td>
-                        <td>
-                            <div class="avatar">
-                                <img {% if payment.category.icon %} src="{{ payment.category.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
-                                     alt="…"
-                                     class="">
-                            </div>
-                        </td>
-                        <td>{{ payment.created_date|date:"SHORT_DATE_FORMAT" }}</td>
-                         
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    </div>
-</div>
 {% endblock content %}
