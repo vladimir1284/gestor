@@ -77,10 +77,27 @@
     <hr class="my-2">
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between pb-0">
-            <div class="card-title mb-0">
-                <h5 class="m-0 me-2">Product Statistics</h5>
+            <h5 class="m-0 me-2">Product Statistics</h5>
+        </div>
+        <div class="card-body row">
+            <div class="col-md-6">
+                <div class="col mb-2 mt-3">
+                    Max monthly sells: <strong>{{ max_monthly_sel }}</strong>
+                </div>
+                <div class="col mb-2">
+                    Yearly sells: <strong>{{ yearly_sel }}</strong>
+                </div>
+                <div class="col mb-2">
+                    Average cost: <strong>${{ avg_cost|floatformat:"2" }}</strong>
+                </div>
+                <div class="col mb-2">
+                    Average price: <strong>${{ avg_price|floatformat:"2" }}</strong>
+                </div>
+                <div class="col mb-2">
+                    Average profit: <strong>${{ avg_profit|floatformat:"2" }}</strong>
+                </div>
             </div>
-            <div class="card-body">
+            <div class="col-md-6">
                 <small class="text-muted">Sells</small>
                 <div id="sellChart"></div>
                 <div class="resize-triggers">
@@ -88,23 +105,6 @@
                         <div style="width: 650px; height: 377px;"></div>
                     </div>
                     <div class="contract-trigger"></div>
-                </div>
-            </div>
-            <div class="dropdown">
-                <button class="btn p-0"
-                        type="button"
-                        id="orederStatistics"
-                        data-bs-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false">
-                    <i class="bx bx-dots-vertical-rounded"></i>
-                </button>
-                <div class="dropdown-menu dropdown-menu-end"
-                     aria-labelledby="orederStatistics"
-                     style="">
-                    <a class="dropdown-item" href="javascript:void(0);">Weekly</a>
-                    <a class="dropdown-item" href="javascript:void(0);">Monthly</a>
-                    <a class="dropdown-item" href="javascript:void(0);">Yearly</a>
                 </div>
             </div>
         </div>
@@ -305,7 +305,7 @@
 
         time_labels = [{% for label in time_labels %}'{{label}}',{% endfor %}];        
         data = [{% for value in monthly_sels %}{{value}},{% endfor %}];
-        plotChart('#sellChart', time_labels, data, "sellChart");
+        plotChart('#sellChart', time_labels, data, "Sells");
         })();
 
         // Area chart
