@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.utils.translation import gettext_lazy as _
 from weasyprint import HTML
 import tempfile
 from django.conf import settings
@@ -24,6 +25,8 @@ from ..forms.lease import (
     ContractDocumentForm,
 )
 from users.models import Associated
+from users.forms import AssociatedCreateForm
+from users.views import addStateCity
 from ..models.vehicle import Trailer
 
 
@@ -238,7 +241,7 @@ def lease_create_view(request, lessee_id, trailer_id):
 def select_leasee(request, trailer_id):
     if request.method == 'POST':
         leasee = get_object_or_404(Associated, id=request.POST.get('id'))
-        return redirect('create-contract', leasee.id, trailer_id)
+        return redirect('update-leasee', leasee.id, trailer_id)
 
     # add form dictionary to context
     associates = Associated.objects.filter(
@@ -248,3 +251,32 @@ def select_leasee(request, trailer_id):
         'skip': False
     }
     return render(request, 'services/client_list.html', context)
+
+
+@login_required
+def update_leasee(request, lessee_id, trailer_id):
+    # fetch the object related to passed id
+    leasee = get_object_or_404(Associated, id=lessee_id)
+
+    # pass the object as instance in form
+    form = AssociatedCreateForm(instance=leasee)
+
+    if request.method == 'POST':
+        # pass the object as instance in form
+        form = AssociatedCreateForm(
+            request.POST, request.FILES, instance=leasee)
+
+        # save the data from the form and
+        # redirect to detail_view
+        if form.is_valid():
+            form.save()
+            return redirect('create-contract', lessee_id, trailer_id)
+
+    # add form dictionary to context
+    title = _('Update client')
+    context = {
+        'form': form,
+        'title': title,
+    }
+    addStateCity(context)
+    return render(request, 'users/contact_create.html', context)

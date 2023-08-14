@@ -8,18 +8,22 @@ from ..models.lease import (
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
 from crispy_forms.bootstrap import PrependedText
+from django.utils.safestring import mark_safe
+from phonenumber_field.widgets import RegionalPhoneNumberWidget
 
 
 class LeaseForm(ModelForm):
     class Meta:
         model = Lease
-        fields = ('location', 'location_file',
+        fields = ('location', 'client_id', 'contact_name', 'contact_phone',
                   'effective_date', 'contract_end_date', 'number_of_payments',
                   'payment_amount', 'service_charge', 'security_deposit',
                   'inspection_date', 'current_condition')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['contact_phone'].widget = RegionalPhoneNumberWidget(
+            region="US")
         self.fields['effective_date'] = forms.DateTimeField(
             widget=forms.DateInput(
                 attrs={'type': 'date'},
@@ -46,7 +50,7 @@ class LeaseForm(ModelForm):
                         css_class='col-md-6'
                     ),
                     Div(
-                        'location_file',
+                        'client_id',
                         css_class='col-md-6'
                     ),
                     css_class='row mb-3'
@@ -80,6 +84,27 @@ class LeaseForm(ModelForm):
                     ),
                     Div(
                         PrependedText('security_deposit', '$'),
+                        css_class='col-md-6'
+                    ),
+                    css_class='row mb-3'
+                )
+            ),
+            Fieldset(
+                'Emergency contact',
+                HTML('<div id="id_trailer_conditions" class="col-12"></div>'),
+                Div(
+                    Div(
+                        Field(
+                            PrependedText('contact_name',
+                                          mark_safe('<i class="bx bx-user"></i>'))
+                        ),
+                        css_class='col-md-6'
+                    ),
+                    Div(
+                        Field(
+                            PrependedText('contact_phone',
+                                          mark_safe('<i class="bx bx-phone"></i>'))
+                        ),
                         css_class='col-md-6'
                     ),
                     css_class='row mb-3'

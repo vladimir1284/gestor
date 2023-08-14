@@ -52,6 +52,8 @@ urlpatterns = [
     path('contract/<int:id>',  lease.contract_detail, name='detail-contract'),
     path('select_leasee/<int:trailer_id>/',
          lease.select_leasee, name='select-leasee'),
+    path('update_lesee/<int:lessee_id>/<int:trailer_id>/',
+         lease.update_leasee, name='update-leasee'),
     path('contract_signed/<int:id>',  lease.contract_detail_signed,
          name='contract-signed'),
     path('upload_contract_document/<int:id>',

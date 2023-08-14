@@ -2,6 +2,7 @@ from django.db import models
 from .vehicle import Trailer
 from users.models import Associated
 from django.urls import reverse
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Lease(models.Model):
@@ -20,7 +21,9 @@ class Lease(models.Model):
     )
     stage = models.CharField(max_length=10, choices=STAGE_CHOICES)
     location = models.TextField()
-    location_file = models.FileField(upload_to='rental/locations', blank=True)
+    client_id = models.ImageField(upload_to='rental/ids', blank=True)
+    contact_name = models.CharField(max_length=100, blank=True)
+    contact_phone = PhoneNumberField(blank=True)
     effective_date = models.DateField()
     contract_end_date = models.DateField()
     number_of_payments = models.IntegerField()
