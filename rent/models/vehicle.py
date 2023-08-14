@@ -48,6 +48,7 @@ class Trailer(Equipment):
     cdl = models.BooleanField()
     TYPE_CHOICE = (
         ('flatbed', 'Flatbed'),
+        ('car_hauler', 'Car Hauler'),
         ('3car', '3-Car Carrier'),
         ('mini5', 'Mini-5'),
         ('lowboy', 'Lowboy'),
