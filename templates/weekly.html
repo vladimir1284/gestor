@@ -19,10 +19,22 @@
         </div>
     </div>
     <div class="text-center">
-    <div class="demo-inline-spacing pb-3">  
-            <a type="button" class="btn btn-outline-primary" href="{% url 'week-stats-recalculate' currentDate %}">stats recalculate</a>
+        <div class="demo-inline-spacing pb-3">  
+            
+            <a type="button" class="btn btn-outline-primary" onclick="weekStatsRecalculate('{% url 'week-stats-recalculate' currentDate %}', '')">stats recalculate </a>
+            <span class="tf-icons bx"></span>
+            
+
+        <script>
+            function weekStatsRecalculate(url, name) {
+                let confirmAction = confirm("Are you sure to recalculate this statistics?");
+                if (confirmAction) {
+                    window.location = url;
+                }
+            }
+        </script>
+        </div>
     </div>
-</div>
 
 
 {% endblock nav %}
