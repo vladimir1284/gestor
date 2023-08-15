@@ -47,6 +47,7 @@
         }
     {% endfor %}
     </style>
+
     <div class="card mb-3">
         <div class="card-body">
             <h5 class="card-title">
@@ -67,15 +68,20 @@
                             aria-controls="discountCollapse">${{ order.discount|floatformat:"-2" }} discount</button>
                     <div class="collapse mt-2" id="discountCollapse">
                         <form enctype="multipart/form-data"
-                              method="post"
-                              id="update-form"
-                              class="border p-3">
+                            method="post"
+                            id="update-form"
+                            class="border p-3">
                             {% csrf_token %}
                             {% crispy form %}
                         </form>
                     </div>
                 </p>
-                {% if terminated or empty %}
+                {% if order.quotation %}
+                    <span class="float-end px-3 me-1 badge rounded-pill bg-warning">
+                        <i class='bx bx-error 'style="font-size:1.5em"></i> 
+                        quotation
+                    </span>
+                {% elif terminated or empty %}
                     <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' %}danger{% endif %}">
                         {{ order.get_status_display }}
                     </span>
@@ -104,10 +110,11 @@
                         {% if order.status != 'complete' and satisfied %}
                             <li>
                                 <a class="dropdown-item badge bg-success"
-                                   href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
+                                href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
                             </li>
                         {% endif %}
                     </ul>
+                    
                 {% endif %}
             </h5>
             {% include "services/order_header.html" %}
@@ -131,37 +138,40 @@
             <p class="card-text">{{ order.note }}</p>
             <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'list-service-order' %}">
+                type="button"
+                href="{% url 'list-service-order' %}">
                     <span class="tf-icons bx bx-arrow-back"></span>
                 </a>
                 <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'service-invoice' order.id %}">
+                type="button"
+                href="{% url 'service-invoice' order.id %}">
                     <span class="tf-icons bx bx-credit-card"></span>
                 </a>
                 <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'service-labor' order.id %}">
+                type="button"
+                href="{% url 'service-labor' order.id %}">
                     <span class="tf-icons bx bx-wrench"></span>
                 </a>
                 {% if not terminated %}
                     <a class="btn btn-icon btn-outline-primary"
-                       type="button"
-                       href="{% url 'update-service-order' order.id %}">
+                    type="button"
+                    href="{% url 'update-service-order' order.id %}">
                         <span class="tf-icons bx bx-edit"></span>
                     </a>
                 {% endif %}
                 {% if order.status != 'decline' %}
                     <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')"
-                       type="button"
-                       class="btn btn-icon btn-outline-danger float-end">
+                    type="button"
+                    class="btn btn-icon btn-outline-danger float-end">
                         <span class="tf-icons bx bx-trash"></span>
                     </a>
                 {% endif %}
             </div>
         </div>
+    
     </div>
+
+
     {% if parts_amount %}
         <div class="card mb-3">
             <h5 class="card-header">
