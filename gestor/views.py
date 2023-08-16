@@ -28,6 +28,7 @@ from services.views.order import (
 
 
 class UnknownCategory:
+    id = -1
     name = "Unknown"
     extra_charge = 0
     amount = 0
@@ -671,11 +672,12 @@ def computeReport(orders, costs, pending_payments):
     costs.total = 0
     cats = {}
     for cost in costs:
-        if cost.category not in cats.keys():
-            cats.setdefault(cost.category, [cost.amount, 1])
+        category = cost.category or unknownCategory
+        if category not in cats.keys():
+            cats.setdefault(category, [cost.amount, 1])
         else:
-            cats[cost.category][0] += cost.amount
-            cats[cost.category][1] += 1
+            cats[category][0] += cost.amount
+            cats[category][1] += 1
         costs.total += cost.amount
     # Sort by amount
     sorted_cats = sorted(
@@ -685,15 +687,14 @@ def computeReport(orders, costs, pending_payments):
     chart_costs = []
 
     for i, cat in enumerate(sorted_cats):
-        if cat is not None:
-            cat.style = STYLE_COLOR[cat.chartColor]
-            cat.amount = cats[cat][0]
-            cat.items = cats[cat][1]
+        cat.style = STYLE_COLOR[cat.chartColor]
+        cat.amount = cats[cat][0]
+        cat.items = cats[cat][1]
 
-            if i > 2 and len(sorted_cats) > 4:
-                otherCosts.amount += cat.amount
-            else:
-                chart_costs.append(cat)
+        if i > 2 and len(sorted_cats) > 4:
+            otherCosts.amount += cat.amount
+        else:
+            chart_costs.append(cat)
 
     if len(sorted_cats) > 4:
         chart_costs.append(otherCosts)
@@ -1042,9 +1043,15 @@ def monthly_cost(request, category_id, year, month):
     start_date = date(currentYear, currentMonth, 1)
     end_date = date(nextYear, nextMonth, 1) - timedelta(days=1)
 
-    costs = Cost.objects.filter(
-        category_id=category_id,
-        date__range=(start_date, end_date)
-    ).order_by("-date", "-id")
+    if category_id == "-1":
+        costs = Cost.objects.filter(
+            category__isnull=True,
+            date__range=(start_date, end_date)
+        ).order_by("-date")
+    else:
+        costs = Cost.objects.filter(
+            category_id=category_id,
+            date__range=(start_date, end_date)
+        ).order_by("-date")
 
     return render(request, 'costs/cost_list.html', {'costs': costs})
