@@ -326,6 +326,7 @@ def weekly_report(request, date=None):
         created_date__lte=end_date).order_by("-created_date")
 
     context = computeReport(orders, costs, pending_payments)
+    context.setdefault('now', datetime.now())
     context.setdefault('start_date', start_date)
     context.setdefault('end_date', end_date - timedelta(days=1))
     context.setdefault('currentDate', start_date.strftime("%m%d%Y"))

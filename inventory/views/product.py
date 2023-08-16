@@ -43,7 +43,7 @@ class NotEnoughStockError(BaseException):
 # -------------------- Product ----------------------------
 
 
-def compute_product_stats(product):
+def compute_product_stats(product: Product):
     # Monthly sells
     monthly_sels = []
     time_labels = []
@@ -62,26 +62,7 @@ def compute_product_stats(product):
     max_monthly_sel = max(monthly_sels)
     yearly_sel = sum(monthly_sels)
 
-    # Overal statistics
-    transactions = ProductTransaction.objects.filter(
-        order__type="sell",
-        order__status="complete",
-        product=product)
-
-    try:
-        avg_cost = mean([trans.cost/trans.quantity for trans in transactions])
-    except StatisticsError as err:
-        avg_cost = None
-
-    try:
-        avg_price = mean([trans.price for trans in transactions])
-    except StatisticsError as err:
-        avg_price = None
-
-    try:
-        avg_profit = avg_price - avg_cost
-    except:
-        avg_profit = None
+    avg_cost, avg_price, avg_profit = average(product)
 
     return time_labels, yearly_sel, monthly_sels, max_monthly_sel, avg_cost, avg_price, avg_profit
 
@@ -311,23 +292,40 @@ def minprice_product(request):
             ref.favicon = split_url.scheme + "://" + split_url.netloc + "/favicon.ico"
 
         # Compute average sell price
-        transactions = ProductTransaction.objects.filter(
-            order__type="sell",
-            order__status="complete",
-            product=product).order_by('-id')[:10]
-        total = 0
-        quantity = 0
-        for transaction in transactions:
-            product_quantity = convertUnit(
-                input_unit=transaction.unit,
-                output_unit=product.unit,
-                value=transaction.quantity)
-            quantity += product_quantity
-            total += transaction.cost
-        if quantity > 0:
-            product.average = total/quantity
+        avg_cost, avg_price, avg_profit = average(product)
+        product.average_cost = avg_cost
+        product.average_price = avg_price
 
     return render(request, 'inventory/minprice_list.html', context)
+
+
+def average(product: Product):
+    transactions = ProductTransaction.objects.filter(
+        order__type="sell",
+        order__status="complete",
+        product=product)
+
+    try:
+        avg_cost = mean([trans.cost/trans.quantity for trans in transactions])
+    except StatisticsError as err:
+        avg_cost = None
+        if product.quantity != 0:
+            avg_cost = product.stock_price/product.quantity
+    except ZeroDivisionError as err:
+        avg_cost = None
+
+    try:
+        avg_price = mean([trans.price for trans in transactions])
+    except StatisticsError as err:
+        avg_price = None
+    except ZeroDivisionError as err:
+        avg_price = None
+
+    try:
+        avg_profit = avg_price - avg_cost
+    except:
+        avg_profit = None
+    return avg_cost, avg_price, avg_profit
 
 
 def service_list_metadata(services: List[Service]):
