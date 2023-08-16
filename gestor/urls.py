@@ -28,6 +28,8 @@ from .views import (
     weekly_payments,
     monthly_payments,
     week_stats_recalculate,
+    weekly_cost,
+    monthly_cost
 )
 
 urlpatterns = [
@@ -44,6 +46,9 @@ urlpatterns = [
          name='weekly-membership-date'),
     path('erp/week-stats-recalculate/<date>',
          week_stats_recalculate, name='week-stats-recalculate'),
+    path('erp/weekly-costs/<category_id>/<date>', 
+         weekly_cost, name='weekly-cost'),
+
     # Monthly reports
     path('erp/monthly/', monthly_report, name='monthly-report'),
     path('erp/monthly/<year>/<month>',
@@ -54,6 +59,9 @@ urlpatterns = [
          name='monthly-membership'),
     path('erp/monthly_membership/<year>/<month>', monthly_membership_report,
          name='monthly-membership-date'),
+    path('erp/monthly-costs/<category_id>/<year>/<month>', monthly_cost, 
+         name='monthly-cost'),
+    
     # Apps
     path('erp/users/', include('users.urls')),
     path('erp/inventory/', include('inventory.urls')),

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.conf import settings
 from typing import List
 from itertools import chain
@@ -178,6 +178,9 @@ def monthly_report(request, year=None, month=None):
     context.setdefault('previousYear', previousYear)
     context.setdefault('currentYear', currentYear)
     context.setdefault('nextYear', nextYear)
+    context.setdefault('interval', 'monthly')
+      
+    
 
     context.setdefault('membership', getMonthlyMembership(
         currentYear, currentMonth)['total']['gross'])
@@ -331,6 +334,7 @@ def weekly_report(request, date=None):
     context.setdefault('currentDate', start_date.strftime("%m%d%Y"))
     context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
     context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
+    context.setdefault('interval', 'weekly')
 
     context.setdefault('membership', getWeekMembership(
         start_date, end_date)['total']['gross'])
@@ -1013,3 +1017,40 @@ def calculate_stats(stats, start_date, end_date):
     stats.membership_amount = context['total']['net']
 
     stats.save()
+
+
+# -------------------- COSTS ----------------------------
+@login_required
+def weekly_cost(request, category_id, date):
+    
+    (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
+    
+    costs = Cost.objects.filter(
+            category_id = category_id,
+            date__range=(start_date, end_date)
+        ).order_by("-date", "-id")
+
+    return render(request, 'costs/cost_list.html', {'costs': costs})
+
+@login_required
+def monthly_cost(request, category_id, year, month):
+    
+    ((previousMonth, previousYear),
+        (currentMonth, currentYear),
+        (nextMonth, nextYear)) = getMonthYear(month, year)
+
+    start_date = date(currentYear, currentMonth, 1)
+    end_date = date(nextYear, nextMonth, 1)
+
+    costs = Cost.objects.filter(
+            category_id = category_id,
+            date__range=(start_date, end_date)
+        ).order_by("-date", "-id")
+
+
+    return render(request, 'costs/cost_list.html', {'costs': costs})
+
+
+
+
+
