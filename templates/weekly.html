@@ -10,19 +10,28 @@
                 <span class="tf-icons bx bx-chevron-left"></span>
             </a>
             <button type="button" class="btn btn-outline-primary">{{ start_date|date:"d/M" }} - {{ end_date|date:"d/M" }}</button>
-            <a type="button"
-               href="{% url 'weekly-report-date' nextWeek %}"
-               class="btn btn-icon btn-outline-primary">
-                <span class="tf-icons bx bx-chevron-right"></span>
-            </a>
-    
+            
+            {% if end_date|date:"mdY" < now|date:"mdY" %}
+                <a type="button"
+                    href="{% url 'weekly-report-date' nextWeek %}"
+                    class='btn btn-icon btn-outline-primary' >
+                    <span class="tf-icons bx bx-chevron-right"></span>
+                </a>
+            {% endif %}
+            
+
+            
+
         </div>
     </div>
-    <div class="text-center">
-    <div class="demo-inline-spacing pb-3">  
-            <a type="button" class="btn btn-outline-primary" href="{% url 'week-stats-recalculate' currentDate %}">stats recalculate</a>
-    </div>
-</div>
+    {% if start_date|date:"mdY" <= now|date:'mdY' and now|date:'mdY' <= end_date|date:"mdY" %}
+    {% else %}
+        <div class="text-center">
+            <div class="demo-inline-spacing pb-3">  
+                <a type="button" class="btn btn-outline-primary" href="{% url 'week-stats-recalculate' currentDate %}">stats recalculate</a>
+            </div>
+        </div>
+    {% endif %}
 
 
 {% endblock nav %}

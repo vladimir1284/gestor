@@ -3,8 +3,9 @@
         <th>Name</th>
         <th>unit</th>
         <th>Sugg</th>
-        {% if type == 'part' %}<th>Ave</th>{% endif %}
+        {% if type == 'part' %}<th>Ave Price</th>{% endif %}
         <th>Cost</th>
+        {% if type == 'part' %}<th>Ave Cost</th>{% endif %}
         <th>Min</th>
         <th>Qty</th>
     </tr>
@@ -36,10 +37,15 @@
                 <td>${{ product.sell_price|floatformat:"-2" }}</td>
                 {% if type == 'part' %}
                     <td>
-                        {% if product.average %}${{ product.average|floatformat:"-2" }}{% endif %}
+                        {% if product.average_price %}${{ product.average_price|floatformat:"-2" }}{% endif %}
                     </td>
                 {% endif %}
                 <td>${{ product.average_cost|floatformat:"-2" }}</td>
+                {% if type == 'part' %}
+                    <td>
+                        {% if product.average_cost %}${{ product.average_cost|floatformat:"-2"}}{% endif %}
+                    </td>
+                {% endif %}
                 <td>
                     <button onclick="getInitialData(this.id)" type="button" class="btn btn-outline-primary p-1 pt-0 pb-0 minprice" data-min-price={{ product.min_price }} id="product-{{ product.id }}" data-product-name="{{ product.name }}" data-bs-toggle="modal" data-bs-target="#modalCenter">
                         ${{ product.min_price|floatformat:"-2" }}
