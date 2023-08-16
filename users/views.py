@@ -123,13 +123,13 @@ def create_client(request):
             if order_data is not None:
                 request.session['client_id'] = client.id
                 return redirect('select-company')
-            else:
-                order_id = request.session.get('order_detail')
-                if order_id is not None:
-                    order = get_object_or_404(Order, id=order_id)
-                    order.associated = client
-                    order.save()
-                    return redirect('detail-service-order', id=order_id)
+            # else:
+            #     order_id = request.session.get('order_detail')
+            #     if order_id is not None:
+            #         order = get_object_or_404(Order, id=order_id)
+            #         order.associated = client
+            #         order.save()
+            #         return redirect('detail-service-order', id=order_id)
 
     return create_associated(request, 'client')
 
