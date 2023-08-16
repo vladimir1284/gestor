@@ -54,6 +54,7 @@ class Trailer(Equipment):
         ('3_car_f', '3-Car Flatbed'),
         ('mini5', 'Mini-5'),
         ('lowboy', 'Lowboy'),
+        ('ez4', 'EZ-4'),
         ('other', _('Other')),
     )
     type = models.CharField(max_length=20, choices=TYPE_CHOICE)
