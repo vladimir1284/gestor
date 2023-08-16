@@ -179,8 +179,6 @@ def monthly_report(request, year=None, month=None):
     context.setdefault('currentYear', currentYear)
     context.setdefault('nextYear', nextYear)
     context.setdefault('interval', 'monthly')
-      
-    
 
     context.setdefault('membership', getMonthlyMembership(
         currentYear, currentMonth)['total']['gross'])
@@ -258,8 +256,8 @@ def getWeekMembership(start_date, end_date):
         company__membership=False).exclude(
         company=None)
 
-    costs = Cost.objects.filter(date__gt=start_date,
-                                date__lte=end_date).order_by("-date")
+    costs = Cost.objects.filter(date__range=(
+        start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date,
@@ -321,8 +319,8 @@ def weekly_report(request, date=None):
         associated__membership=True).exclude(
         company__membership=True)
 
-    costs = Cost.objects.filter(date__gt=start_date,
-                                date__lte=end_date).order_by("-date")
+    costs = Cost.objects.filter(date__range=(
+        start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date,
@@ -973,8 +971,8 @@ def calculate_stats(stats, start_date, end_date):
         associated__membership=True).exclude(
         company__membership=True)
 
-    costs = Cost.objects.filter(date__gt=start_date,
-                                date__lte=end_date).order_by("-date")
+    costs = Cost.objects.filter(date__range=(
+        start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date,
@@ -1023,19 +1021,20 @@ def calculate_stats(stats, start_date, end_date):
 # -------------------- COSTS ----------------------------
 @login_required
 def weekly_cost(request, category_id, date):
-    
+
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
-    
+
     costs = Cost.objects.filter(
-            category_id = category_id,
-            date__range=(start_date, end_date)
-        ).order_by("-date", "-id")
+        category_id=category_id,
+        date__range=(start_date, end_date)
+    ).order_by("-date", "-id")
 
     return render(request, 'costs/cost_list.html', {'costs': costs})
 
+
 @login_required
 def monthly_cost(request, category_id, year, month):
-    
+
     ((previousMonth, previousYear),
         (currentMonth, currentYear),
         (nextMonth, nextYear)) = getMonthYear(month, year)
@@ -1044,14 +1043,8 @@ def monthly_cost(request, category_id, year, month):
     end_date = date(nextYear, nextMonth, 1)
 
     costs = Cost.objects.filter(
-            category_id = category_id,
-            date__range=(start_date, end_date)
-        ).order_by("-date", "-id")
-
+        category_id=category_id,
+        date__range=(start_date, end_date)
+    ).order_by("-date", "-id")
 
     return render(request, 'costs/cost_list.html', {'costs': costs})
-
-
-
-
-
