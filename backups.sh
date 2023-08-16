@@ -19,11 +19,13 @@ find backups/ -type f -name "*.tar.gz" -mtime +14 -exec rm {} \;
 
 # --------------------- Backup wordpress ---------------------------
 # Change to the proyect directory
-cd /home/vladimir/
+cd /home/vladimir/puntoino/
 
 # Export database
-wp db export puntoino.sql
+wp db export /home/vladimir/puntoino.sql --allow-root
 
+# make a local archive
+cd ..
 tar -zcvf backups/db.backup-$(date +%F).tar.gz puntoino.sql
 tar -zcvf backups/files.backup-$(date +%F).tar.gz puntoino
 
