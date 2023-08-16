@@ -1040,7 +1040,7 @@ def monthly_cost(request, category_id, year, month):
         (nextMonth, nextYear)) = getMonthYear(month, year)
 
     start_date = date(currentYear, currentMonth, 1)
-    end_date = date(nextYear, nextMonth, 1)
+    end_date = date(nextYear, nextMonth, 1) - timedelta(days=1)
 
     costs = Cost.objects.filter(
         category_id=category_id,
