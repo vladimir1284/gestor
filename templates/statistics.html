@@ -170,8 +170,14 @@
                                         <h6 class="mb-0">{{ cat.name }}</h6>
                                         <small class="text-muted">{{ cat.items }} items</small>
                                     </div>
-                                    <div class="user-progress">
-                                        <small class="badge bg-{% if forloop.counter0 > 2 and cost_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</small>
+                                    <div class="user-progress"> 
+                                        {% if interval == 'weekly' %}
+                                            <a href="/erp/weekly-costs/{{ cat.id }}/{{ start_date|date:'mdY'}}"
+                                                class="text-white badge bg-{% if forloop.counter0 > 2 and cost_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</a>                                    
+                                        {% else %}
+                                            <a href="/erp/monthly-costs/{{ cat.id }}/{{ currentYear }}/{{ currentMonth }}"
+                                                class="text-white badge bg-{% if forloop.counter0 > 2 and cost_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</a>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </li>
