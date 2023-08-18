@@ -18,11 +18,15 @@ from ..models.lease import (
     HandWriting,
     Lease,
     ContractDocument,
+    Inspection,
+    Tire
 )
 from ..forms.lease import (
     LeaseForm,
     HandWritingForm,
     ContractDocumentForm,
+    InspectionForm,
+    TireUpdateForm,
 )
 from users.models import Associated
 from users.forms import AssociatedCreateForm
@@ -227,7 +231,7 @@ def lease_create_view(request, lessee_id, trailer_id):
             lease.lessee = lessee
             lease.trailer = trailer
             lease.save()
-            return redirect('detail-contract', id=lease.id)
+            return redirect('create-inspection', lease_id=lease.id)
     else:
         form = LeaseForm()
 
@@ -280,3 +284,42 @@ def update_leasee(request, lessee_id, trailer_id):
     }
     addStateCity(context)
     return render(request, 'users/contact_create.html', context)
+
+# -------------------- Inspection ----------------------------
+
+
+@login_required
+def create_inspection(request, lease_id):
+    form = InspectionForm(request.POST)
+    if request.method == 'POST':
+        lease = get_object_or_404(Associated, pk=lease_id)
+        if form.is_valid():
+            inspection: Inspection = form.save(commit=False)
+            inspection.lease = lease
+            inspection.save()
+            # Create tires
+            for i in range(inspection.number_of_main_tires):
+                Tire.objects.create(type='main',
+                                    position=i)
+            for i in range(inspection.number_of_spare_tires):
+                Tire.objects.create(type='spare',
+                                    position=i)
+            return redirect('update-tires', inspection.id)
+    context = {'title': 'Trailer inspection',
+               'form': form}
+    return render(request, 'rent/contract/inspection_create.html', context)
+
+
+@login_required
+def update_tires(request, inspection_id):
+    tires = Tire.objects.filter(inspection_id=inspection_id)
+    forms = [TireUpdateForm(request.POST, instance=tire) for tire in tires]
+    if request.method == 'POST':
+        for form in forms:
+            if form.is_valid():
+                form.save()
+            else:
+                return render(request, 'update_tires.html', {'forms': forms})
+        lease = get_object_or_404(Lease, lease__inspection__id=inspection_id)
+        return redirect('detail-contract', id=lease.id)
+    return render(request, 'rent/contract/update_tires.html', {'forms': forms})

@@ -14,6 +14,8 @@ from .models.lease import (
     ContractDocument,
     Lease,
     LesseeData,
+    Inspection,
+    Tire,
 )
 
 admin.site.register(Trailer)
@@ -26,3 +28,5 @@ admin.site.register(Lease)
 admin.site.register(HandWriting)
 admin.site.register(ContractDocument)
 admin.site.register(LesseeData)
+admin.site.register(Inspection)
+admin.site.register(Tire)

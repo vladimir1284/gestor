@@ -65,4 +65,9 @@ urlpatterns = [
          lease.update_contract_stage, name='update-contract-stage'),
     path('capture_signature/<int:lease_id>/<position>',
          lease.HandWritingCreateView.as_view(), name='capture-signature'),
+    # -------------------- Inspection ----------------------------
+    path('create_inspection/<lease_id>/',
+         lease.create_inspection, name='create-inspection'),
+    path('update_tires/<inspection_id>/',
+         lease.update_tires, name='update-tires'),
 ]

@@ -4,6 +4,8 @@ from ..models.lease import (
     Lease,
     HandWriting,
     ContractDocument,
+    Inspection,
+    Tire
 )
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
@@ -157,3 +159,50 @@ class ContractDocumentForm(ModelForm):
                 Submit('submit', 'Add', css_class='btn btn-success')
             )
         )
+
+
+class InspectionForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['inspection_date'] = forms.DateTimeField(
+            widget=forms.DateInput(
+                attrs={'type': 'date'},
+            ),
+        )
+        self.helper = FormHelper()
+        self.helper.field_class = 'mb-3'
+        self.helper.layout = Layout(
+            'inspection_date',
+            'number_of_main_tires',
+            'number_of_spare_tires',
+            Field('note', rows='2'),
+            Fieldset(
+                'Accessories',
+                'winche',
+                'megaramp',
+                'ramp',
+                'ramp_material',
+                'ancillary_battery',
+                'strap_4inch',
+            ),
+            Submit('submit', 'Enviar')
+        )
+
+    class Meta:
+        model = Inspection
+        fields = ('inspection_date',
+                  'number_of_main_tires',
+                  'number_of_spare_tires',
+                  'winche',
+                  'megaramp',
+                  'ramp',
+                  'ramp_material',
+                  'note',
+                  'ancillary_battery',
+                  'strap_4inch')
+
+
+class TireUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Tire
+        fields = ['remaining_life']
