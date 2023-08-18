@@ -38,3 +38,11 @@
 {% block amount %}
     {% include "payment_amount.html" with interval="week" week=currentDate year="" month="" %}
 {% endblock amount %}
+
+
+{% block amount_services %}
+    {% include "amount_services.html" with interval="week" week=currentDate year="" month="" %}
+{% endblock amount_services %}
+{% block amount_payments %}
+    {% include "amount_payments.html" with interval="week" week=currentDate year="" month="" %}
+{% endblock amount_payments %}
