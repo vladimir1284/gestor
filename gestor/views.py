@@ -746,14 +746,21 @@ def computeReport(orders, costs, pending_payments):
         else:
             category = payment.category
         if category not in payment_cats.keys():
-            payment_cats.setdefault(category, [payment.amount, 1])
+            payment_cats.setdefault(category, [payment.amount, 0, 0, 1, 0, 0])
         else:
             payment_cats[category][0] += payment.amount
-            payment_cats[category][1] += 1
+            payment_cats[category][3] += 1
+            
         payment_total += payment.amount
+        
         if isinstance(payment, PendingPayment):
             debt_paid += payment.amount
-
+            payment_cats[category][1] += payment.amount
+            payment_cats[category][4] += 1
+        else:
+            payment_cats[category][2] += payment.amount
+            payment_cats[category][5] += 1
+            
     # Sort by amount
     sorted_payment_cats = sorted(
         payment_cats, key=lambda cat: payment_cats[cat][0], reverse=True)
@@ -765,11 +772,16 @@ def computeReport(orders, costs, pending_payments):
     for i, cat in enumerate(sorted_payment_cats):
         cat.style = STYLE_COLOR[cat.chartColor]
         cat.amount = payment_cats[cat][0]
+        cat.amount_payment = payment_cats[cat][1]
+        cat.amount_service = payment_cats[cat][2]
         if cat.extra_charge > 0:
             cat.extra_charge = cat.amount*cat.extra_charge/100
             # cat.amount += cat.extra_charge
             extra_charge += cat.extra_charge
-        cat.transactions = payment_cats[cat][1]
+            
+        cat.transactions = payment_cats[cat][3]
+        cat.payments = payment_cats[cat][4]
+        cat.services = payment_cats[cat][5]
 
         if i > 2 and len(sorted_payment_cats) > 4:
             othersCategory.amount += cat.amount

@@ -212,23 +212,53 @@
                     </div>
                     <ul class="p-0 m-0">
                         {% for cat in payment_cats %}
-                            <li class="d-flex mb-4 pb-1">
-                                <div class="avatar flex-shrink-0 me-3">
-                                    <img {% if cat.icon %} src="{{ cat.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
-                                         alt=""
-                                         class="rounded" />
+                        <li class="d-flex mb-4 pb-1">
+                            <div class="avatar flex-shrink-0 me-3 mt-0">
+                                <img {% if cat.icon %} src="{{ cat.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
+                                     alt=""
+                                     class="rounded" />
+                            </div>
+
+
+                            {% comment %} 
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <h6 class="mb-0">{{ cat.name }}</h6>
+                                    <small class="text-muted">{{ cat.transactions }} transactions</small>
                                 </div>
-                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                    <div class="me-2">
-                                        <h6 class="mb-0">{{ cat.name }}</h6>
-                                        <small class="text-muted">{{ cat.transactions }} transactions</small>
-                                    </div>
-                                    <div class="user-progress">
-                                        {% block amount %}
-                                        {% endblock amount %}
-                                    </div>
+                                <div class="user-progress"> 
+                                    {% block amount %}
+                                    {% endblock amount %}
                                 </div>
-                            </li>
+                            </div> 
+                            {% endcomment %}
+
+                            
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-0">
+                                    <h6 class="mb-0">{{ cat.name }}</h6>
+                                    {% block amount %}{% endblock amount %}
+                                    
+
+                                        {% if cat.services != 0 %}
+                                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between">
+                                                <small class="text-muted">{{ cat.services }} services</small>
+                                                {% if cat.payments != 0 %}
+                                                    {% block amount_services %}{% endblock amount_services %}
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                        {% if cat.payments != 0 %}
+                                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between">
+                                                <small class="text-muted">{{ cat.payments }} payments</small>
+                                                {% if cat.services != 0 %}
+                                                    {% block amount_payments %}{% endblock amount_payments %}
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+
+                                </div> 
+                            
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>
