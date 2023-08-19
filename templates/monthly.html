@@ -12,6 +12,7 @@
             </a>
             <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
             {% if thisMonth == currentMonth and thisYear == currentYear %}
+            {% else %}
                 <a type="button"
                    href="{% url 'monthly-report-date' nextYear nextMonth %}"
                    class="btn btn-icon btn-outline-primary">
