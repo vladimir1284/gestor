@@ -1,0 +1,17 @@
+{% if cat.id %}
+    {% if interval != 'month' %}
+        <a type="button" href="{% url 'weekly-payments' cat.id week %}">
+            <small class="text-secondary">${{ cat.amount_service|floatformat:"0" }}</small>
+        </a>
+    {% else %}
+        <a type="button" href="{% url 'monthly-payments' cat.id year month %}">
+            <small class="text-secondary">${{ cat.amount_service|floatformat:"0" }}</small>
+        </a>
+    {% endif %}
+{% else %}
+    {% if interval != 'month' %}
+        <small class="text-secondary">${{ cat.amount_service|floatformat:"0" }}</small>
+    {% else %}
+        <small class="text-secondary">${{ cat.amount_service|floatformat:"0" }}</small>
+    {% endif %}
+{% endif %}
