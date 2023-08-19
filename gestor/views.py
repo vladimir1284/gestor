@@ -176,9 +176,11 @@ def monthly_report(request, year=None, month=None):
     context.setdefault('previousMonth', previousMonth)
     context.setdefault('currentMonth', currentMonth)
     context.setdefault('nextMonth', nextMonth)
+    context.setdefault('thisMonth', datetime.now().month)
     context.setdefault('previousYear', previousYear)
     context.setdefault('currentYear', currentYear)
     context.setdefault('nextYear', nextYear)
+    context.setdefault('thisYear', datetime.now().year)
     context.setdefault('interval', 'monthly')
 
     context.setdefault('membership', getMonthlyMembership(
@@ -279,9 +281,11 @@ def monthly_membership_report(request, year=None, month=None):
     context.setdefault('previousMonth', previousMonth)
     context.setdefault('currentMonth', currentMonth)
     context.setdefault('nextMonth', nextMonth)
+    context.setdefault('thisMonth', datetime.now().month)
     context.setdefault('previousYear', previousYear)
     context.setdefault('currentYear', currentYear)
     context.setdefault('nextYear', nextYear)
+    context.setdefault('thisYear', datetime.now().year)
     return render(request, 'monthly_membership.html', context)
 
 
@@ -641,6 +645,7 @@ def computeReport(orders, costs, pending_payments):
     gross = 0
     third_party = 0
     net = 0
+    labor = 0
     tax = 0
     discount = 0
     products = {}
@@ -653,6 +658,7 @@ def computeReport(orders, costs, pending_payments):
         gross += order.amount
         third_party += order.third_party
         net += order.net
+        labor += order.labor
         tax += order.tax
         discount += order.discount
 
@@ -665,6 +671,7 @@ def computeReport(orders, costs, pending_payments):
         'gross': gross,
         'third_party': third_party,
         'net': net,
+        'labor': labor,
         'discount': discount,
         'tax': tax,
     }
@@ -726,7 +733,8 @@ def computeReport(orders, costs, pending_payments):
         product.cost = products[product]['cost']
         product.price = products[product]['price']
         if product.quantity > 0:
-            product.average = product.price/product.quantity
+            product.average_price = product.price/product.quantity
+            product.average_cost = product.cost/product.quantity
         if products[product]['cost'] != 0:
             product.efficiency = int(
                 100*products[product]['profit']/products[product]['cost'])

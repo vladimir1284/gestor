@@ -170,13 +170,13 @@
                                         <h6 class="mb-0">{{ cat.name }}</h6>
                                         <small class="text-muted">{{ cat.items }} items</small>
                                     </div>
-                                    <div class="user-progress"> 
+                                    <div class="user-progress">
                                         {% if interval == 'weekly' %}
-                                            <a href="/erp/weekly-costs/{{ cat.id }}/{{ start_date|date:'mdY'}}"
-                                                class="text-white badge bg-{% if forloop.counter0 > 2 and cost_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</a>                                    
+                                            <a href="/erp/weekly-costs/{{ cat.id }}/{{ start_date|date:'mdY' }}"
+                                               class="text-white badge bg-{% if forloop.counter0 > 2 and cost_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</a>
                                         {% else %}
                                             <a href="/erp/monthly-costs/{{ cat.id }}/{{ currentYear }}/{{ currentMonth }}"
-                                                class="text-white badge bg-{% if forloop.counter0 > 2 and cost_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</a>
+                                               class="text-white badge bg-{% if forloop.counter0 > 2 and cost_cats|length > 4 %}secondary{% else %}{{ cat.style }}{% endif %}">${{ cat.amount|floatformat:"0" }}</a>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -302,8 +302,9 @@
                                     <th>Qty</th>
                                     <th>Unit</th>
                                     <th>Price</th>
-                                    <th>Ave</th>
+                                    <th>Ave Price</th>
                                     <th>Cost</th>
+                                    <th>Ave Cost</th>
                                     <th>Profit</th>
                                     <th>%</th>
                                 </tr>
@@ -313,7 +314,7 @@
                                     {% if part.type == 'part' %}
                                         <tr>
                                             <td>
-                                                <strong>{{ part.name }}</strong>
+                                                <a href={% url 'detail-product' part.id %}>{{ part.name }}</a>
                                             </td>
                                             <td>
                                                 <div class="float-end">{{ part.quantity|floatformat:"-2" }}</div>
@@ -324,17 +325,30 @@
                                             </td>
                                             <td>
                                                 <div class="float-end">
-                                                    <strong>${{ part.average|floatformat:"2" }}</strong>
+                                                    <strong>${{ part.average_price|floatformat:"2" }}</strong>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div class="float-end">${{ part.cost|floatformat:"2" }}</div>
                                             </td>
                                             <td>
-                                                <div class="float-end">${{ part.profit|floatformat:"2" }}</div>
+                                                <div class="float-end">
+                                                    <strong>${{ part.average_cost|floatformat:"2" }}</strong>
+                                                </div>
                                             </td>
                                             <td>
-                                                <div class="float-end">{{ part.efficiency|floatformat:"0" }}%</div>
+                                                <div class={% if part.profit < 0 %}"float-end text-danger" {% else %}"float-end"{% endif %}>
+                                                    ${{ part.profit|floatformat:"2" }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class={% if part.profit < 0 %}
+                                                "float-end text-danger" 
+                                                {% else %}
+                                                "float-end"
+                                                {% endif %}>
+                                                    {{ part.efficiency|floatformat:"0" }}%
+                                                </div>
                                             </td>
                                         </tr>
                                     {% endif %}
@@ -361,6 +375,7 @@
                                     <th>Gross</th>
                                     <th>Method</th>
                                     <th>Net</th>
+                                    <th>Labor</th>
                                     <th>Parts</th>
                                     <th>Supplies</th>
                                     <th>3d pty</th>
@@ -403,6 +418,15 @@
                                             </div>
                                         </td>
                                         <td>
+                                            <div class={% if order.labor < 0 %}
+                                            "float-end text-danger" 
+                                            {% else %}
+                                            "float-end"
+                                            {% endif %}>
+                                                ${{ order.labor|floatformat:"2" }}
+                                            </div>
+                                        </td>
+                                        <td>
                                             <div class="float-end">${{ order.parts|floatformat:"2" }}</div>
                                         </td>
                                         <td>
@@ -429,8 +453,12 @@
                                     <th>
                                         <div class="float-end">${{ total.gross|floatformat:"2" }}</div>
                                     </th>
+                                    <th></th>
                                     <th>
                                         <div class="float-end">${{ total.net|floatformat:"2" }}</div>
+                                    </th>
+                                    <th>
+                                        <div class="float-end">${{ total.labor|floatformat:"2" }}</div>
                                     </th>
                                     <th>
                                         <div class="float-end">${{ total.parts|floatformat:"2" }}</div>
