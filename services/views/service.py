@@ -25,9 +25,10 @@ from services.forms import (
     ServiceCreateForm,
 )
 from django.utils.translation import gettext_lazy as _
-
+from django.db.models import Sum, F
 
 # -------------------- Service ----------------------------
+
 
 @login_required
 def create_service(request):
@@ -78,7 +79,20 @@ def service_list_metadata(services: List[Service]):
 
 
 def prepare_service_list(order_id=None):
-    services = Service.objects.all().order_by('name')
+    services = Service.objects.annotate(
+        total_quantity=Sum('servicetransaction__quantity')
+    ).annotate(
+        total_income=Sum(F('servicetransaction__quantity')
+                         * F('servicetransaction__price'))
+    ).order_by('-total_income')
+    # Pareto computation
+    total_income_sum = services.aggregate(total_income_sum=Sum('total_income'))
+    accumulated = 0
+    for service in services:
+        if service.total_income:
+            accumulated += service.total_income
+            if accumulated/total_income_sum['total_income_sum'] < 0.8:
+                service.pareto = True
     products = Product.objects.all().order_by('name')
     products_in_order = []
 
@@ -100,6 +114,8 @@ def prepare_service_list(order_id=None):
 
     context = prepare_product_list(product_list)
     context.setdefault('services', services)
+    context.setdefault('total_income_sum',
+                       total_income_sum['total_income_sum'])
     context.setdefault('categories', service_list_metadata(services))
 
     kits = ProductKit.objects.all()

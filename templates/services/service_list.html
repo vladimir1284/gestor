@@ -1,11 +1,15 @@
 {% extends 'base/base_list.html' %}
+{% load l10n %}
+{% load humanize %}
+{% load tz %}
 {% block title %}
     Services
 {% endblock title %}
 {% block card %}
+    {% localize on %}
     <div class="list-head card-header">
         <h5>
-            Services <spam id="filter_tag"></spam>
+            Services <spam id="filter_tag"></spam> (Income: <strong>${{ total_income_sum|floatformat:"0"|intcomma }}</strong>)
         </h5>
         {% include "utils/filter_category.html" %}
     </div>
@@ -18,6 +22,8 @@
                     </th>
                     <th>Name</th>
                     <th>Price</th>
+                    <th>Qty</th>
+                    <th>Income</th>
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
@@ -31,12 +37,15 @@
                                 <strong>{{ service.name }}</strong>
                             </td>
                             <td>${{ service.suggested_price|floatformat:"-2" }}</td>
+                            <td>{{ service.total_quantity|floatformat:"0" }}</td>
+                            <td {% if service.pareto %}class="text-success"{% endif %}>${{ service.total_income|floatformat:"0"|intcomma }}</td>
                         </tr>
                     {% endif %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
+{% endlocalize %}
 {% endblock card %}
 {% block createUrl %}
     {% url 'create-service' %}
