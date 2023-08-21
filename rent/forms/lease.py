@@ -1,9 +1,8 @@
 from django.forms import ModelForm
 from django import forms
 from ..models.lease import (
-    Lease,
+    Contract,
     HandWriting,
-    ContractDocument,
     Inspection,
     Tire
 )
@@ -16,11 +15,9 @@ from phonenumber_field.widgets import RegionalPhoneNumberWidget
 
 class LeaseForm(ModelForm):
     class Meta:
-        model = Lease
-        fields = ('location', 'client_id', 'contact_name', 'contact_phone',
-                  'effective_date', 'contract_end_date', 'number_of_payments',
-                  'payment_amount', 'service_charge', 'security_deposit',
-                  'inspection_date', 'current_condition')
+        model = Contract
+        fields = ('trailer_location', 'effective_date', 'payment_amount',
+                  'security_deposit', 'payment_frequency', 'contract_term')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -142,23 +139,23 @@ class HandWritingForm(ModelForm):
     img = forms.CharField(max_length=20000)
 
 
-class ContractDocumentForm(ModelForm):
-    class Meta:
-        model = ContractDocument
-        fields = ('lease', 'document')
+# class LeaseDocumentForm(ModelForm):
+#     class Meta:
+#         model = LeaseDocument
+#         fields = ('lease', 'document')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Fieldset(
-                '',
-                'lease', 'document'
-            ),
-            ButtonHolder(
-                Submit('submit', 'Add', css_class='btn btn-success')
-            )
-        )
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.helper = FormHelper()
+#         self.helper.layout = Layout(
+#             Fieldset(
+#                 '',
+#                 'lease', 'document'
+#             ),
+#             ButtonHolder(
+#                 Submit('submit', 'Add', css_class='btn btn-success')
+#             )
+#         )
 
 
 class InspectionForm(forms.ModelForm):

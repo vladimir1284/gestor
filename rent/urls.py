@@ -56,8 +56,6 @@ urlpatterns = [
          lease.update_leasee, name='update-leasee'),
     path('contract_signed/<int:id>',  lease.contract_detail_signed,
          name='contract-signed'),
-    path('upload_contract_document/<int:id>',
-         lease.ContractDocumentCreateView.as_view(), name='create-contract-document'),
     path('contracts/',  lease.contracts, name='contracts'),
     path('update_contract/<slug:pk>',
          lease.ContractUpdateView.as_view(), name='update-contract'),

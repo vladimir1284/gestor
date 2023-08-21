@@ -26,7 +26,7 @@ from rent.forms.vehicle import (
     TrailerDocumentUpdateForm,
 )
 from rent.models.lease import (
-    Lease
+    Contract
 )
 from django.utils.translation import gettext_lazy as _
 from .tracker import Tracker
@@ -39,8 +39,8 @@ def list_equipment(request):
     trailers = Trailer.objects.all()
     for trailer in trailers:
         # Contracts
-        contracts = Lease.objects.all().exclude(
-            stage='ended').order_by('-contract_end_date')
+        contracts = Contract.objects.all().exclude(
+            stage='ended')
         if contracts:
             trailer.last_contract = contracts[0]
         # Images

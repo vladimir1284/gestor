@@ -16,15 +16,13 @@ from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from ..models.lease import (
     HandWriting,
-    Lease,
-    ContractDocument,
+    Contract,
     Inspection,
     Tire
 )
 from ..forms.lease import (
     LeaseForm,
     HandWritingForm,
-    ContractDocumentForm,
     InspectionForm,
     TireUpdateForm,
 )
@@ -58,7 +56,7 @@ class HandWritingCreateView(LoginRequiredMixin, CreateView):
 
 @login_required
 def contract_detail(request, id):
-    contract = Lease.objects.get(id=id)
+    contract = Contract.objects.get(id=id)
     if (contract.stage in ('active', 'signed')):
         return redirect('contract-signed', id)
     signatures = HandWriting.objects.filter(lease=contract)
@@ -70,8 +68,8 @@ def contract_detail(request, id):
 
 @login_required
 def contract_detail_signed(request, id):
-    contract = Lease.objects.get(id=id)
-    documents = ContractDocument.objects.filter(lease=contract)
+    contract = Contract.objects.get(id=id)
+    documents = None  # LeaseDocument.objects.filter(lease=contract)
     return render(request, 'rent/contract/contract_detail_signed.html',
                   {'contract': contract,
                    'documents': documents})
@@ -79,40 +77,40 @@ def contract_detail_signed(request, id):
 
 @login_required
 def contracts(request):
-    contracts = Lease.objects.all()
+    contracts = Contract.objects.all()
     return render(request, 'rent/contract/contract_list.html', {'contracts': contracts})
 
 
-class ContractDocumentCreateView(LoginRequiredMixin, CreateView):
-    model = ContractDocument
-    form_class = ContractDocumentForm
-    template_name = 'rent/contract/contract_document_create.html'
+# class LeaseDocumentCreateView(LoginRequiredMixin, CreateView):
+#     model = LeaseDocument
+#     form_class = LeaseDocumentForm
+#     template_name = 'rent/contract/contract_document_create.html'
 
-    def get_initial(self):
-        return {'lease': self.kwargs['id']}
+#     def get_initial(self):
+#         return {'lease': self.kwargs['id']}
 
-    def post(self, request, * args, ** kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            cd = form.save()
-            # Change the contract stage
-            cd.lease.stage = 'signed'
-            cd.lease.save()
-            # # Send email
-            # send_contract(cd.lease,
-            #               cd.document.open(mode="rb").read(),
-            #               'signed_contract')
-            # Create calendar event
-            createEvent(form.instance.lease, cd)
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+#     def post(self, request, * args, ** kwargs):
+#         form_class = self.get_form_class()
+#         form = self.get_form(form_class)
+#         if form.is_valid():
+#             cd = form.save()
+#             # Change the contract stage
+#             cd.lease.stage = 'signed'
+#             cd.lease.save()
+#             # # Send email
+#             # send_contract(cd.lease,
+#             #               cd.document.open(mode="rb").read(),
+#             #               'signed_contract')
+#             # Create calendar event
+#             createEvent(form.instance.lease, cd)
+#             return self.form_valid(form)
+#         else:
+#             return self.form_invalid(form)
 
 
 @login_required
 def update_contract_stage(request, id, stage):
-    lease = get_object_or_404(Lease, id=id)
+    lease = get_object_or_404(Contract, id=id)
     lease.stage = stage
     lease.save()
     if (stage in ('ready', 'signed')):
@@ -149,7 +147,7 @@ def generate_pdf(request, contract, stage):
         # if (stage == 3):
         #     # Store file
         #     output.seek(0)
-        #     cd = ContractDocument()
+        #     cd = LeaseDocument()
         #     cd.lease = contract
         #     cd.document.save("signed_contract_%s.pdf" % id, output, True)
         #     cd.save()
@@ -214,7 +212,7 @@ def createEvent(contract, cd):
 
 
 class ContractUpdateView(LoginRequiredMixin, UpdateView):
-    model = Lease
+    model = Contract
     form_class = LeaseForm
     template_name = 'rent/contract/contract_create.html'
 
@@ -320,6 +318,7 @@ def update_tires(request, inspection_id):
                 form.save()
             else:
                 return render(request, 'update_tires.html', {'forms': forms})
-        lease = get_object_or_404(Lease, lease__inspection__id=inspection_id)
+        lease = get_object_or_404(
+            Contract, lease__inspection__id=inspection_id)
         return redirect('detail-contract', id=lease.id)
     return render(request, 'rent/contract/update_tires.html', {'forms': forms})

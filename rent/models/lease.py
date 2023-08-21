@@ -5,15 +5,22 @@ from users.models import Associated
 from django.urls import reverse
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+from datetime import timedelta
+from django.contrib.auth.models import User
 
 
-class Lease(models.Model):
+class Contract(models.Model):
     lessee = models.ForeignKey(Associated,
-                               on_delete=models.CASCADE,
-                               related_name='lease')
+                               on_delete=models.CASCADE)
     trailer = models.ForeignKey(Trailer,
-                                on_delete=models.CASCADE,
-                                related_name='lease_trailer')
+                                on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
     STAGE_CHOICES = (
         ('active', 'Active'),
         ('ended', 'Ended'),
@@ -22,23 +29,21 @@ class Lease(models.Model):
         ('missing', 'Missing data'),
     )
     stage = models.CharField(max_length=10, choices=STAGE_CHOICES)
-    location = models.TextField()
-    client_id = models.ImageField(upload_to='rental/ids', blank=True)
-    contact_name = models.CharField(max_length=100, blank=True)
-    contact_phone = PhoneNumberField(blank=True)
+    trailer_location = models.TextField()
     effective_date = models.DateField()
-    contract_end_date = models.DateField()
-    number_of_payments = models.IntegerField()
     payment_amount = models.IntegerField()
-    service_charge = models.IntegerField()
-    security_deposit = models.IntegerField()
-    inspection_date = models.DateField()
-    current_condition = models.PositiveSmallIntegerField(
-        choices=((1, 'New'),
-                 (2, 'Like new'),
-                 (3, 'Used')),
-        default=1,
+    PERIODICITY_CHOICES = [
+        ('weekly', 'Weekly'),
+        ('biweekly', 'Biweekly'),
+        ('monthly', 'Monthly'),
+    ]
+    payment_frequency = models.CharField(
+        max_length=10,
+        choices=PERIODICITY_CHOICES,
+        default='weekly',
     )
+    contract_term = models.IntegerField(default=7)  # Weeks
+    security_deposit = models.IntegerField()
 
     def __str__(self):
         return self.trailer.__str__() + " -> " + self.lessee.__str__()
@@ -47,8 +52,22 @@ class Lease(models.Model):
         ordering = ('-effective_date',)
 
 
+@receiver(pre_save, sender=Contract)
+def update_effective_date(sender, instance, **kwargs):
+    ''' 
+    Add a rule so that if the effective_date is the 31st day, it will be
+    automatically changed for the 1st of the next month at instance creation
+    '''
+    if instance.effective_date.day == 31:
+        instance.effective_date += timedelta(days=1)
+
+
+# Connect the signal handler
+pre_save.connect(update_effective_date, sender=Contract)
+
+
 class ContractDocument(models.Model):
-    lease = models.ForeignKey(Lease,
+    lease = models.ForeignKey(Contract,
                               on_delete=models.CASCADE,
                               related_name='contract_document')
     document = models.FileField(
@@ -56,7 +75,7 @@ class ContractDocument(models.Model):
 
 
 class HandWriting(models.Model):
-    lease = models.ForeignKey(Lease,
+    lease = models.ForeignKey(Contract,
                               on_delete=models.CASCADE,
                               related_name='hand_writing')
     position = models.CharField(max_length=50)
@@ -71,19 +90,21 @@ class HandWriting(models.Model):
 
 class LesseeData(models.Model):
     associated = models.ForeignKey(Associated,
-                                   on_delete=models.CASCADE,
-                                   related_name='hand_writing')
+                                   on_delete=models.CASCADE)
+    contact_name = models.CharField(max_length=100)
+    contact_phone = PhoneNumberField()
     insurance_number = models.CharField(max_length=150, blank=True)
     insurance_file = models.FileField(upload_to='rental/insurances')
     license_number = models.CharField(max_length=150, blank=True)
     license_file = models.FileField(upload_to='rental/licenses')
+    client_id = models.ImageField(upload_to='rental/ids', blank=True)
 
     def __str__(self):
         return self.name
 
 
 class Inspection(models.Model):
-    lease = models.ForeignKey(Lease, on_delete=models.CASCADE)
+    lease = models.ForeignKey(Contract, on_delete=models.CASCADE)
     inspection_date = models.DateField(default=timezone.now)
     main_tires_choices = (
         (4, '4'),
