@@ -21,7 +21,7 @@
     <td>
       <a class="trailer-link" href={% url 'detail-contract' contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
     </td>
-    <td>{% include "users/associated_line.html" with associated=contract.leasee %}</td>
+    <td>{% include "users/associated_line.html" with associated=contract.lessee %}</td>
     <td class="d-flex">
       {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
     </td>

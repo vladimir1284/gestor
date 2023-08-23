@@ -31,6 +31,7 @@ class Contract(models.Model):
     stage = models.CharField(max_length=10, choices=STAGE_CHOICES)
     trailer_location = models.TextField()
     effective_date = models.DateField()
+    ended_date = models.DateField(null=True)
     payment_amount = models.IntegerField()
     PERIODICITY_CHOICES = [
         ('weekly', 'Weekly'),
@@ -42,8 +43,9 @@ class Contract(models.Model):
         choices=PERIODICITY_CHOICES,
         default='weekly',
     )
-    contract_term = models.IntegerField(default=7)  # Weeks
     security_deposit = models.IntegerField()
+    contract_term = models.IntegerField(default=7)  # Weeks
+    delayed_payments = models.IntegerField(default=0)
 
     def __str__(self):
         return self.trailer.__str__() + " -> " + self.lessee.__str__()
@@ -93,10 +95,11 @@ class LesseeData(models.Model):
                                    on_delete=models.CASCADE)
     contact_name = models.CharField(max_length=100)
     contact_phone = PhoneNumberField()
-    insurance_number = models.CharField(max_length=150, blank=True)
-    insurance_file = models.FileField(upload_to='rental/insurances')
-    license_number = models.CharField(max_length=150, blank=True)
-    license_file = models.FileField(upload_to='rental/licenses')
+    insurance_number = models.CharField(max_length=150)
+    insurance_file = models.FileField(
+        upload_to='rental/insurances', blank=True)
+    license_number = models.CharField(max_length=150)
+    license_file = models.FileField(upload_to='rental/licenses', blank=True)
     client_id = models.ImageField(upload_to='rental/ids', blank=True)
 
     def __str__(self):

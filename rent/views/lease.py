@@ -4,8 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from weasyprint import HTML
 import tempfile
@@ -18,18 +20,20 @@ from ..models.lease import (
     HandWriting,
     Contract,
     Inspection,
-    Tire
+    Tire,
+    LesseeData,
 )
 from ..forms.lease import (
     LeaseForm,
     HandWritingForm,
     InspectionForm,
-    TireUpdateForm,
+    TireFormSet,
+    AssociatedCreateForm,
+    LesseeDataForm,
 )
-from users.models import Associated
-from users.forms import AssociatedCreateForm
 from users.views import addStateCity
 from ..models.vehicle import Trailer
+from users.models import Associated
 
 
 class HandWritingCreateView(LoginRequiredMixin, CreateView):
@@ -235,47 +239,54 @@ def lease_create_view(request, lessee_id, trailer_id):
 
     context = {
         'form': form,
+        'title': _('Create new contract')
     }
     return render(request, 'rent/contract/contract_create.html', context)
 
 
 @login_required
-def select_leasee(request, trailer_id):
+def select_lessee(request, trailer_id):
     if request.method == 'POST':
-        leasee = get_object_or_404(Associated, id=request.POST.get('id'))
-        return redirect('update-leasee', leasee.id, trailer_id)
+        lessee = get_object_or_404(Associated, id=request.POST.get('id'))
+        return redirect('update-lessee', trailer_id, lessee.id)
 
     # add form dictionary to context
     associates = Associated.objects.filter(
         type='client', active=True).order_by("name", "alias")
     context = {
         'associates': associates,
-        'skip': False
+        'trailer_id': trailer_id,
+        'create': True,
     }
     return render(request, 'services/client_list.html', context)
 
 
 @login_required
-def update_leasee(request, lessee_id, trailer_id):
-    # fetch the object related to passed id
-    leasee = get_object_or_404(Associated, id=lessee_id)
+def update_lessee(request, trailer_id, lessee_id=None):
+    if lessee_id is not None:
+        # fetch the object related to passed id
+        lessee = get_object_or_404(Associated, id=lessee_id)
 
-    # pass the object as instance in form
-    form = AssociatedCreateForm(instance=leasee)
+        # pass the object as instance in form
+        form = AssociatedCreateForm(instance=lessee)
+
+        title = _('Update client')
+    else:
+        form = AssociatedCreateForm()
+        title = _('Create client')
 
     if request.method == 'POST':
         # pass the object as instance in form
-        form = AssociatedCreateForm(
-            request.POST, request.FILES, instance=leasee)
+        form = AssociatedCreateForm(request.POST, request.FILES)
 
         # save the data from the form and
         # redirect to detail_view
         if form.is_valid():
-            form.save()
-            return redirect('create-contract', lessee_id, trailer_id)
+            lessee = form.save()
+            return redirect('update-lessee-data', trailer_id, lessee.id)
 
     # add form dictionary to context
-    title = _('Update client')
+
     context = {
         'form': form,
         'title': title,
@@ -283,14 +294,45 @@ def update_leasee(request, lessee_id, trailer_id):
     addStateCity(context)
     return render(request, 'users/contact_create.html', context)
 
+
+@login_required
+def update_lessee_data(request, trailer_id, lessee_id):
+    lessee = get_object_or_404(Associated, id=lessee_id)
+    try:
+        lessee_data = LesseeData.objects.get(associated__id=lessee_id)
+        # pass the object as instance in form
+        form = LesseeDataForm(request.POST or None, request.FILES or None,
+                              instance=lessee_data)
+    except ObjectDoesNotExist:
+        form = LesseeDataForm(request.POST or None, request.FILES or None)
+
+    if request.method == 'POST':
+        # save the data from the form and
+        # redirect to detail_view
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.associated = lessee
+            data.save()
+            return redirect('create-contract', lessee_id, trailer_id)
+
+    # add form dictionary to context
+
+    context = {
+        'form': form,
+        'title': 'Lessee data',
+    }
+    addStateCity(context)
+    return render(request, 'rent/contract/lessee_data_create.html', context)
+
 # -------------------- Inspection ----------------------------
 
 
 @login_required
+@transaction.atomic
 def create_inspection(request, lease_id):
-    form = InspectionForm(request.POST)
+    form = InspectionForm(request.POST or None)
     if request.method == 'POST':
-        lease = get_object_or_404(Associated, pk=lease_id)
+        lease = get_object_or_404(Contract, pk=lease_id)
         if form.is_valid():
             inspection: Inspection = form.save(commit=False)
             inspection.lease = lease
@@ -298,10 +340,12 @@ def create_inspection(request, lease_id):
             # Create tires
             for i in range(inspection.number_of_main_tires):
                 Tire.objects.create(type='main',
-                                    position=i)
+                                    position=i,
+                                    inspection=inspection)
             for i in range(inspection.number_of_spare_tires):
                 Tire.objects.create(type='spare',
-                                    position=i)
+                                    position=i,
+                                    inspection=inspection)
             return redirect('update-tires', inspection.id)
     context = {'title': 'Trailer inspection',
                'form': form}
@@ -311,14 +355,14 @@ def create_inspection(request, lease_id):
 @login_required
 def update_tires(request, inspection_id):
     tires = Tire.objects.filter(inspection_id=inspection_id)
-    forms = [TireUpdateForm(request.POST, instance=tire) for tire in tires]
+
+    formset = TireFormSet(queryset=tires)
+    context = {'formset': formset,
+               'title': 'Tires condition'}
+
     if request.method == 'POST':
-        for form in forms:
-            if form.is_valid():
-                form.save()
-            else:
-                return render(request, 'update_tires.html', {'forms': forms})
-        lease = get_object_or_404(
-            Contract, lease__inspection__id=inspection_id)
-        return redirect('detail-contract', id=lease.id)
-    return render(request, 'rent/contract/update_tires.html', {'forms': forms})
+        formset = TireFormSet(request.POST, queryset=tires)
+        formset.save()
+        inspection = get_object_or_404(Inspection, id=inspection_id)
+        return redirect('detail-contract', id=inspection.lease.id)
+    return render(request, 'rent/contract/update_tires.html', context)

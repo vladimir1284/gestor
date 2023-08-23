@@ -4,13 +4,18 @@ from ..models.lease import (
     Contract,
     HandWriting,
     Inspection,
-    Tire
+    Tire,
+    LesseeData,
 )
+from django.forms import modelformset_factory
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
-from crispy_forms.bootstrap import PrependedText
+from crispy_forms.bootstrap import PrependedText, AppendedText
 from django.utils.safestring import mark_safe
 from phonenumber_field.widgets import RegionalPhoneNumberWidget
+from users.forms import BaseContactForm, CommonContactLayout
+from django.forms import HiddenInput
+from users.models import Associated
 
 
 class LeaseForm(ModelForm):
@@ -21,112 +26,25 @@ class LeaseForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['contact_phone'].widget = RegionalPhoneNumberWidget(
-            region="US")
+        # self.fields['contact_phone'].widget = RegionalPhoneNumberWidget(
+        #     region="US")
         self.fields['effective_date'] = forms.DateTimeField(
             widget=forms.DateInput(
                 attrs={'type': 'date'},
             ),
         )
-        self.fields['contract_end_date'] = forms.DateTimeField(
-            widget=forms.DateInput(
-                attrs={'type': 'date'},
-            ),
-        )
-        self.fields['inspection_date'] = forms.DateTimeField(
-            widget=forms.DateInput(
-                attrs={'type': 'date'},
-            ),
-        )
-
         self.helper = FormHelper()
+        self.helper.field_class = 'mb-3'
         self.helper.layout = Layout(
-            Fieldset(
-                'Contract terms',
-                Div(
-                    Div(
-                        Field('location', rows='2'),
-                        css_class='col-md-6'
-                    ),
-                    Div(
-                        'client_id',
-                        css_class='col-md-6'
-                    ),
-                    css_class='row mb-3'
-                ),
-                Div(
-                    Div(
-                        'effective_date',
-                        css_class='col-md-6'
-                    ),
-                    Div(
-                        'contract_end_date',
-                        css_class='col-md-6'
-                    ),
-                    css_class='row mb-3'
-                ),
-                Div(
-                    Div(
-                        'number_of_payments',
-                        css_class='col-md-6'
-                    ),
-                    Div(
-                        PrependedText('payment_amount', '$'),
-                        css_class='col-md-6'
-                    ),
-                    css_class='row mb-3'
-                ),
-                Div(
-                    Div(
-                        PrependedText('service_charge', '$'),
-                        css_class='col-md-6'
-                    ),
-                    Div(
-                        PrependedText('security_deposit', '$'),
-                        css_class='col-md-6'
-                    ),
-                    css_class='row mb-3'
-                )
-            ),
-            Fieldset(
-                'Emergency contact',
-                HTML('<div id="id_trailer_conditions" class="col-12"></div>'),
-                Div(
-                    Div(
-                        Field(
-                            PrependedText('contact_name',
-                                          mark_safe('<i class="bx bx-user"></i>'))
-                        ),
-                        css_class='col-md-6'
-                    ),
-                    Div(
-                        Field(
-                            PrependedText('contact_phone',
-                                          mark_safe('<i class="bx bx-phone"></i>'))
-                        ),
-                        css_class='col-md-6'
-                    ),
-                    css_class='row mb-3'
-                )
-            ),
-            Fieldset(
-                'Inspection',
-                HTML('<div id="id_trailer_conditions" class="col-12"></div>'),
-                Div(
-                    Div(
-                        'current_condition',
-                        css_class='col-md-6'
-                    ),
-                    Div(
-                        'inspection_date',
-                        css_class='col-md-6'
-                    ),
-                    css_class='row mb-3'
-                ),
-                ButtonHolder(
-                    Submit('submit', 'Create contract',
-                           css_class='btn btn-success')
-                )
+            Field('trailer_location', rows='2'),
+            'effective_date',
+            PrependedText('security_deposit', '$'),
+            'payment_frequency',
+            AppendedText('contract_term', 'weeks'),
+            PrependedText('payment_amount', '$'),
+            ButtonHolder(
+                Submit('submit', 'Create contract',
+                       css_class='btn btn-success')
             )
         )
 
@@ -139,9 +57,9 @@ class HandWritingForm(ModelForm):
     img = forms.CharField(max_length=20000)
 
 
-# class LeaseDocumentForm(ModelForm):
+# class ContractDocumentForm(ModelForm):
 #     class Meta:
-#         model = LeaseDocument
+#         model = ContractDocument
 #         fields = ('lease', 'document')
 
 #     def __init__(self, *args, **kwargs):
@@ -199,7 +117,55 @@ class InspectionForm(forms.ModelForm):
                   'strap_4inch')
 
 
-class TireUpdateForm(forms.ModelForm):
+TireFormSet = modelformset_factory(
+    Tire, fields=('remaining_life',), edit_only=True)
+
+
+class LesseeDataForm(forms.ModelForm):
     class Meta:
-        model = Tire
-        fields = ['remaining_life']
+        model = LesseeData
+        fields = ('contact_name', 'contact_phone',
+                  'insurance_number', 'insurance_file',
+                  'license_number', 'license_file',
+                  'client_id')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.field_class = 'mb-3'
+        self.helper.layout = Layout(
+            Fieldset('Documents',
+                     'insurance_number',
+                     'insurance_file',
+                     'license_number',
+                     'license_file',
+                     'client_id'
+                     ),
+            Fieldset('Emergency Contact',
+                     'contact_name',
+                     'contact_phone'
+                     ),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class AssociatedCreateForm(BaseContactForm):
+
+    class Meta(BaseContactForm.Meta):
+        model = Associated
+        fields = BaseContactForm.Meta.fields + ['type']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['type'].widget = HiddenInput()
+
+        self.helper.layout = Layout(
+            CommonContactLayout(),
+            Field('type'),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )

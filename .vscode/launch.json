@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Django Debug Single Test",
-            "python": "/usr/bin/python3",
+            "python": "/home/vladimir/Sync/JA/ERM/gestor/gestorenv/bin/python3",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -20,7 +20,7 @@
         },
         {
             "name": "Python: Django",
-            "python": "/usr/bin/python3",
+            "python": "/home/vladimir/Sync/JA/ERM/gestor/gestorenv/bin/python3",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
