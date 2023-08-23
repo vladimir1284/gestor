@@ -12,6 +12,11 @@
                    href="{% url 'export-inventory' %}">
                     <span class="tf-icons bx bx-share-alt"></span>
                 </a>
+                <a href="{% url alternative_view %}"
+                    type="button"
+                    class="btn btn-outline-primary float-end">
+                    <span class="tf-icons bx bx-repost"></span>&nbsp; {{ stage }}
+                </a>
                 <button class="btn btn-icon btn-outline-danger"
                         type="button"
                         onClick="filterLowStock()">

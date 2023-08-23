@@ -172,7 +172,30 @@ def computeTransactionProducts(product, status):
 
 def prepare_product_list(products=None):
     if products is None:
-        products = Product.objects.all().order_by('name')
+        products = Product.objects.all().filter(active=True).order_by('name')
+    (consumable_categories, consumable_alerts) = product_list_metadata(
+        'consumable', products)
+    (part_categories, part_alerts) = product_list_metadata('part', products)
+    for product in products:
+        # Pending quantity
+        pending = computeTransactionProducts(product, 'pending')
+        if pending > 0:
+            product.pending = pending
+        # Processing quantity
+        processing = computeTransactionProducts(product, 'processing')
+        if processing > 0:
+            product.processing = processing
+
+    return {'products': products,
+            'consumable_alerts': consumable_alerts,
+            'consumable_categories': consumable_categories,
+            'part_alerts': part_alerts,
+            'part_categories': part_categories}
+
+
+def show_product_deactivated(products=None):
+    if products is None:
+        products = Product.objects.all().filter(active=False).order_by('name')
     (consumable_categories, consumable_alerts) = product_list_metadata(
         'consumable', products)
     (part_categories, part_alerts) = product_list_metadata('part', products)
@@ -196,6 +219,16 @@ def prepare_product_list(products=None):
 @login_required
 def list_product(request):
     context = prepare_product_list()
+    context.setdefault('stage', 'Product Deactivated')
+    context.setdefault('alternative_view', 'deactivated-product-list')
+    return render(request, 'inventory/product_list.html', context)
+
+
+@login_required
+def list_deactivated_product(request):
+    context = show_product_deactivated()
+    context.setdefault('stage', 'Product Active')
+    context.setdefault('alternative_view', 'list-product')
     return render(request, 'inventory/product_list.html', context)
 
 
