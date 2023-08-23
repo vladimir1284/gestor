@@ -33,6 +33,7 @@ class Contract(models.Model):
     effective_date = models.DateField()
     ended_date = models.DateField(null=True)
     payment_amount = models.IntegerField()
+    service_charge = models.IntegerField(default=100)
     PERIODICITY_CHOICES = [
         ('weekly', 'Weekly'),
         ('biweekly', 'Biweekly'),
@@ -101,6 +102,7 @@ class LesseeData(models.Model):
     license_number = models.CharField(max_length=150)
     license_file = models.FileField(upload_to='rental/licenses', blank=True)
     client_id = models.ImageField(upload_to='rental/ids', blank=True)
+    client_address = models.TextField()
 
     def __str__(self):
         return self.name

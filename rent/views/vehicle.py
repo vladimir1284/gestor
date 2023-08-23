@@ -39,10 +39,10 @@ def list_equipment(request):
     trailers = Trailer.objects.all()
     for trailer in trailers:
         # Contracts
-        contracts = Contract.objects.all().exclude(
+        contracts = Contract.objects.filter(trailer=trailer).exclude(
             stage='ended')
         if contracts:
-            trailer.last_contract = contracts[0]
+            trailer.current_contract = contracts.last()
         # Images
         images, pinned_image = getImages(trailer)
         trailer.images = images

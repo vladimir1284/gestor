@@ -1,5 +1,7 @@
 from django.forms import ModelForm
 from django import forms
+from phonenumber_field.widgets import RegionalPhoneNumberWidget
+from phonenumber_field.modelfields import PhoneNumberField
 from ..models.lease import (
     Contract,
     HandWriting,
@@ -22,12 +24,11 @@ class LeaseForm(ModelForm):
     class Meta:
         model = Contract
         fields = ('trailer_location', 'effective_date', 'payment_amount',
-                  'security_deposit', 'payment_frequency', 'contract_term')
+                  'security_deposit', 'payment_frequency', 'contract_term',
+                  'service_charge')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.fields['contact_phone'].widget = RegionalPhoneNumberWidget(
-        #     region="US")
         self.fields['effective_date'] = forms.DateTimeField(
             widget=forms.DateInput(
                 attrs={'type': 'date'},
@@ -42,6 +43,7 @@ class LeaseForm(ModelForm):
             'payment_frequency',
             AppendedText('contract_term', 'weeks'),
             PrependedText('payment_amount', '$'),
+            PrependedText('service_charge', '$'),
             ButtonHolder(
                 Submit('submit', 'Create contract',
                        css_class='btn btn-success')
@@ -127,7 +129,7 @@ class LesseeDataForm(forms.ModelForm):
         fields = ('contact_name', 'contact_phone',
                   'insurance_number', 'insurance_file',
                   'license_number', 'license_file',
-                  'client_id')
+                  'client_id', 'client_address')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -139,7 +141,8 @@ class LesseeDataForm(forms.ModelForm):
                      'insurance_file',
                      'license_number',
                      'license_file',
-                     'client_id'
+                     'client_id',
+                     Field('client_address', rows='2')
                      ),
             Fieldset('Emergency Contact',
                      'contact_name',
@@ -161,6 +164,8 @@ class AssociatedCreateForm(BaseContactForm):
         super().__init__(*args, **kwargs)
 
         self.fields['type'].widget = HiddenInput()
+        self.fields['phone_number'].required = True
+        self.fields['email'].required = True
 
         self.helper.layout = Layout(
             CommonContactLayout(),

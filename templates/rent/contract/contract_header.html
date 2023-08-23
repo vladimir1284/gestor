@@ -1,0 +1,50 @@
+{% load static %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 d-flex pb-1">
+            <div class="avatar flex-shrink-0 me-3">
+                <a href={% url 'detail-associated' contract.lessee.id %}>
+                    <span class="avatar-initial rounded-circle bg-label-primary">
+                        <img {% if contract.lessee.avatar %} src="{{ contract.lessee.avatar.url }}" {% else %} src="{% static 'assets/img/icons/user.png' %}" {% endif %}
+                             alt="Avatar"
+                             height="100px"
+                             width="100px"
+                             class="w-px-40 h-auto rounded-circle" />
+                    </span>
+                </a>
+            </div>
+            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                <div class="me-2">
+                    <h6 class="mb-0">{{ contract.lessee.name }}</h6>
+                    {% if contract.lessee.debt > 0 %}
+                        <small class="text-danger">Debt: ${{ contract.lessee.debt }} ({{ contract.lessee.debt_status }})</small>
+                    {% else %}
+                        <small class="text-muted">{{ contract.lessee.phone_number }}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="demo-inline-spacing col-md-8">
+            <a href="{% url 'update-lessee-data' contract.lessee.data.id %}"
+               type="button"
+               class="btn btn-outline-primary">
+                <span class="tf-icons bx bx-edit"></span>&nbsp; Client data
+            </a>
+            <a href="{% url 'update-contract' contract.id %}"
+               type="button"
+               class="btn btn-outline-primary">
+                <span class="tf-icons bx bx-edit"></span>&nbsp; Terms
+            </a>
+            <a href="{% url 'update-inspection' contract.inspection.id %}"
+               type="button"
+               class="btn btn-outline-primary">
+                <span class="tf-icons bx bx-edit"></span>&nbsp; Inspection
+            </a>
+            <a href="{% url 'update-tires' contract.inspection.id %}"
+               type="button"
+               class="btn btn-outline-primary">
+                <span class="tf-icons bx bx-edit"></span>&nbsp; Tires
+            </a>
+        </div>
+    </div>
+</div>

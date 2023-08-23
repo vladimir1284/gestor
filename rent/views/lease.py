@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -58,9 +59,18 @@ class HandWritingCreateView(LoginRequiredMixin, CreateView):
         return super(HandWritingCreateView, self).form_valid(form)
 
 
+def get_contract(id):
+    contract = Contract.objects.get(id=id)
+    contract.inspection = Inspection.objects.get(lease=contract)
+    contract.contract_end_date = contract.effective_date + \
+        timedelta(weeks=contract.contract_term)
+    contract.lessee.data = LesseeData.objects.get(associated=contract.lessee)
+    return contract
+
+
 @login_required
 def contract_detail(request, id):
-    contract = Contract.objects.get(id=id)
+    contract = get_contract(id)
     if (contract.stage in ('active', 'signed')):
         return redirect('contract-signed', id)
     signatures = HandWriting.objects.filter(lease=contract)
@@ -72,7 +82,7 @@ def contract_detail(request, id):
 
 @login_required
 def contract_detail_signed(request, id):
-    contract = Contract.objects.get(id=id)
+    contract = get_contract(id)
     documents = None  # LeaseDocument.objects.filter(lease=contract)
     return render(request, 'rent/contract/contract_detail_signed.html',
                   {'contract': contract,
@@ -220,6 +230,20 @@ class ContractUpdateView(LoginRequiredMixin, UpdateView):
     form_class = LeaseForm
     template_name = 'rent/contract/contract_create.html'
 
+    def get_success_url(self):
+        return reverse_lazy('detail-contract', kwargs={'id': self.object.pk})
+
+
+class LeseeDataUpdateView(LoginRequiredMixin, UpdateView):
+    model = LesseeData
+    form_class = LesseeDataForm
+    template_name = 'rent/contract/lessee_data_create.html'
+
+    def get_success_url(self):
+        contract = Contract.objects.filter(
+            lessee=self.object.associated).last()
+        return reverse_lazy('detail-contract', kwargs={'id': contract.id})
+
 
 def lease_create_view(request, lessee_id, trailer_id):
     lessee = get_object_or_404(Associated, pk=lessee_id)
@@ -296,7 +320,7 @@ def update_lessee(request, trailer_id, lessee_id=None):
 
 
 @login_required
-def update_lessee_data(request, trailer_id, lessee_id):
+def create_lessee_data(request, trailer_id, lessee_id):
     lessee = get_object_or_404(Associated, id=lessee_id)
     try:
         lessee_data = LesseeData.objects.get(associated__id=lessee_id)
@@ -327,27 +351,48 @@ def update_lessee_data(request, trailer_id, lessee_id):
 # -------------------- Inspection ----------------------------
 
 
-@login_required
 @transaction.atomic
+def handle_inspection(form, lease):
+    inspection: Inspection = form.save(commit=False)
+    inspection.lease = lease
+    inspection.save()
+    # Delete old tires if any
+    Tire.objects.filter(inspection=inspection).delete()
+    # Create tires
+    for i in range(inspection.number_of_main_tires):
+        Tire.objects.create(type='main',
+                            position=i,
+                            inspection=inspection)
+    for i in range(inspection.number_of_spare_tires):
+        Tire.objects.create(type='spare',
+                            position=i,
+                            inspection=inspection)
+    return inspection
+
+
+@login_required
 def create_inspection(request, lease_id):
     form = InspectionForm(request.POST or None)
     if request.method == 'POST':
         lease = get_object_or_404(Contract, pk=lease_id)
         if form.is_valid():
-            inspection: Inspection = form.save(commit=False)
-            inspection.lease = lease
-            inspection.save()
-            # Create tires
-            for i in range(inspection.number_of_main_tires):
-                Tire.objects.create(type='main',
-                                    position=i,
-                                    inspection=inspection)
-            for i in range(inspection.number_of_spare_tires):
-                Tire.objects.create(type='spare',
-                                    position=i,
-                                    inspection=inspection)
+            inspection = handle_inspection(form, lease)
             return redirect('update-tires', inspection.id)
     context = {'title': 'Trailer inspection',
+               'form': form}
+    return render(request, 'rent/contract/inspection_create.html', context)
+
+
+@login_required
+def update_inspection(request, id):
+    inspection = get_object_or_404(Inspection, id=id)
+    form = InspectionForm(request.POST or None,
+                          instance=inspection)
+    if request.method == 'POST':
+        if form.is_valid():
+            handle_inspection(form, inspection.lease)
+            return redirect('update-tires', inspection.id)
+    context = {'title': 'Update trailer inspection',
                'form': form}
     return render(request, 'rent/contract/inspection_create.html', context)
 

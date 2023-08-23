@@ -56,8 +56,10 @@ urlpatterns = [
          lease.update_lessee, name='update-lessee'),
     path('create_lesee/<int:trailer_id>/',
          lease.update_lessee, name='create-lessee'),
-    path('update_lessee_data/<int:trailer_id>/<int:lessee_id>/',
-         lease.update_lessee_data, name='update-lessee-data'),
+    path('create_lessee_data/<int:trailer_id>/<int:lessee_id>/',
+         lease.create_lessee_data, name='update-lessee-data'),
+    path('update_lessee_data/<slug:pk>',
+         lease.LeseeDataUpdateView.as_view(), name='update-lessee-data'),
     path('contract_signed/<int:id>',  lease.contract_detail_signed,
          name='contract-signed'),
     path('contracts/',  lease.contracts, name='contracts'),
@@ -70,6 +72,8 @@ urlpatterns = [
     # -------------------- Inspection ----------------------------
     path('create_inspection/<lease_id>/',
          lease.create_inspection, name='create-inspection'),
+    path('update_inspection/<id>/',
+         lease.update_inspection, name='update-inspection'),
     path('update_tires/<inspection_id>/',
          lease.update_tires, name='update-tires'),
 ]

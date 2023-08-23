@@ -4,13 +4,13 @@
 <p>
    This Equipment Lease ("this lease") is made effective as
    of <mark>{{ contract.effective_date|date:'F d, Y' }}</mark> between Towit Houston, LLC ("the Lessors"), 6514 Mohave Ln, Richmond, TX 77469,
-   and <mark>{{ contract.lessee.name }}</mark>, ("the Lessee"), <mark>{{ contract.lessee.address }}</mark> and states the agreement of the parties as follows:
+   and <mark>{{ contract.lessee.name }}</mark>, ("the Lessee"), <mark>{{ contract.lessee.data.client_address }}</mark> and states the agreement of the parties as follows:
 </p>
 <p>
    <strong>EQUIPMENT SUBJECT TO LEASE</strong>. The Lessor shall lease the equipment listed on the attached exhibit "A".
 </p>
 <p>
-   <strong>PAYMENT TERMS</strong>. The Lessee shall make <mark>{{ contract.number_of_payments }}</mark> payment(s) of $<mark>{{ contract.payment_amount }}</mark>.
+   <strong>PAYMENT TERMS</strong>. The Lessee shall make a  payment of $<mark>{{ contract.payment_amount }}</mark> <mark>{{ contract.payment_frequency }}</mark>.
    The lease payments shall be due whether or not the Lessee has received notice of payment due.
 </p>
 <p>
@@ -28,7 +28,7 @@
    unless otherwise terminated in a manner consistent with the terms of this Lease.
 </p>
 <p>
-   <strong>LOCATION OF EQUIPMENT</strong>. The equipment shall be located at <mark>{{ contract.location }}</mark>, during the Lease term, and shall not be
+   <strong>LOCATION OF EQUIPMENT</strong>. The equipment shall be located at <mark>{{ contract.trailer_location }}</mark>, during the Lease term, and shall not be
    removed from that location without the Lessor prior written consent.
 </p>
 <p>
