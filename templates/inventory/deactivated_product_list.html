@@ -1,0 +1,13 @@
+{% extends "./product/base_deactivated_product_list.html" %}
+{% block tableParts %}
+    {% include "./product/list_table.html" with type="part" %}
+{% endblock tableParts %}
+{% block tableConsumables %}
+    {% include "./product/list_table.html" with type="consumable" %}
+{% endblock tableConsumables %}
+{% block createUrl %}
+    {% url 'create-product' %}
+{% endblock createUrl %}
+{% block help %}
+    New product
+{% endblock help %}

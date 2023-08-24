@@ -219,17 +219,13 @@ def show_product_deactivated(products=None):
 @login_required
 def list_product(request):
     context = prepare_product_list()
-    context.setdefault('stage', 'Product Deactivated')
-    context.setdefault('alternative_view', 'deactivated-product-list')
     return render(request, 'inventory/product_list.html', context)
 
 
 @login_required
 def list_deactivated_product(request):
     context = show_product_deactivated()
-    context.setdefault('stage', 'Product Active')
-    context.setdefault('alternative_view', 'list-product')
-    return render(request, 'inventory/product_list.html', context)
+    return render(request, 'inventory/deactivated_product_list.html', context)
 
 
 @login_required
