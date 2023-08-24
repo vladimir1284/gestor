@@ -118,15 +118,25 @@ class CostsUpdateForm(BaseForm):
             'amount',
             'related_to',
             'note',
+            'date',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields['date'] = forms.DateTimeField(
+            widget=forms.DateInput(
+                attrs={'type': 'date'},
+            ),
+        )
+        
         self.helper.layout = Layout(
             CommonLayout(),
+            Div(
+                Field('date', css_class='form-control'),  # Añade el campo 'date' al layout
+                css_class="mb-3"
+            ),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )
-
         )
