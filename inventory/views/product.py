@@ -195,13 +195,15 @@ def prepare_product_list(products=None):
 
 @login_required
 def list_product(request):
-    context = prepare_product_list()
+    active_products = Product.objects.filter(active=True)
+    context = prepare_product_list(active_products)
     return render(request, 'inventory/product_list.html', context)
 
 
 @login_required
 def list_deactivated_product(request):
-    Product.objects = prepare_product_list()
+    active_products = Product.objects.filter(active=False)
+    context = prepare_product_list(active_products)
     return render(request, 'inventory/deactivated_product_list.html', context)
 
 
@@ -284,7 +286,8 @@ def quantity_update(request):
 
 @login_required
 def minprice_product(request):
-    context = prepare_product_list()
+    active_products = Product.objects.filter(active=True)
+    context = prepare_product_list(active_products)
 
     # TODO Exclude TOWIT services
     for product in context['products']:
@@ -347,7 +350,8 @@ def service_list_metadata(services: List[Service]):
 
 @login_required
 def select_product(request, next, order_id):
-    context = prepare_product_list()
+    active_products = Product.objects.filter(active=True)
+    context = prepare_product_list(active_products)
 
     context.setdefault("next", next)
     context.setdefault("order_id", order_id)
