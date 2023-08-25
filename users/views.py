@@ -223,6 +223,11 @@ def list_client(request):
     return list_associated(request, 'client')
 
 
+@login_required
+def list_deactivated_client(request):
+    return list_deactivated_associated(request, 'client')
+
+
 def getDebtOrders(debtor):
     orders = Order.objects.filter(associated=debtor, type="sell",
                                   status="complete").order_by("-terminated_date")
@@ -317,6 +322,16 @@ def detail_associated(request, id):
 def list_associated(request, type):
     associates = Associated.objects.filter(
         type=type, active=True).order_by("name", "alias")
+    for associated in associates:
+        associated.last_order = Order.objects.filter(
+            associated=associated).order_by("-created_date").first()
+    return render(request, 'users/associated_list.html', {'associates': associates,
+                                                          'type': type})
+
+
+def list_deactivated_associated(request, type):
+    associates = Associated.objects.filter(
+        type=type, active=False).order_by("name", "alias")
     for associated in associates:
         associated.last_order = Order.objects.filter(
             associated=associated).order_by("-created_date").first()

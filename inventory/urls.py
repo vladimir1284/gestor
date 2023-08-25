@@ -48,6 +48,8 @@ urlpatterns = [
     path('duplicate-product/<id>', product.duplicate_product,
          name='duplicate-product'),
     path('list-product/', product.list_product, name='list-product'),
+    path('deactivated-product-list/', product.list_deactivated_product,
+         name='deactivated-product-list'),
     path('minprice-product/', product.minprice_product, name='minprice-product'),
     path('minprice-update/', product.minprice_update, name='minprice-update'),
     path('quantity-update/', product.quantity_update, name='quantity-update'),

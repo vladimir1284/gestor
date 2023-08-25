@@ -134,7 +134,8 @@ def delete_kit(request, id):
 
 @login_required
 def select_kit_product(request, kit_id):
-    context = prepare_product_list()
+    active_products = Product.objects.filter(active=True)
+    context = prepare_product_list(active_products)
 
     # Adding services to kit
     services = Service.objects.all()
