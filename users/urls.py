@@ -12,6 +12,7 @@ from .views import (
     create_client,
     list_provider,
     list_client,
+    list_deactivated_client,
     list_debtor,
     update_associated,
     delete_associated,
@@ -63,6 +64,8 @@ urlpatterns = [
     path('detail-associated/<id>', detail_associated, name='detail-associated'),
     path('list-provider/', list_provider, name='list-provider'),
     path('list-client/', list_client, name='list-client'),
+    path('list-deactivated-client/', list_deactivated_client,
+         name='list-deactivated-client'),
     path('list-debtor/', list_debtor, name='list-debtor'),
     path('delete-associated/<id>', delete_associated, name='delete-associated'),
     # ----------------------- Company -------------------------------
