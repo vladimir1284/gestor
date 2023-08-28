@@ -26,6 +26,7 @@ urlpatterns = [
     path('create-cost/', create_cost, name='create-cost'),
     path('update-cost/<id>', update_cost, name='update-cost'),
     path('list-cost/', list_cost, name='list-cost'),
+    path('list-cost/<year>/<month>', list_cost, name='list-cost'),
     path('detail-cost/<id>', detail_cost, name='detail-cost'),
     path('delete-cost/<id>', delete_cost, name='delete-cost'),
 ]

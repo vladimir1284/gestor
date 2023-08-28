@@ -1,4 +1,26 @@
 {% extends "base/base_list.html" %}
+{% load month_name %}
+{% block nav %}
+    <!-- Month -->
+    <div class="text-center">
+        <div class="demo-inline-spacing pb-3">
+            <a type="button"
+            href="{% url 'list-cost' previousYear previousMonth %}"               
+            class="btn btn-icon btn-outline-primary">
+                <span class="tf-icons bx bx-chevron-left"></span>
+            </a>
+            <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
+            {% if thisMonth == currentMonth and thisYear == currentYear %}
+            {% else %}
+                <a type="button"
+                href="{% url 'list-cost' nextYear nextMonth %}"
+                class="btn btn-icon btn-outline-primary">
+                    <span class="tf-icons bx bx-chevron-right"></span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock nav %}
 {% block title %}
     {{ title }}
 {% endblock title %}

@@ -34,5 +34,12 @@
                 window.location = url;
             }
         }
+
+        // fix the date in edit mode 
+        let d = document.getElementById('id_date')
+        let dateParts = d.defaultValue.split("/");
+        let formattedDate = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
+        d.value = formattedDate;
+
     </script>
 {% endblock content %}
