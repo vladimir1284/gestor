@@ -83,6 +83,7 @@ class HandWriting(models.Model):
                               related_name='hand_writing')
     position = models.CharField(max_length=50)
     img = models.ImageField(upload_to='rental/signatures')
+    date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.lease.__str__() + "-" + self.position
@@ -96,12 +97,11 @@ class LesseeData(models.Model):
                                    on_delete=models.CASCADE)
     contact_name = models.CharField(max_length=100)
     contact_phone = PhoneNumberField()
-    insurance_number = models.CharField(max_length=150)
+    insurance_number = models.CharField(max_length=150, blank=True)
     insurance_file = models.FileField(
         upload_to='rental/insurances', blank=True)
     license_number = models.CharField(max_length=150)
     license_file = models.FileField(upload_to='rental/licenses', blank=True)
-    client_id = models.ImageField(upload_to='rental/ids', blank=True)
     client_address = models.TextField()
 
     def __str__(self):
@@ -140,7 +140,7 @@ class Inspection(models.Model):
     def clean(self):
         if self.megaramp and self.ramp is not None:
             raise ValidationError("Megaramp and Ramp cannot both be selected.")
-        if self.ramp is not None and not self.megaramp:
+        if self.ramp is not None and self.megaramp:
             raise ValidationError(
                 "If Ramp is selected, Megaramp must be False.")
 

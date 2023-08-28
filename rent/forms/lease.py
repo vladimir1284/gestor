@@ -40,9 +40,9 @@ class LeaseForm(ModelForm):
             Field('trailer_location', rows='2'),
             'effective_date',
             PrependedText('security_deposit', '$'),
+            PrependedText('payment_amount', '$'),
             'payment_frequency',
             AppendedText('contract_term', 'weeks'),
-            PrependedText('payment_amount', '$'),
             PrependedText('service_charge', '$'),
             ButtonHolder(
                 Submit('submit', 'Create contract',
@@ -128,8 +128,7 @@ class LesseeDataForm(forms.ModelForm):
         model = LesseeData
         fields = ('contact_name', 'contact_phone',
                   'insurance_number', 'insurance_file',
-                  'license_number', 'license_file',
-                  'client_id', 'client_address')
+                  'license_number', 'license_file', 'client_address')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -137,12 +136,11 @@ class LesseeDataForm(forms.ModelForm):
         self.helper.field_class = 'mb-3'
         self.helper.layout = Layout(
             Fieldset('Documents',
-                     'insurance_number',
-                     'insurance_file',
                      'license_number',
                      'license_file',
-                     'client_id',
-                     Field('client_address', rows='2')
+                     Field('client_address', rows='2'),
+                     'insurance_number',
+                     'insurance_file'
                      ),
             Fieldset('Emergency Contact',
                      'contact_name',

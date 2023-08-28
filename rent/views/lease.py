@@ -47,7 +47,6 @@ class HandWritingCreateView(LoginRequiredMixin, CreateView):
                 'position': self.kwargs['position']}
 
     def form_valid(self, form):
-        print(type(form.instance))
         datauri = str(form.instance.img)
         image_data = re.sub("^data:image/png;base64,", "", datauri)
         image_data = base64.b64decode(image_data)
@@ -76,7 +75,7 @@ def contract_detail(request, id):
     signatures = HandWriting.objects.filter(lease=contract)
     data = {'contract': contract}
     for sign in signatures:
-        data.setdefault(sign.position, sign.img.url)
+        data.setdefault(sign.position, sign)
     return render(request, 'rent/contract/contract_detail.html', data)
 
 
