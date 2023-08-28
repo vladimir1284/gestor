@@ -8,7 +8,7 @@
     <section id="signature_daniel">
         By:
         {% if signature_daniel %}
-            <img class="signature" src="{{ signature_daniel }}">
+            <img class="signature" src="{{ signature_daniel.img.url }}">
         {% else %}
             <a class="signature_btn"
                href="{% url 'capture-signature' contract.id 'signature_daniel' %}">
@@ -17,7 +17,7 @@
         {% endif %}
         Date:
         {% if date_daniel %}
-            <img class="date" src="{{ date_daniel }}">
+            <img class="date" src="{{ date_daniel.img.url }}">
         {% else %}
             <a class="date_btn"
                href="{% url 'capture-signature' contract.id 'date_daniel' %}">
@@ -35,7 +35,7 @@
     <section id="signature_lessee">
         By:
         {% if signature_lessee %}
-            <img class="signature" src="{{ signature_lessee }}">
+            <img class="signature" src="{{ signature_lessee.img.url }}">
         {% else %}
             <a class="signature_btn"
                href="{% url 'capture-signature' contract.id 'signature_lessee' %}">
@@ -44,7 +44,7 @@
         {% endif %}
         Date:
         {% if date_lessee %}
-            <img class="date" src="{{ date_lessee }}">
+            <img class="date" src="{{ date_lessee.img.url }}">
         {% else %}
             <a class="date_btn"
                href="{% url 'capture-signature' contract.id 'date_lessee' %}">
