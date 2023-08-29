@@ -7,14 +7,7 @@
     </p>
     <section id="signature_daniel">
         By:
-        {% if signature_daniel %}
-            <img class="signature" src="{{ signature_daniel.img.url }}">
-        {% else %}
-            <a class="signature_btn"
-               href="{% url 'capture-signature' contract.id 'signature_daniel' %}">
-                <button class="btn btn-primary">Capture</button>
-            </a>
-        {% endif %}
+        <img class="signature" src="{% static '/images/signs/firma_daniel.png' %}">
         Date:
         {% if date_daniel %}
             <img class="date" src="{{ date_daniel.img.url }}">

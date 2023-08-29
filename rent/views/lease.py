@@ -50,11 +50,14 @@ class HandWritingCreateView(LoginRequiredMixin, CreateView):
         datauri = str(form.instance.img)
         image_data = re.sub("^data:image/png;base64,", "", datauri)
         image_data = base64.b64decode(image_data)
-        with tempfile.NamedTemporaryFile(delete=True) as output:
+        with tempfile.NamedTemporaryFile(
+                suffix=".png",
+                delete=False,
+                prefix=F"firma_") as output:
             output.write(image_data)
             output.flush()
             output = open(output.name, 'rb')
-            form.instance.img.save("hand_writing.png", output, True)
+            form.instance.img.save(output.name.split('/')[-1], output, True)
         return super(HandWritingCreateView, self).form_valid(form)
 
 

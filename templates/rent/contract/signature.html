@@ -41,6 +41,12 @@
 			#saveSignature {
 				display: none;
 			}
+            .signature{
+				position: relative;
+				margin: 1px;
+				border: 1px solid #000000;
+                max-width: 200px;
+            }
 		
         </style>
     </head>
@@ -63,20 +69,32 @@
                 {% csrf_token %}
                 <div style="display: none">{{ form.as_p }}</div>
             </form>
-            <div class="row">
-                <div class="col-5 text-center">
-                    <button class="btn btn-danger" type="button" onclick="zkSignature.clear()">Clear</button>
+            <div class="container" style="max-width: 600px;">
+                <div class="row justify-content-center">
+                    <div class="col-md-4">
+                        <button class="btn btn-danger btn-block"
+                                type="button"
+                                onclick="zkSignature.clear()">Clear</button>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'detail-contract' form.lease.value %}#{{ form.position.value }}">
+                            <button class="btn btn-secondary btn-block">
+                                <i class="fa fa-arrow-left"></i>
+                            </button>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success btn-block" onclick="zkSignature.save()">Capture</button>
+                    </div>
                 </div>
-                <div class="col-2 text-center">
-                    <a href="{% url 'detail-contract' form.lease.value %}#{{ form.position.value }}">
-                        <button class="btn btn-primary float-right">
-                            <i class="fa fa-arrow-left"></i>
-                        </button>
-                    </a>
-                </div>
-                <div class="col-5 text-center">
-                    <button class="btn btn-success" type="button" onclick="zkSignature.save()">Capture</button>
-                </div>
+            </div>
+            <div class="text-center mt-3">Example:</div>
+            <div class=" text-center">
+                {% if form.position.value.0 == "s" %}
+                    <img class="signature" src="{% static '/images/signs/firma_daniel.png' %}">
+                {% else %}
+                    <img class="signature" src="{% static '/images/signs/sample_date.png' %}">
+                {% endif %}
             </div>
         </div>
     </body>
