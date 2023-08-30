@@ -71,7 +71,7 @@ def populate_product(type):
     # Header row
     header = ['Nombre', 'Categoría', 'Unidad', 'Precio', 'Cantidad']
     data = [header]
-    parts = Product.objects.filter(type=type).order_by("category")
+    parts = Product.objects.filter(type=type, active=True).order_by("category")
     for part in parts:
         data.append([
             part.name,
@@ -170,9 +170,9 @@ def computeTransactionProducts(product, status):
     return quantity
 
 
-def prepare_product_list(products=None):
-    if products is None:
-        products = Product.objects.all().order_by('name')
+def prepare_product_list(products):
+    # if products is None:
+    #     products = Product.objects.filter(active=True).order_by('name')
     (consumable_categories, consumable_alerts) = product_list_metadata(
         'consumable', products)
     (part_categories, part_alerts) = product_list_metadata('part', products)
@@ -197,6 +197,8 @@ def prepare_product_list(products=None):
 def list_product(request):
     active_products = Product.objects.filter(active=True)
     context = prepare_product_list(active_products)
+    context.setdefault("title", _("Products"))
+    context.setdefault("active", True)
     return render(request, 'inventory/product_list.html', context)
 
 
@@ -204,7 +206,8 @@ def list_product(request):
 def list_deactivated_product(request):
     active_products = Product.objects.filter(active=False)
     context = prepare_product_list(active_products)
-    return render(request, 'inventory/deactivated_product_list.html', context)
+    context.setdefault("title", _("Deactivated Products"))
+    return render(request, 'inventory/product_list.html', context)
 
 
 @login_required
@@ -355,6 +358,7 @@ def select_product(request, next, order_id):
 
     context.setdefault("next", next)
     context.setdefault("order_id", order_id)
+    context.setdefault("title", _("Products"))
     return render(request, 'inventory/product_select.html', context)
 
 

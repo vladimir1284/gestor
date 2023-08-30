@@ -441,7 +441,7 @@ def dashboard(request):
         debt_increment = 100*(current_debt_balance -
                               previous_debt_balance)/current_debt_balance
     # Stock costs
-    current_stock_cost = Product.objects.aggregate(
+    current_stock_cost = Product.objects.filter(active=True).aggregate(
         Sum("stock_price"))['stock_price__sum']
 
     # Purchase orders
@@ -758,9 +758,9 @@ def computeReport(orders, costs, pending_payments):
         else:
             payment_cats[category][0] += payment.amount
             payment_cats[category][3] += 1
-            
+
         payment_total += payment.amount
-        
+
         if isinstance(payment, PendingPayment):
             debt_paid += payment.amount
             payment_cats[category][1] += payment.amount
@@ -768,7 +768,7 @@ def computeReport(orders, costs, pending_payments):
         else:
             payment_cats[category][2] += payment.amount
             payment_cats[category][5] += 1
-            
+
     # Sort by amount
     sorted_payment_cats = sorted(
         payment_cats, key=lambda cat: payment_cats[cat][0], reverse=True)
@@ -786,7 +786,7 @@ def computeReport(orders, costs, pending_payments):
             cat.extra_charge = cat.amount*cat.extra_charge/100
             # cat.amount += cat.extra_charge
             extra_charge += cat.extra_charge
-            
+
         cat.transactions = payment_cats[cat][3]
         cat.payments = payment_cats[cat][4]
         cat.services = payment_cats[cat][5]
