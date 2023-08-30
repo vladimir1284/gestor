@@ -175,6 +175,8 @@ def create_associated(request, type):
 
 @login_required
 def update_associated(request, id):
+    next_url = request.GET.get('next')
+    
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
 
@@ -197,6 +199,9 @@ def update_associated(request, id):
         # redirect to detail_view
         if form.is_valid():
             form.save()
+            if next_url:
+                return redirect(next_url)
+            
             if associated.type == 'client':
                 return redirect('list-client')
             if associated.type == 'provider':

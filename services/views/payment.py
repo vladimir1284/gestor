@@ -1,3 +1,4 @@
+from django.urls import reverse
 from django.utils import timezone
 from django.shortcuts import (
     render,
@@ -107,7 +108,8 @@ def process_payment(request, order_id):
         do_save = True
         for form in forms:
             if form.is_valid():
-                if form.cleaned_data['amount'] > 0:
+                amount = form.cleaned_data.get('amount')
+                if amount is not None and amount > 0:
                     payment = form.save(commit=False)
                     payment.order = order
                     payment.category = form.category
@@ -126,6 +128,24 @@ def process_payment(request, order_id):
                     # Account for client's debt
                     if payment.category == debt:
                         if order.associated is not None:
+                            
+                            # check if the client has profile pic
+                            if not order.associated.avatar:
+                                next_url = reverse('process-payment', args=[order_id])
+                                update_associated_url = reverse('update-associated', args=[order.associated.id])
+                                update_associated_url_with_next = f"{update_associated_url}?next={next_url}"
+                                                                
+                                for form in forms:
+                                    if form.is_valid():
+                                        for field_name in form.Meta.fields:
+                                            field_value = form.cleaned_data.get(field_name)
+                                            print(field_value)
+                                            print(type(field_value))
+                                            if field_value is not None and field_value != 0.0:
+                                                update_associated_url_with_next += f'?{form.prefix}-amount={field_value}' 
+                                                          
+                                return redirect(update_associated_url_with_next)
+                            
                             order.associated.debt += payment.amount
                             debt_status, created = DebtStatus.objects.get_or_create(
                                 client=order.associated)
