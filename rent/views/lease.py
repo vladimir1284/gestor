@@ -38,30 +38,6 @@ from ..models.vehicle import Trailer
 from users.models import Associated
 
 
-class HandWritingCreateView(CreateView):
-    model = HandWriting
-    form_class = HandWritingForm
-    template_name = 'rent/contract/signature.html'
-
-    def get_initial(self):
-        return {'lease': self.kwargs['lease_id'],
-                'position': self.kwargs['position']}
-
-    def form_valid(self, form):
-        datauri = str(form.instance.img)
-        image_data = re.sub("^data:image/png;base64,", "", datauri)
-        image_data = base64.b64decode(image_data)
-        with tempfile.NamedTemporaryFile(
-                suffix=".png",
-                delete=False,
-                prefix=F"firma_") as output:
-            output.write(image_data)
-            output.flush()
-            output = open(output.name, 'rb')
-            form.instance.img.save(output.name.split('/')[-1], output, True)
-        return super(HandWritingCreateView, self).form_valid(form)
-
-
 def create_handwriting(request, lease_id, position):
     contract = get_object_or_404(Contract, pk=lease_id)
 
@@ -79,6 +55,21 @@ def create_handwriting(request, lease_id, position):
             handwriting.lease = contract
             handwriting.position = position
             handwriting.save()
+
+            # Save image
+            datauri = str(form.instance.img)
+            image_data = re.sub("^data:image/png;base64,", "", datauri)
+            image_data = base64.b64decode(image_data)
+            with tempfile.NamedTemporaryFile(
+                    suffix=".png",
+                    delete=False,
+                    prefix=F"firma_") as output:
+                output.write(image_data)
+                output.flush()
+                output = open(output.name, 'rb')
+                form.instance.img.save(
+                    output.name.split('/')[-1], output, True)
+
             return redirect('detail-contract', contract.id)
     else:
         form = HandWritingForm()
