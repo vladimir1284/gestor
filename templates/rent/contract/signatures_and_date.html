@@ -9,14 +9,13 @@
         By:
         <img class="signature" src="{% static '/images/signs/firma_daniel.png' %}">
         Date:
-        {% if date_daniel %}
-            <img class="date" src="{{ date_daniel.img.url }}">
-        {% else %}
-            <a class="date_btn"
-               href="{% url 'capture-signature' contract.id 'date_daniel' %}">
-                <button class="btn btn-primary">Capture</button>
-            </a>
-        {% endif %}
+        <a class="date_btn"
+           href="{% url 'capture-signature' contract.id 'date_daniel' %}">
+            <button type="button" class="btn btn-icon btn-primary">
+                <span class="tf-icons bx bx-edit"></span>
+            </button>
+        </a>
+        <img class="date" src="{{ date_daniel.img.url }}">
     </section>
     <p class="bottom-three-left-two"
        {% if signature_daniel %} {% else %} {% if date_daniel %} style="margin-top: -3em;" {% else %} style="margin-top: 0em;" {% endif %}
@@ -27,23 +26,21 @@
     </p>
     <section id="signature_lessee">
         By:
-        {% if signature_lessee %}
-            <img class="signature" src="{{ signature_lessee.img.url }}">
-        {% else %}
-            <a class="signature_btn"
-               href="{% url 'capture-signature' contract.id 'signature_lessee' %}">
-                <button class="btn btn-primary">Capture</button>
-            </a>
-        {% endif %}
+        <a class="signature_btn"
+           href="{% url 'capture-signature' contract.id 'signature_lessee' %}">
+            <button type="button" class="btn btn-icon btn-primary">
+                <span class="tf-icons bx bx-edit"></span>
+            </button>
+        </a>
+        <img class="signature" src="{{ signature_lessee.img.url }}">
         Date:
-        {% if date_lessee %}
-            <img class="date" src="{{ date_lessee.img.url }}">
-        {% else %}
-            <a class="date_btn"
-               href="{% url 'capture-signature' contract.id 'date_lessee' %}">
-                <button class="btn btn-primary">Capture</button>
-            </a>
-        {% endif %}
+        <a class="date_btn"
+           href="{% url 'capture-signature' contract.id 'date_lessee' %}">
+            <button type="button" class="btn btn-icon btn-primary">
+                <span class="tf-icons bx bx-edit"></span>
+            </button>
+        </a>
+        <img class="date" src="{{ date_lessee.img.url }}">
     </section>
     <p class="bottom-three-left-two"
        {% if signature_lessee %} {% else %} {% if date_lessee %} style="margin-top: -3em;" {% else %} style="margin-top: 0em;" {% endif %}

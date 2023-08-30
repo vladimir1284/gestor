@@ -1,5 +1,77 @@
 <div class="break"></div>
-<p class="center"><strong>Trailer Inspection</strong></p>   
-<p><strong>SIGNATORIES</strong>. This inspection report shall be signed by Daniel Hernández Duarte, Jose Ariel Casanova and <mark>{{ contract.lessee.name }}</mark>.</p>
-  
-   
+<p class="center">
+    <strong>Trailer Inspection</strong>
+</p>
+<div class="row">
+    <div class="col-6">
+        <strong>TIRES</strong>
+        <p>
+            Number of main tires: <mark>{{ contract.inspection.number_of_main_tires }}</mark>
+        </p>
+        <p>
+            Number of spare tires: <mark>{{ contract.inspection.number_of_spare_tires }}</mark>
+        </p>
+        <strong>Tires condition</strong>
+        <ul>
+            {% for remaining_life, count in remaining_life_counts.items %}
+                <li>
+                    <mark>{{ count }}
+                        {% if count == 1 %}
+                            tire
+                        {% else %}
+                            tires
+                        {% endif %}
+                    : {{ remaining_life }}%</mark>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-6">
+        <strong>ACCESORIES</strong>
+        <ul>
+            {% if contract.inspection.winche %}
+                <li>
+                    <mark>Winch</mark>
+                </li>
+            {% endif %}
+            {% if contract.inspection.megaramp %}
+                <li>
+                    <mark>Megaramp</mark>
+                </li>
+            {% elif contract.inspection.ramp %}
+                <li>
+                    <mark>Ramp {{ contract.inspection.get_ramp_display }} ({{ contract.inspection.ramp_material }})</mark>
+                </li>
+            {% endif %}
+            {% if contract.inspection.ancillary_battery > 0 %}
+                <li>
+                    <mark>Ancillary
+                        {% if contract.inspection.ancillary_battery > 1 %}
+                            batteries
+                        {% else %}
+                            battery
+                        {% endif %}
+                    : {{ contract.inspection.ancillary_battery }}</mark>
+                </li>
+            {% endif %}
+            {% if contract.inspection.strap_4inch > 0 %}
+                <li>
+                    <mark>4"
+                        {% if contract.inspection.strap_4inch > 1 %}
+                            straps
+                        {% else %}
+                            strap
+                        {% endif %}
+                    : {{ contract.inspection.strap_4inch }}</mark>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% if contract.inspection.note %}
+    <strong>NOTE</strong>
+    <p>{{ contract.inspection.note }}</p>
+{% endif %}
+<p>
+    <strong>SIGNATORIES</strong>. This inspection report shall be signed by Daniel Hernández Duarte, Jose Ariel Casanova and <mark>{{ contract.lessee.name }}</mark>.
+</p>

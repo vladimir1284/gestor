@@ -54,7 +54,7 @@ class LeaseForm(ModelForm):
 class HandWritingForm(ModelForm):
     class Meta:
         model = HandWriting
-        fields = ('img', 'position', 'lease')
+        fields = ('img',)  # 'position', 'lease')
 
     img = forms.CharField(max_length=20000)
 

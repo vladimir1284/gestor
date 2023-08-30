@@ -67,8 +67,10 @@ urlpatterns = [
          lease.ContractUpdateView.as_view(), name='update-contract'),
     path('update_contract_stage/<slug:id>/<int:stage>',
          lease.update_contract_stage, name='update-contract-stage'),
-    path('capture_signature/<int:lease_id>/<position>',
-         lease.HandWritingCreateView.as_view(), name='capture-signature'),
+    path('capture_signature/<lease_id>/<position>',
+         lease.create_handwriting, name='capture-signature'),
+    #     path('capture_signature/<int:lease_id>/<position>',
+    #          lease.HandWritingCreateView.as_view(), name='capture-signature'),
     # -------------------- Inspection ----------------------------
     path('create_inspection/<lease_id>/',
          lease.create_inspection, name='create-inspection'),

@@ -57,7 +57,7 @@
             </div>
             <div class="col-12 text-center">
                 Please, insert
-                {% if form.position.value.0 == "s" %}
+                {% if position.value.0 == "s" %}
                     your signature.
                 {% else %}
                     the date.
@@ -77,7 +77,7 @@
                                 onclick="zkSignature.clear()">Clear</button>
                     </div>
                     <div class="col-md-4">
-                        <a href="{% url 'detail-contract' form.lease.value %}#{{ form.position.value }}">
+                        <a href="{% url 'detail-contract' contract.id %}#{{ form.position.value }}">
                             <button class="btn btn-secondary btn-block">
                                 <i class="fa fa-arrow-left"></i>
                             </button>
@@ -90,7 +90,7 @@
             </div>
             <div class="text-center mt-3">Example:</div>
             <div class=" text-center">
-                {% if form.position.value.0 == "s" %}
+                {% if position.value.0 == "s" %}
                     <img class="signature" src="{% static '/images/signs/firma_daniel.png' %}">
                 {% else %}
                     <img class="signature" src="{% static '/images/signs/sample_date.png' %}">

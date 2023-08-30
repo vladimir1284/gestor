@@ -12,6 +12,7 @@ from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from weasyprint import HTML
 import tempfile
+from collections import defaultdict
 from django.conf import settings
 import re
 import base64
@@ -37,7 +38,7 @@ from ..models.vehicle import Trailer
 from users.models import Associated
 
 
-class HandWritingCreateView(LoginRequiredMixin, CreateView):
+class HandWritingCreateView(CreateView):
     model = HandWriting
     form_class = HandWritingForm
     template_name = 'rent/contract/signature.html'
@@ -61,6 +62,35 @@ class HandWritingCreateView(LoginRequiredMixin, CreateView):
         return super(HandWritingCreateView, self).form_valid(form)
 
 
+def create_handwriting(request, lease_id, position):
+    contract = get_object_or_404(Contract, pk=lease_id)
+
+    if request.method == 'POST':
+        form = HandWritingForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Delete instance if exists
+            existing_handwritings = HandWriting.objects.filter(
+                lease=contract, position=position
+            )
+            for hw in existing_handwritings:
+                hw.delete()
+
+            handwriting: HandWriting = form.save(commit=False)
+            handwriting.lease = contract
+            handwriting.position = position
+            handwriting.save()
+            return redirect('detail-contract', contract.id)
+    else:
+        form = HandWritingForm()
+
+    context = {
+        'position': position,
+        'contract': contract,
+        'form': form,
+    }
+    return render(request, 'rent/contract/signature.html', context)
+
+
 def get_contract(id):
     contract = Contract.objects.get(id=id)
     contract.inspection = Inspection.objects.get(lease=contract)
@@ -70,16 +100,26 @@ def get_contract(id):
     return contract
 
 
-@login_required
 def contract_detail(request, id):
     contract = get_contract(id)
     if (contract.stage in ('active', 'signed')):
         return redirect('contract-signed', id)
     signatures = HandWriting.objects.filter(lease=contract)
-    data = {'contract': contract}
+    context = {'contract': contract}
     for sign in signatures:
-        data.setdefault(sign.position, sign)
-    return render(request, 'rent/contract/contract_detail.html', data)
+        context.setdefault(sign.position, sign)
+    # Inspection tires sumamry
+    tires = Tire.objects.filter(inspection=contract.inspection)
+    # Create a defaultdict to store the count of tires for each remaining life
+    remaining_life_counts = defaultdict(int)
+
+    # Iterate over the tires queryset and count the remaining life for each group
+    for tire in tires:
+        remaining_life_counts[tire.remaining_life] += 1
+
+    context.setdefault('remaining_life_counts', dict(remaining_life_counts))
+
+    return render(request, 'rent/contract/contract_detail.html', context)
 
 
 @login_required
