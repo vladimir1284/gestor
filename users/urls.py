@@ -24,6 +24,7 @@ from .views import (
     delete_company,
     update_company,
     detail_company,
+    export_contact,
 )
 
 urlpatterns = [
@@ -75,4 +76,6 @@ urlpatterns = [
     path('detail-company/<id>', detail_company, name='detail-company'),
     path('list-company/', list_company, name='list-company'),
     path('delete-company/<id>', delete_company, name='delete-company'),
+    path('export-contact/<type>/<id>', export_contact, name='export-contact'),
+    
 ]

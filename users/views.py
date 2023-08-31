@@ -1,3 +1,4 @@
+from django.http import HttpResponse, HttpResponseNotFound
 from typing import List
 from services.views.order import computeOrderAmount
 from datetime import datetime, timedelta
@@ -476,3 +477,50 @@ def delete_company(request, id):
     company.active = False
     company.save()
     return redirect('list-company')
+
+
+def generate_vcard(first_name = ' ', last_name = ' ', work= ' ', phone_number=' ', email=' ', street = ' ', city = ' ', zip_code = ' ', country = 'United States', web=' '):
+    vcard = f"BEGIN:VCARD\nVERSION:3.0\nFN:{first_name} {last_name}\nORG:{work}\nTEL:{phone_number}\nEMAIL:{email}\nADR:;{street};{city};;{zip_code};{country}\nURL:{web}\nEND:VCARD\n"
+    return vcard
+
+
+@ login_required
+def export_contact(request, type, id):
+    filename = 'towit-contact-'
+    
+    if id == '-1':   
+        filename += 'all-' + type + 's'
+        if type == 'client' or type == 'associated':
+            contacts = Associated.objects.filter(active=True, type=type)
+        elif type == 'company':
+            contacts = Company.objects.filter(active=True)
+        else:
+            return HttpResponseNotFound("El recurso no fue encontrado.")
+    else:
+        filename += type + '-' + id
+        if type == 'client' or type == 'associated':
+            contacts = [get_object_or_404(Associated, id=id)       ]
+        elif type == 'company':
+            contacts = [get_object_or_404(Company, id=id)]
+        else:
+            return HttpResponseNotFound("El recurso no fue encontrado.")
+        
+    vcard_data = ''    
+    for contact in contacts:
+        name_parts = (contact.name).split()
+        first_name = name_parts[0]
+        last_name = ' '.join(name_parts[1:])
+        phone_number = contact.phone_number
+        email = contact.email
+        city = contact.city
+        state = contact.state
+        location = city + ', ' + state
+        country = 'United States'
+    
+        vcard_data += generate_vcard(first_name = first_name, last_name = last_name, phone_number = phone_number, 
+                                    email = email, city = location, country = country)
+    
+    response = HttpResponse(vcard_data, content_type='text/vcard')
+    response['Content-Disposition'] = 'attachment; filename="' + filename + '.vcf"'
+
+    return response
