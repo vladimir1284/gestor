@@ -4,12 +4,15 @@
     {{ title }}
 {% endblock title %}
 {% block Ttitle %}
-    <h5 class="card-header">
-        {% if type == 'client' %}
+    <h5 class="card-header d-flex flex-row justify-content-between">
+        <p>
+            {% if type == 'client' %}
             Clients
-        {% elif type == 'provider' %}
+            {% elif type == 'provider' %}
             Providers
-        {% endif %}
+            {% endif %}
+        </p>
+        <a class="btn btn-outline-primary" href="{% url 'export-contact' type -1 %}"> Export </a>
     </h5>
 {% endblock Ttitle %}
 {% block Theader %}
