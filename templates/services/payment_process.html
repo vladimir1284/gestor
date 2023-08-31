@@ -12,6 +12,7 @@
                     {{ title }}  <b>$<span id="order_total">{{ order.total|floatformat:"-2" }}</span></b>
                 </h5>
             </div>
+            <sub id="message-note" style="margin:-0.5em 2em;"></sub>
             <div class="card-body">
                 <form enctype="multipart/form-data" method="post" id="update-form">
                     {% csrf_token %}
@@ -44,8 +45,11 @@
         let payment_inputs, total, submit;
         let payment, extra_charge;
         let total_value, diff_value, extra_value;
-
+        
         window.onload = function(){  
+            const urlParams = new URLSearchParams(window.location.search);
+            var message = document.getElementById('message-note');
+            var debtAmountInput = document.getElementById('debt_debt-amount');
             // Inputs 
             payment_inputs = Array.from(
                 document.getElementsByClassName("numberinput")).
@@ -60,10 +64,27 @@
             total = parseFloat(document.getElementById("order_total").innerHTML.replace(',', '.'));
 
             for (var i in payment_inputs) {
-                payment_inputs[i].onclick = selectPaymentType;
+                if (urlParams.toString() != ''){
+                    const paramValue = urlParams.get(payment_inputs[i].name);
+                    payment_inputs[i].value = paramValue !== null ? paramValue : '0';
+                }
+                else payment_inputs[i].onclick = selectPaymentType;              
                 payment_inputs[i].oninput = updateValues;
             }
             submit = document.getElementById("summit_btn");
+            updateValues()
+
+            // message if the client has profile pic
+            const updateMessage = () => {
+                const inputValue = parseFloat(debtAmountInput.value);
+                if (!{{ order.associated.avatar|yesno:"true,false" }} && inputValue !== 0 && !isNaN(inputValue)){
+                    message.innerHTML = '<strong class="text-danger">!! NOTE:</strong> For security reasons, you will now be redirected to update a photo for the client to help remember their debt :)'
+                }
+                else message.innerHTML = '';
+            };
+            debtAmountInput.addEventListener('input', updateMessage);
+            debtAmountInput.addEventListener('click', updateMessage);
+
         }  
         function selectPaymentType(){            
             event.srcElement.value = total;
@@ -71,6 +92,7 @@
                 if (payment_inputs[i].id != event.srcElement.id){
                     payment_inputs[i].value = 0;
                 }
+
                 payment_inputs[i].onclick = null;
             }
             updateValues();
