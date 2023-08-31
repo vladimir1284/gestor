@@ -66,7 +66,7 @@ def create_order(request, product_id=None):
         context = {
             'form': form,
             'title': _("Create order"),
-            'provider_list': Associated.objects.filter(type="provider", active=True)
+
         }
         return render(request, 'inventory/order_create.html', context)
 
@@ -109,7 +109,7 @@ def update_order(request, id):
     context = {
         'form': form,
         'title': _("Update order"),
-        'provider_list': Associated.objects.filter(type="provider", active=True)
+
     }
 
     return render(request, 'inventory/order_create.html', context)

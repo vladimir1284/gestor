@@ -37,7 +37,9 @@ class OrderCreateForm(BaseOrderCreateForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['associated'].label = _("Provider")
+        self.fields['associated'] = forms.ModelChoiceField(
+            queryset=Associated.objects.filter(type='provider'), label=_("Provider"))
+
         self.fields['position'].widget = HiddenInput()
 
 
@@ -271,7 +273,9 @@ class TransactionCreateForm(forms.ModelForm):
 
 
 class TransactionProviderCreateForm(TransactionCreateForm):
-    associated = forms.fields_for_model(Order)['associated']
+    # associated = forms.fields_for_model(Order)['associated']
+    associated = forms.ModelChoiceField(
+        queryset=Associated.objects.filter(type='provider'))
 
     class Meta:
         model = ProductTransaction
