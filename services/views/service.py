@@ -93,7 +93,7 @@ def prepare_service_list(order_id=None):
             accumulated += service.total_income
             if accumulated/total_income_sum['total_income_sum'] < 0.8:
                 service.pareto = True
-    products = Product.objects.all().order_by('name')
+    products = Product.objects.filter(active=True).order_by('name')
     products_in_order = []
 
     # Don't include products in the current order

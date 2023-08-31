@@ -141,8 +141,8 @@ def select_kit_product(request, kit_id):
     services = Service.objects.all()
     context.setdefault('services', services)
     context.setdefault('categories', service_list_metadata(services))
-
     context.setdefault("kit_id", kit_id)
+    context.setdefault("title", _("Services and Products"))
     return render(request, 'inventory/kit_product_select.html', context)
 
 
