@@ -133,14 +133,12 @@ def process_payment(request, order_id):
                             if not order.associated.avatar:
                                 next_url = reverse('process-payment', args=[order_id])
                                 update_associated_url = reverse('update-associated', args=[order.associated.id])
-                                update_associated_url_with_next = f"{update_associated_url}?next={next_url}"
+                                update_associated_url_with_next = f"{update_associated_url}?only_fields=avatar&next={next_url}"
                                                                 
                                 for form in forms:
                                     if form.is_valid():
                                         for field_name in form.Meta.fields:
                                             field_value = form.cleaned_data.get(field_name)
-                                            print(field_value)
-                                            print(type(field_value))
                                             if field_value is not None and field_value != 0.0:
                                                 update_associated_url_with_next += f'?{form.prefix}-amount={field_value}' 
                                                           

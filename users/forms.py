@@ -316,10 +316,13 @@ class AssociatedCreateForm(BaseContactForm):
         model = Associated
         fields = BaseContactForm.Meta.fields + ['type']
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, only_fields = None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['type'].widget = HiddenInput()
+        if only_fields is not None and len(only_fields) != 0 and only_fields[0] != '':
+            for field in self.fields:
+                if field not in only_fields:
+                    self.fields[field].widget = HiddenInput()
 
         self.helper.layout = Layout(
             CommonContactLayout(),
