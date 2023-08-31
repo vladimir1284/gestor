@@ -96,6 +96,12 @@ class PendingPayment(models.Model):
     category = models.ForeignKey(PaymentCategory, blank=True, null=True,
                                  on_delete=models.SET_NULL)
 
+    def __str__(self):
+        name = ""
+        if self.client:
+            name = self.client.name
+        return "{} - ${}".format(name, self.amount)
+
 
 class DebtStatus(models.Model):
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
