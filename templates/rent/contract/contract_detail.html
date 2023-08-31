@@ -20,7 +20,7 @@
     }
      
 	.signature {
-	    margin-bottom: 2.5em;
+        min-width: 300px;
         max-width: 300px;
         z-index:1;
 	}
@@ -70,29 +70,5 @@
     </script>
 {% endblock page %}
 {% block content %}
-    <div class="card mb-3">
-        <div class="card-body">{% include "./contract_header.html" %}</div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            {% include "./contract_body.html" %}
-            {% include "./signatures_and_date.html" %}
-            <div class="break"></div>
-            <p class="center">
-                <strong>EXHIBIT A</strong>
-            </p>
-            <p>
-                <strong>Equipment Schedule</strong>
-            </p>
-            <p>
-                Equipment Description: <mark>{{ contract.trailer.type }} {{ contract.trailer.size }}'</mark> VIN:<mark>{{ contract.trailer.vin }}</mark>
-            </p>
-            <p>Lease End Purchase Price: Market Price</p>
-            <p>
-                Email: <mark>{{ contract.lessee.email }}</mark>
-            </p>
-            {% include "./trailer_condition_report.html" %}
-            {% include "./signatures_and_date.html" %}
-        </div>
-    </div>
+    {% include "./contract_content.html" %}
 {% endblock content %}
