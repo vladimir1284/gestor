@@ -1,30 +1,39 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python: Django Debug Single Test",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/manage.py",
-            "args": [
-                "test",
-                "inventory" //"`echo -n ${relativeFileDirname} | tr \/ .`.${fileBasenameNoExtension}"
-            ],
-            "django": true,
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
-        {
-            "name": "Python: Django",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/manage.py",
-            "args": [
-                "runserver"
-            ],
-            "django": true,
-            "console": "integratedTerminal",
-            "justMyCode": false
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Django1",
+      "type": "python",
+      "python": "/home/vladimir/Sync/JA/ERM/gestor/gestorenv/bin/python3",
+      "request": "launch",
+      "program": "${workspaceFolder}/manage.py",
+      "args": ["runserver"],
+      "django": true,
+      "justMyCode": true
+    },
+
+    {
+      "name": "Python: Django Debug Single Test",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/manage.py",
+      "args": [
+        "test",
+        "inventory" //"`echo -n ${relativeFileDirname} | tr \/ .`.${fileBasenameNoExtension}"
+      ],
+      "django": true,
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Python: Django",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/manage.py",
+      "args": ["runserver"],
+      "django": true,
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
 }

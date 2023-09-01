@@ -167,3 +167,4 @@ costs.pickle
 .gitignore
 import_costs.py
 static/rental/signatures/*
+.vscode/launch.json
