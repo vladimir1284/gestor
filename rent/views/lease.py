@@ -38,7 +38,7 @@ from ..models.vehicle import Trailer
 from users.models import Associated
 
 
-def create_handwriting(request, lease_id, position):
+def create_handwriting(request, lease_id, position, external=False):
     contract = get_object_or_404(Contract, pk=lease_id)
 
     if request.method == 'POST':
@@ -54,7 +54,6 @@ def create_handwriting(request, lease_id, position):
             handwriting: HandWriting = form.save(commit=False)
             handwriting.lease = contract
             handwriting.position = position
-            handwriting.save()
 
             # Save image
             datauri = str(form.instance.img)
@@ -66,10 +65,13 @@ def create_handwriting(request, lease_id, position):
                     prefix=F"firma_") as output:
                 output.write(image_data)
                 output.flush()
-                output = open(output.name, 'rb')
-                form.instance.img.save(
-                    output.name.split('/')[-1], output, True)
+                name = output.name.split('/')[-1]
+                with open(output.name, 'rb') as temp_file:
+                    form.instance.img.save(name, temp_file, True)
 
+            handwriting.save()
+            if external:
+                return redirect('contract-signing', contract.id)
             return redirect('detail-contract', contract.id)
     else:
         form = HandWritingForm()
@@ -91,7 +93,7 @@ def get_contract(id):
     return contract
 
 
-def contract_detail(request, id):
+def prepare_contract_view(id):
     contract = get_contract(id)
     if (contract.stage in ('active', 'signed')):
         return redirect('contract-signed', id)
@@ -109,8 +111,19 @@ def contract_detail(request, id):
         remaining_life_counts[tire.remaining_life] += 1
 
     context.setdefault('remaining_life_counts', dict(remaining_life_counts))
+    return context
 
+
+@login_required
+def contract_detail(request, id):
+    context = prepare_contract_view(id)
     return render(request, 'rent/contract/contract_detail.html', context)
+
+
+def contract_signing(request, id):
+    context = prepare_contract_view(id)
+    context.setdefault('external', True)
+    return render(request, 'rent/contract/contract_signing.html', context)
 
 
 @login_required
@@ -166,16 +179,19 @@ def update_contract_stage(request, id, stage):
         return redirect('detail-contract', lease.id)
 
 
-def generate_pdf(request, contract, stage):
+def generate_pdf(request, id):
     """Generate pdf."""
+    contract = Contract.objects.get(id=id)
     # Rendered
     signatures = HandWriting.objects.filter(lease=contract)
     data = {'contract': contract}
     for sign in signatures:
         data.setdefault(sign.position, sign.img.url)
-    templates_dic = {'ready': 'contract_pdf', 'signed': 'contract_pdf_signed'}
+    # templates_dic = {'ready': 'contract_pdf', 'signed': 'contract_pdf_signed'}
+    # html_string = render_to_string(
+    #     'rent/contract/%s.html' % templates_dic[stage], data)
     html_string = render_to_string(
-        'rent/contract/%s.html' % templates_dic[stage], data)
+        'rent/contract/contract_pdf.html', data)
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     result = html.write_pdf()
 
