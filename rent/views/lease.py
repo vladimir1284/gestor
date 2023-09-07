@@ -184,14 +184,9 @@ def generate_pdf(request, id):
     contract = Contract.objects.get(id=id)
     # Rendered
     signatures = HandWriting.objects.filter(lease=contract)
-    data = {'contract': contract}
-    for sign in signatures:
-        data.setdefault(sign.position, sign.img.url)
-    # templates_dic = {'ready': 'contract_pdf', 'signed': 'contract_pdf_signed'}
-    # html_string = render_to_string(
-    #     'rent/contract/%s.html' % templates_dic[stage], data)
-    html_string = render_to_string(
-        'rent/contract/contract_pdf.html', data)
+    context = prepare_contract_view(id)
+    context.setdefault('pdf', True)
+    html_string = render_to_string('rent/contract/contract_pdf.html', context)
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     result = html.write_pdf()
 

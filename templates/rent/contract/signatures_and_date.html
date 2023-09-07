@@ -9,13 +9,16 @@
         By:
         <img class="signature" src="{% static '/images/signs/firma_daniel.png' %}">
         Date:
-        {% if not external %}
-            <a class="date_btn"
-               href="{% url 'capture-signature' contract.id 'date_daniel' %}">
-                <button type="button" class="btn btn-icon btn-primary">
-                    <span class="tf-icons bx bx-edit"></span>
-                </button>
-            </a>
+        {% if pdf %}
+        {% else %}
+            {% if not external %}
+                <a class="date_btn"
+                   href="{% url 'capture-signature' contract.id 'date_daniel' %}">
+                    <button type="button" class="btn btn-icon btn-primary">
+                        <span class="tf-icons bx bx-edit"></span>
+                    </button>
+                </a>
+            {% endif %}
         {% endif %}
         <img class="date" src="{{ date_daniel.img.url }}">
     </section>
@@ -26,28 +29,34 @@
     </p>
     <section id="signature_lessee">
         By:
-        <a class="signature_btn"
-           {% if external %}
-           href="{% url 'capture-signature' contract.id 'signature_lessee' True %}">
+        {% if pdf %}
         {% else %}
-            href="{% url 'capture-signature' contract.id 'signature_lessee' %}">
+            <a class="signature_btn"
+               {% if external %}
+               href="{% url 'capture-signature' contract.id 'signature_lessee' True %}">
+            {% else %}
+                href="{% url 'capture-signature' contract.id 'signature_lessee' %}">
+            {% endif %}
+            <button type="button" class="btn btn-icon btn-primary">
+                <span class="tf-icons bx bx-edit"></span>
+            </button>
+        </a>
+    {% endif %}
+    <img class="signature" src="{{ signature_lessee.img.url }}">
+    Date:
+    {% if pdf %}
+    {% else %}
+        <a class="date_btn"
+           {% if external %}
+           href="{% url 'capture-signature' contract.id 'date_lessee' True %}">
+        {% else %}
+            href="{% url 'capture-signature' contract.id 'date_lessee' %}">
         {% endif %}
         <button type="button" class="btn btn-icon btn-primary">
             <span class="tf-icons bx bx-edit"></span>
         </button>
     </a>
-    <img class="signature" src="{{ signature_lessee.img.url }}">
-    Date:
-    <a class="date_btn"
-       {% if external %}
-       href="{% url 'capture-signature' contract.id 'date_lessee' True %}">
-    {% else %}
-        href="{% url 'capture-signature' contract.id 'date_lessee' %}">
-    {% endif %}
-    <button type="button" class="btn btn-icon btn-primary">
-        <span class="tf-icons bx bx-edit"></span>
-    </button>
-</a>
+{% endif %}
 <img class="date" src="{{ date_lessee.img.url }}">
 </section>
 <p class="bottom-three-left-two"
