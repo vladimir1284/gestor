@@ -56,7 +56,7 @@ class HandWritingForm(ModelForm):
         model = HandWriting
         fields = ('img',)  # 'position', 'lease')
 
-    img = forms.CharField(max_length=20000)
+    img = forms.CharField(max_length=2000000)
 
 
 # class ContractDocumentForm(ModelForm):
