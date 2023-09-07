@@ -1,4 +1,5 @@
 {% load static %}
+{% load jsignature_filters %}
 {% if contract.stage == 1 %}
     {% include "empty_signatures_and_date.html" %}
 {% else %}
@@ -17,7 +18,7 @@
                 </button>
             </a>
         {% endif %}
-        <img class="date" src="{{ date_daniel.img.url }}">
+        {% if date_daniel %}<img src="{{ date_daniel.img|signature_base64 }}" alt="{{ date_daniel }}" />{% endif %}
     </section>
     <p class="bottom-three-left-two">Daniel Hernández Duarte</p>
     <div style="margin-top: 3em;"></div>
@@ -36,7 +37,10 @@
             <span class="tf-icons bx bx-edit"></span>
         </button>
     </a>
-    <img class="signature" src="{{ signature_lessee.img.url }}">
+    {% if signature_lessee %}
+        <img src="{{ signature_lessee.img|signature_base64 }}"
+             alt="{{ signature_lessee }}" />
+    {% endif %}
     Date:
     <a class="date_btn"
        {% if external %}

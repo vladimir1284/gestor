@@ -9,6 +9,7 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from datetime import timedelta
 from django.contrib.auth.models import User
+from jsignature.fields import JSignatureField
 
 
 class Contract(models.Model):
@@ -82,7 +83,8 @@ class HandWriting(models.Model):
                               on_delete=models.CASCADE,
                               related_name='hand_writing')
     position = models.CharField(max_length=50)
-    img = models.ImageField(upload_to='rental/signatures')
+    # img = models.ImageField(upload_to='rental/signatures')
+    img = JSignatureField()
     date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

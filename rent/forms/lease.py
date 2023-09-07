@@ -18,6 +18,8 @@ from phonenumber_field.widgets import RegionalPhoneNumberWidget
 from users.forms import BaseContactForm, CommonContactLayout
 from django.forms import HiddenInput
 from users.models import Associated
+from jsignature.forms import JSignatureField
+from jsignature.widgets import JSignatureWidget
 
 
 class LeaseForm(ModelForm):
@@ -56,7 +58,11 @@ class HandWritingForm(ModelForm):
         model = HandWriting
         fields = ('img',)  # 'position', 'lease')
 
-    img = forms.CharField(max_length=20000)
+    img = JSignatureField(widget=JSignatureWidget(
+        jsignature_attrs={'lineWidth': 4,
+                          'decor-color': 'black',
+                          'color': 'blue'
+                          }))
 
 
 # class ContractDocumentForm(ModelForm):

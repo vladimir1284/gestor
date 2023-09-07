@@ -55,19 +55,19 @@ def create_handwriting(request, lease_id, position, external=False):
             handwriting.lease = contract
             handwriting.position = position
 
-            # Save image
-            datauri = str(form.instance.img)
-            image_data = re.sub("^data:image/png;base64,", "", datauri)
-            image_data = base64.b64decode(image_data)
-            with tempfile.NamedTemporaryFile(
-                    suffix=".png",
-                    delete=False,
-                    prefix=F"firma_") as output:
-                output.write(image_data)
-                output.flush()
-                name = output.name.split('/')[-1]
-                with open(output.name, 'rb') as temp_file:
-                    form.instance.img.save(name, temp_file, True)
+            # # Save image
+            # datauri = str(form.instance.img)
+            # image_data = re.sub("^data:image/png;base64,", "", datauri)
+            # image_data = base64.b64decode(image_data)
+            # with tempfile.NamedTemporaryFile(
+            #         suffix=".png",
+            #         delete=False,
+            #         prefix=F"firma_") as output:
+            #     output.write(image_data)
+            #     output.flush()
+            #     name = output.name.split('/')[-1]
+            #     with open(output.name, 'rb') as temp_file:
+            #         form.instance.img.save(name, temp_file, True)
 
             handwriting.save()
             if external:

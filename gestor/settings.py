@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "phonenumber_field",
     'django_cleanup.apps.CleanupConfig',
     'django_extensions',
+    'schedule',
+    'jsignature',
 
     # local
     'utils.apps.UtilsConfig',
@@ -203,3 +205,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+JSIGNATURE_WIDTH = 500
+JSIGNATURE_HEIGHT = 200
