@@ -18,6 +18,8 @@ import re
 import base64
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
+from django.core.mail import EmailMessage, get_connection
+
 from ..models.lease import (
     HandWriting,
     Contract,
@@ -40,7 +42,9 @@ from users.models import Associated
 
 def create_handwriting(request, lease_id, position, external=False):
     contract = get_object_or_404(Contract, pk=lease_id)
-
+    # Cannot edit active contract
+    if contract.stage == "active":
+        return redirect("https://towithouston.com/")
     if request.method == 'POST':
         form = HandWritingForm(request.POST, request.FILES)
         if form.is_valid():
@@ -95,8 +99,6 @@ def get_contract(id):
 
 def prepare_contract_view(id):
     contract = get_contract(id)
-    if (contract.stage in ('active', 'signed')):
-        return redirect('contract-signed', id)
     signatures = HandWriting.objects.filter(lease=contract)
     context = {'contract': contract}
     for sign in signatures:
@@ -121,6 +123,10 @@ def contract_detail(request, id):
 
 
 def contract_signing(request, id):
+    contract = get_object_or_404(Contract, pk=id)
+    # Cannot edit active contract
+    if contract.stage == "active":
+        return redirect("https://towithouston.com/")
     context = prepare_contract_view(id)
     context.setdefault('external', True)
     return render(request, 'rent/contract/contract_signing.html', context)
@@ -141,42 +147,110 @@ def contracts(request):
     return render(request, 'rent/contract/contract_list.html', {'contracts': contracts})
 
 
-# class LeaseDocumentCreateView(LoginRequiredMixin, CreateView):
-#     model = LeaseDocument
-#     form_class = LeaseDocumentForm
-#     template_name = 'rent/contract/contract_document_create.html'
-
-#     def get_initial(self):
-#         return {'lease': self.kwargs['id']}
-
-#     def post(self, request, * args, ** kwargs):
-#         form_class = self.get_form_class()
-#         form = self.get_form(form_class)
-#         if form.is_valid():
-#             cd = form.save()
-#             # Change the contract stage
-#             cd.lease.stage = 'signed'
-#             cd.lease.save()
-#             # # Send email
-#             # send_contract(cd.lease,
-#             #               cd.document.open(mode="rb").read(),
-#             #               'signed_contract')
-#             # Create calendar event
-#             createEvent(form.instance.lease, cd)
-#             return self.form_valid(form)
-#         else:
-#             return self.form_invalid(form)
+@login_required
+def update_contract_stage(request, id, stage):
+    contract = get_object_or_404(Contract, id=id)
+    contract.stage = stage
+    contract.save()
+    if stage == "active":
+        mail_send_contract(request, id)
+    return redirect('detail-contract', id)
 
 
 @login_required
-def update_contract_stage(request, id, stage):
-    lease = get_object_or_404(Contract, id=id)
-    lease.stage = stage
-    lease.save()
-    if (stage in ('ready', 'signed')):
-        return generate_pdf(request, lease, stage)
-    else:
-        return redirect('detail-contract', lease.id)
+def contract_pdf(request, id):
+    result = generate_pdf(request, id)
+
+    # Creating http response
+    response = HttpResponse(content_type='application/pdf;')
+    response['Content-Disposition'] = 'inline; filename=contract_for_signature.pdf'
+    response['Content-Transfer-Encoding'] = 'binary'
+    with tempfile.NamedTemporaryFile(delete=True) as output:
+        output.write(result)
+        output.flush()
+        output = open(output.name, 'rb')
+        response.write(output.read())
+
+    return response
+
+
+def mail_send_contract(request, contract_id):
+    contract = get_object_or_404(Contract, id=contract_id)
+    filename = f"contract_trailer_lease_{contract.id}"
+    body = F"""Dear {contract.lessee.name},
+
+I hope this email finds you well. We are pleased to inform you that the trailer lease contract for your recent agreement with Towit Houston has been successfully signed and executed.
+
+As promised, we have attached a PDF copy of the fully executed contract for your reference and records.
+
+This document contains all the pertinent details of our lease agreement, including terms, conditions, and any additional arrangements that were discussed and agreed upon. We encourage you to review it carefully to ensure that all the terms align with your expectations and requirements.
+
+If you have any questions or require further clarification about any aspect of the contract, please do not hesitate to reach out to our team. We are here to assist you and address any concerns you may have.
+
+Thank you for choosing Towit Houston as your trusted partner for your trailer leasing needs. We look forward to a successful and mutually beneficial business relationship.
+
+Should you need any assistance or have any inquiries in the future, please feel free to contact us at https://towithouston.com.
+
+Thank you for your continued trust and partnership.
+
+Sincerely,
+
+Daniel Hernández Duarte
+LEASER
+Towit Houston
+tel:+1(305) 833-6104
+"""
+    if contract.lessee.language == "spanish":
+        body = F"""Estimado {contract.lessee.name},
+
+Espero que se encuentre bien. Nos complace informarle que el contrato de arrendamiento de remolque correspondiente a su reciente acuerdo con Towit Houston se ha firmado y ejecutado con éxito.
+
+Como prometimos, adjuntamos una copia en PDF del contrato completamente ejecutado para su referencia y registros.
+
+Este documento contiene todos los detalles pertinentes de nuestro contrato de arrendamiento, incluidos los términos, condiciones y cualquier acuerdo adicional que se discutió y acordó. Le recomendamos que lo revise detenidamente para asegurarse de que todos los términos se ajusten a sus expectativas y requisitos.
+
+Si tiene alguna pregunta o necesita más aclaraciones sobre cualquier aspecto del contrato, no dude en comunicarse con nuestro equipo. Estamos aquí para ayudarle y abordar cualquier inquietud que pueda tener.
+
+Gracias por elegir Towit Houston como su socio de confianza para sus necesidades de arrendamiento de remolques. Esperamos tener una relación comercial exitosa y mutuamente beneficiosa.
+
+Si necesita ayuda o tiene alguna consulta en el futuro, no dude en contactarnos en https://towithouston.com.
+
+Gracias por su continua confianza y colaboración.
+
+Atentamente,
+
+Daniel Hernández Duarte
+ARRENDADOR
+Towit Houston
+teléfono:+1(305) 833-6104
+"""
+    try:
+        if settings.ENVIRONMENT == 'production':
+            result = generate_pdf(request, contract_id)
+            if result:
+                with tempfile.NamedTemporaryFile(
+                        suffix=".pdf",
+                        delete=False,
+                        prefix=filename) as output:
+                    output.write(result)
+                    output.flush()
+                    with get_connection(
+                        host=settings.EMAIL_HOST,
+                        port=settings.EMAIL_PORT,
+                        username=settings.EMAIL_HOST_USER,
+                        password=settings.EMAIL_HOST_PASSWORD,
+                        use_tls=settings.EMAIL_USE_TLS
+                    ) as connection:
+                        subject = "Signed Trailer Lease Contract - Towit Houston"
+                        email_from = settings.EMAIL_HOST_USER
+                        msg = EmailMessage(subject, body, email_from,
+                                           (contract.lessee.email,), connection=connection)
+                        msg.attach_file(output.name)
+                        msg.send()
+        else:
+            print(body)
+    except Exception as e:
+        print(e)
 
 
 def generate_pdf(request, id):
@@ -188,85 +262,7 @@ def generate_pdf(request, id):
     context.setdefault('pdf', True)
     html_string = render_to_string('rent/contract/contract_pdf.html', context)
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
-    result = html.write_pdf()
-
-    # Creating http response
-    response = HttpResponse(content_type='application/pdf;')
-    response['Content-Disposition'] = 'inline; filename=contract_for_signature.pdf'
-    response['Content-Transfer-Encoding'] = 'binary'
-    with tempfile.NamedTemporaryFile(delete=True) as output:
-        output.write(result)
-        output.flush()
-        output = open(output.name, 'rb')
-        response.write(output.read())
-        # # Send email
-        # output.seek(0)
-        # send_contract(contract, output.read(), 'contract_ready_for_signature')
-        # if (stage == 3):
-        #     # Store file
-        #     output.seek(0)
-        #     cd = LeaseDocument()
-        #     cd.lease = contract
-        #     cd.document.save("signed_contract_%s.pdf" % id, output, True)
-        #     cd.save()
-        #     # # Delete handwritings
-        #     # for sign in signatures:
-        #     #     # os.remove(os.path.join(settings.BASE_DIR, sign.img.path))
-        #     #     sign.delete()
-        #     createEvent(contract, cd)
-
-    return response
-
-
-def createEvent(contract, cd):
-    """
-    This function creates a calendar event using the Google Calendar API. 
-    It takes two parameters: "contract" and "cd" (contract document).  
-    First, it retrieves the credentials for accessing the Google Calendar API 
-    from a JSON key file specified in the settings. It then builds the service 
-    object for interacting with the API. 
-
-    The function creates an event object with the following properties: 
-    - Summary: The title of the event, which includes the contract's termination 
-        information. 
-    - Location: The location associated with the contract. 
-    - Description: A description of the event, including a link to the document 
-        associated with the contract. 
-    - Start and End: The start and end dates of the contract, specified in ISO 
-        format and with the timezone set to "America/Los_Angeles". 
-    - Reminders: Custom reminders set for the event, including an email reminder 
-        24 hours before the event and a popup reminder 12 hours before the event. 
-    Finally, the function inserts the event into the specified calendar 
-        (identified by the calendarId) using the service object. 
-    """
-    credentials = service_account.Credentials.from_service_account_file(
-        settings.GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE)
-    SCOPES = ["https://www.googleapis.com/auth/calendar"]
-    scoped_credentials = credentials.with_scopes(SCOPES)
-    service = build("calendar", "v3", credentials=scoped_credentials)
-    event = {
-        'summary': 'Contract: %s termination' % contract.__str__(),
-        'location': contract.location,
-        'description': 'Contract finish alert. Check the details here %s.' % cd.document.url,
-        'start': {
-            'date': contract.contract_end_date.isoformat(),
-            'timeZone': 'America/Los_Angeles',
-        },
-        'end': {
-            'date': contract.contract_end_date.isoformat(),
-            'timeZone': 'America/Los_Angeles',
-        },
-        'reminders': {
-            'useDefault': False,
-            'overrides': [
-                {'method': 'email', 'minutes': 24 * 60},
-                {'method': 'popup', 'minutes': 12 * 60},
-            ],
-        },
-    }
-
-    event = service.events().insert(
-        calendarId='towithouston@gmail.com', body=event).execute()
+    return html.write_pdf()
 
 
 class ContractUpdateView(LoginRequiredMixin, UpdateView):

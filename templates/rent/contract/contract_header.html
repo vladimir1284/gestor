@@ -55,6 +55,20 @@
                class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-file"></span>
             </a>
+            <button onClick="validateContract('{% url 'update-contract-stage' contract.id 'active' %}')"
+                    id="submit-id-submit"
+                    class="btn btn-icon btn-outline-primary">
+                <span class="tf-icons bx bx-check"></span>
+            </button>
         </div>
     </div>
 </div>
+{% include "base/toast.html" with msg="Please, be pacient, we are sending the PDF copy to the client." %}
+<script>
+    function validateContract(url) {
+        let confirmAction = confirm("Are you sure to validate this contract?");
+        if (confirmAction) {
+            window.location = url;
+        }
+    }
+</script>

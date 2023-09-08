@@ -55,6 +55,26 @@ class Contract(models.Model):
         ordering = ('-effective_date',)
 
 
+class Lease(models.Model):
+    contract = models.ForeignKey(Contract,
+                                 on_delete=models.CASCADE)
+    PERIODICITY_CHOICES = [
+        ('weekly', 'Weekly'),
+        ('biweekly', 'Biweekly'),
+        ('monthly', 'Monthly'),
+    ]
+    payment_frequency = models.CharField(
+        max_length=10,
+        choices=PERIODICITY_CHOICES,
+        default='weekly',
+    )
+    payment_amount = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 @receiver(pre_save, sender=Contract)
 def update_effective_date(sender, instance, **kwargs):
     ''' 

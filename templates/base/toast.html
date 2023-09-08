@@ -1,0 +1,35 @@
+<div class="bs-toast toast toast-placement-ex m-2 bg-primary top-0 start-0 hide"
+     role="alert"
+     id="toast"
+     aria-live="assertive"
+     aria-atomic="true">
+    <div class="toast-header">
+        <div class="me-auto fw-semibold">Uploading...</div>
+        <div class="spinner-border spinner-border-sm text-secondary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <button type="button"
+                class="btn-close"
+                id="btn-close"
+                data-bs-dismiss="toast"
+                aria-label="Close"></button>
+    </div>
+    <div class="toast-body">{{ msg }}</div>
+</div>
+<script>
+    // Toast for alerting delayed upload to GDrive
+    let toast; 
+
+    function showToast(){
+    toast.style.display='block';
+    }
+    function hideToast(){
+    toast.style.display='none';
+    }
+
+    window.onload = function(){  
+    toast = document.getElementById("toast");
+    document.getElementById("submit-id-submit").addEventListener('click', showToast);
+    document.getElementById("btn-close").addEventListener('click', hideToast);            
+    }  
+</script>
