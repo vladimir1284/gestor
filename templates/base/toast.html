@@ -27,9 +27,9 @@
     toast.style.display='none';
     }
 
-    window.onload = function(){  
-    toast = document.getElementById("toast");
-    document.getElementById("submit-id-submit").addEventListener('click', showToast);
-    document.getElementById("btn-close").addEventListener('click', hideToast);            
-    }  
+    document.addEventListener('DOMContentLoaded', function() {
+        toast = document.getElementById("toast");
+        document.getElementById("submit-id-submit").addEventListener('click', showToast);
+        document.getElementById("btn-close").addEventListener('click', hideToast);            
+    });  
 </script>
