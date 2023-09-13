@@ -212,15 +212,13 @@
                     </div>
                     <ul class="p-0 m-0">
                         {% for cat in payment_cats %}
-                        <li class="d-flex mb-4 pb-1">
-                            <div class="avatar flex-shrink-0 me-3 mt-0">
-                                <img {% if cat.icon %} src="{{ cat.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
-                                     alt=""
-                                     class="rounded" />
-                            </div>
-
-
-                            {% comment %} 
+                            <li class="d-flex mb-4 pb-1">
+                                <div class="avatar flex-shrink-0 me-3 mt-0">
+                                    <img {% if cat.icon %} src="{{ cat.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
+                                         alt=""
+                                         class="rounded" />
+                                </div>
+                                {% comment %}
                             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                 <div class="me-2">
                                     <h6 class="mb-0">{{ cat.name }}</h6>
@@ -231,34 +229,31 @@
                                     {% endblock amount %}
                                 </div>
                             </div> 
-                            {% endcomment %}
-
-                            
+                                {% endcomment %}
                                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-0">
                                     <h6 class="mb-0">{{ cat.name }}</h6>
-                                    {% block amount %}{% endblock amount %}
-                                    
-
-                                        {% if cat.services != 0 %}
-                                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between">
-                                                <small class="text-muted">{{ cat.services }} services</small>
-                                                {% if cat.payments != 0 %}
-                                                    {% block amount_services %}{% endblock amount_services %}
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                        {% if cat.payments != 0 %}
-                                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between">
-                                                <small class="text-muted">{{ cat.payments }} payments</small>
-                                                {% if cat.services != 0 %}
-                                                    {% block amount_payments %}{% endblock amount_payments %}
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-
-                                </div> 
-                            
-                        </li>
+                                    {% block amount %}
+                                    {% endblock amount %}
+                                    {% if cat.services != 0 %}
+                                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between">
+                                            <small class="text-muted">{{ cat.services }} services</small>
+                                            {% if cat.payments != 0 %}
+                                                {% block amount_services %}
+                                                {% endblock amount_services %}
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    {% if cat.payments != 0 %}
+                                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between">
+                                            <small class="text-muted">{{ cat.payments }} payments</small>
+                                            {% if cat.services != 0 %}
+                                                {% block amount_payments %}
+                                                {% endblock amount_payments %}
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -367,18 +362,28 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class={% if part.profit < 0 %}"float-end text-danger" {% else %}"float-end"{% endif %}>
-                                                    ${{ part.profit|floatformat:"2" }}
-                                                </div>
+                                                <div class="{% if part.profit < 0 %}"
+                                                     "
+                                                     float-end
+                                                     text-danger
+                                                     "
+                                                     {% else %}
+                                                     "
+                                                     float-end
+                                                     "
+                                                     {% endif %}>${{ part.profit|floatformat:"2" }}</div>
                                             </td>
                                             <td>
-                                                <div class={% if part.profit < 0 %}
-                                                "float-end text-danger" 
-                                                {% else %}
-                                                "float-end"
-                                                {% endif %}>
-                                                    {{ part.efficiency|floatformat:"0" }}%
-                                                </div>
+                                                <div class="{% if part.profit < 0 %}"
+                                                     "
+                                                     float-end
+                                                     text-danger
+                                                     "
+                                                     {% else %}
+                                                     "
+                                                     float-end
+                                                     "
+                                                     {% endif %}>{{ part.efficiency|floatformat:"0" }}%</div>
                                             </td>
                                         </tr>
                                     {% endif %}
@@ -448,13 +453,16 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <div class={% if order.labor < 0 %}
-                                            "float-end text-danger" 
-                                            {% else %}
-                                            "float-end"
-                                            {% endif %}>
-                                                ${{ order.labor|floatformat:"2" }}
-                                            </div>
+                                            <div class="{% if order.labor < 0 %}"
+                                                 "
+                                                 float-end
+                                                 text-danger
+                                                 "
+                                                 {% else %}
+                                                 "
+                                                 float-end
+                                                 "
+                                                 {% endif %}>${{ order.labor|floatformat:"2" }}</div>
                                         </td>
                                         <td>
                                             <div class="float-end">${{ order.parts|floatformat:"2" }}</div>
@@ -585,7 +593,7 @@
                                             {% if cost.category.icon %}
                                                 <img {% if cost.category.icon %} src="{{ cost.category.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
                                                      alt=""
-                                                     class="w-px-40 h-auto" />
+                                                     class="w-px-40" />
                                             {% else %}
                                                 {{ cost.category.name }}
                                             {% endif %}
@@ -596,7 +604,7 @@
                                                     {% if cost.related_to.profile_user.avatar %}
                                                         <img src="{{ cost.related_to.profile_user.avatar.url }}"
                                                              alt=""
-                                                             class="w-px-40 h-auto rounded-circle" />
+                                                             class="w-px-40 rounded-circle" />
                                                     {% else %}
                                                         <span style="font-size:1.5em"
                                                               class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">

@@ -6,7 +6,8 @@
 {% block Ttitle %}
     <h5 class="card-header d-flex flex-row justify-content-between">
         <p>Companies</p>
-        <a class="btn btn-outline-primary" href="{% url 'export-contact' 'company' -1 %}"> Export </a>
+        <a class="btn btn-outline-primary"
+           href="{% url 'export-contact' 'company' -1 %}">Export</a>
     </h5>
 {% endblock Ttitle %}
 {% block Theader %}
@@ -32,7 +33,7 @@
                                      alt="Avatar"
                                      height="100px"
                                      width="100px"
-                                     class="w-px-40 h-auto rounded-circle" />
+                                     class="w-px-40 rounded-circle" />
                             </span>
                         </a>
                     </div>
