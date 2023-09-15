@@ -83,6 +83,5 @@ urlpatterns = [
     # -------------------- Calendar ----------------------------
     # path('erp/schedule/', include('schedule.urls')),
     path('api_occurrences/', calendar.api_occurrences, name='api-occurrences'),
-    path('fullcalendar/', TemplateView.as_view(template_name="rent/fullcalendar.html"),
-         name='fullcalendar'),
+    path('calendar/', calendar.calendar_week,  name='calendar'),
 ]

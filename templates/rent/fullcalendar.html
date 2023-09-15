@@ -16,9 +16,12 @@
   
       var calendar = new FullCalendar.Calendar(calendarEl, 
       {
-        selectable: true,
-        businessHours: true,
-        dayMaxEvents: true, // allow "more" link when too many events
+        initialView: 'dayGridWeek',
+        headerToolbar: {
+          left: 'prev,next',
+          center: 'title',
+          right: 'dayGridMonth,dayGridWeek,dayGridDay'
+        },
         events: '/erp/rent/api_occurrences?calendar_slug=rental'
       });
 

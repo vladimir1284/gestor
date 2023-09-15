@@ -9,6 +9,7 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from datetime import timedelta
 from django.contrib.auth.models import User
+from schedule.models import Event, Rule, Calendar
 
 
 class Contract(models.Model):
@@ -58,6 +59,8 @@ class Contract(models.Model):
 class Lease(models.Model):
     contract = models.ForeignKey(Contract,
                                  on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, null=True, blank=True,
+                              on_delete=models.CASCADE)
     PERIODICITY_CHOICES = [
         ('weekly', 'Weekly'),
         ('biweekly', 'Biweekly'),
@@ -69,10 +72,42 @@ class Lease(models.Model):
         default='weekly',
     )
     payment_amount = models.IntegerField()
+    num_due_payments = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        STATUS_COLOR = {'weekly': 'green',
+                        'biweekly': 'yellow',
+                        'monthly': 'blue'}
+        RULES_DICT = {
+            'weekly': 'Weekly',
+            'biweekly': 'Biweekly',
+            'monthly': 'Monthly',
+        }
+        if self.event is not None:
+            self.event.delete()
+        self.event = Event.objects.create(
+            title=F"{self.contract.lessee.name.split()[0]} ${int(self.payment_amount)} {self.contract.trailer.manufacturer.brand_name} {self.contract.trailer.get_type_display()} ",
+            start=self.contract.effective_date,
+            end=self.contract.effective_date + timedelta(hours=1),
+            calendar=Calendar.objects.get(slug="rental"),
+            color_event=STATUS_COLOR[self.payment_frequency],
+            rule=Rule.objects.get(name=RULES_DICT[self.payment_frequency])
+        )
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Delete events
+        self.event.delete()
+
+        # Call the parent's delete method to perform the actual deletion
+        super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return self.event.title
 
 
 @receiver(pre_save, sender=Contract)
