@@ -7,7 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.contrib.auth.models import User
 from schedule.models import Event, Rule, Calendar
 
@@ -89,9 +89,11 @@ class Lease(models.Model):
         }
         if self.event is not None:
             self.event.delete()
+        effective_date_with_12h = datetime.combine(
+            self.contract.effective_date, datetime.min.time()) + timedelta(hours=12)
         self.event = Event.objects.create(
             title=F"{self.contract.lessee.name.split()[0]} ${int(self.payment_amount)} {self.contract.trailer.manufacturer.brand_name} {self.contract.trailer.get_type_display()} ",
-            start=self.contract.effective_date,
+            start=effective_date_with_12h,
             end=self.contract.effective_date + timedelta(hours=1),
             calendar=Calendar.objects.get(slug="rental"),
             color_event=STATUS_COLOR[self.payment_frequency],
