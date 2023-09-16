@@ -60,11 +60,22 @@
                     class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-check"></span>
             </button>
+            <button onClick="cancelContract('{% url 'update-contract-stage' contract.id 'ended' %}')"
+                    id="submit-id-submit"
+                    class="btn btn-icon btn-outline-primary">
+                <span class="tf-icons bx bx-x"></span>
+            </button>
         </div>
     </div>
 </div>
 {% include "base/toast.html" with msg="Please, be pacient, we are sending the PDF copy to the client." %}
 <script>
+    function cancelContract(url) {
+        let confirmAction = confirm("Are you sure to cancel this contract?");
+        if (confirmAction) {
+            window.location = url;
+        }
+    }
     function validateContract(url) {
         let confirmAction = confirm("Are you sure to validate this contract?");
         if (confirmAction) {
