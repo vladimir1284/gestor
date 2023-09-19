@@ -93,7 +93,7 @@ def get_contract(id):
     contract = Contract.objects.get(id=id)
     contract.inspection = Inspection.objects.get(lease=contract)
     contract.contract_end_date = contract.effective_date + \
-        timedelta(weeks=contract.contract_term)
+        timedelta(days=contract.contract_term * 30)
     contract.lessee.data = LesseeData.objects.get(associated=contract.lessee)
     return contract
 

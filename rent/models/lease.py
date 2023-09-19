@@ -46,7 +46,7 @@ class Contract(models.Model):
         default='weekly',
     )
     security_deposit = models.IntegerField()
-    contract_term = models.IntegerField(default=7)  # Weeks
+    contract_term = models.FloatField(default=3)  # Months
     delayed_payments = models.IntegerField(default=0)
 
     def __str__(self):
