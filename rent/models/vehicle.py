@@ -16,7 +16,7 @@ class Equipment(models.Model):
         abstract = True
 
     year = models.IntegerField(_('year'), choices=year_choices())
-    vin = models.CharField(_('VIN number'), max_length=50)
+    vin = models.CharField(_('VIN number'), max_length=50, unique=True)
     note = models.TextField(blank=True)
     plate = models.CharField(max_length=50, blank=True)
 
