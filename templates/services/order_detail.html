@@ -47,8 +47,16 @@
         }
     {% endfor %}
     </style>
+    {% if mensaje %}
+    
+        <div class="alert alert-danger" role="alert">
+            {{ mensaje }}
+        </div>
+    
+    {% endif %}
 
     <div class="card mb-3">
+        
         <div class="card-body">
             <h5 class="card-title">
                 <b>{{ order.concept }}</b>
@@ -107,7 +115,7 @@
                                 </button>
                             </li>
                         {% endif %}
-                        {% if order.status != 'complete' and satisfied %}
+                        {% if order.status != 'complete' and order.status != 'pending' and satisfied %}
                             <li>
                                 <a class="dropdown-item badge bg-success"
                                 href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
@@ -424,7 +432,7 @@
     </a>
     <script>
         function updateStatus(url, status) {
-            let confirmAction = confirm("Are you sure change the order status to " + status + "?");
+            let confirmAction = confirm("Are you sure you want to change the order status to " + status + "?");
             if (confirmAction) {
                 window.location = url;
             }
