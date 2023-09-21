@@ -190,7 +190,7 @@ class Plate(models.Model):
     plate = models.CharField(max_length=50, unique=True)
     outgoing_date = models.DateTimeField(blank=True, null=True)
     reason = models.CharField(max_length=50, choices=REASON_CHOICES)
-    note = models.TextField()
+    note = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.plate
