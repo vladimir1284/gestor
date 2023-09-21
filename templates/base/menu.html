@@ -27,6 +27,12 @@
             </a>
         </li>
         <li class="menu-item">
+            <a href="{% url 'plate-list' %}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-traffic-cone"></i>
+                <div data-i18n="Sells">Plates</div>
+            </a>
+        </li>
+        <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-stats"></i>
                 <div data-i18n="Reportes">Reportes</div>
@@ -153,9 +159,9 @@
             <span class="menu-header-text">RENTA</span>
         </li>
         <li class="menu-item">
-            <a href="{% url 'list-trailer' %}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-traffic-cone"></i>
-                <div data-i18n="Sells">Trailers</div>
+            <a href="{% url 'client-list' %}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-user"></i>
+                <div data-i18n="Sells">Lessees</div>
             </a>
         </li>
         <li class="menu-item">
@@ -170,18 +176,12 @@
                 <div data-i18n="Account Settings">Configuración</div>
             </a>
             <ul class="menu-sub">
-                {% if perms.can_add_user %}
-                    <li class="menu-item">
-                        <a href="{% url 'manufacturer-list' %}" class="menu-link">
-                            <div data-i18n="Usuarios">Marca</div>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="{% url 'trackers-table' %}" class="menu-link">
-                            <div data-i18n="Clientes">Trackers</div>
-                        </a>
-                    </li>
-                {% endif %}
+                <li class="menu-item">
+                    <a href="{% url 'list-trailer' %}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-traffic-cone"></i>
+                        <div data-i18n="Sells">Trailers</div>
+                    </a>
+                </li>
             </ul>
         </li>
         <!--Inventario-->

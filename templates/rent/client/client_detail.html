@@ -1,0 +1,6 @@
+{% extends "base/base.html" %}
+{% block content %}
+    <div class="card mb-3">
+        <div class="card-body">{% include "users/associated_line.html" with associated=client %}</div>
+    </div>
+{% endblock content %}

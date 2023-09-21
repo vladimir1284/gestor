@@ -1,0 +1,39 @@
+{% extends "base/base_list.html" %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">Trailers in the yard</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
+    <th>Plate</th>
+    <th>Driver</th>
+    <th>Reason</th>
+    <th>date</th>
+    <th>note</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for plate in plates %}
+        <tr data-search="{{ plate.plate }}{{ plate.driver_name }}">
+            <td>
+                <a href={% url 'plate-detail' plate.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+        </td>
+        <td>{{ plate.plate }}</td>
+        <td>{{ plate.driver_name }}</td>
+        <td>{{ plate.reason }}</td>
+        <td>{{ plate.incoming_date|date:"m/d/Y" }}</td>
+        <td>{{ plate.note }}</td>
+    </tr>
+{% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'plate-create' %}
+{% endblock createUrl %}
+{% block help %}
+    Add plate
+{% endblock help %}
