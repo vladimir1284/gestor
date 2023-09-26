@@ -170,9 +170,11 @@ def update_order(request, id):
 @login_required
 def update_order_status(request, id, status):
     order = get_object_or_404(Order, id=id)
+
     try:
         if status == 'complete':
             return redirect('process-payment', id)
+
         elif order.status == 'complete':
             if status == 'decline':
                 # Reverse stock
@@ -180,8 +182,14 @@ def update_order_status(request, id, status):
                 for transaction in transactions:
                     reverse_transaction(transaction)
 
+        if order.status == 'pending':
+            if status == 'processing' and (not order.company and not order.associated):
+                return redirect('detail-service-order', id, 'Please add a client or a company')
+
         if status == 'processing':
+            # Send SMS
             twilioSendSMS(order, status)
+
         order.status = status
         order.save()
     except NotEnoughStockError as error:
@@ -335,13 +343,15 @@ def getOrderContext(order_id):
 
 
 @login_required
-def detail_order(request, id):
+def detail_order(request, id, msg=None):
     # Prepare the flow for creating order
     request.session['creating_order'] = None
     request.session['order_detail'] = id
 
     # Get data for the given order
     context = getOrderContext(id)
+    if msg or msg != '':
+        context['mensaje'] = msg
 
     # Discount
     if request.method == 'POST':
