@@ -26,6 +26,7 @@ from ..models.lease import (
     Inspection,
     Tire,
     LesseeData,
+    Lease,
 )
 from ..forms.lease import (
     LeaseForm,
@@ -92,7 +93,7 @@ def get_contract(id):
     contract = Contract.objects.get(id=id)
     contract.inspection = Inspection.objects.get(lease=contract)
     contract.contract_end_date = contract.effective_date + \
-        timedelta(weeks=contract.contract_term)
+        timedelta(days=contract.contract_term * 30)
     contract.lessee.data = LesseeData.objects.get(associated=contract.lessee)
     return contract
 
@@ -154,6 +155,15 @@ def update_contract_stage(request, id, stage):
     contract.save()
     if stage == "active":
         mail_send_contract(request, id)
+    if stage == "ended":
+        # Remove lease
+        try:
+            leases = Lease.objects.filter(contract=contract)
+            for lease in leases:
+                lease.delete()
+        except Exception as err:
+            print(F"Error deleting lease: {err}")
+        return redirect('detail-trailer', contract.trailer.id)
     return redirect('detail-contract', id)
 
 

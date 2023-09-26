@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'costs.apps.CostsConfig',
     'rent.apps.RentConfig',
     'django.contrib.humanize',
+    'schedule',
 ]
 
 MIDDLEWARE = [

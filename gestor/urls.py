@@ -46,7 +46,7 @@ urlpatterns = [
          name='weekly-membership-date'),
     path('erp/week-stats-recalculate/<date>',
          week_stats_recalculate, name='week-stats-recalculate'),
-    path('erp/weekly-costs/<category_id>/<date>', 
+    path('erp/weekly-costs/<category_id>/<date>',
          weekly_cost, name='weekly-cost'),
 
     # Monthly reports
@@ -59,9 +59,9 @@ urlpatterns = [
          name='monthly-membership'),
     path('erp/monthly_membership/<year>/<month>', monthly_membership_report,
          name='monthly-membership-date'),
-    path('erp/monthly-costs/<category_id>/<year>/<month>', monthly_cost, 
+    path('erp/monthly-costs/<category_id>/<year>/<month>', monthly_cost,
          name='monthly-cost'),
-    
+
     # Apps
     path('erp/users/', include('users.urls')),
     path('erp/inventory/', include('inventory.urls')),
@@ -69,6 +69,7 @@ urlpatterns = [
     path('erp/equipment/', include('equipment.urls')),
     path('erp/costs/', include('costs.urls')),
     path('erp/rent/', include('rent.urls')),
+    path('erp/utils/', include('utils.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

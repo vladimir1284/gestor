@@ -42,7 +42,7 @@ class LeaseForm(ModelForm):
             PrependedText('security_deposit', '$'),
             PrependedText('payment_amount', '$'),
             'payment_frequency',
-            AppendedText('contract_term', 'weeks'),
+            AppendedText('contract_term', 'months'),
             PrependedText('service_charge', '$'),
             ButtonHolder(
                 Submit('submit', 'Create contract',

@@ -1,0 +1,32 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block title %}
+  Calendar
+{% endblock title %}
+{% block page %}
+  <script src="{% static 'fullcalendar/index.global.min.js' %}"></script>
+{% endblock page %}
+{% block content %}
+  <div id="calendar"></div>
+{% endblock content %}
+{% block scripts %}
+  <script type='text/javascript'>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+  
+      var calendar = new FullCalendar.Calendar(calendarEl, 
+      {
+        initialView: 'dayGridWeek',
+        headerToolbar: {
+          left: 'prev,next',
+          center: 'title',
+          right: 'dayGridMonth,dayGridWeek,dayGridDay'
+        },
+        events: '/erp/rent/api_occurrences?calendar_slug=rental'
+      });
+
+      calendar.render();
+
+  });
+  </script>
+{% endblock scripts %}

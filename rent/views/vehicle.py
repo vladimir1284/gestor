@@ -201,6 +201,12 @@ def detail_trailer(request, id):
     orders = Order.objects.filter(trailer=trailer).order_by("-created_date")
     images, pinned_image = getImages(trailer)
 
+    # Contracts
+    contracts = Contract.objects.filter(trailer=trailer).exclude(
+        stage='ended')
+    if contracts:
+        trailer.current_contract = contracts.last()
+
     documents = TrailerDocument.objects.filter(trailer=trailer, is_active=True)
     # Check for document expiration
     for document in documents:

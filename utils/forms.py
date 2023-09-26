@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from .models import (
     Category,
     Order,
+    Plate,
 )
 
 from crispy_forms.helper import FormHelper
@@ -27,6 +28,27 @@ class BaseForm(forms.ModelForm):
         self.helper.form_tag = False  # Don't render form tag
         self.helper.disable_csrf = True  # Don't render CSRF token
         self.helper.label_class = 'form-label'
+
+
+class PlateForm(forms.ModelForm):
+    class Meta:
+        model = Plate
+        fields = ['plate', 'reason', 'note', 'driver_name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.field_class = "mb-3"
+        self.helper.layout = Layout(
+            Field('driver_name'),
+            Field('plate', label="Plate/VIN"),
+            Field('reason'),
+            Field('note', rows='2'),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+
+        )
 
 
 class CategoryCreateForm(BaseForm):

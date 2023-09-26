@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import vehicle, tracker, lease
-
+from .views import vehicle, tracker, lease, calendar, client
+from django.views.generic import TemplateView
 
 urlpatterns = [
     # -------------------- Vehicle ----------------------------
@@ -80,4 +80,11 @@ urlpatterns = [
          lease.update_inspection, name='update-inspection'),
     path('update_tires/<inspection_id>/',
          lease.update_tires, name='update-tires'),
+    # -------------------- Calendar ----------------------------
+    path('api_occurrences/', calendar.api_occurrences, name='api-occurrences'),
+    path('calendar/', calendar.calendar_week,  name='calendar'),
+    # -------------------- Client ----------------------------
+    path('client_detail/<id>/', client.client_detail, name='client-detail'),
+    path('client_list/', client.client_list, name='client-list'),
+
 ]

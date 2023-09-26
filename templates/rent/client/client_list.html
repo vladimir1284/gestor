@@ -1,0 +1,35 @@
+{% extends "base/base_list.html" %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">Lessees</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>Client</th>
+    <th>Status</th>
+    <th>Trailer</th>
+    <th>Debt</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for client in clients %}
+        <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
+            <td>
+                <div class="card-body">{% include "users/associated_line.html" with associated=client %}</div>
+            </td>
+            <td>
+                <a href={% url 'client-detail' client.id %}>ok</a>
+            </td>
+            <td>
+                <div class="d-flex">
+                    {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
+                </div>
+            </td>
+            <td>${{ client.debt }}</td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block add %}
+    hidden
+{% endblock add %}

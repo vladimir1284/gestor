@@ -175,3 +175,22 @@ class Statistics(models.Model):
 
     # GPT insights for the week
     gpt_insights = models.TextField(max_length=1000, blank=True, null=True)
+
+
+class Plate(models.Model):
+    REASON_CHOICES = [
+        ('repair', 'Repair'),
+        ('rental', 'Rental'),
+        ('storage', 'Storage'),
+        ('other', 'Other'),
+    ]
+
+    driver_name = models.CharField(max_length=100)
+    incoming_date = models.DateTimeField(auto_now_add=True)
+    plate = models.CharField(max_length=50, unique=True)
+    outgoing_date = models.DateTimeField(blank=True, null=True)
+    reason = models.CharField(max_length=50, choices=REASON_CHOICES)
+    note = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.plate
