@@ -4,6 +4,10 @@ from rent.models.lease import LesseeData, Contract, Lease, Payment, Due
 from users.models import Associated
 from rent.forms.lease import PaymentForm
 from django.db import transaction
+from datetime import timedelta, datetime
+from django.utils import timezone
+import pytz
+from django.conf import settings
 
 
 @login_required
@@ -44,6 +48,7 @@ def process_payment(payment: Payment):
     last_payment = Payment.objects.filter(client=payment.client,
                                           lease=payment.lease).last()
     if last_payment is not None:
+        print(last_payment.remaining)
         payment.remaining += last_payment.remaining
         last_payment.remaining = 0
         last_payment.save()
@@ -55,6 +60,8 @@ def process_payment(payment: Payment):
         interval_start = last_due.date
     else:
         interval_start = payment.lease.contract.effective_date
+    interval_start = timezone.make_aware(datetime.combine(
+        interval_start, datetime.min.time()), pytz.timezone(settings.TIME_ZONE))
 
     # Get occurrences from the last due payed
     occurrences = payment.lease.event.occurrences_after(interval_start)
@@ -97,5 +104,6 @@ def payment(request, client_id):
     context = {
         'form': form,
         'client': client,
+        'title': "Rental payment"
     }
-    return render(request, 'payment.html', context)
+    return render(request, 'rent/client/payment.html', context)
