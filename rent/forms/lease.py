@@ -8,6 +8,7 @@ from ..models.lease import (
     Inspection,
     Tire,
     LesseeData,
+    Payment,
 )
 from django.forms import modelformset_factory
 from crispy_forms.helper import FormHelper
@@ -165,9 +166,30 @@ class AssociatedCreateForm(BaseContactForm):
         self.fields['phone_number'].required = True
         self.fields['email'].required = True
 
+        self.helper.field_class = 'mb-3'
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field('type'),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ['date_of_payment', 'amount']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date_of_payment'].widget.attrs.update(
+            {'class': 'datepicker'})
+        self.helper = FormHelper()
+        self.helper.field_class = 'mb-3'
+        self.helper.layout = Layout(
+            Field('date_of_payment'),
+            Field('amount'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

@@ -10,6 +10,7 @@ from django.dispatch import receiver
 from datetime import timedelta, datetime
 from django.contrib.auth.models import User
 from schedule.models import Event, Rule, Calendar
+from django.conf import settings
 
 
 class Contract(models.Model):
@@ -89,7 +90,7 @@ class Lease(models.Model):
         }
         if self.event is not None:
             self.event.delete()
-        effective_date_with_12h = datetime.combine(
+        effective_date_with_12h = timezone.make_aware(timezone=, datetime.combine(
             self.contract.effective_date, datetime.min.time()) + timedelta(hours=12)
         self.event = Event.objects.create(
             title=F"{self.contract.lessee.name.split()[0]} ${int(self.payment_amount)} {self.contract.trailer.manufacturer.brand_name} {self.contract.trailer.get_type_display()} ",
@@ -220,3 +221,34 @@ class Tire(models.Model):
     )
     remaining_life = models.IntegerField(choices=remaining_life_choices,
                                          default=100)
+
+
+class Payment(models.Model):
+    '''
+    This model store the actual payments made by rental clients
+    '''
+    date_of_payment = models.DateField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    remaining = models.FloatField(null=True, blank=True)
+    client = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    lease = models.ForeignKey(Lease, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.client} ${self.amount} - {self.date_of_payment}"
+
+
+class Due(models.Model):
+    '''
+    This model store the due payments taken from the amount of money 
+    of a Payment instance by considering the amount and periodicity stated 
+    in the contract terms
+    '''
+    date = models.DateField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    client = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    lease = models.ForeignKey(Lease, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.client} ${self.amount} - {self.date}"

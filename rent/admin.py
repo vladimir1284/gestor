@@ -16,6 +16,8 @@ from .models.lease import (
     Inspection,
     Tire,
     Lease,
+    Payment,
+    Due,
 )
 
 admin.site.register(Trailer)
@@ -30,3 +32,5 @@ admin.site.register(LesseeData)
 admin.site.register(Inspection)
 admin.site.register(Tire)
 admin.site.register(Lease)
+admin.site.register(Payment)
+admin.site.register(Due)
