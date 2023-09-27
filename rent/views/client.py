@@ -48,7 +48,6 @@ def process_payment(payment: Payment):
     last_payment = Payment.objects.filter(client=payment.client,
                                           lease=payment.lease).last()
     if last_payment is not None:
-        print(last_payment.remaining)
         payment.remaining += last_payment.remaining
         last_payment.remaining = 0
         last_payment.save()
@@ -68,7 +67,6 @@ def process_payment(payment: Payment):
 
     while payment.remaining >= payment.lease.payment_amount:
         payment.remaining -= payment.lease.payment_amount
-        print(next(occurrences).start.date())
         Due.objects.create(
             date=next(occurrences).start.date(),
             amount=payment.lease.payment_amount,

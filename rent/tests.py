@@ -32,8 +32,10 @@ class PaymentViewTests(TestCase):
             license_number="test license",
             client_address="testclient address",
         )
+        effective_date = (timezone.now() - timedelta(weeks=5)).date()
+        print(f"Effective date: {effective_date}")
         self.contract = Contract.objects.create(
-            effective_date=(timezone.now() - timedelta(weeks=5)).date(),
+            effective_date=effective_date,
             payment_amount=100,
             lessee=self.lessee,
             security_deposit=1000,
@@ -152,4 +154,81 @@ class PaymentViewTests(TestCase):
         self.assertEqual(Payment.objects.count(), 2)
         self.assertEqual(Due.objects.count(), 3)
 
-    # Add more tests as needed for other scenarios
+    def test_payment_view_with_previous_payment_remaining(self):
+        # Create a previous payment and due instances
+        previous_payment = Payment.objects.create(
+            date_of_payment=timezone.now().date(),
+            remaining=10,
+            amount=100, client=self.lessee, lease=self.lease,
+            user=self.user)
+        Due.objects.create(date=timezone.now().date(),
+                           amount=100, client=self.lessee, lease=self.lease)
+
+        # Create a payment form data
+        form_data = {
+            'amount': 120,
+            'date_of_payment': timezone.now().date()
+        }
+
+        # Login the user
+        self.client.post('/erp/users/login/', follow=True,
+                         username='testuser', password='testpassword')
+
+        # Make a POST request to the payment view with the form data
+        response = self.client.post(self.payment_url, data=form_data)
+
+        # Check if the payment and due instances were created correctly
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Payment.objects.count(), 2)
+        self.assertEqual(Payment.objects.last().remaining, 30)
+        self.assertEqual(Due.objects.count(), 2)
+
+    def test_payment_view_with_remaining(self):
+        # Create a valid payment form data
+        form_data = {
+            'amount': 320,
+            'date_of_payment': timezone.now().date()
+        }
+
+        # Login the user
+        self.client.post('/erp/users/login/', follow=True,
+                         username='testuser', password='testpassword')
+
+        # Make a POST request to the payment view with the valid form data
+        response = self.client.post(self.payment_url, data=form_data)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse(
+            'client-detail', args=[self.lessee.id]))
+
+        # Check if the payment and due instances were created correctly
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(Payment.objects.last().remaining, 20)
+        self.assertEqual(Due.objects.count(), 3)
+        for due in Due.objects.all():
+            print(f"Due date: {due.date}")
+
+    def test_payment_view_with_too_low_amount(self):
+        # Create a valid payment form data
+        form_data = {
+            'amount': 56,
+            'date_of_payment': timezone.now().date()
+        }
+
+        # Login the user
+        self.client.post('/erp/users/login/', follow=True,
+                         username='testuser', password='testpassword')
+
+        # Make a POST request to the payment view with the valid form data
+        response = self.client.post(self.payment_url, data=form_data)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse(
+            'client-detail', args=[self.lessee.id]))
+
+        # Check if the payment and due instances were created correctly
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(Payment.objects.last().remaining, 56)
+        self.assertEqual(Due.objects.count(), 0)
