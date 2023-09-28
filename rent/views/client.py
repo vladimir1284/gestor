@@ -67,8 +67,28 @@ def client_detail(request, id):
     client = get_object_or_404(Associated, id=id)
     client.contract = Contract.objects.filter(stage="active").last()
     client.data = LesseeData.objects.get(associated=client)
+    leases = Lease.objects.filter(
+        contract__lessee=client, contract__stage="active")
+    for lease in leases:
+        # Debt associated with this lease
+        lease.debt, last_date = compute_client_debt(client, lease)
+        # Payments for thi lease
+        payments = Payment.objects.filter(
+            lease=lease).order_by('-date_of_payment')
+        for i, payment in enumerate(payments):
+            # Dues paid by this lease
+            dues = Due.objects.filter(lease=payment.lease,
+                                      date__gte=payment.date)
+            if i > 0:
+                dues.exclude(date__gte=previous_date)
+            else:
+                lease.remaining = payment.remaining
+            previous_date = payment.date
+            payment.dues = dues
+        lease.payments = payments
     context = {
         "client": client,
+        "leases": leases,
     }
 
     return render(request, "rent/client/client_detail.html", context=context)

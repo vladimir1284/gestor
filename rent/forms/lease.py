@@ -188,7 +188,7 @@ class PaymentForm(forms.ModelForm):
             kwargs.pop('client')
         super().__init__(*args, **kwargs)
         self.fields['lease'].queryset = Lease.objects.filter(
-            contract__lessee=client)
+            contract__lessee=client, contract__stage="active")
         self.fields['date_of_payment'] = forms.DateTimeField(
             widget=forms.DateInput(
                 attrs={'type': 'date'},

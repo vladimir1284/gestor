@@ -34,4 +34,51 @@
             </div>
         </div>
     </div>
+    <div class="card mb-3">
+        <div class="list-head">
+            <div class="demo-inline-spacing">
+                <h5 class="card-header">Leases</h5>
+            </div>
+            <div class="card-body tabs pt-0">
+                <div class="nav-align-top">
+                    <ul class="nav nav-pills nav-fill" role="tablist">
+                        {% for lease in leases %}
+                            <li class="nav-item">
+                                <button type="button"
+                                        class="nav-link {% if forloop.first %}active{% endif %}"
+                                        role="tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#navs-pills-justified-{{ lease.id }}"
+                                        aria-controls="navs-pills-justified-{{ lease.id }}"
+                                        aria-selected="true">{{ lease.contract.trailer }}</button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content p-0">
+            {% for lease in leases %}
+                <div class="tab-pane fade {% if forloop.first %}active show{% endif %}"
+                     id="navs-pills-justified-{{ lease.id }}"
+                     role="tabpanel">
+                    <h5 class="ps-3">Remaining: ${{ lease.remaining|floatformat:"0" }}</h5>
+                    <ul>
+                        {% for payment in lease.payments %}
+                            <li>
+                                Payment: {{ payment.date|date:"m/d/Y" }} - ${{ payment.amount|floatformat:"0" }}
+                                <ul>
+                                    {% for due in payment.dues %}
+                                        <li>
+                                            <i class="tf-icons bx bx-calendar text-success"></i> {{ due.due_date|date:"m/d/Y" }} - ${{ due.amount|floatformat:"0" }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock content %}
