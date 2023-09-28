@@ -11,9 +11,11 @@
 {% block content %}
     <div class="card mb-3">
         <div class="card-body">{% include "users/associated_line.html" with associated=client %}</div>
-        <button type="button" class="btn btn-icon btn-outline-primary upper-right">
+        <a href="{% url 'rental-payment' client.id %}"
+           type="button"
+           class="btn btn-icon btn-outline-primary upper-right">
             <span class="tf-icons bx bx-dollar"></span>
-        </button>
+        </a>
         <div class="card-body pt-0">
             <h5>Emergency contact:</h5>
             <div class="d-flex pb-1">

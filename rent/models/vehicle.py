@@ -75,6 +75,9 @@ class Trailer(Equipment):
     )
     load = models.IntegerField(_('Axle load capacity'), choices=LOAD_CHOICE)
 
+    def __str__(self):
+        return F"{self.year} {self.manufacturer} {self.get_type_display()}"
+
 
 class TrailerPicture(models.Model):
     trailer = models.ForeignKey(Trailer,

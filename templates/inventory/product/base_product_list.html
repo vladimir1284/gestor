@@ -7,8 +7,8 @@
         <div class="demo-inline-spacing">
             <h5 class="card-header">
                 {{ title }} <spam id="filter_tag"></spam>
-                    {% block buttons %}
-                    {% endblock buttons %}
+                {% block buttons %}
+                {% endblock buttons %}
             </h5>
         </div>
         <div class="card-body tabs">
@@ -17,7 +17,7 @@
                     <li class="nav-item">
                         <button type="button"
                                 onClick="filterTag('all')"
-                                class="nav-link"
+                                class="nav-link active"
                                 role="tab"
                                 data-bs-toggle="tab"
                                 data-bs-target="#navs-pills-justified-parts"

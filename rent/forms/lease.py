@@ -9,6 +9,7 @@ from ..models.lease import (
     Tire,
     LesseeData,
     Payment,
+    Lease,
 )
 from django.forms import modelformset_factory
 from crispy_forms.helper import FormHelper
@@ -179,15 +180,25 @@ class AssociatedCreateForm(BaseContactForm):
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
-        fields = ['date_of_payment', 'amount']
+        fields = ['date_of_payment', 'amount', 'lease']
 
     def __init__(self, *args, **kwargs):
+        if 'client' in kwargs:
+            client = kwargs['client']
+            kwargs.pop('client')
         super().__init__(*args, **kwargs)
-        self.fields['date_of_payment'].widget.attrs.update(
-            {'class': 'datepicker'})
+        self.fields['lease'].queryset = Lease.objects.filter(
+            contract__lessee=client)
+        self.fields['date_of_payment'] = forms.DateTimeField(
+            widget=forms.DateInput(
+                attrs={'type': 'date'},
+            ),
+        )
+
         self.helper = FormHelper()
         self.helper.field_class = 'mb-3'
         self.helper.layout = Layout(
+            Field('lease'),
             Field('date_of_payment'),
             Field('amount'),
             ButtonHolder(

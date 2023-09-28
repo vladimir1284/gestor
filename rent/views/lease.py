@@ -155,6 +155,7 @@ def update_contract_stage(request, id, stage):
     contract.save()
     if stage == "active":
         mail_send_contract(request, id)
+        return redirect('client-detail', contract.lessee.id)
     if stage == "ended":
         # Remove lease
         try:
