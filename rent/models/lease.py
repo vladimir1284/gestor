@@ -234,7 +234,7 @@ class Payment(models.Model):
     remaining = models.FloatField(null=True, blank=True)
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
     lease = models.ForeignKey(Lease, on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def clean(self):
@@ -251,7 +251,8 @@ class Due(models.Model):
     of a Payment instance by considering the amount and periodicity stated 
     in the contract terms
     '''
-    date = models.DateField()
+    date = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
     lease = models.ForeignKey(Lease, on_delete=models.CASCADE)

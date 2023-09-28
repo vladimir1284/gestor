@@ -93,10 +93,12 @@ def process_payment(payment: Payment):
     payment.remaining = payment.amount
 
     # Get the remaining money from last payment
-    last_payment = Payment.objects.filter(client=payment.client,
-                                          lease=payment.lease).last()
+    last_payment = Payment.objects.filter(
+        client=payment.client,
+        lease=payment.lease).exclude(id=payment.id).last()
     if last_payment is not None:
-        payment.remaining += last_payment.remaining
+        if last_payment.remaining is not None:
+            payment.remaining += last_payment.remaining
         last_payment.remaining = 0
         last_payment.save()
 
@@ -109,7 +111,7 @@ def process_payment(payment: Payment):
     while payment.remaining >= payment.lease.payment_amount:
         payment.remaining -= payment.lease.payment_amount
         Due.objects.create(
-            date=next(occurrences).start.date(),
+            due_date=next(occurrences).start.date(),
             amount=payment.lease.payment_amount,
             client=payment.client,
             lease=payment.lease
@@ -120,11 +122,6 @@ def process_payment(payment: Payment):
 @transaction.atomic
 def payment(request, client_id):
     client = get_object_or_404(Associated, id=client_id)
-    try:
-        lease = Lease.objects.get(
-            contract__lessee=client, contract__stage='active')
-    except Lease.DoesNotExist:
-        raise Exception("No active lease found for the client")
 
     if request.method == 'POST':
         form = PaymentForm(request.POST, client=client)
@@ -132,6 +129,7 @@ def payment(request, client_id):
             payment = form.save(commit=False)
             payment.client = client
             payment.user = request.user
+            payment.save()
             process_payment(payment)
             payment.save()
             # Redirect to a success page
@@ -145,3 +143,30 @@ def payment(request, client_id):
         'title': "Rental payment"
     }
     return render(request, 'rent/client/payment.html', context)
+
+
+@login_required
+@transaction.atomic
+def revert_payment(request, client_id, payment_id):
+    client = get_object_or_404(Associated, id=client_id)
+    payment = get_object_or_404(Payment, id=payment_id)
+
+    # Delete the dues created during the payment
+    dues_to_delete = Due.objects.filter(
+        client=client, lease=payment.lease, date__gte=payment.date)
+    if dues_to_delete is not None:
+        dues_amount = dues_to_delete.count() * payment.lease.payment_amount
+        dues_to_delete.delete()
+
+    # Update the remaining amount in the previous payment if applicable
+    previous_payment = Payment.objects.filter(
+        client=client, lease=payment.lease, date__lt=payment.date).last()
+    if previous_payment is not None:
+        previous_payment.remaining = (
+            dues_amount+payment.remaining-payment.amount)
+        previous_payment.save()
+
+    # Delete the payment itself
+    payment.delete()
+
+    return redirect('client-detail', client.id)

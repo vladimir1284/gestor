@@ -64,6 +64,7 @@ class PaymentViewTests(TestCase):
         # Create a valid payment form data
         form_data = {
             'amount': 100,
+            'lease': self.lease.id,
             'date_of_payment': timezone.now().date()
         }
 
@@ -83,10 +84,25 @@ class PaymentViewTests(TestCase):
         self.assertEqual(Payment.objects.count(), 1)
         self.assertEqual(Due.objects.count(), 1)
 
+        # Revert payment
+        revert_url = reverse(
+            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+
+        # Make the revert request
+        response = self.client.get(revert_url)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+
+        # Check if the payment and due instances were deleted correctly
+        self.assertEqual(Payment.objects.count(), 0)
+        self.assertEqual(Due.objects.count(), 0)
+
     def test_payment_view_with_invalid_payment(self):
         # Create an invalid payment form data
         form_data = {
             'amount': -100,  # Negative amount is invalid
+            'lease': self.lease.id,
             'date_of_payment': timezone.now().date()
         }
 
@@ -111,6 +127,7 @@ class PaymentViewTests(TestCase):
         # Create a payment form data
         form_data = {
             'amount': 200,
+            'lease': self.lease.id,
             'date_of_payment': timezone.now().date()
         }
 
@@ -126,6 +143,20 @@ class PaymentViewTests(TestCase):
         self.assertEqual(Payment.objects.count(), 1)
         self.assertEqual(Due.objects.count(), 2)
 
+        # Revert payment
+        revert_url = reverse(
+            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+
+        # Make the revert request
+        response = self.client.get(revert_url)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+
+        # Check if the payment and due instances were deleted correctly
+        self.assertEqual(Payment.objects.count(), 0)
+        self.assertEqual(Due.objects.count(), 0)
+
     def test_payment_view_with_previous_payment_and_due(self):
         # Create a previous payment and due instances
         previous_payment = Payment.objects.create(
@@ -133,12 +164,13 @@ class PaymentViewTests(TestCase):
             remaining=0,
             amount=100, client=self.lessee, lease=self.lease,
             user=self.user)
-        Due.objects.create(date=timezone.now().date(),
+        Due.objects.create(due_date=timezone.now().date(),
                            amount=100, client=self.lessee, lease=self.lease)
 
         # Create a payment form data
         form_data = {
             'amount': 200,
+            'lease': self.lease.id,
             'date_of_payment': timezone.now().date()
         }
 
@@ -154,6 +186,21 @@ class PaymentViewTests(TestCase):
         self.assertEqual(Payment.objects.count(), 2)
         self.assertEqual(Due.objects.count(), 3)
 
+        # Revert payment
+        revert_url = reverse(
+            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+
+        # Make the revert request
+        response = self.client.get(revert_url)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+
+        # Check if the payment and due instances were deleted correctly
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(Payment.objects.last().remaining, 0)
+        self.assertEqual(Due.objects.count(), 1)
+
     def test_payment_view_with_previous_payment_remaining(self):
         # Create a previous payment and due instances
         previous_payment = Payment.objects.create(
@@ -161,12 +208,13 @@ class PaymentViewTests(TestCase):
             remaining=10,
             amount=100, client=self.lessee, lease=self.lease,
             user=self.user)
-        Due.objects.create(date=timezone.now().date(),
+        Due.objects.create(due_date=timezone.now().date(),
                            amount=100, client=self.lessee, lease=self.lease)
 
         # Create a payment form data
         form_data = {
             'amount': 120,
+            'lease': self.lease.id,
             'date_of_payment': timezone.now().date()
         }
 
@@ -183,10 +231,26 @@ class PaymentViewTests(TestCase):
         self.assertEqual(Payment.objects.last().remaining, 30)
         self.assertEqual(Due.objects.count(), 2)
 
+        # Revert payment
+        revert_url = reverse(
+            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+
+        # Make the revert request
+        response = self.client.get(revert_url)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+
+        # Check if the payment and due instances were deleted correctly
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(Payment.objects.last().remaining, 10)
+        self.assertEqual(Due.objects.count(), 1)
+
     def test_payment_view_with_remaining(self):
         # Create a valid payment form data
         form_data = {
             'amount': 320,
+            'lease': self.lease.id,
             'date_of_payment': timezone.now().date()
         }
 
@@ -209,10 +273,25 @@ class PaymentViewTests(TestCase):
         for due in Due.objects.all():
             print(f"Due date: {due.date}")
 
+        # Revert payment
+        revert_url = reverse(
+            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+
+        # Make the revert request
+        response = self.client.get(revert_url)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+
+        # Check if the payment and due instances were deleted correctly
+        self.assertEqual(Payment.objects.count(), 0)
+        self.assertEqual(Due.objects.count(), 0)
+
     def test_payment_view_with_too_low_amount(self):
         # Create a valid payment form data
         form_data = {
             'amount': 56,
+            'lease': self.lease.id,
             'date_of_payment': timezone.now().date()
         }
 
@@ -231,4 +310,18 @@ class PaymentViewTests(TestCase):
         # Check if the payment and due instances were created correctly
         self.assertEqual(Payment.objects.count(), 1)
         self.assertEqual(Payment.objects.last().remaining, 56)
+        self.assertEqual(Due.objects.count(), 0)
+
+        # Revert payment
+        revert_url = reverse(
+            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+
+        # Make the revert request
+        response = self.client.get(revert_url)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+
+        # Check if the payment and due instances were deleted correctly
+        self.assertEqual(Payment.objects.count(), 0)
         self.assertEqual(Due.objects.count(), 0)
