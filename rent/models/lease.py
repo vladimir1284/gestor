@@ -82,7 +82,7 @@ class Lease(models.Model):
 
     def save(self, *args, **kwargs):
         STATUS_COLOR = {'weekly': 'green',
-                        'biweekly': 'yellow',
+                        'biweekly': 'brown',
                         'monthly': 'blue'}
         RULES_DICT = {
             'weekly': 'Weekly',

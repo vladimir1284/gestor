@@ -7,7 +7,7 @@ import pytz
 from django.conf import settings
 from django.urls import reverse
 from django.db.models import F, Q
-from rent.models.lease import Lease, Contract
+from rent.models.lease import Lease, Contract, Due
 
 
 @login_required
@@ -131,7 +131,16 @@ def _api_occurrences(request, start, end, calendar_slug, timezone):
             event_end = occurrence.end
 
             # Lease data
-            lease = Lease.objects.get(event=event)
+            color = occurrence.event.color_event
+            try:
+                lease = Lease.objects.get(event=event)
+                # Change color if paid
+                due = Due.objects.filter(
+                    lease=lease, due_date=event_start.date())
+                if len(due) > 0:
+                    color = "gray"
+            except Exception as err:
+                print(err)
 
             if current_tz:
                 # make event start and end dates aware in given timezone
@@ -145,12 +154,12 @@ def _api_occurrences(request, start, end, calendar_slug, timezone):
                     "id": occurrence_id,
                     "title": occurrence.event.title,
                     "url": request.build_absolute_uri(
-                        reverse('detail-contract', args=[lease.contract.id])),
+                        reverse('client-detail', args=[lease.contract.lessee.id])),
                     "start": event_start,
                     "allDay": True,
                     "existed": existed,
                     "event_id": occurrence.event.id,
-                    "color": occurrence.event.color_event,
+                    "color": color,
                     "description": occurrence.description,
                     "rule": recur_rule,
                     "end_recurring_period": recur_period_end,
