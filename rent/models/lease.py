@@ -165,7 +165,7 @@ class LesseeData(models.Model):
     client_address = models.TextField()
 
     def __str__(self):
-        return self.name
+        return self.associated.name
 
 
 class Inspection(models.Model):
