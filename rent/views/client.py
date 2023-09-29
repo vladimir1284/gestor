@@ -14,7 +14,7 @@ def compute_client_debt(client: Associated, lease: Lease):
     interval_start = get_start_paying_date(client, lease)
     unpaid_dues = len(lease.event.get_occurrences(interval_start,
                                                   timezone.now()))
-    return unpaid_dues*lease.payment_amount, interval_start
+    return unpaid_dues*lease.payment_amount, interval_start, unpaid_dues
 
 
 @login_required
@@ -42,7 +42,7 @@ def client_list(request):
                     payment_frequency=contract.payment_frequency,
                     event=None,
                 )
-            client.debt, last_payment = compute_client_debt(
+            client.debt, last_payment, client.unpaid_dues = compute_client_debt(
                 client, lease)
             client.last_payment = last_payment
             payment_dates[client.id] = last_payment
@@ -71,7 +71,8 @@ def client_detail(request, id):
         contract__lessee=client, contract__stage="active")
     for lease in leases:
         # Debt associated with this lease
-        lease.debt, last_date = compute_client_debt(client, lease)
+        lease.debt, last_date, lease.unpaid_dues = compute_client_debt(
+            client, lease)
         # Payments for thi lease
         payments = Payment.objects.filter(
             lease=lease).order_by('-date_of_payment')
@@ -80,7 +81,7 @@ def client_detail(request, id):
             dues = Due.objects.filter(lease=payment.lease,
                                       date__gte=payment.date)
             if i > 0:
-                dues.exclude(date__gte=previous_date)
+                dues = dues.exclude(date__gte=previous_date)
             else:
                 lease.remaining = payment.remaining
             previous_date = payment.date
@@ -98,7 +99,7 @@ def get_start_paying_date(client: Associated, lease: Lease):
     # Find the last due payed by the client
     last_due = Due.objects.filter(client=client, lease=lease).last()
     if last_due is not None:
-        interval_start = last_due.date
+        interval_start = last_due.due_date
     else:
         # If the client hasn't paid, then start on effective date
         interval_start = lease.contract.effective_date
@@ -117,8 +118,7 @@ def process_payment(payment: Payment):
         client=payment.client,
         lease=payment.lease).exclude(id=payment.id).last()
     if last_payment is not None:
-        if last_payment.remaining is not None:
-            payment.remaining += last_payment.remaining
+        payment.remaining += last_payment.remaining
         last_payment.remaining = 0
         last_payment.save()
 

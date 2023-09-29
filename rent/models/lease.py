@@ -231,7 +231,7 @@ class Payment(models.Model):
     '''
     date_of_payment = models.DateField()
     amount = models.FloatField()
-    remaining = models.FloatField(null=True, blank=True)
+    remaining = models.FloatField(default=0)
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
     lease = models.ForeignKey(Lease, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
@@ -258,4 +258,4 @@ class Due(models.Model):
     lease = models.ForeignKey(Lease, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.client} ${self.amount} - {self.date}"
+        return f"{self.client} {self.lease.contract.trailer} ${self.amount} - {self.due_date}"

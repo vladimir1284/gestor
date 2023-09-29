@@ -50,7 +50,12 @@
                                         data-bs-toggle="tab"
                                         data-bs-target="#navs-pills-justified-{{ lease.id }}"
                                         aria-controls="navs-pills-justified-{{ lease.id }}"
-                                        aria-selected="true">{{ lease.contract.trailer }}</button>
+                                        aria-selected="true">
+                                    {{ lease.contract.trailer }}
+                                    {% if lease.unpaid_dues > 0 %}
+                                        <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ lease.unpaid_dues }}</span>
+                                    {% endif %}
+                                </button>
                             </li>
                         {% endfor %}
                     </ul>
@@ -62,15 +67,18 @@
                 <div class="tab-pane fade {% if forloop.first %}active show{% endif %}"
                      id="navs-pills-justified-{{ lease.id }}"
                      role="tabpanel">
-                    <h5 class="ps-3">Remaining: ${{ lease.remaining|floatformat:"0" }}</h5>
+                    <h5 class="ps-3">
+                        {% if lease.remaining %}Remaining: ${{ lease.remaining|floatformat:"0" }}{% endif %}
+                        {% if lease.debt %}Debt: ${{ lease.debt|floatformat:"0" }}{% endif %}
+                    </h5>
                     <ul>
                         {% for payment in lease.payments %}
                             <li>
-                                Payment: {{ payment.date|date:"m/d/Y" }} - ${{ payment.amount|floatformat:"0" }}
+                                Payment: {{ payment.date|date:"m/d/Y" }} - <strong>${{ payment.amount|floatformat:"0" }}</strong>
                                 <ul>
                                     {% for due in payment.dues %}
                                         <li>
-                                            <i class="tf-icons bx bx-calendar text-success"></i> {{ due.due_date|date:"m/d/Y" }} - ${{ due.amount|floatformat:"0" }}
+                                            <i class="tf-icons bx bx-calendar text-success"></i>{{ due.due_date|date:"m/d/Y" }} - ${{ due.amount|floatformat:"0" }}
                                         </li>
                                     {% endfor %}
                                 </ul>
