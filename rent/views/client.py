@@ -12,9 +12,15 @@ from django.conf import settings
 
 def compute_client_debt(client: Associated, lease: Lease):
     interval_start = get_start_paying_date(client, lease)
-    unpaid_dues = len(lease.event.get_occurrences(interval_start,
-                                                  timezone.now()))
-    return unpaid_dues*lease.payment_amount, interval_start, unpaid_dues
+    occurrences = lease.event.get_occurrences(interval_start,
+                                              timezone.now())
+    unpaid_dues = []
+    for occurrence in occurrences:
+        paid_due = Due.objects.filter(due_date=occurrence.start.date())
+        if len(paid_due) == 0:
+            unpaid_dues.append(occurrence)
+    n_unpaid = len(unpaid_dues)
+    return n_unpaid*lease.payment_amount, interval_start, n_unpaid
 
 
 @login_required
@@ -101,8 +107,8 @@ def get_start_paying_date(client: Associated, lease: Lease):
     if last_due is not None:
         interval_start = last_due.due_date
     else:
-        # If the client hasn't paid, then start on effective date
-        interval_start = lease.contract.effective_date
+        # If the client hasn't paid, then start paying on effective date
+        interval_start = lease.contract.effective_date - timedelta(days=1)
     # Make it timezone aware
     interval_start = timezone.make_aware(datetime.combine(
         interval_start, datetime.min.time()), pytz.timezone(settings.TIME_ZONE))
