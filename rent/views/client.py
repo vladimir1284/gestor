@@ -20,7 +20,7 @@ def compute_client_debt(client: Associated, lease: Lease):
         if len(paid_due) == 0:
             unpaid_dues.append(occurrence)
     n_unpaid = len(unpaid_dues)
-    return n_unpaid*lease.payment_amount, interval_start, n_unpaid
+    return n_unpaid*lease.payment_amount, interval_start, unpaid_dues
 
 
 @login_required
