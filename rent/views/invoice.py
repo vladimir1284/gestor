@@ -25,9 +25,9 @@ def invoice(request, lease_id, date, paid):
     return render(request, "rent/invoice/invoice_view.html", context=context)
 
 
-def generate_invoice(request, id):
-    context = get_invoice_context(id)
-    result = generate_invoice_pdf(context, request)
+def generate_invoice(request, lease_id, date, paid):
+    context = get_invoice_context(lease_id, date, paid)
+    result = generate_invoice_pdf(request, lease_id, date, paid)
 
     if result is not None:
         # Creating http response
@@ -50,7 +50,7 @@ def generate_invoice_pdf(request, lease_id, date, paid):
     image = settings.STATIC_ROOT+'/assets/img/icons/TOWIT.png'
     # Render
     context.setdefault('image', image)
-    html_string = render_to_string('services/invoice_pdf.html', context)
+    html_string = render_to_string('rent/invoice/invoice_pdf.html', context)
     if settings.USE_WEASYPRINT:
         from weasyprint import HTML
         html = HTML(string=html_string, base_url=request.build_absolute_uri())

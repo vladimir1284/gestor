@@ -93,6 +93,6 @@ urlpatterns = [
     path('invoice/<lease_id>/<date>/<str:paid>',
          invoice.invoice, name='rental-invoice'),
     path('pdf-invoice/<lease_id>/<date>/<str:paid>',
-         invoice.invoice, name='rental-pdf-invoice'),
+         invoice.generate_invoice, name='rental-pdf-invoice'),
 
 ]
