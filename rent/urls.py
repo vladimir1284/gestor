@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import vehicle, tracker, lease, calendar, client
+from .views import vehicle, tracker, lease, calendar, client, invoice
 from django.views.generic import TemplateView
 
 urlpatterns = [
@@ -89,5 +89,10 @@ urlpatterns = [
     path('payment/<client_id>/', client.payment, name='rental-payment'),
     path('revert_payment/<client_id>/<payment_id>',
          client.revert_payment, name='revert-payment'),
+    # -------------------- Invoice ----------------------------
+    path('invoice/<lease_id>/<date>/<str:paid>',
+         invoice.invoice, name='rental-invoice'),
+    path('pdf-invoice/<lease_id>/<date>/<str:paid>',
+         invoice.invoice, name='rental-pdf-invoice'),
 
 ]

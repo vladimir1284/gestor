@@ -84,31 +84,33 @@
                             <ul>
                                 {% for due in lease.unpaid_dues %}
                                     <li>
-                                        <i class="tf-icons bx bx-calendar text-danger"></i>{{ due.start|date:"m/d/Y" }} - <strong>${{ lease.payment_amount|floatformat:"0" }}</strong>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Payment history:</strong>
-                            <ul>
-                                {% for payment in lease.payments %}
-                                    <li>
-                                        Payment: {{ payment.date_of_payment|date:"m/d/Y" }} - <strong>${{ payment.amount|floatformat:"0" }}</strong>
-                                        <ul>
-                                            {% for due in payment.dues %}
-                                                <li>
-                                                    <i class="tf-icons bx bx-calendar text-success"></i>{{ due.due_date|date:"m/d/Y" }} - ${{ due.amount|floatformat:"0" }}
+                                        <a href="{% url 'rental-invoice' lease.id due.start|date:"mdY" 'false' %}">
+                                            <i class="tf-icons bx bx-calendar text-danger"></i>{{ due.start|date:"m/d/Y" }}</a> - <strong>${{ lease.payment_amount|floatformat:"0" }}</strong>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Payment history:</strong>
+                                <ul>
+                                    {% for payment in lease.payments %}
+                                        <li>
+                                            Payment: {{ payment.date_of_payment|date:"m/d/Y" }} - <strong>${{ payment.amount|floatformat:"0" }}</strong>
+                                            <ul>
+                                                {% for due in payment.dues %}
+                                                    <li>
+                                                        <a href="{% url 'rental-invoice' lease.id due.due_date|date:"mdY" 'true' %}">
+                                                            <i class="tf-icons bx bx-calendar text-success"></i>{{ due.due_date|date:"m/d/Y" }}</a> - ${{ due.amount|floatformat:"0" }}
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
                                                 </li>
                                             {% endfor %}
                                         </ul>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-    </div>
-{% endblock content %}
+            {% endblock content %}

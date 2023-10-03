@@ -1,0 +1,206 @@
+{% load static %}
+{% load nbsp %}
+<style>
+    .invoice-descrpition{
+        width: 100%;
+    }
+</style>
+<div class="card-header container">
+    <div class="row mb-2">
+        <div class="col-6">
+            <h1>Invoice</h1>
+            <table class="table table-borderless table-sm">
+                <tbody class="table-border-bottom-0">
+                    <tr>
+                        <td>
+                            <strong>Date</strong>
+                        </td>
+                        <td class="pt-0 pb-1 invoice-descrpition">{{ date|date:"m/d/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Invoice&nbsp;number</strong>
+                        </td>
+                        <td>{{ lease.contract.trailer.manufacturer.brand_name|slice:"5" }}-{{ lease.id }}-{{ date|date:"md" }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6">
+            <img {% if image %} src="file://{{ image }}" {% else %} src="{% static 'assets/img/icons/TOWIT.png' %}" {% endif %}
+                 alt=""
+                 height="60px"
+                 width="100px"
+                 class="h-px-60 w-auto float-end" />
+        </div>
+    </div>
+</div>
+<div class="card-body">
+    <div class="pb-3">
+        <table class="table table-borderless table-sm">
+            <tbody class="table-border-bottom-0">
+                <tr>
+                    <td class="pt-0 pb-1 invoice-descrpition">
+                        <strong>TOWIT HOUSTON LLC</strong>
+                    </td>
+                    <td>
+                        <strong>BILL TO</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td>6011 Liberty Rd</td>
+                    <td>{{ order.company.name|upper|nbsp }}</td>
+                </tr>
+                <tr>
+                    <td>Houston, TX 77026</td>
+                    <td>{{ lease.contract.lessee|nbsp }}</td>
+                </tr>
+                <tr>
+                    <td>(832) 963-5145 / (305) 833-6144</td>
+                    <td>{{ lease.contract.lessee.phone_number|nbsp }}</td>
+                </tr>
+                <tr>
+                    <td>info@towithouston.com</td>
+                    <td>{{ lease.contract.lessee.email|nbsp }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <h5 class="card-title mt-3 mb-0">Rental</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Trailer</th>
+                    <th class="invoice-descrpition">VIN</th>
+                    <th>Frequency</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                <tr>
+                    <td>{{ lease.id|stringformat:"04i" }}</td>
+                    <td>{{ lease.contract.trailer }}</td>
+                    <td>
+                        <strong>{{ lease.contract.trailer.vin }}</strong>
+                    </td>
+                    <td>
+                        <div class="float-end">{{ lease.get_payment_frequency_display }}</div>
+                    </td>
+                    <td>
+                        <div class="float-end">
+                            {% if due %}
+                                ${{ due.amount|floatformat:"2" }}
+                            {% else %}
+                                ${{ lease.payment_amount|floatformat:"2" }}
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <strong class="float-end">
+                            {% if due %}
+                                ${{ due.amount|floatformat:"2" }}
+                            {% else %}
+                                ${{ lease.payment_amount|floatformat:"2" }}
+                            {% endif %}
+                        </strong>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Totals -->
+    <div class="card">
+        <div class="mt-3">
+            <table class="table table-borderless">
+                <tbody class="table-border-bottom-0">
+                    <tr>
+                        <td class="invoice-descrpition"></td>
+                        <td>
+                            <table class="table table-borderless table-sm">
+                                <tbody class="table-border-bottom-0">
+                                    <tr>
+                                        <td>Subtotal</td>
+                                        <td>
+                                            <div class="float-end">
+                                                {% if due %}
+                                                    ${{ due.amount|floatformat:"2" }}
+                                                {% else %}
+                                                    ${{ lease.payment_amount|floatformat:"2" }}
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tax&nbsp;({{ 0|floatformat:"-2" }}%)</td>
+                                        <td>
+                                            <div class="float-end">${{ 0|floatformat:"2" }}</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total</td>
+                                        <td>
+                                            <div class="float-end">
+                                                {% if due %}
+                                                    ${{ due.amount|floatformat:"2" }}
+                                                {% else %}
+                                                    ${{ lease.payment_amount|floatformat:"2" }}
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Discount</td>
+                                        <td>
+                                            <div class="float-end">${{ 0|floatformat:"2" }}</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>
+                                                {% if paid %}
+                                                    Paid
+                                                {% else %}
+                                                    Due
+                                                {% endif %}
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            <div class="float-end">
+                                                <strong>
+                                                    {% if due %}
+                                                        ${{ due.amount|floatformat:"2" }}
+                                                    {% else %}
+                                                        ${{ lease.payment_amount|floatformat:"2" }}
+                                                    {% endif %}
+                                                </strong>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-3 small">
+        Thank you for choosing Towit Houston as your trusted trailer repair company.
+        We would like to inform you that we provide a 30-day warranty on labor for
+        the services rendered. However, please note that warranty coverage for parts
+        is solely the responsibility of the manufacturer. In case of any issues
+        arising from the parts used during the repair, we encourage you to refer to
+        the respective manufacturer's warranty for resolution. If you have any
+        questions or concerns regarding our warranty policy, please feel free to
+        contact our customer service team. We appreciate your business and look
+        forward to serving you again in the future.
+    </div>
+</div>

@@ -1,0 +1,31 @@
+{% extends 'base/base_list.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}
+    {{ order.concept }}
+{% endblock title %}
+{% block content %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="mt-4">
+                <a href="{% url 'detail-contract' lease.contract.id %}">{{ lease.contract.lessee }} - {{ lease.contract.trailer }}</a>
+                ${{ lease.payment_amount }} {{ lease.get_payment_frequency_display }}
+            </h5>
+            <div class="demo-inline-spacing">
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   {% if paid %}
+                   href="{% url 'rental-pdf-invoice' lease.id date|date:"mdY" 'true' %}">
+                {% else %}
+                    href="{% url 'rental-pdf-invoice' lease.id date|date:"mdY" 'false' %}">
+                {% endif %}
+                <span class="tf-icons bx bx-file"></span>
+            </a>
+            <a class="btn btn-icon btn-outline-primary" type="button" href="">
+                <span class="tf-icons bx bx-mail-send"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="card mb-3">{% include "./invoice.html" %}</div>
+{% endblock content %}

@@ -57,7 +57,6 @@ def client_list(request):
 
     sorted_clients = sorted(
         clients, key=lambda client: payment_dates[client.id])
-    print(sorted_clients)
     context = {
         "clients": sorted_clients,
         "n_active": n_active,

@@ -1,0 +1,35 @@
+{% load static %}
+<head>
+    <meta charset="utf-8"/>
+    <!-- Core CSS -->
+    <link rel="stylesheet"
+          href="{% static 'assets/vendor/css/core.css' %}"
+          class="template-customizer-core-css"/>
+    <style>
+        @page {
+            size: A3;
+            margin: 20mm;
+        }
+        body{
+            background-color: white;
+        }
+        .invoice-descrpition{
+            width: 100%;
+        }
+        img {
+            position: absolute;
+            top: 60px;
+            right: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-page">
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+            <div class="container-xxl flex-grow-1 container-p-y">{% include "services/invoice.html" %}</div>
+        </div>
+        <!-- Content wrapper -->
+    </div>
+    <!-- / Layout page -->
+</body>
