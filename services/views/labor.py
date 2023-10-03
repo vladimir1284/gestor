@@ -67,7 +67,7 @@ def generate_labor_pdf(context, request):
     context.setdefault(
         'workers', UserProfile.objects.filter(role=2))
     html_string = render_to_string('services/labor_pdf.html', context)
-    if settings.ENVIRONMENT == 'production':
+    if settings.USE_WEASYPRINT:
         from weasyprint import HTML
         html = HTML(string=html_string, base_url=request.build_absolute_uri())
         main_doc = html.render(presentational_hints=True)

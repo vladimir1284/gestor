@@ -109,7 +109,7 @@ def generate_invoice_pdf(context, request):
     # Render
     context.setdefault('image', image)
     html_string = render_to_string('services/invoice_pdf.html', context)
-    if settings.ENVIRONMENT == 'production':
+    if settings.USE_WEASYPRINT:
         from weasyprint import HTML
         html = HTML(string=html_string, base_url=request.build_absolute_uri())
         main_doc = html.render(presentational_hints=True)

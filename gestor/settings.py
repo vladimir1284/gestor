@@ -185,6 +185,9 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 OPEN_AI_ORG = os.getenv('OPEN_AI_ORG')
 
 # ENVIRONMENT
+USE_WEASYPRINT = os.environ.get('USE_WEASYPRINT', True)
+print(USE_WEASYPRINT)
+# ENVIRONMENT
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'production')
 
 # Open Cell ID

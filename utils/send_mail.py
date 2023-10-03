@@ -106,7 +106,7 @@ info@towithouston.com
             mime_type = "application"
             mime_subtype = "pdf"
             with tempfile.NamedTemporaryFile() as output:
-                if settings.ENVIRONMENT == 'production':
+                if settings.USE_WEASYPRINT:
                     from weasyprint import Document
                     output.write(doc)
                     output.flush()
