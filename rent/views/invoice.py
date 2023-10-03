@@ -158,7 +158,7 @@ DUE_SUBJECT_DICT = {
 }
 PAID_SUBJECT_DICT = {
     'english': 'Invoice from Leased Trailer',
-    'spanish': 'Factura de la renta remolque arrendado'
+    'spanish': 'Factura de la renta del remolque arrendado'
 }
 
 

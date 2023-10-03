@@ -8,6 +8,7 @@ from datetime import timedelta, datetime
 from django.utils import timezone
 import pytz
 from django.conf import settings
+from .invoice import mail_send_invoice
 
 
 def compute_client_debt(client: Associated, lease: Lease):
@@ -114,7 +115,7 @@ def get_start_paying_date(client: Associated, lease: Lease):
     return interval_start
 
 
-def process_payment(payment: Payment):
+def process_payment(request, payment: Payment):
     # Init the payment remaining
     payment.remaining = payment.amount
 
@@ -135,12 +136,16 @@ def process_payment(payment: Payment):
 
     while payment.remaining >= payment.lease.payment_amount:
         payment.remaining -= payment.lease.payment_amount
+        due_date = next(occurrences).start.date()
         Due.objects.create(
-            due_date=next(occurrences).start.date(),
+            due_date=due_date,
             amount=payment.lease.payment_amount,
             client=payment.client,
             lease=payment.lease
         )
+        # Send invoice by email
+        mail_send_invoice(request, payment.lease.id,
+                          due_date.strftime("%m%d%Y"), "true")
 
 
 @login_required
@@ -155,7 +160,7 @@ def payment(request, client_id):
             payment.client = client
             payment.user = request.user
             payment.save()
-            process_payment(payment)
+            process_payment(request, payment)
             payment.save()
             # Redirect to a success page
             return redirect('client-detail', client.id)
