@@ -63,6 +63,7 @@ class Lease(models.Model):
                                  on_delete=models.CASCADE)
     event = models.ForeignKey(Event, null=True, blank=True,
                               on_delete=models.CASCADE)
+    notify = models.BooleanField(default=False)
     PERIODICITY_CHOICES = [
         ('weekly', 'Weekly'),
         ('biweekly', 'Biweekly'),

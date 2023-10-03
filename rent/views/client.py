@@ -25,6 +25,14 @@ def compute_client_debt(client: Associated, lease: Lease):
 
 
 @login_required
+def toggle_alarm(request, lease_id):
+    lease = get_object_or_404(Lease, id=lease_id)
+    lease.notify = not lease.notify
+    lease.save()
+    return redirect('client-list')
+
+
+@login_required
 def client_list(request):
     # Create leases if needed
     contracts = Contract.objects.exclude(stage="ended")
@@ -49,6 +57,7 @@ def client_list(request):
                     payment_frequency=contract.payment_frequency,
                     event=None,
                 )
+            client.lease = lease
             client.debt, last_payment, client.unpaid_dues = compute_client_debt(
                 client, lease)
             client.last_payment = last_payment

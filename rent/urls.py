@@ -84,6 +84,7 @@ urlpatterns = [
     path('api_occurrences/', calendar.api_occurrences, name='api-occurrences'),
     path('calendar/', calendar.calendar_week,  name='calendar'),
     # -------------------- Client ----------------------------
+    path('toggle_alarm/<lease_id>/', client.toggle_alarm, name='toggle-alarm'),
     path('client_detail/<id>/', client.client_detail, name='client-detail'),
     path('client_list/', client.client_list, name='client-list'),
     path('payment/<client_id>/', client.payment, name='rental-payment'),
