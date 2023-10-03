@@ -94,5 +94,7 @@ urlpatterns = [
          invoice.invoice, name='rental-invoice'),
     path('pdf-invoice/<lease_id>/<date>/<str:paid>',
          invoice.generate_invoice, name='rental-pdf-invoice'),
+    path('send_mail/<lease_id>/<date>/<str:paid>',
+         invoice.send_invoice, name='rental-send-invoice'),
 
 ]

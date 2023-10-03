@@ -21,11 +21,17 @@
                 {% endif %}
                 <span class="tf-icons bx bx-file"></span>
             </a>
-            <a class="btn btn-icon btn-outline-primary" type="button" href="">
-                <span class="tf-icons bx bx-mail-send"></span>
-            </a>
-        </div>
+            <a class="btn btn-icon btn-outline-primary"
+               type="button"
+               {% if paid %}
+               href="{% url 'rental-send-invoice' lease.id date|date:"mdY" 'true' %}">
+            {% else %}
+                href="{% url 'rental-send-invoice' lease.id date|date:"mdY" 'false' %}">
+            {% endif %}
+            <span class="tf-icons bx bx-mail-send"></span>
+        </a>
     </div>
+</div>
 </div>
 <div class="card mb-3">{% include "./invoice.html" %}</div>
 {% endblock content %}
