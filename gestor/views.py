@@ -163,7 +163,7 @@ def monthly_report(request, year=None, month=None):
         terminated_date__month=currentMonth).order_by(
         '-terminated_date').exclude(
         associated__membership=True).exclude(
-        company__membership=True)
+        company__membership=True, associated=None)
 
     costs = Cost.objects.filter(date__year=currentYear,
                                 date__month=currentMonth).order_by("-date")
@@ -205,7 +205,7 @@ def monthly_payments(request, category_id, year, month):
         terminated_date__month=currentMonth).order_by(
         '-terminated_date').exclude(
         associated__membership=True).exclude(
-        company__membership=True)
+        company__membership=True, associated=None)
 
     pending_payments = PendingPayment.objects.filter(
         category=category,
@@ -322,7 +322,7 @@ def weekly_report(request, date=None):
         terminated_date__lte=end_date).order_by(
         '-terminated_date').exclude(
         associated__membership=True).exclude(
-        company__membership=True)
+        company__membership=True, associated=None)
 
     costs = Cost.objects.filter(date__range=(
         start_date, end_date)).order_by("-date")
@@ -359,7 +359,7 @@ def weekly_payments(request, category_id, date):
         terminated_date__lte=end_date).order_by(
         '-terminated_date').exclude(
         associated__membership=True).exclude(
-        company__membership=True)
+        company__membership=True, associated=None)
 
     pending_payments = PendingPayment.objects.filter(
         category=category,
@@ -990,7 +990,7 @@ def calculate_stats(stats, start_date, end_date):
         terminated_date__lte=end_date).order_by(
         '-terminated_date').exclude(
         associated__membership=True).exclude(
-        company__membership=True)
+        company__membership=True, associated=None)
 
     costs = Cost.objects.filter(date__range=(
         start_date, end_date)).order_by("-date")
