@@ -9,6 +9,8 @@ from django.utils import timezone
 import pytz
 from django.conf import settings
 from .invoice import mail_send_invoice
+from .vehicle import FILES_ICONS
+from rent.models.lease import LeaseDocument
 
 
 def compute_client_debt(client: Associated, lease: Lease):
@@ -102,6 +104,13 @@ def client_detail(request, id):
             previous_date = payment.date
             payment.dues = dues
         lease.payments = payments
+
+        # Documents
+        lease.documents = LeaseDocument.objects.filter(lease=lease)
+        # Check for document expiration
+        for document in lease.documents:
+            document.icon = 'assets/img/icons/' + \
+                FILES_ICONS[document.document_type]
     context = {
         "client": client,
         "leases": leases,

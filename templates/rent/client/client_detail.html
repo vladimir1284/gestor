@@ -8,6 +8,14 @@
         right: 2em;
         }
     </style>
+    <script>
+        function deleteDocument(name, id) {
+            let confirmAction = confirm("Are you sure to delete the document: " + name + "?");
+            if (confirmAction) {
+                window.location ="{% url 'delete-lease-document' id='PLACEHOLDER' %}".replace('PLACEHOLDER', id);
+            }
+        }
+    </script>
 {% endblock page %}
 {% block content %}
     <div class="card mb-3">
@@ -33,84 +41,137 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="card mb-3">
-        <div class="list-head">
-            <div class="demo-inline-spacing">
-                <h5 class="card-header">Leases</h5>
-            </div>
-            <div class="card-body tabs pt-0">
-                <div class="nav-align-top">
-                    <ul class="nav nav-pills nav-fill" role="tablist">
-                        {% for lease in leases %}
-                            <li class="nav-item">
-                                <button type="button"
-                                        class="nav-link {% if forloop.first %}active{% endif %}"
-                                        role="tab"
-                                        data-bs-toggle="tab"
-                                        data-bs-target="#navs-pills-justified-{{ lease.id }}"
-                                        aria-controls="navs-pills-justified-{{ lease.id }}"
-                                        aria-selected="true">
-                                    {{ lease.contract.trailer }}
-                                    {% if lease.unpaid_dues|length > 0 %}
-                                        <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ lease.unpaid_dues|length }}</span>
-                                    {% endif %}
-                                </button>
-                            </li>
-                        {% endfor %}
-                    </ul>
+            <div class="card mb-3">
+                <div class="list-head">
+                    <div class="demo-inline-spacing">
+                        <h5 class="card-header">Leases</h5>
+                    </div>
+                    <div class="card-body tabs pt-0">
+                        <div class="nav-align-top">
+                            <ul class="nav nav-pills nav-fill" role="tablist">
+                                {% for lease in leases %}
+                                    <li class="nav-item">
+                                        <button type="button"
+                                                class="nav-link {% if forloop.first %}active{% endif %}"
+                                                role="tab"
+                                                data-bs-toggle="tab"
+                                                data-bs-target="#navs-pills-justified-{{ lease.id }}"
+                                                aria-controls="navs-pills-justified-{{ lease.id }}"
+                                                aria-selected="true">
+                                            {{ lease.contract.trailer }}
+                                            {% if lease.unpaid_dues|length > 0 %}
+                                                <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ lease.unpaid_dues|length }}</span>
+                                            {% endif %}
+                                        </button>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="tab-content pb-0">
-            {% for lease in leases %}
-                <div class="tab-pane fade {% if forloop.first %}active show{% endif %}"
-                     id="navs-pills-justified-{{ lease.id }}"
-                     role="tabpanel">
-                    <h5 class="ps-3">
-                        {% if lease.remaining %}Remaining: ${{ lease.remaining|floatformat:"0" }}{% endif %}
-                        {% if lease.debt %}Debt: ${{ lease.debt|floatformat:"0" }}{% endif %}
-                        <a class="btn btn-icon btn-outline-primary float-end"
-                           href="{% url 'detail-contract' lease.contract.id %}">
-                            <img src="{% static 'assets/img/icons/contract.jpg' %}"
-                                 alt="contract icon"
-                                 class="h-px-20 w-auto" />
-                        </a>
-                    </h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong>Due payments:</strong>
-                            <ul>
-                                {% for due in lease.unpaid_dues %}
-                                    <li>
-                                        <a href="{% url 'rental-invoice' lease.id due.start|date:"mdY" 'false' %}">
-                                            <i class="tf-icons bx bx-calendar text-danger"></i>{{ due.start|date:"m/d/Y" }}</a> - <strong>${{ lease.payment_amount|floatformat:"0" }}</strong>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
+                <div class="tab-content pb-0">
+                    {% for lease in leases %}
+                        <div class="tab-pane fade {% if forloop.first %}active show{% endif %}"
+                             id="navs-pills-justified-{{ lease.id }}"
+                             role="tabpanel">
+                            <h5 class="ps-3 me-2">
+                                {% if lease.remaining %}Remaining: ${{ lease.remaining|floatformat:"0" }}{% endif %}
+                                {% if lease.debt %}Debt: ${{ lease.debt|floatformat:"0" }}{% endif %}
+                                <a class="btn btn-icon btn-outline-primary float-end"
+                                   href="{% url 'detail-contract' lease.contract.id %}">
+                                    <img src="{% static 'assets/img/icons/contract.jpg' %}"
+                                         alt="contract icon"
+                                         class="h-px-20 w-auto" />
+                                </a>
+                            </h5>
+                            <!-- Documents -->
+                            <hr class="mt-0" />
+                            <div class="card-header">
+                                <h5>
+                                    <strong>Documents</strong>
+                                    <a class="btn btn-icon btn-outline-primary ms-3"
+                                       type="button"
+                                       href="{% url 'lease-document-create' lease.id %}">
+                                        <span class="tf-icons bx bx-plus"></span>
+                                    </a>
+                                </h5>
+                                <div class="row">
+                                    {% for document in lease.documents %}
+                                        <div class="col-md-4">
+                                            <div class="card mb-3 shadow-sm">
+                                                <div class="card-body">
+                                                    <div class="d-flex mb-4 pb-1">
+                                                        <div class="avatar flex-shrink-0 me-3">
+                                                            <img src="{% static document.icon %}" alt="" />
+                                                        </div>
+                                                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                                            <div class="me-2">
+                                                                <h6 class="mb-0">{{ document.name }}</h6>
+                                                                {% if document.expiration_date %}<small class="text-muted">{{ document.note }}</small>{% endif %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p class="card-text">
+                                                        {{ document.note }}
+                                                        <div class="demo-inline-spacing">
+                                                            <a class="btn btn-icon btn-outline-primary ms-3"
+                                                               type="button"
+                                                               target="_blank"
+                                                               href="{{ document.file.url }}">
+                                                                <span class="tf-icons bx bx-download"></span>
+                                                            </a>
+                                                            <a class="btn btn-icon btn-outline-primary ms-3"
+                                                               type="button"
+                                                               href="{% url 'update-lease-document' document.id %}">
+                                                                <span class="tf-icons bx bx-edit"></span>
+                                                            </a>
+                                                            <a class="btn btn-icon btn-outline-danger float-end"
+                                                               type="button"
+                                                               onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
+                                                                <span class="tf-icons bx bx-trash"></span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <strong>Payment history:</strong>
-                                <ul>
-                                    {% for payment in lease.payments %}
-                                        <li>
-                                            Payment: {{ payment.date_of_payment|date:"m/d/Y" }} - <strong>${{ payment.amount|floatformat:"0" }}</strong>
-                                            <ul>
-                                                {% for due in payment.dues %}
-                                                    <li>
-                                                        <a href="{% url 'rental-invoice' lease.id due.due_date|date:"mdY" 'true' %}">
-                                                            <i class="tf-icons bx bx-calendar text-success"></i>{{ due.due_date|date:"m/d/Y" }}</a> - ${{ due.amount|floatformat:"0" }}
-                                                            </li>
-                                                        {% endfor %}
-                                                    </ul>
+                            <hr class="mt-0" />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Due payments:</strong>
+                                    <ul>
+                                        {% for due in lease.unpaid_dues %}
+                                            <li>
+                                                <a href="{% url 'rental-invoice' lease.id due.start|date:"mdY" 'false' %}">
+                                                    <i class="tf-icons bx bx-calendar text-danger"></i>{{ due.start|date:"m/d/Y" }}</a> - <strong>${{ lease.payment_amount|floatformat:"0" }}</strong>
                                                 </li>
                                             {% endfor %}
                                         </ul>
                                     </div>
-                                </div>
+                                    <div class="col-md-6">
+                                        <strong>Payment history:</strong>
+                                        <ul>
+                                            {% for payment in lease.payments %}
+                                                <li>
+                                                    Payment: {{ payment.date_of_payment|date:"m/d/Y" }} - <strong>${{ payment.amount|floatformat:"0" }}</strong>
+                                                    <ul>
+                                                        {% for due in payment.dues %}
+                                                            <li>
+                                                                <a href="{% url 'rental-invoice' lease.id due.due_date|date:"mdY" 'true' %}">
+                                                                    <i class="tf-icons bx bx-calendar text-success"></i>{{ due.due_date|date:"m/d/Y" }}</a> - ${{ due.amount|floatformat:"0" }}
+                                                                    </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endblock content %}
+                        </div>
+                    {% endblock content %}

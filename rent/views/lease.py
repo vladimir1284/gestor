@@ -19,6 +19,8 @@ import base64
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from django.core.mail import EmailMessage, get_connection
+from django.contrib import messages
+
 
 from ..models.lease import (
     HandWriting,
@@ -27,6 +29,7 @@ from ..models.lease import (
     Tire,
     LesseeData,
     Lease,
+    LeaseDocument,
 )
 from ..forms.lease import (
     LeaseForm,
@@ -35,6 +38,7 @@ from ..forms.lease import (
     TireFormSet,
     AssociatedCreateForm,
     LesseeDataForm,
+    LeaseDocumentForm,
 )
 from users.views import addStateCity
 from ..models.vehicle import Trailer
@@ -462,3 +466,51 @@ def update_tires(request, inspection_id):
         inspection = get_object_or_404(Inspection, id=inspection_id)
         return redirect('detail-contract', id=inspection.lease.id)
     return render(request, 'rent/contract/update_tires.html', context)
+
+# -------------------- Document ----------------------------
+
+
+@login_required
+def create_document(request, lease_id):
+    lease = get_object_or_404(Lease, id=lease_id)
+    if request.method == 'POST':
+        form = LeaseDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.lease = lease
+            document.save()
+            messages.success(request, 'Document created successfully.')
+            return redirect('client-detail', id=lease.contract.lessee.id)
+    else:
+        form = LeaseDocumentForm()
+
+    context = {'form': form,
+               'title': _('Add document')}
+    return render(request, 'rent/trailer_document_create.html', context)
+
+
+@login_required
+def update_document(request, id):
+    document = get_object_or_404(LeaseDocument, id=id)
+    form = LeaseDocumentForm(request.POST or None,
+                             request.FILES or None,
+                             instance=document)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Document updated successfully.')
+            return redirect('client-detail',
+                            id=document.lease.contract.lessee.id)
+
+    context = {'form': form,
+               'title': _('Update document')}
+    return render(request, 'rent/trailer_document_create.html', context)
+
+
+@login_required
+def delete_document(request, id):
+    document = get_object_or_404(
+        LeaseDocument, id=id)
+    document.delete()
+    messages.success(request, 'Document deleted successfully.')
+    return redirect('client-detail', id=document.lease.contract.lessee.id)

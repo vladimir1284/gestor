@@ -39,7 +39,7 @@ urlpatterns = [
          vehicle.delete_trailer_pictures, name='delete-trailer-pictures'),
     path('update_pinned_picture/<int:pk>/',
          vehicle.update_pinned_picture, name='update-pinned-picture'),
-    # -------------------- Document ----------------------------
+    # -------------------- Trailer Document ----------------------------
     path('document/create/<int:trailer_id>',
          vehicle.create_document, name='trailer-document-create'),
     path('update_trailer_document/<id>',
@@ -52,16 +52,6 @@ urlpatterns = [
     path('contract/<int:id>',  lease.contract_detail, name='detail-contract'),
     path('contract_signing/<int:id>',
          lease.contract_signing, name='contract-signing'),
-    path('select_lessee/<int:trailer_id>/',
-         lease.select_lessee, name='select-lessee'),
-    path('update_lesee/<int:trailer_id>/<int:lessee_id>/',
-         lease.update_lessee, name='update-lessee'),
-    path('create_lesee/<int:trailer_id>/',
-         lease.update_lessee, name='create-lessee'),
-    path('create_lessee_data/<int:trailer_id>/<int:lessee_id>/',
-         lease.create_lessee_data, name='update-lessee-data'),
-    path('update_lessee_data/<slug:pk>',
-         lease.LeseeDataUpdateView.as_view(), name='update-lessee-data'),
     path('contract_pdf/<int:id>',  lease.contract_pdf,
          name='contract-signed'),
     path('contracts/',  lease.contracts, name='contracts'),
@@ -73,6 +63,17 @@ urlpatterns = [
          lease.create_handwriting, name='capture-signature'),
     path('capture_signature/<lease_id>/<position>/<external>',
          lease.create_handwriting, name='capture-signature'),
+    # -------------------- Lessee ----------------------------
+    path('select_lessee/<int:trailer_id>/',
+         lease.select_lessee, name='select-lessee'),
+    path('update_lesee/<int:trailer_id>/<int:lessee_id>/',
+         lease.update_lessee, name='update-lessee'),
+    path('create_lesee/<int:trailer_id>/',
+         lease.update_lessee, name='create-lessee'),
+    path('create_lessee_data/<int:trailer_id>/<int:lessee_id>/',
+         lease.create_lessee_data, name='update-lessee-data'),
+    path('update_lessee_data/<slug:pk>',
+         lease.LeseeDataUpdateView.as_view(), name='update-lessee-data'),
     # -------------------- Inspection ----------------------------
     path('create_inspection/<lease_id>/',
          lease.create_inspection, name='create-inspection'),
@@ -97,5 +98,12 @@ urlpatterns = [
          invoice.generate_invoice, name='rental-pdf-invoice'),
     path('send_mail/<lease_id>/<date>/<str:paid>',
          invoice.send_invoice, name='rental-send-invoice'),
+    # -------------------- Lease Document ----------------------------
+    path('lease_document/create/<int:lease_id>',
+         lease.create_document, name='lease-document-create'),
+    path('update_lease_document/<id>',
+         lease.update_document, name='update-lease-document'),
+    path('delete_lease_document/<id>',
+         lease.delete_document, name='delete-lease-document'),
 
 ]

@@ -108,15 +108,16 @@ def classify_file(filename):
         return "BIN"
 
 
-class TrailerDocument(models.Model):
-    DOCUMENT_TYPES = (
-        ('PDF', 'PDF'),
-        ('DOC', 'DOC'),
-        ('XLS', 'XLS'),
-        ('IMG', 'IMG'),
-        ('BIN', 'BIN'),
-    )
+DOCUMENT_TYPES = (
+    ('PDF', 'PDF'),
+    ('DOC', 'DOC'),
+    ('XLS', 'XLS'),
+    ('IMG', 'IMG'),
+    ('BIN', 'BIN'),
+)
 
+
+class TrailerDocument(models.Model):
     REMAINDER_CHOICES = (
         (1, _('1 day')),
         (7, _('1 week')),

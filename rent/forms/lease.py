@@ -10,6 +10,7 @@ from ..models.lease import (
     LesseeData,
     Payment,
     Lease,
+    LeaseDocument,
 )
 from django.forms import modelformset_factory
 from crispy_forms.helper import FormHelper
@@ -201,6 +202,26 @@ class PaymentForm(forms.ModelForm):
             Field('lease'),
             Field('date_of_payment'),
             Field('amount'),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class LeaseDocumentForm(forms.ModelForm):
+    class Meta:
+        model = LeaseDocument
+        fields = ('name', 'note', 'file')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.field_class = 'mb-3'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Field('name', placeholder='Name'),
+            Field('file', placeholder='Name'),
+            Field('note', placeholder='Note', rows='2'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

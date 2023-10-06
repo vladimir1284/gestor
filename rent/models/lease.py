@@ -12,6 +12,7 @@ import pytz
 from django.contrib.auth.models import User
 from schedule.models import Event, Rule, Calendar
 from django.conf import settings
+from .vehicle import DOCUMENT_TYPES, classify_file
 
 
 class Contract(models.Model):
@@ -130,12 +131,23 @@ def update_effective_date(sender, instance, **kwargs):
 pre_save.connect(update_effective_date, sender=Contract)
 
 
-class ContractDocument(models.Model):
-    lease = models.ForeignKey(Contract,
+class LeaseDocument(models.Model):
+    lease = models.ForeignKey(Lease,
                               on_delete=models.CASCADE,
-                              related_name='contract_document')
-    document = models.FileField(
-        upload_to='rental/contracts')
+                              related_name='lease_document')
+    file = models.FileField(upload_to='documents/leases')
+    name = models.CharField(max_length=255)
+    note = models.TextField(blank=True)
+    document_type = models.CharField(max_length=3, choices=DOCUMENT_TYPES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return F"{self.name} ({self.lease})"
+
+    def save(self, *args, **kwargs):
+        self.document_type = classify_file(self.file.name)
+        super().save(*args, **kwargs)
 
 
 class HandWriting(models.Model):
