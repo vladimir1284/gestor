@@ -11,6 +11,7 @@ from ..models.lease import (
     Payment,
     Lease,
     LeaseDocument,
+    LeaseDeposit,
 )
 from django.forms import modelformset_factory
 from crispy_forms.helper import FormHelper
@@ -221,6 +222,31 @@ class LeaseDocumentForm(forms.ModelForm):
         self.helper.layout = Layout(
             Field('name', placeholder='Name'),
             Field('file', placeholder='Name'),
+            Field('note', placeholder='Note', rows='2'),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class LeaseDepositForm(forms.ModelForm):
+    class Meta:
+        model = LeaseDeposit
+        fields = ('amount', 'date', 'note')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'] = forms.DateTimeField(
+            widget=forms.DateInput(
+                attrs={'type': 'date'},
+            ),
+        )
+        self.helper = FormHelper()
+        self.helper.field_class = 'mb-3'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            PrependedText('amount', '$'),
+            Field('date'),
             Field('note', placeholder='Note', rows='2'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')

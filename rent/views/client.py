@@ -10,7 +10,7 @@ import pytz
 from django.conf import settings
 from .invoice import mail_send_invoice
 from .vehicle import FILES_ICONS
-from rent.models.lease import LeaseDocument
+from rent.models.lease import LeaseDocument, LeaseDeposit
 
 
 def compute_client_debt(client: Associated, lease: Lease):
@@ -111,9 +111,17 @@ def client_detail(request, id):
         for document in lease.documents:
             document.icon = 'assets/img/icons/' + \
                 FILES_ICONS[document.document_type]
+
+        # Deposits
+        lease.deposits = LeaseDeposit.objects.filter(lease=lease)
+        total_deposit = 0
+        for deposit in lease.deposits:
+            total_deposit += deposit.amount
+
     context = {
         "client": client,
         "leases": leases,
+        "total_deposit": total_deposit,
     }
 
     return render(request, "rent/client/client_detail.html", context=context)

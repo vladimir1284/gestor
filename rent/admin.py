@@ -18,7 +18,8 @@ from .models.lease import (
     Lease,
     Payment,
     Due,
-    LeaseDocument
+    LeaseDocument,
+    LeaseDeposit,
 )
 
 admin.site.register(Trailer)
@@ -36,3 +37,4 @@ admin.site.register(Lease)
 admin.site.register(Payment)
 admin.site.register(Due)
 admin.site.register(LeaseDocument)
+admin.site.register(LeaseDeposit)

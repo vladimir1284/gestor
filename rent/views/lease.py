@@ -30,6 +30,7 @@ from ..models.lease import (
     LesseeData,
     Lease,
     LeaseDocument,
+    LeaseDeposit,
 )
 from ..forms.lease import (
     LeaseForm,
@@ -39,6 +40,7 @@ from ..forms.lease import (
     AssociatedCreateForm,
     LesseeDataForm,
     LeaseDocumentForm,
+    LeaseDepositForm,
 )
 from users.views import addStateCity
 from ..models.vehicle import Trailer
@@ -514,3 +516,33 @@ def delete_document(request, id):
     document.delete()
     messages.success(request, 'Document deleted successfully.')
     return redirect('client-detail', id=document.lease.contract.lessee.id)
+
+# -------------------- Deposit ----------------------------
+
+
+@login_required
+def create_deposit(request, lease_id):
+    lease = get_object_or_404(Lease, id=lease_id)
+    if request.method == 'POST':
+        form = LeaseDepositForm(request.POST, request.FILES)
+        if form.is_valid():
+            deposit = form.save(commit=False)
+            deposit.lease = lease
+            deposit.save()
+            messages.success(request, 'Deposit created successfully.')
+            return redirect('client-detail', id=lease.contract.lessee.id)
+    else:
+        form = LeaseDepositForm()
+
+    context = {'form': form,
+               'title': _('New Deposit')}
+    return render(request, 'rent/trailer_deposit_create.html', context)
+
+
+@login_required
+def delete_deposit(request, id):
+    deposit = get_object_or_404(
+        LeaseDeposit, id=id)
+    deposit.delete()
+    messages.success(request, 'Deposit deleted successfully.')
+    return redirect('client-detail', id=deposit.lease.contract.lessee.id)

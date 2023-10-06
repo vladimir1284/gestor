@@ -105,5 +105,10 @@ urlpatterns = [
          lease.update_document, name='update-lease-document'),
     path('delete_lease_document/<id>',
          lease.delete_document, name='delete-lease-document'),
+    # -------------------- Lease Deposit ----------------------------
+    path('lease_deposit/create/<int:lease_id>',
+         lease.create_deposit, name='lease-deposit-create'),
+    path('delete_lease_deposit/<id>',
+         lease.delete_deposit, name='delete-lease-deposit'),
 
 ]

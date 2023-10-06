@@ -150,6 +150,19 @@ class LeaseDocument(models.Model):
         super().save(*args, **kwargs)
 
 
+class LeaseDeposit(models.Model):
+    lease = models.ForeignKey(Lease,
+                              on_delete=models.CASCADE,
+                              related_name='lease_deposit')
+    date = models.DateField()
+    amount = models.FloatField()
+    note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return F"${self.amount} ({self.lease})"
+
+
 class HandWriting(models.Model):
     lease = models.ForeignKey(Contract,
                               on_delete=models.CASCADE,
