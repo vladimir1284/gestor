@@ -86,6 +86,8 @@ def client_detail(request, id):
     client.data = LesseeData.objects.get(associated=client)
     leases = Lease.objects.filter(
         contract__lessee=client, contract__stage="active")
+
+    total_deposit = 0
     for lease in leases:
         # Debt associated with this lease
         lease.debt, last_date, lease.unpaid_dues = compute_client_debt(
@@ -114,7 +116,6 @@ def client_detail(request, id):
 
         # Deposits
         lease.deposits = LeaseDeposit.objects.filter(lease=lease)
-        total_deposit = 0
         for deposit in lease.deposits:
             total_deposit += deposit.amount
 
