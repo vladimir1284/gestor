@@ -70,56 +70,28 @@ class TrailerCreateForm(BaseForm):
             'plate',
             'manufacturer',
             'axis_number',
-            'load'
+            'load',
+            'lease_to_own',
+            'active'
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.helper.field_class = 'mb-3'
 
         self.helper.layout = Layout(
-            Div(
-                Field('manufacturer',
-                      css_class="form-select"),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field('type',
-                      css_class="form-select"),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field('year',
-                      css_class="form-select"),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field('vin'),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field('plate'),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field('cdl'),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field('axis_number',
-                      css_class="form-select"),
-                css_class="row mb-3"
-            ),
-            Div(
-                Field('load',
-                      css_class="form-select"),
-                css_class="row mb-3"
-            ),
-            Div(
-                Div(
-                    Field('note', rows='2')
-                ),
-                css_class="mb-3"
-            ),
+            Field('manufacturer'),
+            Field('type'),
+            Field('year'),
+            Field('vin'),
+            Field('plate'),
+            Field('cdl'),
+            Field('axis_number'),
+            Field('load'),
+            Field('note', rows='2'),
+            Field('lease_to_own'),
+            Field('active'),
+
             ButtonHolder(
                 Submit('submit', 'Enviar',
                        css_class='btn btn-success')

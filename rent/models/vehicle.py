@@ -74,6 +74,8 @@ class Trailer(Equipment):
         (12, 12000)
     )
     load = models.IntegerField(_('Axle load capacity'), choices=LOAD_CHOICE)
+    active = models.BooleanField(default=True)
+    lease_to_own = models.BooleanField(default=False)
 
     def __str__(self):
         return F"{self.year} {self.manufacturer} {self.get_type_display()}"

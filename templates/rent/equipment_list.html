@@ -27,7 +27,11 @@
                 </div>
             </td>
             <td>
-                {% if equipment.current_contract %}
+                {% if equipment.lease_to_own %}
+                    <img src="{% static 'assets/img/icons/lto.jpg' %}"
+                         alt="contract icon"
+                         class="h-px-40 w-auto" />
+                {% elif equipment.current_contract %}
                     <a href="{% url 'detail-contract' equipment.current_contract.id %}">
                         <img src="{% static 'assets/img/icons/contract.jpg' %}"
                              alt="contract icon"

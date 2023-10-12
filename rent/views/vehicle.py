@@ -36,7 +36,7 @@ from .tracker import Tracker
 
 @login_required
 def list_equipment(request):
-    trailers = Trailer.objects.all()
+    trailers = Trailer.objects.filter(active=True)
     for trailer in trailers:
         # Contracts
         contracts = Contract.objects.filter(trailer=trailer).exclude(
