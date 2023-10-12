@@ -19,7 +19,8 @@ def compute_client_debt(client: Associated, lease: Lease):
                                               timezone.now())
     unpaid_dues = []
     for occurrence in occurrences:
-        paid_due = Due.objects.filter(due_date=occurrence.start.date())
+        paid_due = Due.objects.filter(due_date=occurrence.start.date(),
+                                      lease=lease)
         if len(paid_due) == 0:
             unpaid_dues.append(occurrence)
     n_unpaid = len(unpaid_dues)
