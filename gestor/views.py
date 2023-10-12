@@ -10,7 +10,7 @@ from django.shortcuts import (
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 import openai
-
+from django.db.models import Min
 from inventory.models import ProductTransaction, Product
 from services.models import (
     Expense,
@@ -299,6 +299,14 @@ def getMonthlyMembership(currentYear, currentMonth):
         company__membership=False).exclude(
         company=None).exclude(
         associated__isnull=False)
+
+    orders.has_initial = False
+    for order in orders:
+        first_terminated_date = Order.objects.filter(
+            trailer=order.trailer).aggregate(oldest=Min('terminated_date'))['oldest']
+        order.is_initial = (order.terminated_date == first_terminated_date)
+        if order.is_initial:
+            orders.has_initial = True
 
     costs = Cost.objects.filter(date__year=currentYear,
                                 date__month=currentMonth).order_by("-date")
@@ -648,19 +656,37 @@ def computeReport(orders, costs, pending_payments):
     labor = 0
     tax = 0
     discount = 0
+    parts_initial = 0
+    consumable_initial = 0
+    gross_initial = 0
+    third_party_initial = 0
+    net_initial = 0
+    labor_initial = 0
+    tax_initial = 0
+    discount_initial = 0
     products = {}
     orders.labor = 0
     for order in orders:
         getOrderBalance(order, products)
         orders.labor += order.labor
-        parts += order.parts
-        consumable += order.consumable
-        gross += order.amount
-        third_party += order.third_party
-        net += order.net
-        labor += order.labor
-        tax += order.tax
-        discount += order.discount
+        if order.is_initial:
+            parts_initial += order.parts
+            consumable_initial += order.consumable
+            gross_initial += order.amount
+            third_party_initial += order.third_party
+            net_initial += order.net
+            labor_initial += order.labor
+            tax_initial += order.tax
+            discount_initial += order.discount
+        else:
+            parts += order.parts
+            consumable += order.consumable
+            gross += order.amount
+            third_party += order.third_party
+            net += order.net
+            labor += order.labor
+            tax += order.tax
+            discount += order.discount
 
         # Payments
         order.payments = Payment.objects.filter(order=order)
@@ -674,6 +700,16 @@ def computeReport(orders, costs, pending_payments):
         'labor': labor,
         'discount': discount,
         'tax': tax,
+    }
+    total_initial = {
+        'parts': parts_initial,
+        'consumable': consumable_initial,
+        'gross': gross_initial,
+        'third_party': third_party_initial,
+        'net': net_initial,
+        'labor': labor_initial,
+        'discount': discount_initial,
+        'tax': tax_initial,
     }
     # Costs
     costs.total = 0
@@ -802,6 +838,7 @@ def computeReport(orders, costs, pending_payments):
     return {
         'orders': orders,
         'total': total,
+        'total_initial': total_initial,
         'costs': costs,
         'cost_cats': sorted_cats,
         'chart_costs': chart_costs,
