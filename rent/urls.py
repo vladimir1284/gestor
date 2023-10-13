@@ -89,7 +89,7 @@ urlpatterns = [
     path('client_detail/<id>/', client.client_detail, name='client-detail'),
     path('client_list/', client.client_list, name='client-list'),
     path('payment/<client_id>/', client.payment, name='rental-payment'),
-    path('revert_payment/<client_id>/<payment_id>',
+    path('revert_payment/<id>',
          client.revert_payment, name='revert-payment'),
     # -------------------- Invoice ----------------------------
     path('invoice/<lease_id>/<date>/<str:paid>',

@@ -21,6 +21,12 @@
                 window.location ="{% url 'delete-lease-deposit' id='PLACEHOLDER' %}".replace('PLACEHOLDER', id);
             }
         }
+        function deletePayment(amount, date, id) {
+            let confirmAction = confirm("Are you sure to delete the payment of: $" + amount + " on " +date+ "?");
+            if (confirmAction) {
+                window.location ="{% url 'revert-payment' id='PLACEHOLDER' %}".replace('PLACEHOLDER', id);
+            }
+        }
     </script>
 {% endblock page %}
 {% block content %}
@@ -107,6 +113,9 @@
                                     {% for payment in lease.payments %}
                                         <li>
                                             Payment: {{ payment.date_of_payment|date:"m/d/Y" }} - <strong>${{ payment.amount|floatformat:"0" }}</strong>
+                                            <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
+                                                <span class="tf-icons bx bx-trash text-danger"></span>
+                                            </a>
                                             <ul>
                                                 {% for due in payment.dues %}
                                                     <li>

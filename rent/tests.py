@@ -86,7 +86,7 @@ class PaymentViewTests(TestCase):
 
         # Revert payment
         revert_url = reverse(
-            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+            'revert-payment', args=[Payment.objects.last().id])
 
         # Make the revert request
         response = self.client.get(revert_url)
@@ -145,7 +145,7 @@ class PaymentViewTests(TestCase):
 
         # Revert payment
         revert_url = reverse(
-            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+            'revert-payment', args=[Payment.objects.last().id])
 
         # Make the revert request
         response = self.client.get(revert_url)
@@ -188,7 +188,7 @@ class PaymentViewTests(TestCase):
 
         # Revert payment
         revert_url = reverse(
-            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+            'revert-payment', args=[Payment.objects.last().id])
 
         # Make the revert request
         response = self.client.get(revert_url)
@@ -233,7 +233,7 @@ class PaymentViewTests(TestCase):
 
         # Revert payment
         revert_url = reverse(
-            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+            'revert-payment', args=[Payment.objects.last().id])
 
         # Make the revert request
         response = self.client.get(revert_url)
@@ -275,7 +275,7 @@ class PaymentViewTests(TestCase):
 
         # Revert payment
         revert_url = reverse(
-            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+            'revert-payment', args=[Payment.objects.last().id])
 
         # Make the revert request
         response = self.client.get(revert_url)
@@ -314,7 +314,7 @@ class PaymentViewTests(TestCase):
 
         # Revert payment
         revert_url = reverse(
-            'revert-payment', args=[self.lessee.id, Payment.objects.last().id])
+            'revert-payment', args=[Payment.objects.last().id])
 
         # Make the revert request
         response = self.client.get(revert_url)

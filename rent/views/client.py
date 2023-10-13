@@ -205,20 +205,19 @@ def payment(request, client_id):
 
 @login_required
 @transaction.atomic
-def revert_payment(request, client_id, payment_id):
-    client = get_object_or_404(Associated, id=client_id)
-    payment = get_object_or_404(Payment, id=payment_id)
+def revert_payment(request, id):
+    payment = get_object_or_404(Payment, id=id)
 
     # Delete the dues created during the payment
     dues_to_delete = Due.objects.filter(
-        client=client, lease=payment.lease, date__gte=payment.date)
+        client=payment.client, lease=payment.lease, date__gte=payment.date)
     if dues_to_delete is not None:
         dues_amount = dues_to_delete.count() * payment.lease.payment_amount
         dues_to_delete.delete()
 
     # Update the remaining amount in the previous payment if applicable
     previous_payment = Payment.objects.filter(
-        client=client, lease=payment.lease, date__lt=payment.date).last()
+        client=payment.client, lease=payment.lease, date__lt=payment.date).last()
     if previous_payment is not None:
         previous_payment.remaining = (
             dues_amount+payment.remaining-payment.amount)
@@ -227,4 +226,4 @@ def revert_payment(request, client_id, payment_id):
     # Delete the payment itself
     payment.delete()
 
-    return redirect('client-detail', client.id)
+    return redirect('client-detail', payment.client.id)
