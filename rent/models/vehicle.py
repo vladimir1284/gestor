@@ -78,7 +78,7 @@ class Trailer(Equipment):
     lease_to_own = models.BooleanField(default=False)
 
     def __str__(self):
-        return F"{self.year} {self.manufacturer} {self.get_type_display()}"
+        return F"{self.year} {self.manufacturer} {self.get_type_display()} - {self.vin[-5:]}"
 
 
 class TrailerPicture(models.Model):
