@@ -182,7 +182,7 @@ class AssociatedCreateForm(BaseContactForm):
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
-        fields = ['date_of_payment', 'amount', 'lease']
+        fields = ['date_of_payment', 'amount', 'lease', 'sender_name']
 
     def __init__(self, *args, **kwargs):
         if 'client' in kwargs:
@@ -196,11 +196,18 @@ class PaymentForm(forms.ModelForm):
                 attrs={'type': 'date'},
             ),
         )
+        # Get the last not null sender_name for other instances of Payment with the same lease
+        if client:
+            last_sender_name = Payment.objects.filter(
+                client=client).exclude(sender_name__isnull=True).last()
+            if last_sender_name:
+                self.fields['sender_name'].initial = last_sender_name.sender_name
 
         self.helper = FormHelper()
         self.helper.field_class = 'mb-3'
         self.helper.layout = Layout(
             Field('lease'),
+            Field('sender_name'),
             Field('date_of_payment'),
             Field('amount'),
             ButtonHolder(

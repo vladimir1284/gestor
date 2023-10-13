@@ -256,6 +256,7 @@ class Payment(models.Model):
     This model store the actual payments made by rental clients
     '''
     date_of_payment = models.DateField()
+    sender_name = models.CharField(max_length=150, blank=True)
     amount = models.FloatField()
     remaining = models.FloatField(default=0)
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
