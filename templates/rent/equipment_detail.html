@@ -299,7 +299,7 @@
                                             <td>
                                                 <a href="{% url 'detail-service-order' order.id %}"><strong>{{ order.concept }}</strong></a>
                                             </td>
-                                            <td>{{ order.created_date|date:"m/d/Y" }}</td>
+                                            <td>{{ order.terminated_date|date:"m/d/Y" }}</td>
                                             <td>
                                                 <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
                                                     {{ order.status }}
