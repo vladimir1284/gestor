@@ -67,7 +67,7 @@ def getOrderBalance(order: Order, products: dict):
     """
 
     (transactions, services, expenses) = computeOrderAmount(order)
-
+    order.is_initial = False
     # compute labor income
     order.labor = -order.discount
     for service in services:
@@ -666,6 +666,7 @@ def computeReport(orders, costs, pending_payments):
     discount_initial = 0
     products = {}
     orders.labor = 0
+
     for order in orders:
         getOrderBalance(order, products)
         orders.labor += order.labor
