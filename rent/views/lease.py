@@ -33,7 +33,7 @@ from ..models.lease import (
     LeaseDeposit,
 )
 from ..forms.lease import (
-    LeaseForm,
+    ContractForm,
     HandWritingForm,
     InspectionForm,
     TireFormSet,
@@ -41,6 +41,7 @@ from ..forms.lease import (
     LesseeDataForm,
     LeaseDocumentForm,
     LeaseDepositForm,
+    LeaseUpdateForm,
 )
 from users.views import addStateCity
 from ..models.vehicle import Trailer
@@ -152,6 +153,23 @@ def contract_detail_signed(request, id):
 def contracts(request):
     contracts = Contract.objects.all()
     return render(request, 'rent/contract/contract_list.html', {'contracts': contracts})
+
+
+@login_required
+def update_lease(request, id):
+    lease = get_object_or_404(Lease, id=id)
+    lease.compute_payment_cover()
+    if request.method == 'POST':
+        form = LeaseUpdateForm(request.POST, instance=lease)
+        if form.is_valid():
+            form.save()
+            return redirect('client-detail', lease.contract.lessee.id)
+    form = LeaseUpdateForm(instance=lease)
+    context = {
+        'title': "Update lease terms",
+        'form': form,
+    }
+    return render(request, 'rent/contract/contract_create.html', context)
 
 
 @login_required
@@ -284,7 +302,7 @@ def generate_pdf(request, id):
 
 class ContractUpdateView(LoginRequiredMixin, UpdateView):
     model = Contract
-    form_class = LeaseForm
+    form_class = ContractForm
     template_name = 'rent/contract/contract_create.html'
 
     def get_success_url(self):
@@ -302,12 +320,12 @@ class LeseeDataUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('detail-contract', kwargs={'id': contract.id})
 
 
-def lease_create_view(request, lessee_id, trailer_id):
+def contract_create_view(request, lessee_id, trailer_id):
     lessee = get_object_or_404(Associated, pk=lessee_id)
     trailer = get_object_or_404(Trailer, pk=trailer_id)
 
     if request.method == 'POST':
-        form = LeaseForm(request.POST)
+        form = ContractForm(request.POST)
         if form.is_valid():
             lease = form.save(commit=False)
             lease.stage = 'missing'
@@ -316,7 +334,7 @@ def lease_create_view(request, lessee_id, trailer_id):
             lease.save()
             return redirect('create-inspection', lease_id=lease.id)
     else:
-        form = LeaseForm()
+        form = ContractForm()
 
     context = {
         'form': form,

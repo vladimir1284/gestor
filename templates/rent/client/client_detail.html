@@ -84,14 +84,35 @@
                          id="navs-pills-justified-{{ lease.id }}"
                          role="tabpanel">
                         <h5 class="ps-3 me-2">
-                            {% if lease.remaining %}Remaining: ${{ lease.remaining|floatformat:"0" }}{% endif %}
-                            {% if lease.debt %}Debt: ${{ lease.debt|floatformat:"0" }}{% endif %}
-                            <a class="btn btn-icon btn-outline-primary float-end"
-                               href="{% url 'detail-contract' lease.contract.id %}">
-                                <img src="{% static 'assets/img/icons/contract.jpg' %}"
-                                     alt="contract icon"
-                                     class="h-px-20 w-auto" />
-                            </a>
+                            Remaining: $
+                            {% if lease.remaining %}
+                                {{ lease.remaining|floatformat:"0" }}
+                            {% else %}
+                                0.00
+                            {% endif %}
+                            Debt: $
+                            {% if lease.debt %}
+                                {{ lease.debt|floatformat:"0" }}
+                            {% else %}
+                                0.00
+                            {% endif %}
+                        </h5>
+                        <h5 class="ps-3 me-2">
+                            <div class="d-flex mb-4 pb-1">
+                                <a class="btn btn-icon btn-outline-primary me-1"
+                                   href="{% url 'update-lease' lease.id %}">
+                                    <span class="tf-icons bx bx-edit"></span>
+                                </a>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <h6 class="mb-0">{{ lease.get_payment_frequency_display }} payments</h6>
+                                        <small class="text-muted">{{ lease.event.start|date:"m/d/Y" }}</small>
+                                    </div>
+                                    <div class="user-progress">
+                                        <small class="fw-semibold">${{ lease.payment_amount|floatformat:"0" }}</small>
+                                    </div>
+                                </div>
+                            </div>
                         </h5>
                         <hr class="mt-0" />
                         <div class="row">
@@ -111,7 +132,7 @@
                                 <strong>Payment history:</strong>
                                 <ul>
                                     {% for payment in lease.payments %}
-                                        <li>
+                                        <li class="pb-2">
                                             Payment: {{ payment.date_of_payment|date:"m/d/Y" }} - <strong>${{ payment.amount|floatformat:"0" }}</strong>
                                             <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
                                                 <span class="tf-icons bx bx-trash text-danger"></span>
@@ -136,7 +157,13 @@
                     <div class="card-header">
                         <h5>
                             <strong>Documents</strong>
-                            <a class="btn btn-icon btn-outline-primary ms-3"
+                            <a class="btn btn-icon btn-outline-primary ms-2"
+                               href="{% url 'detail-contract' lease.contract.id %}">
+                                <img src="{% static 'assets/img/icons/contract.jpg' %}"
+                                     alt="contract icon"
+                                     class="h-px-20 w-auto" />
+                            </a>
+                            <a class="btn btn-icon btn-outline-primary ms-2"
                                type="button"
                                href="{% url 'lease-document-create' lease.id %}">
                                 <span class="tf-icons bx bx-plus"></span>

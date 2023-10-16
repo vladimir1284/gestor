@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from schedule.models import Event, Rule, Calendar
 from django.conf import settings
 from .vehicle import DOCUMENT_TYPES, classify_file
+from django.db.models import Max
 
 
 class Contract(models.Model):
@@ -63,7 +64,7 @@ class Lease(models.Model):
     contract = models.ForeignKey(Contract,
                                  on_delete=models.CASCADE)
     event = models.ForeignKey(Event, null=True, blank=True,
-                              on_delete=models.CASCADE)
+                              on_delete=models.SET_NULL)
     notify = models.BooleanField(default=False)
     PERIODICITY_CHOICES = [
         ('weekly', 'Weekly'),
@@ -78,9 +79,17 @@ class Lease(models.Model):
     payment_amount = models.IntegerField()
     num_due_payments = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-
+    last_payment_cover = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def compute_payment_cover(self):
+        PERIOD_DAYS = {'weekly': 8,
+                       'biweekly': 15,
+                       'monthly': 31}
+        self.last_payment_cover = Due.objects.filter(lease=self).aggregate(
+            max_due_date=Max('due_date'))['max_due_date'] + timedelta(
+            days=PERIOD_DAYS[self.payment_frequency])
 
     def save(self, *args, **kwargs):
         STATUS_COLOR = {'weekly': 'green',
@@ -91,14 +100,19 @@ class Lease(models.Model):
             'biweekly': 'Biweekly',
             'monthly': 'Monthly',
         }
+        start_date = self.contract.effective_date
         if self.event is not None:
+            if self.last_payment_cover is not None:
+                start_date = self.last_payment_cover
             self.event.delete()
-        effective_date_with_12h = timezone.make_aware(datetime.combine(
-            self.contract.effective_date,
-            datetime.min.time()) + timedelta(hours=12), pytz.timezone(settings.TIME_ZONE))
+
+        start = timezone.make_aware(datetime.combine(
+            start_date, datetime.min.time()) + timedelta(hours=12),
+            pytz.timezone(settings.TIME_ZONE))
+
         self.event = Event.objects.create(
             title=F"{self.contract.lessee.name.split()[0]} ${int(self.payment_amount)} {self.contract.trailer.manufacturer.brand_name} {self.contract.trailer.get_type_display()} ",
-            start=effective_date_with_12h,
+            start=start,
             end=self.contract.effective_date + timedelta(hours=1),
             calendar=Calendar.objects.get(slug="rental"),
             color_event=STATUS_COLOR[self.payment_frequency],
@@ -282,7 +296,7 @@ class Due(models.Model):
     due_date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
-    lease = models.ForeignKey(Lease, on_delete=models.CASCADE)
+    lease = models.ForeignKey(Lease, null=True,  on_delete=models.SET_NULL)
 
     def __str__(self):
         return f"{self.client} {self.lease.contract.trailer} ${self.amount} - {self.due_date}"

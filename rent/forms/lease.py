@@ -24,7 +24,7 @@ from django.forms import HiddenInput
 from users.models import Associated
 
 
-class LeaseForm(ModelForm):
+class ContractForm(ModelForm):
     class Meta:
         model = Contract
         fields = ('trailer_location', 'effective_date', 'payment_amount',
@@ -61,25 +61,6 @@ class HandWritingForm(ModelForm):
         fields = ('img',)  # 'position', 'lease')
 
     img = forms.CharField(max_length=2000000)
-
-
-# class ContractDocumentForm(ModelForm):
-#     class Meta:
-#         model = ContractDocument
-#         fields = ('lease', 'document')
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.helper = FormHelper()
-#         self.helper.layout = Layout(
-#             Fieldset(
-#                 '',
-#                 'lease', 'document'
-#             ),
-#             ButtonHolder(
-#                 Submit('submit', 'Add', css_class='btn btn-success')
-#             )
-#         )
 
 
 class InspectionForm(forms.ModelForm):
@@ -210,6 +191,30 @@ class PaymentForm(forms.ModelForm):
             Field('sender_name'),
             Field('date_of_payment'),
             Field('amount'),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class LeaseUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Lease
+        fields = ('payment_amount', 'payment_frequency')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs.get('instance')
+        if instance:
+            self.fields['payment_amount'].initial = instance.payment_amount
+            self.fields['payment_frequency'].initial = instance.payment_frequency
+
+        self.helper = FormHelper()
+        self.helper.field_class = 'mb-3'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            PrependedText('payment_amount', '$'),
+            Field('payment_frequency'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

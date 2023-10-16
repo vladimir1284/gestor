@@ -48,7 +48,7 @@ urlpatterns = [
          vehicle.delete_document, name='delete-trailer-document'),
     # -------------------- Contracts ----------------------------
     path('create_contract/<int:lessee_id>/<int:trailer_id>/',
-         lease.lease_create_view, name='create-contract'),
+         lease.contract_create_view, name='create-contract'),
     path('contract/<int:id>',  lease.contract_detail, name='detail-contract'),
     path('contract_signing/<int:id>',
          lease.contract_signing, name='contract-signing'),
@@ -110,5 +110,8 @@ urlpatterns = [
          lease.create_deposit, name='lease-deposit-create'),
     path('delete_lease_deposit/<id>',
          lease.delete_deposit, name='delete-lease-deposit'),
+    # -------------------- Lease ----------------------------
+    path('update_lease/<id>',
+         lease.update_lease, name='update-lease'),
 
 ]
