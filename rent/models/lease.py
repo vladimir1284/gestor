@@ -88,8 +88,10 @@ class Lease(models.Model):
                        'biweekly': 15,
                        'monthly': 31}
         self.last_payment_cover = Due.objects.filter(lease=self).aggregate(
-            max_due_date=Max('due_date'))['max_due_date'] + timedelta(
-            days=PERIOD_DAYS[self.payment_frequency])
+            max_due_date=Max('due_date'))['max_due_date']
+        if self.last_payment_cover is not None:
+            self.last_payment_cover += timedelta(
+                days=PERIOD_DAYS[self.payment_frequency])
 
     def save(self, *args, **kwargs):
         STATUS_COLOR = {'weekly': 'green',
