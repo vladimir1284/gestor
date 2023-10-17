@@ -12,6 +12,7 @@ from ..models.lease import (
     Lease,
     LeaseDocument,
     LeaseDeposit,
+    Due,
 )
 from django.forms import modelformset_factory
 from crispy_forms.helper import FormHelper
@@ -235,6 +236,24 @@ class LeaseDocumentForm(forms.ModelForm):
             Field('name', placeholder='Name'),
             Field('file', placeholder='Name'),
             Field('note', placeholder='Note', rows='2'),
+            ButtonHolder(
+                Submit('submit', 'Enviar', css_class='btn btn-success')
+            )
+        )
+
+
+class DueForm(forms.ModelForm):
+    class Meta:
+        model = Due
+        fields = ('amount',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.field_class = 'mb-3'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            PrependedText('amount', '$'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

@@ -137,8 +137,13 @@ def _api_occurrences(request, start, end, calendar_slug, timezone):
                 # Change color if paid
                 due = Due.objects.filter(
                     lease=lease, due_date=event_start.date())
+                url = request.build_absolute_uri(
+                    reverse('create-due',
+                            args=[lease.id, event_start.strftime("%m%d%Y")]))
                 if len(due) > 0:
                     color = "gray"
+                    url = request.build_absolute_uri(
+                        reverse('update-due', args=[due[0].id]))
             except Exception as err:
                 print(err)
 
@@ -153,8 +158,7 @@ def _api_occurrences(request, start, end, calendar_slug, timezone):
                 {
                     "id": occurrence_id,
                     "title": occurrence.event.title,
-                    "url": request.build_absolute_uri(
-                        reverse('client-detail', args=[lease.contract.lessee.id])),
+                    "url": url,
                     "start": event_start,
                     "allDay": True,
                     "existed": existed,

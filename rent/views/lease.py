@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -31,6 +31,7 @@ from ..models.lease import (
     Lease,
     LeaseDocument,
     LeaseDeposit,
+    Due,
 )
 from ..forms.lease import (
     ContractForm,
@@ -42,6 +43,7 @@ from ..forms.lease import (
     LeaseDocumentForm,
     LeaseDepositForm,
     LeaseUpdateForm,
+    DueForm,
 )
 from users.views import addStateCity
 from ..models.vehicle import Trailer
@@ -167,6 +169,45 @@ def update_lease(request, id):
     form = LeaseUpdateForm(instance=lease)
     context = {
         'title': "Update lease terms",
+        'form': form,
+    }
+    return render(request, 'rent/contract/contract_create.html', context)
+
+
+@login_required
+def create_due(request, lease_id, date):
+    lease = get_object_or_404(Lease, id=lease_id)
+    date = datetime.strptime(date, "%m%d%Y")
+
+    if request.method == 'POST':
+        form = DueForm(request.POST)
+        if form.is_valid():
+            due: Due = form.save(commit=False)
+            due.due_date = date
+            due.lease = lease
+            due.client = lease.contract.lessee
+            due.save()
+            return redirect('client-detail', lease.contract.lessee.id)
+    form = DueForm(initial={'amount': lease.payment_amount})
+    context = {
+        'title': F"Invoice for {lease.contract.lessee} on " + date.strftime("%m/%d/%Y"),
+        'form': form,
+    }
+    return render(request, 'rent/contract/contract_create.html', context)
+
+
+@login_required
+def update_due(request, id):
+    due = get_object_or_404(Due, id=id)
+
+    if request.method == 'POST':
+        form = DueForm(request.POST, instance=due)
+        if form.is_valid():
+            form.save()
+            return redirect('client-detail', due.lease.contract.lessee.id)
+    form = DueForm(instance=due)
+    context = {
+        'title': F"Invoice for {due.lease.contract.lessee} on " + due.due_date.strftime("%m/%d/%Y"),
         'form': form,
     }
     return render(request, 'rent/contract/contract_create.html', context)

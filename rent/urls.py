@@ -113,5 +113,10 @@ urlpatterns = [
     # -------------------- Lease ----------------------------
     path('update_lease/<id>',
          lease.update_lease, name='update-lease'),
+    # -------------------- Due ----------------------------
+    path('create_due/<int:lease_id>/<str:date>',
+         lease.create_due, name='create-due'),
+    path('update_due/<id>',
+         lease.update_due, name='update-due'),
 
 ]
