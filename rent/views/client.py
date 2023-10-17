@@ -160,7 +160,8 @@ def process_payment(request, payment: Payment):
     interval_start = get_start_paying_date(payment.client, payment.lease)
 
     # Get occurrences from the last due payed
-    occurrences = payment.lease.event.occurrences_after(interval_start)
+    occurrences = payment.lease.event.occurrences_after(
+        interval_start - timedelta(days=1))
 
     while payment.remaining >= payment.lease.payment_amount:
         payment.remaining -= payment.lease.payment_amount
