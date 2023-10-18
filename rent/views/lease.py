@@ -407,23 +407,33 @@ def update_lessee(request, trailer_id, lessee_id=None):
         # fetch the object related to passed id
         lessee = get_object_or_404(Associated, id=lessee_id)
 
+        if request.method == 'POST':
+            # pass the object as instance in form
+            form = AssociatedCreateForm(request.POST, request.FILES,
+                                        instance=lessee)
+
+            # save the data from the form and
+            # redirect to update lessee data view
+            if form.is_valid():
+                form.save()
+                return redirect('update-lessee-data', trailer_id, lessee.id)
+
         # pass the object as instance in form
         form = AssociatedCreateForm(instance=lessee)
-
         title = _('Update client')
     else:
+        if request.method == 'POST':
+            # pass the object as instance in form
+            form = AssociatedCreateForm(request.POST, request.FILES)
+
+            # save the data from the form and
+            # redirect to update lessee data view
+            if form.is_valid():
+                lessee = form.save()
+                return redirect('update-lessee-data', trailer_id, lessee.id)
+
         form = AssociatedCreateForm()
         title = _('Create client')
-
-    if request.method == 'POST':
-        # pass the object as instance in form
-        form = AssociatedCreateForm(request.POST, request.FILES)
-
-        # save the data from the form and
-        # redirect to detail_view
-        if form.is_valid():
-            lessee = form.save()
-            return redirect('update-lessee-data', trailer_id, lessee.id)
 
     # add form dictionary to context
 
