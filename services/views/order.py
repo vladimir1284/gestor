@@ -3,6 +3,7 @@ from django.shortcuts import (
     redirect,
     get_object_or_404,
 )
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from .sms import twilioSendSMS
 from .transaction import reverse_transaction
@@ -188,6 +189,7 @@ def update_order_status(request, id, status):
 
         if status == 'processing':
             # Send SMS
+            order.processing_date = timezone.localtime(timezone.now())
             twilioSendSMS(order, status)
 
         order.status = status

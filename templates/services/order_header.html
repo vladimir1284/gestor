@@ -2,6 +2,8 @@
 <div class="container">
     <div class="row d-block pb-2">
         Created: <strong>{{ order.created_date|date:"m/d/Y" }}</strong>
+        Processing: <strong>{{ order.processing_date|date:"m/d/Y" }}</strong>
+        Terminated: <strong>{{ order.terminated_date|date:"m/d/Y" }}</strong>
     </div>
     <div class="row">
         <div class="col-md-4 d-flex pb-1">
