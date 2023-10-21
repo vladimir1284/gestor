@@ -89,6 +89,7 @@ urlpatterns = [
     path('client_detail/<id>/', client.client_detail, name='client-detail'),
     path('client_list/', client.client_list, name='client-list'),
     path('payment/<client_id>/', client.payment, name='rental-payment'),
+    path('detail_payment/<id>/', client.detail_payment, name='detail-payment'),
     path('revert_payment/<id>',
          client.revert_payment, name='revert-payment'),
     # -------------------- Invoice ----------------------------

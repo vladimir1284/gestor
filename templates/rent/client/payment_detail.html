@@ -1,0 +1,50 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}
+    {{ transaction.product.name }}
+{% endblock title %}
+{% block content %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ payment.client.name }} ({{ payment.date_of_payment|date:"m/d/Y" }})</h5>
+            <p class="card-text">Sender: {{ payment.sender_name }}</p>
+            <p class="card-text">
+                Created by <strong>{{ payment.user }}</strong> on (<strong>{{ payment.date|date:"m/d/Y" }}</strong>)
+            </p>
+            <ul class="p-0 m-0">
+                <li class="d-flex mb-4 pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <img src="{% static 'assets/img/icons/unicons/price.png' %}"
+                             alt="price"
+                             class="rounded">
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="me-2">
+                            <h6 class="mb-0">Amount</h6>
+                        </div>
+                        <div class="user-progress d-flex align-items-center gap-1">
+                            <h6 class="mb-0">{{ payment.amount|floatformat:"2" }}</h6>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="d-flex mb-4 pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <img src="{% static 'assets/img/icons/unicons/amount.png' %}"
+                             alt="User"
+                             class="rounded">
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="me-2">
+                            <h6 class="mb-0">Remaining</h6>
+                        </div>
+                        <div class="user-progress d-flex align-items-center gap-1">
+                            <h6 class="mb-0">{{ payment.remaining|floatformat:"2" }}</h6>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock content %}

@@ -96,13 +96,13 @@ def client_detail(request, id):
         # Payments for thi lease
         payments = Payment.objects.filter(
             lease=lease).order_by('-date_of_payment')
-        for i, payment in enumerate(payments):
+        for i, payment in enumerate(reversed(payments)):
             # Dues paid by this lease
             dues = Due.objects.filter(
                 lease=payment.lease,
                 due_date__lte=payment.date_of_payment).order_by('-due_date')
             if i > 0:
-                dues = dues.exclude(date__lte=previous_date)
+                dues = dues.exclude(due_date__lte=previous_date)
             else:
                 lease.remaining = payment.remaining
             previous_date = payment.date_of_payment
@@ -134,7 +134,7 @@ def get_start_paying_date(client: Associated, lease: Lease):
     # Find the last due payed by the client
     last_due = Due.objects.filter(client=client, lease=lease).last()
     if last_due is not None:
-        interval_start = last_due.due_date
+        interval_start = last_due.due_date + timedelta(days=2)
     else:
         # If the client hasn't paid, then start paying on effective date
         interval_start = lease.contract.effective_date - timedelta(days=1)
@@ -176,6 +176,15 @@ def process_payment(request, payment: Payment):
         # Send invoice by email
         mail_send_invoice(request, payment.lease.id,
                           due_date.strftime("%m%d%Y"), "true")
+
+
+@login_required
+def detail_payment(request, id):
+    payment = get_object_or_404(Payment, id=id)
+    context = {
+        'payment': payment,
+    }
+    return render(request, 'rent/client/payment_detail.html', context)
 
 
 @login_required
