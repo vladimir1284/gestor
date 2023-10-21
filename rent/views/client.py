@@ -98,13 +98,14 @@ def client_detail(request, id):
             lease=lease).order_by('-date_of_payment')
         for i, payment in enumerate(payments):
             # Dues paid by this lease
-            dues = Due.objects.filter(lease=payment.lease,
-                                      date__gte=payment.date)
+            dues = Due.objects.filter(
+                lease=payment.lease,
+                due_date__lte=payment.date_of_payment).order_by('-due_date')
             if i > 0:
-                dues = dues.exclude(date__gte=previous_date)
+                dues = dues.exclude(date__lte=previous_date)
             else:
                 lease.remaining = payment.remaining
-            previous_date = payment.date
+            previous_date = payment.date_of_payment
             payment.dues = dues
         lease.payments = payments
 
