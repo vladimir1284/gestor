@@ -99,19 +99,24 @@ def client_detail(request, id):
         for i, payment in enumerate(reversed(payments)):
             # Dues paid by this lease
             dues = Due.objects.filter(
-                lease=payment.lease,
+                lease=lease,
                 due_date__lte=payment.date_of_payment).order_by('-due_date')
             if i > 0:
                 dues = dues.exclude(due_date__lte=previous_date)
             previous_date = payment.date_of_payment
             payment.dues = dues
-        lease.remaining = payments[0].remaining
-        lease.payments = payments
 
-        # Get manuel dues after the last payment
-        dues = Due.objects.filter(
-            lease=payment.lease,
-            due_date__gt=payment.date_of_payment).order_by('-due_date')
+        if len(payments) > 0:
+            lease.remaining = payments[0].remaining
+            lease.payments = payments
+            # Get manuel dues after the last payment
+            dues = Due.objects.filter(
+                lease=lease,
+                due_date__gt=payment.date_of_payment).order_by('-due_date')
+        else:
+            lease.remaining = 0
+            dues = Due.objects.filter(
+                lease=lease).order_by('-due_date')
 
         # Documents
         lease.documents = LeaseDocument.objects.filter(lease=lease)
