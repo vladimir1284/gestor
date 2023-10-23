@@ -299,6 +299,7 @@ class Due(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
     lease = models.ForeignKey(Lease, null=True,  on_delete=models.SET_NULL)
+    note = models.TextField(blank=True)
 
     def __str__(self):
         return f"{self.client} {self.lease.contract.trailer} ${self.amount} - {self.due_date}"

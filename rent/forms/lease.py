@@ -245,7 +245,7 @@ class LeaseDocumentForm(forms.ModelForm):
 class DueForm(forms.ModelForm):
     class Meta:
         model = Due
-        fields = ('amount',)
+        fields = ('amount', 'note')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -254,6 +254,7 @@ class DueForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             PrependedText('amount', '$'),
+            Field('note', placeholder='Note', rows='2'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

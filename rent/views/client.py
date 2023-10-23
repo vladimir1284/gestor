@@ -108,6 +108,11 @@ def client_detail(request, id):
         lease.remaining = payments[0].remaining
         lease.payments = payments
 
+        # Get manuel dues after the last payment
+        dues = Due.objects.filter(
+            lease=payment.lease,
+            due_date__gt=payment.date_of_payment).order_by('-due_date')
+
         # Documents
         lease.documents = LeaseDocument.objects.filter(lease=lease)
         # Check for document expiration
@@ -123,6 +128,7 @@ def client_detail(request, id):
     context = {
         "client": client,
         "leases": leases,
+        "dues": dues,
         "total_deposit": total_deposit,
     }
 
