@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from schedule.models import Event, Rule, Calendar
 from django.conf import settings
 from .vehicle import DOCUMENT_TYPES, classify_file
-from django.db.models import Max
+from django.db.models import Max, Sum
 
 
 class Contract(models.Model):
@@ -52,9 +52,27 @@ class Contract(models.Model):
     security_deposit = models.IntegerField()
     contract_term = models.FloatField(default=3)  # Months
     delayed_payments = models.IntegerField(default=0)
+    TYPE_CHOICES = [
+        ('lto', 'Lease to own'),
+        ('rent', 'Rent'),
+    ]
+    contract_type = models.CharField(
+        max_length=10,
+        choices=TYPE_CHOICES,
+        default='rent',
+    )
+    total_amount = models.IntegerField(default=0)
 
     def __str__(self):
         return self.trailer.__str__() + " -> " + self.lessee.__str__()
+
+    def paid(self):
+        if self.contract_type == 'lto':
+            paid_amount = float(Due.objects.filter(
+                lease__contract=self).aggregate(
+                total_amount=Sum('amount'))['total_amount'])
+            return paid_amount >= self.total_amount
+        return False
 
     class Meta:
         ordering = ('-effective_date',)

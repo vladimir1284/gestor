@@ -30,7 +30,7 @@ class ContractForm(ModelForm):
         model = Contract
         fields = ('trailer_location', 'effective_date', 'payment_amount',
                   'security_deposit', 'payment_frequency', 'contract_term',
-                  'service_charge')
+                  'service_charge', 'contract_type', 'total_amount')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -44,11 +44,13 @@ class ContractForm(ModelForm):
         self.helper.layout = Layout(
             Field('trailer_location', rows='2'),
             'effective_date',
-            PrependedText('security_deposit', '$'),
             PrependedText('payment_amount', '$'),
             'payment_frequency',
             AppendedText('contract_term', 'months'),
             PrependedText('service_charge', '$'),
+            PrependedText('security_deposit', '$'),
+            Field('contract_type'),
+            PrependedText('total_amount', '$'),
             ButtonHolder(
                 Submit('submit', 'Create contract',
                        css_class='btn btn-success')

@@ -48,6 +48,8 @@ def client_list(request):
         clients.append(client)
         client.trailer = contract.trailer
         client.contract = contract
+        if contract.contract_type == 'lto':
+            client.contract.paid = contract.paid()
         payment_dates.setdefault(client.id, timezone.now())
         if contract.stage == "active":
             n_active += 1
@@ -89,6 +91,7 @@ def client_detail(request, id):
         contract__lessee=client, contract__stage="active")
 
     total_deposit = 0
+    dues = None
     for lease in leases:
         # Debt associated with this lease
         lease.debt, last_date, lease.unpaid_dues = compute_client_debt(

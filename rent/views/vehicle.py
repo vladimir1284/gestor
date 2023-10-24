@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 
 from users.views import processOrders
 from users.models import Company
+from rent.models.lease import Due
 from rent.models.vehicle import (
     Trailer,
     Manufacturer,
@@ -43,6 +44,7 @@ def list_equipment(request):
             stage='ended')
         if contracts:
             trailer.current_contract = contracts.last()
+            trailer.paid = trailer.current_contract.paid()
         # Images
         images, pinned_image = getImages(trailer)
         trailer.images = images

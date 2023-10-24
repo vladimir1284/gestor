@@ -67,15 +67,21 @@
                                     <td>{% include "users/associated_line.html" with associated=client %}</td>
                                     <td>${{ client.debt }}</td>
                                     <td>
-                                        <a href="{% url 'toggle-alarm' client.lease.id %}"
-                                           type="button"
-                                           class="btn btn-icon btn-outline-primary upper-right">
-                                            {% if client.lease.notify %}
-                                                <i class="bx bx-alarm"></i>
-                                            {% else %}
-                                                <i class="bx bx-alarm-off"></i>
-                                            {% endif %}
-                                        </a>
+                                        {% if client.contract.contract_type == 'lto' and  client.contract.paid %}
+                                            <img src="{% static 'assets/img/icons/paid.png' %}"
+                                                 alt="contract icon"
+                                                 class="h-px-40 w-auto" />
+                                        {% else %}
+                                            <a href="{% url 'toggle-alarm' client.lease.id %}"
+                                               type="button"
+                                               class="btn btn-icon btn-outline-primary upper-right">
+                                                {% if client.lease.notify %}
+                                                    <i class="bx bx-alarm"></i>
+                                                {% else %}
+                                                    <i class="bx bx-alarm-off"></i>
+                                                {% endif %}
+                                            </a>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <div class="d-flex">

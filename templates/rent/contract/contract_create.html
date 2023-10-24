@@ -18,4 +18,25 @@
             </div>
         </div>
     </div>
+    <script>
+        function toggleInput() {
+            var contractType = document.getElementById("id_contract_type");
+            var totalAmount = document.getElementById("id_total_amount");
+            var label = document.querySelector('label[for="id_security_deposit"]');
+            
+            if (contractType.value === "lto") {
+                totalAmount.disabled = false;
+                label.innerHTML = 'Down payment*';
+            } else {
+                totalAmount.disabled = true;
+                label.innerHTML = 'Security deposit*';
+            }
+        }
+
+        // Call the toggleInput function on page load
+        toggleInput();
+
+        // Call the toggleInput function on every update of the select element
+        document.getElementById("id_contract_type").addEventListener("change", toggleInput);
+    </script>
 {% endblock content %}

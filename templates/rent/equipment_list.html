@@ -27,15 +27,23 @@
                 </div>
             </td>
             <td>
-                {% if equipment.lease_to_own %}
-                    <img src="{% static 'assets/img/icons/lto.jpg' %}"
-                         alt="contract icon"
-                         class="h-px-40 w-auto" />
-                {% elif equipment.current_contract %}
-                    <a href="{% url 'detail-contract' equipment.current_contract.id %}">
-                        <img src="{% static 'assets/img/icons/contract.jpg' %}"
-                             alt="contract icon"
-                             class="h-px-40 w-auto" />
+                {% if equipment.current_contract %}
+                    <a {% if equipment.current_contract.stage == 'active' %}href="{% url 'client-detail' equipment.current_contract.lessee.id %}"{% else %} href="{% url 'detail-contract' equipment.current_contract.id %}"{% endif %}>
+                        {% if equipment.current_contract.contract_type == 'lto' %}
+                            {% if equipment.paid %}
+                                <img src="{% static 'assets/img/icons/paid.png' %}"
+                                     alt="contract icon"
+                                     class="h-px-40 w-auto" />
+                            {% else %}
+                                <img src="{% static 'assets/img/icons/lto.jpg' %}"
+                                     alt="contract icon"
+                                     class="h-px-40 w-auto" />
+                            {% endif %}
+                        {% else %}
+                            <img src="{% static 'assets/img/icons/contract.jpg' %}"
+                                 alt="contract icon"
+                                 class="h-px-40 w-auto" />
+                        {% endif %}
                     </a>
                 {% else %}
                     <a class="btn btn-icon btn-outline-primary"
