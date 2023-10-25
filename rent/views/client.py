@@ -35,14 +35,15 @@ def toggle_alarm(request, lease_id):
     return redirect('client-list')
 
 
-@login_required
-def client_list(request):
+def get_sorted_clients(n=None, order_by="date"):
     # Create leases if needed
     contracts = Contract.objects.exclude(stage="ended")
     clients = []
     payment_dates = {}
+    debt_amounts = {}
     n_active = 0
     n_processing = 0
+    rental_debt = 0
     for contract in contracts:
         client = contract.lessee
         clients.append(client)
@@ -51,6 +52,7 @@ def client_list(request):
         if contract.contract_type == 'lto':
             client.contract.paid = contract.paid()
         payment_dates.setdefault(client.id, timezone.now())
+        debt_amounts.setdefault(client.id, 0)
         if contract.stage == "active":
             n_active += 1
             try:
@@ -65,13 +67,33 @@ def client_list(request):
             client.lease = lease
             client.debt, last_payment, client.unpaid_dues = compute_client_debt(
                 client, lease)
-            client.last_payment = last_payment
-            payment_dates[client.id] = last_payment
+            if client.debt > 0:
+                client.last_payment = client.unpaid_dues[0].start
+                rental_debt += client.debt
+            else:
+                client.last_payment = timezone.now()
+            payment_dates[client.id] = client.last_payment
+            debt_amounts[client.id] = client.debt
         else:
             n_processing += 1
+    # No sorting
+    sorted_clients = clients
+    # Sorted by most overdue first
+    if order_by == 'date':
+        sorted_clients = sorted(
+            clients, key=lambda client: payment_dates[client.id])
+    # Sorted by most debt amount first
+    if order_by == 'amount':
+        sorted_clients = sorted(
+            clients, key=lambda client: debt_amounts[client.id], reverse=True)
+    if n is not None:
+        return sorted_clients[:n], n_active, n_processing, rental_debt
+    return sorted_clients, n_active, n_processing, rental_debt
 
-    sorted_clients = sorted(
-        clients, key=lambda client: payment_dates[client.id])
+
+@login_required
+def client_list(request):
+    sorted_clients, n_active, n_processing, _ = get_sorted_clients()
     context = {
         "clients": sorted_clients,
         "n_active": n_active,

@@ -26,6 +26,7 @@ from services.views.order import (
     computeOrderAmount,
 )
 import calendar
+from rent.views.client import get_sorted_clients
 
 
 class UnknownCategory:
@@ -554,11 +555,21 @@ def dashboard(request):
         except Exception as e:
             print(e)
 
+    # Rental
+    clients_by_date, n_active, n_processing, rental_debt = get_sorted_clients(
+        n=5)
+    clients_by_amount, n_active, n_processing, rental_debt = get_sorted_clients(
+        n=5, order_by='amount')
+
     context = {
         'indicators': indicators,
         'last_date': stats_list[-1].date - timedelta(days=1),  # TODO fix this
         'time_labels': time_labels,
-        'insights': stats_list[-1].gpt_insights
+        'insights': stats_list[-1].gpt_insights,
+        'rental_debt': rental_debt,
+        'clients_by_date': clients_by_date,
+        'clients_by_amount': clients_by_amount,
+        'rental_debt': rental_debt,
     }
     context = dict(context, **get_debtor(request))
 

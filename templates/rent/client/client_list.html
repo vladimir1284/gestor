@@ -54,7 +54,7 @@
                             <th>Debt</th>
                             <th>Alarm</th>
                             <th>Trailer</th>
-                            <th>Date</th>
+                            <th>Overdue</th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
@@ -90,7 +90,7 @@
                                     </td>
                                     <td>
                                         {% if client.debt %}
-                                            {{ client.last_payment|date:"m/d/Y" }}
+                                            {{ client.last_payment|timesince }}
                                         </td>
                                     {% endif %}
                                 </tr>
