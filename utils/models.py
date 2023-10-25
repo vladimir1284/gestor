@@ -106,6 +106,7 @@ class Order(models.Model):
     company = models.ForeignKey(Company, blank=True, null=True,
                                 on_delete=models.SET_NULL)
     terminated_date = models.DateTimeField(blank=True, null=True)
+    processing_date = models.DateTimeField(blank=True, null=True)
     discount = models.FloatField(default=0)
     quotation = models.BooleanField(default=False)
 
