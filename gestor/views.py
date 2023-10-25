@@ -25,6 +25,7 @@ from users.views import get_debtor
 from services.views.order import (
     computeOrderAmount,
 )
+import calendar
 
 
 class UnknownCategory:
@@ -412,8 +413,9 @@ def getPaymentContext(orders, category, pending_payments):
 
 @login_required
 def dashboard(request):
-    N = 7  # number of weeks in the dashboard
-    stats_list = weekly_stats_array(n=N)
+    N = 6  # number of weeks in the dashboard
+    # stats_list = weekly_stats_array(n=N)
+    stats_list = monthly_stats_array(n=N)
 
     # Profit
     current_profit = stats_list[0].profit_before_costs - stats_list[0].costs
@@ -453,13 +455,13 @@ def dashboard(request):
         Sum("stock_price"))['stock_price__sum']
 
     # Purchase orders
-    (start_date, end_date, previousWeek, nextWeek) = getWeek()  # This week
-    (start_date, end_date, previousWeek, nextWeek) = getWeek(
-        previousWeek.strftime("%m%d%Y"))  # Previous week
+    # (start_date, end_date, previousWeek, nextWeek) = getWeek()  # This week
+    # (start_date, end_date, previousWeek, nextWeek) = getWeek(
+    #     previousWeek.strftime("%m%d%Y"))  # Previous week
     purchase_orders = Order.objects.filter(status='complete',
                                            type='purchase',
-                                           terminated_date__gt=start_date,
-                                           terminated_date__lte=end_date)
+                                           terminated_date__gt=stats_list[0].date,
+                                           terminated_date__lte=stats_list[1].date)
     # Stock costs added
     transactions = ProductTransaction.objects.filter(
         order__in=purchase_orders)
@@ -486,8 +488,8 @@ def dashboard(request):
     # Time series
     stats_list.reverse()
 
-    time_labels = [stats.date.strftime("%b, %d") for stats in stats_list]
-    time_labels[0] = ""
+    time_labels = [stats.date.strftime("%b") for stats in stats_list]
+    # time_labels[0] = ""
 
     profit_data = [int(x.profit_before_costs - x.costs) for x in stats_list]
     parts_data = [int(x.parts_price - x.parts_cost) for x in stats_list]
@@ -948,6 +950,39 @@ def getMonthYear(month=None, year=None):
         previousYear = currentYear-1
 
     return ((previousMonth, previousYear), (currentMonth, currentYear), (nextMonth, nextYear))
+
+
+def monthly_stats_array(n=6) -> List[Statistics]:
+    """ 
+    Compute monthly stats for a given date
+    Returns a list for several month stats
+    We get the data from the previous month 
+    """
+    ((previousMonth, previousYear),
+        (currentMonth, currentYear),
+        (nextMonth, nextYear)) = getMonthYear()  # This month
+    stats_list = []
+    for _ in range(n):
+        # Previous month
+        ((previousMonth, previousYear),
+         (currentMonth, currentYear),
+         (nextMonth, nextYear)) = getMonthYear(previousMonth, previousYear)
+
+        # monthly stats are stored in the end_date of the month
+        start_date = datetime(currentYear, currentMonth, 1)
+        _, last_day = calendar.monthrange(currentYear, currentMonth)
+        last_date = datetime(currentYear, currentMonth, last_day)
+        try:
+            stats = Statistics.objects.get(date=last_date)
+            stats_list.append(stats)
+            continue
+        except Statistics.DoesNotExist:
+            stats = Statistics(date=last_date)
+            calculate_stats(stats, start_date, last_date)
+
+            stats_list.append(stats)
+
+    return stats_list
 
 
 def weekly_stats_array(date=None, n=12) -> List[Statistics]:
