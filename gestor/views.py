@@ -26,7 +26,12 @@ from services.views.order import (
     computeOrderAmount,
 )
 import calendar
-from rent.views.client import get_sorted_clients
+from rent.views.client import get_sorted_clients, compute_client_debt
+
+from rent.models.lease import Due, Lease, Contract
+from rent.models.vehicle import Trailer
+from datetime import datetime, time
+from django.utils import timezone
 
 
 class UnknownCategory:
@@ -561,6 +566,34 @@ def dashboard(request):
     clients_by_amount, n_active, n_processing, rental_debt = get_sorted_clients(
         n=5, order_by='amount')
 
+    # Get unpaid dues from yesterday
+    yesterday_dues = []
+
+    leases = Lease.objects.filter(contract__stage="active")
+
+    # Get the first time of today
+    first_time = datetime.combine(
+        timezone.now().date(), time.min) - timedelta(days=1)
+    # Get the last time of today
+    last_time = datetime.combine(
+        timezone.now().date(), time.max) - timedelta(days=1)
+    for lease in leases:
+        occurrences = lease.event.get_occurrences(first_time, last_time)
+        for occurrence in occurrences:
+            paid_dues = Due.objects.filter(due_date=occurrence.start.date())
+            if len(paid_dues) == 0:
+                client = lease.contract.lessee
+                client.debt, client.last_payment, client.unpaid_dues = compute_client_debt(
+                    client, lease)
+                if client.debt > 0:
+                    client.last_payment = client.unpaid_dues[0].start
+                yesterday_dues.append(client)
+    # Trailers available
+    active_contracts = Contract.objects.filter(stage="active")
+    rented_ids = []
+    for contract in active_contracts:
+        rented_ids.append(contract.trailer.id)
+    available = Trailer.objects.filter(active=True).exclude(id__in=rented_ids)
     context = {
         'indicators': indicators,
         'last_date': stats_list[-1].date - timedelta(days=1),  # TODO fix this
@@ -570,6 +603,8 @@ def dashboard(request):
         'clients_by_date': clients_by_date,
         'clients_by_amount': clients_by_amount,
         'rental_debt': rental_debt,
+        'yesterday_dues': yesterday_dues,
+        'available': available,
     }
     context = dict(context, **get_debtor(request))
 
