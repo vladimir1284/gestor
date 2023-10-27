@@ -193,24 +193,22 @@ def process_payment(request, payment: Payment):
         last_payment.save()
 
     # Create as many dues as possible
-    interval_start = get_start_paying_date(payment.client, payment.lease)
+    # interval_start = get_start_paying_date(payment.client, payment.lease)
+    _, _, unpaid_dues = compute_client_debt(payment.client, payment.lease)
 
-    # Get occurrences from the last due payed
-    occurrences = payment.lease.event.occurrences_after(
-        interval_start - timedelta(days=1))
-
-    while payment.remaining >= payment.lease.payment_amount:
-        payment.remaining -= payment.lease.payment_amount
-        due_date = next(occurrences).start.date()
-        Due.objects.create(
-            due_date=due_date,
-            amount=payment.lease.payment_amount,
-            client=payment.client,
-            lease=payment.lease
-        )
-        # Send invoice by email
-        mail_send_invoice(request, payment.lease.id,
-                          due_date.strftime("%m%d%Y"), "true")
+    for unpaid_due in unpaid_dues:
+        if payment.remaining >= payment.lease.payment_amount:
+            payment.remaining -= payment.lease.payment_amount
+            due_date = unpaid_due.start.date()
+            Due.objects.create(
+                due_date=due_date,
+                amount=payment.lease.payment_amount,
+                client=payment.client,
+                lease=payment.lease
+            )
+            # Send invoice by email
+            mail_send_invoice(request, payment.lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
 
 
 @login_required
