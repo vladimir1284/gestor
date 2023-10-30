@@ -589,7 +589,8 @@ def dashboard(request):
                     client.last_payment = client.unpaid_dues[0].start
                 yesterday_dues.append(client)
     # Trailers available
-    active_contracts = Contract.objects.filter(stage="active")
+    active_contracts = Contract.objects.filter(
+        stage__in=("active", "missing"))
     rented_ids = []
     for contract in active_contracts:
         rented_ids.append(contract.trailer.id)

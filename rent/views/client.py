@@ -11,6 +11,7 @@ from django.conf import settings
 from .invoice import mail_send_invoice
 from .vehicle import FILES_ICONS
 from rent.models.lease import LeaseDocument, LeaseDeposit
+from django.db.models import Sum
 
 
 def compute_client_debt(client: Associated, lease: Lease):
@@ -121,6 +122,8 @@ def client_detail(request, id):
         # Payments for thi lease
         payments = Payment.objects.filter(
             lease=lease).order_by('-date_of_payment')
+        lease.total_payment = payments.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
         for i, payment in enumerate(reversed(payments)):
             # Dues paid by this lease
             dues = Due.objects.filter(
@@ -135,14 +138,15 @@ def client_detail(request, id):
             lease.remaining = payments[0].remaining
             lease.payments = payments
             # Get manuel dues after the last payment
-            dues = Due.objects.filter(
-                lease=lease,
-                due_date__gt=payment.date_of_payment).order_by('-due_date')
+            # dues = Due.objects.filter(
+            #     lease=lease,
+            #     due_date__gt=payment.date_of_payment).order_by('-due_date')
         else:
             lease.remaining = 0
-            dues = Due.objects.filter(
-                lease=lease).order_by('-due_date')
-
+        lease.paid_dues = Due.objects.filter(
+            lease=lease).order_by('-due_date')
+        lease.paid = lease.paid_dues.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
         # Documents
         lease.documents = LeaseDocument.objects.filter(lease=lease)
         # Check for document expiration

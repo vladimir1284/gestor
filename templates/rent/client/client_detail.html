@@ -7,6 +7,13 @@
         top: 2em;
         right: 2em;
         }
+        .table-container {
+            height: 300px; /* Set the desired fixed height for the table */
+            overflow-y: scroll; /* Enable vertical scrolling */
+          }
+        .table td {
+            padding-right: 0;
+        }
     </style>
     <script>
         function deleteDocument(name, id) {
@@ -90,12 +97,6 @@
                             {% else %}
                                 0.00
                             {% endif %}
-                            Debt: $
-                            {% if lease.debt %}
-                                {{ lease.debt|floatformat:"0" }}
-                            {% else %}
-                                0.00
-                            {% endif %}
                         </h5>
                         <h5 class="ps-3 me-2">
                             <div class="d-flex mb-4 pb-1">
@@ -116,126 +117,168 @@
                         </h5>
                         <hr class="mt-0" />
                         <div class="row">
-                            <div class="col-md-6">
-                                <strong>Due payments:</strong>
-                                <ul>
-                                    {% for due in lease.unpaid_dues %}
-                                        <li>
-                                            <a href="{% url 'rental-invoice' lease.id due.start|date:"mdY" 'false' %}">
-                                                <i class="tf-icons bx bx-calendar text-danger"></i>{{ due.start|date:"m/d/Y" }} - <strong>${{ lease.payment_amount|floatformat:"0" }}</strong>
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
+                            <div class="col-md-4">
+                                <strong>Due payments: $
+                                    {% if lease.debt %}
+                                        {{ lease.debt|floatformat:"0" }}
+                                    {% else %}
+                                        0.00
+                                    {% endif %}
+                                </strong>
+                                <div class="table-container">
+                                    <table class="table">
+                                        <tbody>
+                                            {% for due in lease.unpaid_dues %}
+                                                <tr>
+                                                    <td>
+                                                        <i class="tf-icons bx bx-calendar text-danger"></i>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{% url 'rental-invoice' lease.id due.start|date:"mdY" 'false' %}">{{ due.start|date:"m/d/Y" }}</a>
+                                                    </td>
+                                                    <td>
+                                                        <strong>${{ lease.payment_amount|floatformat:"0" }}</strong>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <strong>Payment history:</strong>
-                                <ul>
-                                    <ul>
-                                        {% for due in dues %}
-                                            {% include "./due_line.html" %}
-                                        {% endfor %}
-                                    </ul>
-                                    {% for payment in lease.payments %}
-                                        <li class="pb-2">
-                                            <a href={% url 'detail-payment' payment.id %}>Payment: {{ payment.date_of_payment|date:"m/d/Y" }}</a>- <strong>${{ payment.amount|floatformat:"0" }}</strong>
-                                            <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
-                                                <span class="tf-icons bx bx-trash text-danger"></span>
-                                            </a>
-                                            <ul>
-                                                {% for due in payment.dues %}
-                                                    {% include "./due_line.html" %}
-                                                {% endfor %}
-                                            </ul>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
+                            <div class="col-md-4">
+                                <strong>Payment history: $
+                                    {% if lease.total_payment %}
+                                        {{ lease.total_payment|floatformat:"0" }}
+                                    {% else %}
+                                        0.00
+                                    {% endif %}
+                                </strong>
+                                <div class="table-container">
+                                    <table class="table">
+                                        <tbody>
+                                            {% for payment in lease.payments %}
+                                                <tr>
+                                                    <td>
+                                                        <a href={% url 'detail-payment' payment.id %}>{{ payment.date_of_payment|date:"m/d/Y" }}</a>
+                                                    </td>
+                                                    <td>
+                                                        <strong>${{ payment.amount|floatformat:"0" }}</strong>
+                                                    </td>
+                                                    <td>
+                                                        <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
+                                                            <span class="tf-icons bx bx-trash text-danger"></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Invoices: $
+                                    {% if lease.paid %}
+                                        {{ lease.paid|floatformat:"0" }}
+                                    {% else %}
+                                        0.00
+                                    {% endif %}
+                                </strong>
+                                <div class="table-container">
+                                    <table class="table">
+                                        <tbody>
+                                            {% for due in lease.paid_dues %}
+                                                {% include "./due_line.html" %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Documents -->
-                    <hr class="mt-0" />
-                    <div class="card-header">
-                        <h5>
-                            <strong>Documents</strong>
-                            <a class="btn btn-icon btn-outline-primary ms-2"
-                               href="{% url 'detail-contract' lease.contract.id %}">
-                                <img src="{% static 'assets/img/icons/contract.jpg' %}"
-                                     alt="contract icon"
-                                     class="h-px-20 w-auto" />
-                            </a>
-                            <a class="btn btn-icon btn-outline-primary ms-2"
-                               type="button"
-                               href="{% url 'lease-document-create' lease.id %}">
-                                <span class="tf-icons bx bx-plus"></span>
-                            </a>
-                        </h5>
-                        <div class="row">
-                            {% for document in lease.documents %}
-                                <div class="col-md-4">
-                                    <div class="card mb-3 shadow-sm">
-                                        <div class="card-body">
-                                            <div class="d-flex mb-4 pb-1">
-                                                <div class="avatar flex-shrink-0 me-3">
-                                                    <img src="{% static document.icon %}" alt="" />
-                                                </div>
-                                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                                    <div class="me-2">
-                                                        <h6 class="mb-0">{{ document.name }}</h6>
-                                                        {% if document.expiration_date %}<small class="text-muted">{{ document.note }}</small>{% endif %}
-                                                    </div>
-                                                </div>
+                </div>
+                <!-- Documents -->
+                <hr class="mt-0" />
+                <div class="card-header">
+                    <h5>
+                        <strong>Documents</strong>
+                        <a class="btn btn-icon btn-outline-primary ms-2"
+                           href="{% url 'detail-contract' lease.contract.id %}">
+                            <img src="{% static 'assets/img/icons/contract.jpg' %}"
+                                 alt="contract icon"
+                                 class="h-px-20 w-auto" />
+                        </a>
+                        <a class="btn btn-icon btn-outline-primary ms-2"
+                           type="button"
+                           href="{% url 'lease-document-create' lease.id %}">
+                            <span class="tf-icons bx bx-plus"></span>
+                        </a>
+                    </h5>
+                    <div class="row">
+                        {% for document in lease.documents %}
+                            <div class="col-md-4">
+                                <div class="card mb-3 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex mb-4 pb-1">
+                                            <div class="avatar flex-shrink-0 me-3">
+                                                <img src="{% static document.icon %}" alt="" />
                                             </div>
-                                            <p class="card-text">
-                                                {{ document.note }}
-                                                <div class="demo-inline-spacing">
-                                                    <a class="btn btn-icon btn-outline-primary ms-3"
-                                                       type="button"
-                                                       target="_blank"
-                                                       href="{{ document.file.url }}">
-                                                        <span class="tf-icons bx bx-download"></span>
-                                                    </a>
-                                                    <a class="btn btn-icon btn-outline-primary ms-3"
-                                                       type="button"
-                                                       href="{% url 'update-lease-document' document.id %}">
-                                                        <span class="tf-icons bx bx-edit"></span>
-                                                    </a>
-                                                    <a class="btn btn-icon btn-outline-danger float-end"
-                                                       type="button"
-                                                       onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
-                                                        <span class="tf-icons bx bx-trash"></span>
-                                                    </a>
+                                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                                <div class="me-2">
+                                                    <h6 class="mb-0">{{ document.name }}</h6>
+                                                    {% if document.expiration_date %}<small class="text-muted">{{ document.note }}</small>{% endif %}
                                                 </div>
                                             </div>
                                         </div>
-                                    {% endfor %}
-                                </div>
+                                        <p class="card-text">
+                                            {{ document.note }}
+                                            <div class="demo-inline-spacing">
+                                                <a class="btn btn-icon btn-outline-primary ms-3"
+                                                   type="button"
+                                                   target="_blank"
+                                                   href="{{ document.file.url }}">
+                                                    <span class="tf-icons bx bx-download"></span>
+                                                </a>
+                                                <a class="btn btn-icon btn-outline-primary ms-3"
+                                                   type="button"
+                                                   href="{% url 'update-lease-document' document.id %}">
+                                                    <span class="tf-icons bx bx-edit"></span>
+                                                </a>
+                                                <a class="btn btn-icon btn-outline-danger float-end"
+                                                   type="button"
+                                                   onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
+                                                    <span class="tf-icons bx bx-trash"></span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
-                            <!-- END Documents -->
-                            <!-- Deposits -->
-                            <hr class="mt-0" />
-                            <div class="card-header">
-                                <strong>Deposits (${{ total_deposit|floatformat:"0" }}/${{ lease.contract.security_deposit|floatformat:"0" }}):</strong>
-                                <a class="btn btn-icon btn-outline-primary ms-3"
-                                   type="button"
-                                   href="{% url 'lease-deposit-create' lease.id %}">
-                                    <span class="tf-icons bx bx-plus"></span>
-                                </a>
-                                <ul class="pt-2">
-                                    {% for deposit in lease.deposits %}
-                                        <li>
-                                            <i class="tf-icons bx bx-calendar"></i>{{ deposit.date|date:"m/d/Y" }} - <strong>${{ deposit.amount|floatformat:"0" }}</strong>
-                                            <a class="btn btn-icon btn-outline-primary ms-3"
-                                               type="button"
-                                               onclick="deleteDeposit('{{ deposit.amount }}', {{ deposit.id }})">
-                                                <span class="tf-icons bx bx-trash text-danger"></span>
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                            <!-- END Deposits -->
-                        {% endfor %}
-                    </div>
+                        </div>
+                        <!-- END Documents -->
+                        <!-- Deposits -->
+                        <hr class="mt-0" />
+                        <div class="card-header">
+                            <strong>Deposits (${{ total_deposit|floatformat:"0" }}/${{ lease.contract.security_deposit|floatformat:"0" }}):</strong>
+                            <a class="btn btn-icon btn-outline-primary ms-3"
+                               type="button"
+                               href="{% url 'lease-deposit-create' lease.id %}">
+                                <span class="tf-icons bx bx-plus"></span>
+                            </a>
+                            <ul class="pt-2">
+                                {% for deposit in lease.deposits %}
+                                    <li>
+                                        <i class="tf-icons bx bx-calendar"></i>{{ deposit.date|date:"m/d/Y" }} - <strong>${{ deposit.amount|floatformat:"0" }}</strong>
+                                        <a class="btn btn-icon btn-outline-primary ms-3"
+                                           type="button"
+                                           onclick="deleteDeposit('{{ deposit.amount }}', {{ deposit.id }})">
+                                            <span class="tf-icons bx bx-trash text-danger"></span>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <!-- END Deposits -->
+                    {% endfor %}
                 </div>
-            {% endblock content %}
+            </div>
+        {% endblock content %}
