@@ -165,9 +165,11 @@
                                                         <strong>${{ payment.amount|floatformat:"0" }}</strong>
                                                     </td>
                                                     <td>
-                                                        <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
-                                                            <span class="tf-icons bx bx-trash text-danger"></span>
-                                                        </a>
+                                                        {% if forloop.first %}
+                                                            <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
+                                                                <span class="tf-icons bx bx-trash text-danger"></span>
+                                                            </a>
+                                                        {% endif %}
                                                     </td>
                                                 </tr>
                                             {% endfor %}
