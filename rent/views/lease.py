@@ -14,6 +14,7 @@ from weasyprint import HTML
 import tempfile
 from collections import defaultdict
 from django.conf import settings
+from django.utils import timezone
 import re
 import base64
 from googleapiclient.discovery import build
@@ -32,6 +33,7 @@ from ..models.lease import (
     LeaseDocument,
     LeaseDeposit,
     Due,
+    Payment,
 )
 from ..forms.lease import (
     ContractForm,
@@ -175,6 +177,7 @@ def update_lease(request, id):
 
 
 @login_required
+@transaction.atomic
 def create_due(request, lease_id, date):
     lease = get_object_or_404(Lease, id=lease_id)
     date = datetime.strptime(date, "%m%d%Y")
@@ -186,6 +189,27 @@ def create_due(request, lease_id, date):
             due.due_date = date
             due.lease = lease
             due.client = lease.contract.lessee
+
+            # Create a payment
+            last_payment = Payment.objects.filter(
+
+            ).last()
+            remaining = 0
+            if last_payment is not None:
+                remaining = last_payment.remaining
+                last_payment.remaining = 0
+                last_payment.save()
+            Payment.objects.create(
+                date_of_payment=date,
+                amount=due.amount,
+                remaining=remaining,
+                client=lease.contract.lessee,
+                lease=lease,
+                date=timezone.now(),
+                user=request.user
+            )
+
+            # Persist the due
             due.save()
             return redirect('client-detail', lease.contract.lessee.id)
     form = DueForm(initial={'amount': lease.payment_amount})
