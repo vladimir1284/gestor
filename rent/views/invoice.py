@@ -171,43 +171,44 @@ def send_invoice(request, lease_id, date, paid):
 
 def mail_send_invoice(request, lease_id, date, paid):
     context = get_invoice_context(lease_id, date, paid)
-    client = context['lease'].contract.lessee
-    if settings.ENVIRONMENT == 'production':
-        recipient_list = [client.email]
-    else:
-        recipient_list = ['vladimir.rdguez@gmail.com']
-
-    if paid == "true":
-        subject = PAID_SUBJECT_DICT[client.language]
-        body = INVOICE_DICT[client.language].format(
-            client) + THANKS_DICT[client.language]
-
-    else:
-        subject = DUE_SUBJECT_DICT[client.language]
-        body = PAYMENT_DICT[client.language].format(
-            client, context['date'].strftime("%m/%d/%Y")) + THANKS_DICT[client.language]
-    try:
-        result = generate_invoice_pdf(request, lease_id, date, paid)
-        if result:
-            with tempfile.NamedTemporaryFile(
-                    suffix=".pdf",
-                    delete=False,
-                    prefix=F"invoice_rental_{client.id}_") as output:
-                output.write(result)
-                output.flush()
-                with get_connection(
-                    host=settings.EMAIL_HOST,
-                    port=settings.EMAIL_PORT,
-                    username=settings.EMAIL_HOST_USER,
-                    password=settings.EMAIL_HOST_PASSWORD,
-                    use_tls=settings.EMAIL_USE_TLS
-                ) as connection:
-                    email_from = settings.EMAIL_HOST_USER
-                    msg = EmailMessage(subject, body, email_from,
-                                       recipient_list, connection=connection)
-                    msg.attach_file(output.name)
-                    msg.send()
+    if context['lease'].notify:
+        client = context['lease'].contract.lessee
+        if settings.ENVIRONMENT == 'production':
+            recipient_list = [client.email]
         else:
-            print(body)
-    except Exception as e:
-        print(e)
+            recipient_list = ['vladimir.rdguez@gmail.com']
+
+        if paid == "true":
+            subject = PAID_SUBJECT_DICT[client.language]
+            body = INVOICE_DICT[client.language].format(
+                client) + THANKS_DICT[client.language]
+
+        else:
+            subject = DUE_SUBJECT_DICT[client.language]
+            body = PAYMENT_DICT[client.language].format(
+                client, context['date'].strftime("%m/%d/%Y")) + THANKS_DICT[client.language]
+        try:
+            result = generate_invoice_pdf(request, lease_id, date, paid)
+            if result:
+                with tempfile.NamedTemporaryFile(
+                        suffix=".pdf",
+                        delete=False,
+                        prefix=F"invoice_rental_{client.id}_") as output:
+                    output.write(result)
+                    output.flush()
+                    with get_connection(
+                        host=settings.EMAIL_HOST,
+                        port=settings.EMAIL_PORT,
+                        username=settings.EMAIL_HOST_USER,
+                        password=settings.EMAIL_HOST_PASSWORD,
+                        use_tls=settings.EMAIL_USE_TLS
+                    ) as connection:
+                        email_from = settings.EMAIL_HOST_USER
+                        msg = EmailMessage(subject, body, email_from,
+                                           recipient_list, connection=connection)
+                        msg.attach_file(output.name)
+                        msg.send()
+            else:
+                print(body)
+        except Exception as e:
+            print(e)
