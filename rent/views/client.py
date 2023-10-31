@@ -199,12 +199,12 @@ def process_payment(request, payment: Payment):
     # Create as many dues as possible
     # interval_start = get_start_paying_date(payment.client, payment.lease)
     _, _, unpaid_dues = compute_client_debt(payment.client, payment.lease)
-
+    # Clean up debts
     for unpaid_due in unpaid_dues:
         if payment.remaining >= payment.lease.payment_amount:
             payment.remaining -= payment.lease.payment_amount
             due_date = unpaid_due.start.date()
-            Due.objects.create(
+            due = Due.objects.create(
                 due_date=due_date,
                 amount=payment.lease.payment_amount,
                 client=payment.client,
@@ -213,6 +213,25 @@ def process_payment(request, payment: Payment):
             # Send invoice by email
             mail_send_invoice(request, payment.lease.id,
                               due_date.strftime("%m%d%Y"), "true")
+    # Pay dues in the future
+    if payment.remaining >= payment.lease.payment_amount:
+        occurrences = payment.lease.event.occurrences_after(
+            timezone.make_aware(datetime.combine(
+                due.due_date, datetime.min.time()),
+                pytz.timezone(settings.TIME_ZONE))+timedelta(days=1))
+        for occurrence in occurrences:
+            payment.remaining -= payment.lease.payment_amount
+            due = Due.objects.create(
+                due_date=occurrence.start.date(),
+                amount=payment.lease.payment_amount,
+                client=payment.client,
+                lease=payment.lease
+            )
+            # Send invoice by email
+            mail_send_invoice(request, payment.lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
+            if payment.remaining < payment.lease.payment_amount:
+                break
 
 
 @login_required

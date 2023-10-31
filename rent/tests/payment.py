@@ -158,14 +158,24 @@ class PaymentViewTests(TestCase):
         self.assertEqual(Due.objects.count(), 0)
 
     def test_payment_view_with_previous_payment_and_due(self):
+        # Login the user
+        self.client.post('/erp/users/login/', follow=True,
+                         username='testuser', password='testpassword')
+
         # Create a previous payment and due instances
-        previous_payment = Payment.objects.create(
-            date_of_payment=timezone.now().date(),
-            remaining=0,
-            amount=100, client=self.lessee, lease=self.lease,
-            user=self.user)
-        Due.objects.create(due_date=timezone.now().date(),
-                           amount=100, client=self.lessee, lease=self.lease)
+        form_data = {
+            'amount': 100,
+            'lease': self.lease.id,
+            'date_of_payment': timezone.now().date()
+        }
+
+        # Make a POST request to the payment view with the form data
+        response = self.client.post(self.payment_url, data=form_data)
+        # Check if the payment and due instances were created correctly
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(Payment.objects.last().remaining, 0)
+        self.assertEqual(Due.objects.count(), 1)
 
         # Create a payment form data
         form_data = {
@@ -173,10 +183,6 @@ class PaymentViewTests(TestCase):
             'lease': self.lease.id,
             'date_of_payment': timezone.now().date()
         }
-
-        # Login the user
-        self.client.post('/erp/users/login/', follow=True,
-                         username='testuser', password='testpassword')
 
         # Make a POST request to the payment view with the form data
         response = self.client.post(self.payment_url, data=form_data)
@@ -202,14 +208,24 @@ class PaymentViewTests(TestCase):
         self.assertEqual(Due.objects.count(), 1)
 
     def test_payment_view_with_previous_payment_remaining(self):
+        # Login the user
+        self.client.post('/erp/users/login/', follow=True,
+                         username='testuser', password='testpassword')
+
         # Create a previous payment and due instances
-        previous_payment = Payment.objects.create(
-            date_of_payment=timezone.now().date(),
-            remaining=10,
-            amount=100, client=self.lessee, lease=self.lease,
-            user=self.user)
-        Due.objects.create(due_date=timezone.now().date(),
-                           amount=100, client=self.lessee, lease=self.lease)
+        form_data = {
+            'amount': 110,
+            'lease': self.lease.id,
+            'date_of_payment': timezone.now().date()
+        }
+
+        # Make a POST request to the payment view with the form data
+        response = self.client.post(self.payment_url, data=form_data)
+        # Check if the payment and due instances were created correctly
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(Payment.objects.last().remaining, 10)
+        self.assertEqual(Due.objects.count(), 1)
 
         # Create a payment form data
         form_data = {
@@ -217,10 +233,6 @@ class PaymentViewTests(TestCase):
             'lease': self.lease.id,
             'date_of_payment': timezone.now().date()
         }
-
-        # Login the user
-        self.client.post('/erp/users/login/', follow=True,
-                         username='testuser', password='testpassword')
 
         # Make a POST request to the payment view with the form data
         response = self.client.post(self.payment_url, data=form_data)
@@ -311,6 +323,47 @@ class PaymentViewTests(TestCase):
         self.assertEqual(Payment.objects.count(), 1)
         self.assertEqual(Payment.objects.last().remaining, 56)
         self.assertEqual(Due.objects.count(), 0)
+
+        # Revert payment
+        revert_url = reverse(
+            'revert-payment', args=[Payment.objects.last().id])
+
+        # Make the revert request
+        response = self.client.get(revert_url)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+
+        # Check if the payment and due instances were deleted correctly
+        self.assertEqual(Payment.objects.count(), 0)
+        self.assertEqual(Due.objects.count(), 0)
+
+    def test_payment_view_with_dues_in_the_future(self):
+        # Create a valid payment form data
+        form_data = {
+            'amount': 1000,
+            'lease': self.lease.id,
+            'date_of_payment': timezone.now().date()
+        }
+
+        # Login the user
+        self.client.post('/erp/users/login/', follow=True,
+                         username='testuser', password='testpassword')
+
+        # Make a POST request to the payment view with the valid form data
+        response = self.client.post(self.payment_url, data=form_data)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse(
+            'client-detail', args=[self.lessee.id]))
+
+        # Check if the payment and due instances were created correctly
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(Due.objects.count(), 10)
+
+        for due in Due.objects.all():
+            print(f"Due {due.id} - {due.due_date}")
 
         # Revert payment
         revert_url = reverse(

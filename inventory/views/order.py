@@ -143,7 +143,7 @@ def update_order_status(request, id, status):
         transactions = ProductTransaction.objects.filter(order=order)
         for transaction in transactions:
             handle_transaction(transaction)
-        order.terminated_date = timezone.localtime(timezone.now())
+        order.terminated_date = timezone.now()
     elif order.status == 'complete':
         if status == 'decline':
             # Reverse stock
