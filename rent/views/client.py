@@ -204,6 +204,7 @@ def process_payment(request, payment: Payment):
     # interval_start = get_start_paying_date(payment.client, payment.lease)
     _, _, unpaid_dues = compute_client_debt(payment.client, payment.lease)
     # Clean up debts
+    due = None
     for unpaid_due in unpaid_dues:
         if payment.remaining >= payment.lease.payment_amount:
             payment.remaining -= payment.lease.payment_amount
@@ -219,10 +220,12 @@ def process_payment(request, payment: Payment):
                               due_date.strftime("%m%d%Y"), "true")
     # Pay dues in the future
     if payment.remaining >= payment.lease.payment_amount:
-        occurrences = payment.lease.event.occurrences_after(
-            timezone.make_aware(datetime.combine(
+        start_time = timezone.now()
+        if due is not None:
+            start_time = timezone.make_aware(datetime.combine(
                 due.due_date, datetime.min.time()),
-                pytz.timezone(settings.TIME_ZONE))+timedelta(days=1))
+                pytz.timezone(settings.TIME_ZONE))+timedelta(days=1)
+        occurrences = payment.lease.event.occurrences_after(start_time)
         for occurrence in occurrences:
             payment.remaining -= payment.lease.payment_amount
             due = Due.objects.create(
