@@ -144,32 +144,34 @@ def _api_occurrences(request, start, end, calendar_slug, timezone):
                     color = "gray"
                     url = request.build_absolute_uri(
                         reverse('update-due', args=[due[0].id]))
+                if current_tz:
+                    # make event start and end dates aware in given timezone
+                    event_start = event_start.astimezone(current_tz)
+                    event_end = event_end.astimezone(current_tz)
+                if occurrence.cancelled:
+                    # fixes bug 508
+                    continue
+                response_data.append(
+                    {
+                        "id": occurrence_id,
+                        "title": occurrence.event.title,
+                        "url": url,
+                        "start": event_start,
+                        "allDay": True,
+                        "existed": existed,
+                        "event_id": occurrence.event.id,
+                        "color": color,
+                        "description": occurrence.description,
+                        "rule": recur_rule,
+                        "end_recurring_period": recur_period_end,
+                        "creator": str(occurrence.event.creator),
+                        "calendar": occurrence.event.calendar.slug,
+                        "cancelled": occurrence.cancelled,
+                    }
+                )
+
             except Exception as err:
+                print(event.id)
                 print(err)
 
-            if current_tz:
-                # make event start and end dates aware in given timezone
-                event_start = event_start.astimezone(current_tz)
-                event_end = event_end.astimezone(current_tz)
-            if occurrence.cancelled:
-                # fixes bug 508
-                continue
-            response_data.append(
-                {
-                    "id": occurrence_id,
-                    "title": occurrence.event.title,
-                    "url": url,
-                    "start": event_start,
-                    "allDay": True,
-                    "existed": existed,
-                    "event_id": occurrence.event.id,
-                    "color": color,
-                    "description": occurrence.description,
-                    "rule": recur_rule,
-                    "end_recurring_period": recur_period_end,
-                    "creator": str(occurrence.event.creator),
-                    "calendar": occurrence.event.calendar.slug,
-                    "cancelled": occurrence.cancelled,
-                }
-            )
     return response_data

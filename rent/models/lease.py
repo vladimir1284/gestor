@@ -320,4 +320,4 @@ class Due(models.Model):
     note = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.client} {self.lease.contract.trailer} ${self.amount} - {self.due_date}"
+        return f"{self.client}  ${self.amount} - {self.due_date}"
