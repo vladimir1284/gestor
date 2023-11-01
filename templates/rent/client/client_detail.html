@@ -131,7 +131,10 @@
                                             {% for due in lease.unpaid_dues %}
                                                 <tr>
                                                     <td>
-                                                        <i class="tf-icons bx bx-calendar text-danger"></i>
+                                                        {% if forloop.first %}
+                                                            <a href={% url 'create-due' lease.id due.start|date:"mdY" %}>
+                                                                <i class="tf-icons bx bx-calendar text-danger"></i></a>
+                                                        {% endif %}
                                                     </td>
                                                     <td>
                                                         <a href="{% url 'rental-invoice' lease.id due.start|date:"mdY" 'false' %}">{{ due.start|date:"m/d/Y" }}</a>

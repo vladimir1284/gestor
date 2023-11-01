@@ -138,12 +138,13 @@ def _api_occurrences(request, start, end, calendar_slug, timezone):
                 due = Due.objects.filter(
                     lease=lease, due_date=event_start.date())
                 url = request.build_absolute_uri(
-                    reverse('create-due',
-                            args=[lease.id, event_start.strftime("%m%d%Y")]))
+                    reverse('rental-invoice',
+                            args=[lease.id, event_start.strftime("%m%d%Y"), 'false']))
                 if len(due) > 0:
                     color = "gray"
                     url = request.build_absolute_uri(
-                        reverse('update-due', args=[due[0].id]))
+                        reverse('rental-invoice',
+                                args=[lease.id, event_start.strftime("%m%d%Y"), 'true']))
                 if current_tz:
                     # make event start and end dates aware in given timezone
                     event_start = event_start.astimezone(current_tz)
