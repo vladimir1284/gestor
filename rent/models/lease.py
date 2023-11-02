@@ -100,6 +100,7 @@ class Lease(models.Model):
     last_payment_cover = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    remaining = models.FloatField(default=0)
 
     def compute_payment_cover(self):
         PERIOD_DAYS = {'weekly': 8,
@@ -292,7 +293,6 @@ class Payment(models.Model):
     date_of_payment = models.DateField()
     sender_name = models.CharField(max_length=150, blank=True)
     amount = models.FloatField()
-    remaining = models.FloatField(default=0)
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
     lease = models.ForeignKey(Lease, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)

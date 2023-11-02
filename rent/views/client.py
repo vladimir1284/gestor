@@ -72,7 +72,7 @@ def get_sorted_clients(n=None, order_by="date"):
                 # Discount remaining from debt
                 last_payment = Payment.objects.filter(lease=lease).last()
                 if last_payment is not None:
-                    client.debt -= last_payment.remaining
+                    client.debt -= lease.remaining
                 client.last_payment = client.unpaid_dues[0].start
                 rental_debt += client.debt
             else:
@@ -139,14 +139,8 @@ def client_detail(request, id):
             payment.dues = dues
 
         if len(payments) > 0:
-            lease.remaining = payments[0].remaining
             lease.payments = payments
-            # Get manuel dues after the last payment
-            # dues = Due.objects.filter(
-            #     lease=lease,
-            #     due_date__gt=payment.date_of_payment).order_by('-due_date')
-        else:
-            lease.remaining = 0
+
         lease.paid_dues = Due.objects.filter(
             lease=lease).order_by('-due_date')
         lease.paid = lease.paid_dues.aggregate(
@@ -188,17 +182,8 @@ def get_start_paying_date(client: Associated, lease: Lease):
 
 
 def process_payment(request, payment: Payment):
-    # Init the payment remaining
-    payment.remaining = payment.amount
-
-    # Get the remaining money from last payment
-    last_payment = Payment.objects.filter(
-        client=payment.client,
-        lease=payment.lease).exclude(id=payment.id).order_by('date_of_payment').last()
-    if last_payment is not None:
-        payment.remaining += last_payment.remaining
-        last_payment.remaining = 0
-        last_payment.save()
+    # Retrieve the remaining
+    amount = payment.amount + payment.lease.remaining
 
     # Create as many dues as possible
     # interval_start = get_start_paying_date(payment.client, payment.lease)
@@ -206,8 +191,8 @@ def process_payment(request, payment: Payment):
     # Clean up debts
     due = None
     for unpaid_due in unpaid_dues:
-        if payment.remaining >= payment.lease.payment_amount:
-            payment.remaining -= payment.lease.payment_amount
+        if amount >= payment.lease.payment_amount:
+            amount -= payment.lease.payment_amount
             due_date = unpaid_due.start.date()
             due = Due.objects.create(
                 due_date=due_date,
@@ -219,7 +204,7 @@ def process_payment(request, payment: Payment):
             mail_send_invoice(request, payment.lease.id,
                               due_date.strftime("%m%d%Y"), "true")
     # Pay dues in the future
-    if payment.remaining >= payment.lease.payment_amount:
+    if amount >= payment.lease.payment_amount:
         start_time = timezone.now()
         if due is not None:
             start_time = timezone.make_aware(datetime.combine(
@@ -227,7 +212,7 @@ def process_payment(request, payment: Payment):
                 pytz.timezone(settings.TIME_ZONE))+timedelta(days=1)
         occurrences = payment.lease.event.occurrences_after(start_time)
         for occurrence in occurrences:
-            payment.remaining -= payment.lease.payment_amount
+            amount -= payment.lease.payment_amount
             due = Due.objects.create(
                 due_date=occurrence.start.date(),
                 amount=payment.lease.payment_amount,
@@ -237,8 +222,12 @@ def process_payment(request, payment: Payment):
             # Send invoice by email
             mail_send_invoice(request, payment.lease.id,
                               due_date.strftime("%m%d%Y"), "true")
-            if payment.remaining < payment.lease.payment_amount:
+            if amount < payment.lease.payment_amount:
                 break
+
+    # Save back the remaining
+    payment.lease.remaining = amount
+    payment.lease.save()
 
 
 @login_required
@@ -285,17 +274,14 @@ def revert_payment(request, id):
     # Delete the dues created during the payment
     dues_to_delete = Due.objects.filter(
         client=payment.client, lease=payment.lease, date__gte=payment.date)
-    if dues_to_delete is not None:
-        dues_amount = dues_to_delete.count() * payment.lease.payment_amount
-        dues_to_delete.delete()
+    dues_amount = dues_to_delete.aggregate(total=Sum('amount'))['total']
+    dues_to_delete.delete()
 
     # Update the remaining amount in the previous payment if applicable
-    previous_payment = Payment.objects.filter(
-        client=payment.client, lease=payment.lease, date__lt=payment.date).last()
-    if previous_payment is not None:
-        previous_payment.remaining = (
-            dues_amount+payment.remaining-payment.amount)
-        previous_payment.save()
+    if dues_amount is None:
+        dues_amount = 0
+    payment.lease.remaining += (float(dues_amount)-payment.amount)
+    payment.lease.save()
 
     # Delete the payment itself
     payment.delete()

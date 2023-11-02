@@ -191,18 +191,9 @@ def create_due(request, lease_id, date):
             due.client = lease.contract.lessee
 
             # Create a payment
-            last_payment = Payment.objects.filter(
-
-            ).last()
-            remaining = 0
-            if last_payment is not None:
-                remaining = last_payment.remaining
-                last_payment.remaining = 0
-                last_payment.save()
             Payment.objects.create(
-                date_of_payment=date,
+                date_of_payment=timezone.now().date(),
                 amount=due.amount,
-                remaining=remaining,
                 client=lease.contract.lessee,
                 lease=lease,
                 date=timezone.now(),

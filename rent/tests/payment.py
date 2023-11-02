@@ -174,7 +174,7 @@ class PaymentViewTests(TestCase):
         # Check if the payment and due instances were created correctly
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Payment.objects.count(), 1)
-        self.assertEqual(Payment.objects.last().remaining, 0)
+        self.assertEqual(Lease.objects.get(id=self.lease.id).remaining, 0)
         self.assertEqual(Due.objects.count(), 1)
 
         # Create a payment form data
@@ -204,7 +204,7 @@ class PaymentViewTests(TestCase):
 
         # Check if the payment and due instances were deleted correctly
         self.assertEqual(Payment.objects.count(), 1)
-        self.assertEqual(Payment.objects.last().remaining, 0)
+        self.assertEqual(Lease.objects.get(id=self.lease.id).remaining, 0)
         self.assertEqual(Due.objects.count(), 1)
 
     def test_payment_view_with_previous_payment_remaining(self):
@@ -224,7 +224,7 @@ class PaymentViewTests(TestCase):
         # Check if the payment and due instances were created correctly
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Payment.objects.count(), 1)
-        self.assertEqual(Payment.objects.last().remaining, 10)
+        self.assertEqual(Lease.objects.get(id=self.lease.id).remaining, 10)
         self.assertEqual(Due.objects.count(), 1)
 
         # Create a payment form data
@@ -240,7 +240,7 @@ class PaymentViewTests(TestCase):
         # Check if the payment and due instances were created correctly
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Payment.objects.count(), 2)
-        self.assertEqual(Payment.objects.last().remaining, 30)
+        self.assertEqual(Lease.objects.get(id=self.lease.id).remaining, 30)
         self.assertEqual(Due.objects.count(), 2)
 
         # Revert payment
@@ -255,7 +255,7 @@ class PaymentViewTests(TestCase):
 
         # Check if the payment and due instances were deleted correctly
         self.assertEqual(Payment.objects.count(), 1)
-        self.assertEqual(Payment.objects.last().remaining, 10)
+        self.assertEqual(Lease.objects.get(id=self.lease.id).remaining, 10)
         self.assertEqual(Due.objects.count(), 1)
 
     def test_payment_view_with_remaining(self):
@@ -280,7 +280,7 @@ class PaymentViewTests(TestCase):
 
         # Check if the payment and due instances were created correctly
         self.assertEqual(Payment.objects.count(), 1)
-        self.assertEqual(Payment.objects.last().remaining, 20)
+        self.assertEqual(Lease.objects.get(id=self.lease.id).remaining, 20)
         self.assertEqual(Due.objects.count(), 3)
         for due in Due.objects.all():
             print(f"Due date: {due.date}")
@@ -321,7 +321,7 @@ class PaymentViewTests(TestCase):
 
         # Check if the payment and due instances were created correctly
         self.assertEqual(Payment.objects.count(), 1)
-        self.assertEqual(Payment.objects.last().remaining, 56)
+        self.assertEqual(Lease.objects.get(id=self.lease.id).remaining, 56)
         self.assertEqual(Due.objects.count(), 0)
 
         # Revert payment
