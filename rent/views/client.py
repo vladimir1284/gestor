@@ -194,7 +194,7 @@ def process_payment(request, payment: Payment):
     # Get the remaining money from last payment
     last_payment = Payment.objects.filter(
         client=payment.client,
-        lease=payment.lease).exclude(id=payment.id).last()
+        lease=payment.lease).exclude(id=payment.id).order_by('date_of_payment').last()
     if last_payment is not None:
         payment.remaining += last_payment.remaining
         last_payment.remaining = 0
