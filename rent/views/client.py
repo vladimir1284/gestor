@@ -14,8 +14,8 @@ from rent.models.lease import LeaseDocument, LeaseDeposit
 from django.db.models import Sum
 
 
-def compute_client_debt(client: Associated, lease: Lease):
-    interval_start = get_start_paying_date(client, lease)
+def compute_client_debt(lease: Lease):
+    interval_start = get_start_paying_date(lease)
     occurrences = lease.event.get_occurrences(interval_start,
                                               timezone.now())
     unpaid_dues = []
@@ -67,7 +67,7 @@ def get_sorted_clients(n=None, order_by="date"):
                 )
             client.lease = lease
             client.debt, last_payment, client.unpaid_dues = compute_client_debt(
-                client, lease)
+                lease)
             if client.debt > 0:
                 # Discount remaining from debt
                 last_payment = Payment.objects.filter(lease=lease).last()
@@ -121,8 +121,7 @@ def client_detail(request, id):
     dues = None
     for lease in leases:
         # Debt associated with this lease
-        lease.debt, last_date, lease.unpaid_dues = compute_client_debt(
-            client, lease)
+        lease.debt, last_date, lease.unpaid_dues = compute_client_debt(lease)
         # Payments for thi lease
         payments = Payment.objects.filter(
             lease=lease).order_by('-date_of_payment')
@@ -167,9 +166,9 @@ def client_detail(request, id):
     return render(request, "rent/client/client_detail.html", context=context)
 
 
-def get_start_paying_date(client: Associated, lease: Lease):
+def get_start_paying_date(lease: Lease):
     # Find the last due payed by the client
-    last_due = Due.objects.filter(client=client, lease=lease).last()
+    last_due = Due.objects.filter(lease=lease).last()
     if last_due is not None:
         interval_start = last_due.due_date + timedelta(days=2)
     else:
@@ -186,8 +185,7 @@ def process_payment(request, payment: Payment):
     amount = payment.amount + payment.lease.remaining
 
     # Create as many dues as possible
-    # interval_start = get_start_paying_date(payment.client, payment.lease)
-    _, _, unpaid_dues = compute_client_debt(payment.client, payment.lease)
+    _, _, unpaid_dues = compute_client_debt(payment.lease)
     # Clean up debts
     due = None
     for unpaid_due in unpaid_dues:
