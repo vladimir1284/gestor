@@ -4,34 +4,26 @@ from typing import List
 from itertools import chain
 from django.shortcuts import (
     render,
-    redirect,
     get_object_or_404,
 )
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
-import openai
 from django.db.models import Min
-from inventory.models import ProductTransaction, Product
+from inventory.models import ProductTransaction
 from services.models import (
     Expense,
-    ServiceTransaction,
     PendingPayment,
     Payment,
     PaymentCategory,
 )
 from costs.models import Cost
-from utils.models import Order, Statistics
-from users.views import get_debtor
+from utils.models import Order
 from services.views.order import (
     computeOrderAmount,
 )
-import calendar
-from rent.views.client import get_sorted_clients, compute_client_debt
-
-from rent.models.lease import Due, Lease, Contract
-from rent.models.vehicle import Trailer
-from datetime import datetime, time
-from django.utils import timezone
+from gestor.views.utils import getWeek, getMonthYear
+from rent.models.lease import Due, Payment as RentalPayment
+from datetime import datetime
 
 
 class UnknownCategory:
@@ -193,7 +185,25 @@ def monthly_report(request, year=None, month=None):
     context.setdefault('membership', getMonthlyMembership(
         currentYear, currentMonth)['total']['gross'])
 
+    context.setdefault('rental', getRentalReport(currentYear, currentMonth))
+
     return render(request, 'monthly.html', context)
+
+
+def getRentalReport(currentYear, currentMonth):
+    paid_dues = Due.objects.filter(
+        due_date__year=currentYear,
+        due_date__month=currentMonth)
+    invoice_income = paid_dues.aggregate(total=Sum('amount'))['total']
+    total_income = RentalPayment.objects.filter(
+        date_of_payment__year=currentYear,
+        date_of_payment__month=currentMonth)
+    rental = {
+        'paid_dues': paid_dues,
+        'total_income': total_income,
+        'invoice_income': invoice_income,
+    }
+    return rental
 
 
 @login_required
@@ -415,260 +425,6 @@ def getPaymentContext(orders, category, pending_payments):
             'transactions': len(payments) + len(pending_payments),
             'pending_payments': pending_payments,
             'category': category}
-
-
-@login_required
-def dashboard(request):
-    N = 6  # number of weeks in the dashboard
-    # stats_list = weekly_stats_array(n=N)
-    stats_list = monthly_stats_array(n=N)
-
-    # Profit
-    current_profit = stats_list[0].profit_before_costs - stats_list[0].costs
-    previous_profit = stats_list[1].profit_before_costs - stats_list[1].costs
-    profit_increment = 0
-    if current_profit > 0:
-        profit_increment = 100 * \
-            (current_profit - previous_profit)/current_profit
-
-    # Parts
-    current_parts_profit = stats_list[0].parts_price - stats_list[0].parts_cost
-    previous_parts_profit = stats_list[1].parts_price - \
-        stats_list[1].parts_cost
-    parts_profit_increment = 0
-    if current_parts_profit > 0:
-        parts_profit_increment = 100 * \
-            (current_parts_profit - previous_parts_profit)/current_parts_profit
-
-    # Costs
-    current_costs = stats_list[0].costs
-    previous_costs = stats_list[1].costs
-    costs_increment = 0
-    if current_costs > 0:
-        costs_increment = 100 * \
-            (current_costs - previous_costs)/current_costs
-
-    # Debt balance
-    current_debt_balance = stats_list[0].debt_created - stats_list[0].debt_paid
-    previous_debt_balance = stats_list[1].debt_created - \
-        stats_list[1].debt_paid
-    debt_increment = 0
-    if current_debt_balance > 0:
-        debt_increment = 100*(current_debt_balance -
-                              previous_debt_balance)/current_debt_balance
-    # Stock costs
-    current_stock_cost = Product.objects.filter(active=True).aggregate(
-        Sum("stock_price"))['stock_price__sum']
-
-    # Purchase orders
-    # (start_date, end_date, previousWeek, nextWeek) = getWeek()  # This week
-    # (start_date, end_date, previousWeek, nextWeek) = getWeek(
-    #     previousWeek.strftime("%m%d%Y"))  # Previous week
-    purchase_orders = Order.objects.filter(status='complete',
-                                           type='purchase',
-                                           terminated_date__gt=stats_list[0].date,
-                                           terminated_date__lte=stats_list[1].date)
-    # Stock costs added
-    transactions = ProductTransaction.objects.filter(
-        order__in=purchase_orders)
-    added = 0
-    for trans in transactions:
-        added += trans.getAmount()
-
-    stock_cost_increment = 0
-
-    if not current_stock_cost:
-        current_stock_cost = 0
-    else:
-        stock_cost_increment = 100 * \
-            (added - stats_list[0].parts_cost)/current_stock_cost
-
-    # Memebership
-    current_membership = stats_list[0].membership_amount
-    previous_membership = stats_list[1].membership_amount
-    membership_increment = 0
-    if current_membership > 0:
-        membership_increment = 100*(current_membership -
-                                    previous_membership)/current_membership
-
-    # Time series
-    stats_list.reverse()
-
-    time_labels = [stats.date.strftime("%b") for stats in stats_list]
-    # time_labels[0] = ""
-
-    profit_data = [int(x.profit_before_costs - x.costs) for x in stats_list]
-    parts_data = [int(x.parts_price - x.parts_cost) for x in stats_list]
-    expenses_data = [int(x.costs) for x in stats_list]
-
-    indicators = [
-        {'name': 'Profit',
-         'amount': current_profit,
-         'increment': profit_increment,
-         'positive': profit_increment > 0,
-         'series': profit_data,
-         'icon': 'assets/img/icons/profit.png'},
-        {'name': 'Parts',
-         'amount': current_parts_profit,
-         'increment': parts_profit_increment,
-         'positive': parts_profit_increment > 0,
-         'series': parts_data,
-         'icon': 'assets/img/icons/parts.jpg'},
-        {'name': 'Expenses',
-         'amount': current_costs,
-         'increment': costs_increment,
-         'positive': costs_increment < 0,
-         'series': expenses_data,
-         'icon': 'assets/img/icons/costs.png'},
-        {'name': 'Debt',
-         'amount': current_debt_balance,
-         'increment': debt_increment,
-         'positive': debt_increment < 0,
-         'series': None,
-         'icon': 'assets/img/icons/debt.png'},
-        {'name': 'Stock',
-         'amount': current_stock_cost,
-         'increment': stock_cost_increment,
-         'positive': stock_cost_increment < 0,
-         'series': None,
-         'icon': 'assets/img/icons/inventory.png'},
-        {'name': 'TOWIT',
-         'amount': current_membership,
-         'increment': membership_increment,
-         'positive': membership_increment < 0,
-         'series': None,
-         'icon': 'assets/img/icons/TOWIT.png'},
-    ]
-
-    # Get gpt insights is needed
-    if stats_list[-1].gpt_insights is None or stats_list[-1].gpt_insights == "":
-
-        try:
-            stats_list[-1].gpt_insights = get_gpt_insights(current_profit,
-                                                           profit_increment,
-                                                           current_parts_profit,
-                                                           parts_profit_increment,
-                                                           current_debt_balance,
-                                                           debt_increment,
-                                                           current_stock_cost,
-                                                           stock_cost_increment,
-                                                           N,
-                                                           profit_data,
-                                                           parts_data,
-                                                           expenses_data)
-            stats_list[0].save()
-        except Exception as e:
-            print(e)
-
-    # Rental
-    clients_by_date, n_active, n_processing, rental_debt = get_sorted_clients(
-        n=5)
-    clients_by_amount, n_active, n_processing, rental_debt = get_sorted_clients(
-        n=5, order_by='amount')
-
-    # Get unpaid dues from yesterday
-    yesterday_dues = []
-
-    leases = Lease.objects.filter(contract__stage="active")
-
-    # Get the first time of today
-    first_time = datetime.combine(
-        timezone.now().date(), time.min) - timedelta(days=1)
-    # Get the last time of today
-    last_time = datetime.combine(
-        timezone.now().date(), time.max) - timedelta(days=1)
-    for lease in leases:
-        occurrences = lease.event.get_occurrences(first_time, last_time)
-        for occurrence in occurrences:
-            paid_dues = Due.objects.filter(due_date=occurrence.start.date())
-            if len(paid_dues) == 0:
-                client = lease.contract.lessee
-                client.debt, client.last_payment, client.unpaid_dues = compute_client_debt(
-                    client, lease)
-                if client.debt > 0:
-                    client.last_payment = client.unpaid_dues[0].start
-                yesterday_dues.append(client)
-    # Trailers available
-    active_contracts = Contract.objects.filter(
-        stage__in=("active", "missing"))
-    rented_ids = []
-    for contract in active_contracts:
-        rented_ids.append(contract.trailer.id)
-    available = Trailer.objects.filter(active=True).exclude(id__in=rented_ids)
-    context = {
-        'indicators': indicators,
-        'last_date': stats_list[-1].date - timedelta(days=1),  # TODO fix this
-        'time_labels': time_labels,
-        'insights': stats_list[-1].gpt_insights,
-        'rental_debt': rental_debt,
-        'clients_by_date': clients_by_date,
-        'clients_by_amount': clients_by_amount,
-        'rental_debt': rental_debt,
-        'yesterday_dues': yesterday_dues,
-        'available': available,
-    }
-    context = dict(context, **get_debtor(request))
-
-    return render(request, 'dashboard.html', context)
-
-
-def get_gpt_insights(current_profit,
-                     profit_increment,
-                     current_parts_profit,
-                     parts_profit_increment,
-                     current_debt_balance,
-                     debt_increment,
-                     current_stock_cost,
-                     stock_cost_increment,
-                     N,
-                     profit_data,
-                     parts_data,
-                     expenses_data):
-    return ""
-    """ Gets a paragraph in natural language from chat GPT with the stats of the 
-    week """
-
-    prompt = F"""Using the following business data corresponding to the last week:
-The total profit of the week was ${int(current_profit)}. 
-The profit from parts sells of the week was ${int(current_parts_profit)}. 
-The operational costs of the week where ${int(current_parts_profit)}. 
-The debt balance of the week was ${int(current_debt_balance)}. 
-The inventory costs this week is ${int(current_stock_cost)}. 
-The average values for the last {int(N)} weeks is:
-total profit: ${int(sum(profit_data) / len(profit_data))}
-parts sell profit: ${int(sum(parts_data) / len(parts_data))}
-operational costs: ${int(sum(expenses_data) / len(expenses_data))}
-This is a repairs business for trailers and trucks called TOWITHOUSTON. 
-The total profit includes the profit generated from the sell of parts, which are used in the repairs.
-The debt accounts for the money that some clients left to be payed with in the next two weeks.
-
-Create a summary paragraph for the user dashboard. 
-Use rounded numbers only in the response. 
-Use percentage when comparing to average values.
-Do not use the data given above literally, since it is already shown in the page.
-Use html format in your response for highlighting relevant data."""
-
-    # Define additional options (optional)
-    options = {
-        'temperature': 0.5,
-        'max_tokens': 1000,
-        'top_p': 0.8,
-        'frequency_penalty': 0.0,
-        'presence_penalty': 0.0
-    }
-    openai.organization = settings.OPEN_AI_ORG
-    openai.api_key = settings.OPENAI_API_KEY
-
-    # Generate a completion
-    response = openai.Completion.create(
-        engine='text-davinci-003',
-        prompt=prompt,
-        **options
-    )
-
-    # Access the generated text
-    completion_text = response.choices[0].text.strip()
-    return completion_text
 
 
 def computeReport(orders, costs, pending_payments):
@@ -919,279 +675,3 @@ def computeTransactionProfit(transaction: ProductTransaction, procedure="min"):
     if procedure == "profit":
         return (transaction.getAmount()
                 - transaction.cost)
-
-
-def getWeek(dt=None):
-    """ 
-    The given code defines a function called "getWeek" which takes an optional 
-    argument "dt". If no argument is provided, the current date and time are 
-    obtained using the "datetime.now()" method. If an argument is provided, it 
-    is expected to be a string in the format "mmddyyyy" and is converted to a 
-    datetime object using the "datetime.strptime()" method. 
-    The function then calculates the start and end dates of the week containing 
-    the provided or current date. The start date is obtained by subtracting the 
-    number of days equal to the weekday of the date. The end date is obtained by 
-    adding 7 days to the start date. 
-    Additionally, the function calculates the previous week by subtracting 7 
-    days from the provided or current date, and the next week by adding 7 days 
-    to the provided or current date. 
-    Finally, the function returns a tuple containing the start and end dates of 
-    the week, the previous week, and the next week
-    """
-
-    if dt is None:
-        dt = datetime.now()
-    else:
-        dt = datetime.strptime(dt, "%m%d%Y")
-    start = dt - timedelta(days=dt.weekday())
-    end = start + timedelta(days=7)
-    previousWeek = dt - timedelta(days=7)
-    nextWeek = dt + timedelta(days=7)
-    return (start.date(), end.date(), previousWeek, nextWeek)
-
-
-def getMonthYear(month=None, year=None):
-    """ 
-    This function,  `getMonthYear` , takes in two optional parameters,  
-    `month`  and  `year` , and returns a tuple containing three tuples. 
-    The first tuple within the result contains the previous month and year. 
-    If the current month is January, the previous month will be December of the 
-    previous year. 
-    The second tuple within the result contains the current month and year. 
-    If no values are provided for  `month`  and  `year` , the current month and 
-    year are determined using the  `datetime.now()`  function. 
-    The third tuple within the result contains the next month and year. If the 
-    current month is December, the next month will be January of the next year. 
-    If the  `month`  parameter is provided, it is validated to ensure it is a 
-    valid month value (between 1 and 12). If it is not valid, a  `ValueError`  
-    is raised. 
-    If the  `year`  parameter is provided, it is converted to an integer. 
-    The function returns the three tuples as a result.
-    """
-    # Current
-    if month is None:
-        currentMonth = datetime.now().month
-    else:
-        month = int(month)
-        if month > 12 or month < 0:
-            raise ValueError(F'Wrong month value: {month}!')
-        currentMonth = month
-    if year is None:
-        currentYear = datetime.now().year
-    else:
-        year = int(year)
-        currentYear = year
-
-    # Next
-    nextYear = currentYear
-    nextMonth = currentMonth + 1
-    if nextMonth > 12:
-        nextMonth = 1
-        nextYear = currentYear+1
-
-    # Previous
-    previousYear = currentYear
-    previousMonth = currentMonth - 1
-    if previousMonth < 1:
-        previousMonth = 12
-        previousYear = currentYear-1
-
-    return ((previousMonth, previousYear), (currentMonth, currentYear), (nextMonth, nextYear))
-
-
-def monthly_stats_array(n=6) -> List[Statistics]:
-    """ 
-    Compute monthly stats for a given date
-    Returns a list for several month stats
-    We get the data from the previous month 
-    """
-    ((previousMonth, previousYear),
-        (currentMonth, currentYear),
-        (nextMonth, nextYear)) = getMonthYear()  # This month
-    stats_list = []
-    for _ in range(n):
-        # Previous month
-        ((previousMonth, previousYear),
-         (currentMonth, currentYear),
-         (nextMonth, nextYear)) = getMonthYear(previousMonth, previousYear)
-
-        # monthly stats are stored in the end_date of the month
-        start_date = datetime(currentYear, currentMonth, 1)
-        _, last_day = calendar.monthrange(currentYear, currentMonth)
-        last_date = datetime(currentYear, currentMonth, last_day)
-        try:
-            stats = Statistics.objects.get(date=last_date)
-            stats_list.append(stats)
-            continue
-        except Statistics.DoesNotExist:
-            stats = Statistics(date=last_date)
-            calculate_stats(stats, start_date, last_date)
-
-            stats_list.append(stats)
-
-    return stats_list
-
-
-def weekly_stats_array(date=None, n=12) -> List[Statistics]:
-    """ 
-    Compute weekly stats for a given date
-    Returns a list for several week stats
-    We get the data from the previous week 
-    """
-
-    (start_date, end_date, previousWeek, nextWeek) = getWeek(date)  # This week
-    stats_list = []
-    for _ in range(n):
-        # Previous week
-        (start_date, end_date, previousWeek, nextWeek) = getWeek(
-            previousWeek.strftime("%m%d%Y"))
-
-        try:
-            # Weekly stats are stored in the end_date of the week
-            stats = Statistics.objects.get(date=end_date)
-            stats_list.append(stats)
-            continue
-        except Statistics.DoesNotExist:
-            stats = Statistics(date=end_date)
-            calculate_stats(stats, start_date, end_date)
-
-            stats_list.append(stats)
-
-    return stats_list
-
-
-def week_stats_recalculate(request, date):
-    """ 
-    This function first converts the date parameter from a string format to a 
-    date object. Then, it calculates the start and end dates of the week based 
-    on the given date.  
-    Then, it calls the calculate_stats function to recalculate the statistics 
-    for the week, using the start and end dates.  
-    Finally, it redirects the user to the "dashboard" page.  
-    """
-
-    # Obtiene las fechas de la semana
-    date = datetime.strptime(date, "%m%d%Y").date()
-    start_date = date - timedelta(days=date.weekday())
-    end_date = start_date + timedelta(days=7)
-
-    # Calcula las estadísticas de la semana
-    stats = get_object_or_404(Statistics, date=end_date)
-
-    calculate_stats(stats, start_date, end_date)
-
-    # Renderiza la plantilla
-    return redirect("dashboard")
-
-
-def calculate_stats(stats, start_date, end_date):
-    """
-    The "calculate_stats" function calculates various statistics based on the 
-    given parameters: "stats" (an object that stores the calculated stats), 
-    "start_date" (the start date for the data range), and "end_date" (the end 
-    date for the data range). 
-    The function first retrieves a list of completed sell orders within the 
-    specified date range, excluding any associated with a membership or company 
-    membership. It then fetches the costs and pending payments within the same 
-    date range. 
-    The function calls the "computeReport" function to compute the report based 
-    on the retrieved data. The computed values are then assigned to the 
-    corresponding attributes of the "stats" object. 
-    The function also calculates membership-related statistics by filtering the 
-    orders based on company membership. The computed values are again assigned 
-    to the relevant attributes of the "stats" object. 
-    Finally, the "stats" object is saved in the database. 
-    """
-
-    orders = Order.objects.filter(
-        status='complete',
-        type='sell',
-        terminated_date__gt=start_date,
-        terminated_date__lte=end_date).order_by(
-        '-terminated_date').exclude(
-        associated__membership=True).exclude(
-        company__membership=True, associated=None)
-
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
-
-    pending_payments = PendingPayment.objects.filter(
-        created_date__gt=start_date,
-        created_date__lte=end_date).order_by("-created_date")
-
-    context = computeReport(orders, costs, pending_payments)
-
-    stats.completed_orders = len(orders)
-    stats.gross_income = context['total']['gross']
-    stats.profit_before_costs = context['total']['net']
-    stats.labor_income = context['orders'].labor
-    stats.discount = context['total']['discount']
-    stats.third_party = context['total']['third_party']
-    stats.supplies = context['total']['consumable']
-    stats.costs = context['costs'].total
-    stats.parts_cost = context['parts_cost']
-    stats.parts_price = context['parts_price']
-    stats.payment_amount = context['payment_total']
-    stats.transactions = context['payment_transactions']
-    stats.debt_paid = context['debt_paid']
-
-    stats.debt_created = 0
-    for cat in context['payment_cats']:
-        if cat.name == "debt":
-            stats.debt_created = cat.amount
-            break
-
-    # Membership stats
-    orders = Order.objects.filter(
-        status='complete',
-        type='sell',
-        terminated_date__gt=start_date,
-        terminated_date__lte=end_date).order_by(
-        '-terminated_date').exclude(
-        company__membership=False).exclude(
-        company=None)
-
-    context = computeReport(orders, costs, pending_payments)
-
-    stats.membership_orders = len(context['orders'])
-    stats.membership_amount = context['total']['net']
-
-    stats.save()
-
-
-# -------------------- COSTS ----------------------------
-@login_required
-def weekly_cost(request, category_id, date):
-
-    (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
-
-    costs = Cost.objects.filter(
-        category_id=category_id,
-        date__range=(start_date, end_date)
-    ).order_by("-date", "-id")
-
-    return render(request, 'costs/cost_list.html', {'costs': costs})
-
-
-@login_required
-def monthly_cost(request, category_id, year, month):
-
-    ((previousMonth, previousYear),
-        (currentMonth, currentYear),
-        (nextMonth, nextYear)) = getMonthYear(month, year)
-
-    start_date = date(currentYear, currentMonth, 1)
-    end_date = date(nextYear, nextMonth, 1) - timedelta(days=1)
-
-    if category_id == "-1":
-        costs = Cost.objects.filter(
-            category__isnull=True,
-            date__range=(start_date, end_date)
-        ).order_by("-date")
-    else:
-        costs = Cost.objects.filter(
-            category_id=category_id,
-            date__range=(start_date, end_date)
-        ).order_by("-date")
-
-    return render(request, 'costs/cost_list.html', {'costs': costs})

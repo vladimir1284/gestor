@@ -15,10 +15,11 @@ from django.shortcuts import (
 from django.contrib.auth.decorators import login_required
 from .forms import CategoryCreateForm, CostsCreateForm, CostsUpdateForm
 from django.utils.translation import gettext_lazy as _
-from gestor.views import getMonthYear
+from gestor.views.utils import getMonthYear
 from datetime import datetime
 
 # -------------------- Category ----------------------------
+
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = CostCategory
@@ -93,35 +94,35 @@ def update_cost(request, id):
 def list_cost(request, year=None, month=None):
 
     ((previousMonth, previousYear),
-    (currentMonth, currentYear),
-    (nextMonth, nextYear)) = getMonthYear(month, year)
+     (currentMonth, currentYear),
+     (nextMonth, nextYear)) = getMonthYear(month, year)
 
     costs = Cost.objects.all().order_by("-date", "-id")
-    costs = costs.filter(date__year=currentYear, 
-                        date__month=currentMonth)
+    costs = costs.filter(date__year=currentYear,
+                         date__month=currentMonth)
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
-    
+
     if start_date is not None:
         costs = costs.filter(date__gte=start_date)
-        
+
     if end_date is not None:
         costs = costs.filter(date__lte=end_date)
-        
-    context = {        
-        'previousMonth' : previousMonth,
-        'currentMonth' : currentMonth,
-        'nextMonth' : nextMonth,
-        'thisMonth' : datetime.now().month,
-        'previousYear' : previousYear,
-        'currentYear' : currentYear,
-        'nextYear' : nextYear,
-        'thisYear' : datetime.now().year,
-        'interval' : 'monthly',
-        'costs' : costs,
+
+    context = {
+        'previousMonth': previousMonth,
+        'currentMonth': currentMonth,
+        'nextMonth': nextMonth,
+        'thisMonth': datetime.now().month,
+        'previousYear': previousYear,
+        'currentYear': currentYear,
+        'nextYear': nextYear,
+        'thisYear': datetime.now().year,
+        'interval': 'monthly',
+        'costs': costs,
     }
-        
+
     return render(request, 'costs/cost_list.html', context)
 
 

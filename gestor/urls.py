@@ -20,46 +20,38 @@ from django.conf.urls.static import static
 
 from .views import (
     dashboard,
-    # report,
-    weekly_report,
-    weekly_membership_report,
-    monthly_report,
-    monthly_membership_report,
-    weekly_payments,
-    monthly_payments,
-    week_stats_recalculate,
-    weekly_cost,
-    monthly_cost
+    reports,
+    cost,
 )
 
 urlpatterns = [
     path('erp/admin/', admin.site.urls),
-    path('erp/', dashboard, name='dashboard'),
+    path('erp/', dashboard.dashboard, name='dashboard'),
     # Weekly reports
-    path('erp/weekly/', weekly_report, name='weekly-report'),
-    path('erp/weekly/<date>', weekly_report, name='weekly-report-date'),
+    path('erp/weekly/', reports.weekly_report, name='weekly-report'),
+    path('erp/weekly/<date>', reports.weekly_report, name='weekly-report-date'),
     path('erp/weekly/<category_id>/<date>',
-         weekly_payments, name='weekly-payments'),
-    path('erp/weekly_membership/', weekly_membership_report,
+         reports.weekly_payments, name='weekly-payments'),
+    path('erp/weekly_membership/', reports.weekly_membership_report,
          name='weekly-membership'),
-    path('erp/weekly_membership/<date>', weekly_membership_report,
+    path('erp/weekly_membership/<date>', reports.weekly_membership_report,
          name='weekly-membership-date'),
     path('erp/week-stats-recalculate/<date>',
-         week_stats_recalculate, name='week-stats-recalculate'),
+         dashboard.week_stats_recalculate, name='week-stats-recalculate'),
     path('erp/weekly-costs/<category_id>/<date>',
-         weekly_cost, name='weekly-cost'),
+         cost.weekly_cost, name='weekly-cost'),
 
     # Monthly reports
-    path('erp/monthly/', monthly_report, name='monthly-report'),
+    path('erp/monthly/', reports.monthly_report, name='monthly-report'),
     path('erp/monthly/<year>/<month>',
-         monthly_report, name='monthly-report-date'),
+         reports.monthly_report, name='monthly-report-date'),
     path('erp/monthly/<category_id>/<year>/<month>',
-         monthly_payments, name='monthly-payments'),
-    path('erp/monthly_membership/', monthly_membership_report,
+         reports.monthly_payments, name='monthly-payments'),
+    path('erp/monthly_membership/', reports.monthly_membership_report,
          name='monthly-membership'),
-    path('erp/monthly_membership/<year>/<month>', monthly_membership_report,
+    path('erp/monthly_membership/<year>/<month>', reports.monthly_membership_report,
          name='monthly-membership-date'),
-    path('erp/monthly-costs/<category_id>/<year>/<month>', monthly_cost,
+    path('erp/monthly-costs/<category_id>/<year>/<month>', cost.monthly_cost,
          name='monthly-cost'),
 
     # Apps
