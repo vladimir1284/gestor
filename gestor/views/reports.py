@@ -201,7 +201,7 @@ def getRentalReport(currentYear, currentMonth):
     invoice_income = paid_dues.aggregate(total=Sum('amount'))['total']
     total_income = RentalPayment.objects.filter(
         date_of_payment__year=currentYear,
-        date_of_payment__month=currentMonth)
+        date_of_payment__month=currentMonth).aggregate(total=Sum('amount'))['total']
     # Unpaid dues
     leases = Lease.objects.filter(contract__stage="active")
     unpaid_amount = 0
@@ -231,7 +231,9 @@ def getRentalReport(currentYear, currentMonth):
         'total_income': total_income,
         'invoice_income': invoice_income,
         'unpaid_amount': unpaid_amount,
+        'planned_income': unpaid_amount+invoice_income,
         'unpaid_leases': unpaid_leases,
+        'pending_payments': total_income-float(invoice_income),
     }
     return rental
 
