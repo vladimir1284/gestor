@@ -548,7 +548,6 @@ def computeReport(orders, costs, pending_payments):
         'discount': discount_initial,
         'tax': tax_initial,
     }
-    print(total_initial)
     # Costs
     costs.total = 0
     cats = {}
