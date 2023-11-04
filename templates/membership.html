@@ -6,12 +6,12 @@
     Dashboard
 {% endblock title %}
 {% block content %}
+    {% localtime on %}
     <style>
         .invoice-descrpition{
             width: 100%;
         }
     </style>
-    {% localtime on %}
     {% block nav %}
     {% endblock nav %}
     <div class="card mb-3">
@@ -23,196 +23,10 @@
                 <span class="text-muted">USD</span>
             </div>
         </h5>
-        <div class="table-responsive text-nowrap">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Client</th>
-                        <th>VIN</th>
-                        <th>date</th>
-                        <th>Gross</th>
-                        <th>Net</th>
-                        <th>Parts</th>
-                        <th>Supplies</th>
-                        <th>3d pty</th>
-                        <th>Discnt</th>
-                        <th>Tax</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                        {% if not order.is_initial %}
-                            <tr data-search="{{ order.associated.name }}{{ order.company.name }}">
-                                <td>
-                                    <a href={% url 'detail-service-order' order.id %}> <strong>
-                                        {% if order.associated %}
-                                            {{ order.associated }}
-                                        {% elif order.company %}
-                                            {{ order.company }}
-                                        {% else %}
-                                            None
-                                        {% endif %}
-                                    </strong></a>
-                                </td>
-                                <td>
-                                    <a href={% url 'detail-trailer' order.trailer.id %}>{{ order.trailer.vin }}</a>
-                                </td>
-                                <td>{{ order.terminated_date|date:"D, d" }}</td>
-                                <td>
-                                    <div class="float-end">${{ order.amount|floatformat:"2" }}</div>
-                                </td>
-                                <td>
-                                    <div class="float-end">
-                                        <strong>${{ order.net|floatformat:"2" }}</strong>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="float-end">${{ order.parts|floatformat:"2" }}</div>
-                                </td>
-                                <td>
-                                    <div class="float-end">${{ order.consumable|floatformat:"2" }}</div>
-                                </td>
-                                <td>
-                                    <div class="float-end">${{ order.third_party|floatformat:"2" }}</div>
-                                </td>
-                                <td>
-                                    <div class="float-end">${{ order.discount|floatformat:"2" }}</div>
-                                </td>
-                                <td>
-                                    <div class="float-end">${{ order.tax|floatformat:"2" }}</div>
-                                </td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-                <tfoot class="table-border-bottom-0">
-                    <tr>
-                        <th></th>
-                        <th>
-                            <strong>Total =</strong>
-                        </th>
-                        <th></th>
-                        <th>
-                            <div class="float-end">${{ total.gross|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.net|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.parts|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.consumable|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.third_party|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.discount|floatformat:"2" }}</div>
-                        </th>
-                        <th>
-                            <div class="float-end">${{ total.tax|floatformat:"2" }}</div>
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        {% if orders.has_initial %}
+        {% include "./table_membership.html" with initial=False %}
+        {% if orders.has_initial == True %}
             <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">Initial:</h5>
-            <div class="table-responsive text-nowrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Client</th>
-                            <th>VIN</th>
-                            <th>date</th>
-                            <th>Gross</th>
-                            <th>Net</th>
-                            <th>Parts</th>
-                            <th>Supplies</th>
-                            <th>3d pty</th>
-                            <th>Discnt</th>
-                            <th>Tax</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for order in orders %}
-                            {% if order.is_initial %}
-                                <tr data-search="{{ order.associated.name }}{{ order.company.name }}">
-                                    <td>
-                                        <a href={% url 'detail-service-order' order.id %}> <strong>
-                                            {% if order.associated %}
-                                                {{ order.associated }}
-                                            {% elif order.company %}
-                                                {{ order.company }}
-                                            {% else %}
-                                                None
-                                            {% endif %}
-                                        </strong></a>
-                                    </td>
-                                    <td>
-                                        <a href={% url 'detail-trailer' order.trailer.id %}>{{ order.trailer.vin }}</a>
-                                    </td>
-                                    <td>{{ order.terminated_date|date:"D, d" }}</td>
-                                    <td>
-                                        <div class="float-end">${{ order.amount|floatformat:"2" }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="float-end">
-                                            <strong>${{ order.net|floatformat:"2" }}</strong>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="float-end">${{ order.parts|floatformat:"2" }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="float-end">${{ order.consumable|floatformat:"2" }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="float-end">${{ order.third_party|floatformat:"2" }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="float-end">${{ order.discount|floatformat:"2" }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="float-end">${{ order.tax|floatformat:"2" }}</div>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                    </tbody>
-                    <tfoot class="table-border-bottom-0">
-                        <tr>
-                            <th></th>
-                            <th>
-                                <strong>Total =</strong>
-                            </th>
-                            <th></th>
-                            <th>
-                                <div class="float-end">${{ total_initial.gross|floatformat:"2" }}</div>
-                            </th>
-                            <th>
-                                <div class="float-end">${{ total_initial.net|floatformat:"2" }}</div>
-                            </th>
-                            <th>
-                                <div class="float-end">${{ total_initial.parts|floatformat:"2" }}</div>
-                            </th>
-                            <th>
-                                <div class="float-end">${{ total_initial.consumable|floatformat:"2" }}</div>
-                            </th>
-                            <th>
-                                <div class="float-end">${{ total_initial.third_party|floatformat:"2" }}</div>
-                            </th>
-                            <th>
-                                <div class="float-end">${{ total_initial.discount|floatformat:"2" }}</div>
-                            </th>
-                            <th>
-                                <div class="float-end">${{ total_initial.tax|floatformat:"2" }}</div>
-                            </th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+            {% include "./table_membership.html" with initial=True total=total_initial %}
         {% endif %}
     </div>
 {% endlocaltime %}

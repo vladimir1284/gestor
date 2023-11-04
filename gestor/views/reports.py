@@ -22,8 +22,15 @@ from services.views.order import (
     computeOrderAmount,
 )
 from gestor.views.utils import getWeek, getMonthYear
-from rent.models.lease import Due, Payment as RentalPayment
+from rent.models.lease import (
+    Due,
+    Payment as RentalPayment,
+    Lease,
+)
+from rent.views.client import get_start_paying_date
 from datetime import datetime
+from django.utils import timezone
+import pytz
 
 
 class UnknownCategory:
@@ -66,7 +73,6 @@ def getOrderBalance(order: Order, products: dict):
     """
 
     (transactions, services, expenses) = computeOrderAmount(order)
-    order.is_initial = False
     # compute labor income
     order.labor = -order.discount
     for service in services:
@@ -185,8 +191,6 @@ def monthly_report(request, year=None, month=None):
     context.setdefault('membership', getMonthlyMembership(
         currentYear, currentMonth)['total']['gross'])
 
-    context.setdefault('rental', getRentalReport(currentYear, currentMonth))
-
     return render(request, 'monthly.html', context)
 
 
@@ -198,10 +202,36 @@ def getRentalReport(currentYear, currentMonth):
     total_income = RentalPayment.objects.filter(
         date_of_payment__year=currentYear,
         date_of_payment__month=currentMonth)
+    # Unpaid dues
+    leases = Lease.objects.filter(contract__stage="active")
+    unpaid_amount = 0
+    unpaid_leases = []
+    for lease in leases:
+        interval_start = get_start_paying_date(lease)
+        first_day_of_this_month = timezone.make_aware(timezone.datetime(
+            currentYear, currentMonth, 1), pytz.timezone(settings.TIME_ZONE))
+
+        interval_start = min(first_day_of_this_month, interval_start)
+        occurrences = lease.event.get_occurrences(interval_start,
+                                                  timezone.now())
+        lease.unpaid_dues = []
+        unpaid_lease = False
+        for occurrence in occurrences:
+            paid_due = Due.objects.filter(due_date=occurrence.start.date(),
+                                          lease=lease)
+            if len(paid_due) == 0:
+                unpaid_amount += lease.payment_amount
+                lease.unpaid_dues.append(occurrence)
+                unpaid_lease = True
+        if unpaid_lease:
+            unpaid_leases.append(lease)
+
     rental = {
         'paid_dues': paid_dues,
         'total_income': total_income,
         'invoice_income': invoice_income,
+        'unpaid_amount': unpaid_amount,
+        'unpaid_leases': unpaid_leases,
     }
     return rental
 
@@ -303,6 +333,8 @@ def monthly_membership_report(request, year=None, month=None):
     context.setdefault('currentYear', currentYear)
     context.setdefault('nextYear', nextYear)
     context.setdefault('thisYear', datetime.now().year)
+    context.setdefault('rental', getRentalReport(currentYear, currentMonth))
+
     return render(request, 'monthly_membership.html', context)
 
 
@@ -331,7 +363,6 @@ def getMonthlyMembership(currentYear, currentMonth):
     pending_payments = PendingPayment.objects.filter(
         created_date__year=currentYear,
         created_date__month=currentMonth).order_by("-created_date")
-
     return computeReport(orders, costs, pending_payments)
 
 
@@ -517,6 +548,7 @@ def computeReport(orders, costs, pending_payments):
         'discount': discount_initial,
         'tax': tax_initial,
     }
+    print(total_initial)
     # Costs
     costs.total = 0
     cats = {}
