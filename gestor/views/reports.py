@@ -31,6 +31,7 @@ from rent.views.client import get_start_paying_date
 from datetime import datetime
 from django.utils import timezone
 import pytz
+from dateutil.relativedelta import relativedelta
 
 
 class UnknownCategory:
@@ -210,10 +211,13 @@ def getRentalReport(currentYear, currentMonth):
         interval_start = get_start_paying_date(lease)
         first_day_of_this_month = timezone.make_aware(timezone.datetime(
             currentYear, currentMonth, 1), pytz.timezone(settings.TIME_ZONE))
+        first_day_of_next_month = first_day_of_this_month + \
+            relativedelta(months=1)
 
-        interval_start = min(first_day_of_this_month, interval_start)
+        interval_start = max(first_day_of_this_month, interval_start)
+        interval_end = min(first_day_of_next_month, timezone.now())
         occurrences = lease.event.get_occurrences(interval_start,
-                                                  timezone.now())
+                                                  interval_end)
         lease.unpaid_dues = []
         unpaid_lease = False
         for occurrence in occurrences:

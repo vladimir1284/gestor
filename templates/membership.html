@@ -54,24 +54,30 @@
                 </div>
             </h5>
             <div class="table-responsive text-nowrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Client</th>
-                            <th>Amount</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            {% for lease in unpaid_leases %}
-                                <td>lease.contract.lessee</td>
-                                <td>lease.client</td>
-                                <td>lease.client</td>
+                <div class="container ps-0" style="height: 500px; overflow-y: auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lease in rental.unpaid_leases %}
+                                {% for due in lease.unpaid_dues %}
+                                    <tr>
+                                        {% if forloop.first %}
+                                            <td rowspan="{{ lease.unpaid_dues|length }}">{{ lease.contract.lessee.name|slice:":20" }}</td>
+                                        {% endif %}
+                                        <td>${{ lease.payment_amount|floatformat:"0" }}</td>
+                                        <td>{{ due.start|date:"m/d/Y" }}</td>
+                                    </tr>
+                                {% endfor %}
                             {% endfor %}
-                        </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <div class="card mb-3 col-md-6">
@@ -85,7 +91,13 @@
             </h5>
             {% include "./table_membership.html" with initial=False %}
             {% if orders.has_initial == True %}
-                <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">Initial:</h5>
+                <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                    Initial:
+                    <div class="text-success">
+                        <strong>{{ total_initial.gross|floatformat:"2" }}</strong>
+                        <span class="text-muted">USD</span>
+                    </div>
+                </h5>
                 {% include "./table_membership.html" with initial=True total=total_initial %}
             {% endif %}
         </div>
