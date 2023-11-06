@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://towithouston.com
+      url: https://towithouston.com/erp
     steps:
       - name: Setup SSH
         run: |
@@ -21,7 +21,7 @@ jobs:
           echo "${{ secrets.SSH_PUB_KEY }}" > ~/.ssh/id_rsa.pub
           chmod 600 ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa.pub
-          ssh-keyscan -H ${{ secrets.IP }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H 74.208.106.28 >> ~/.ssh/known_hosts
       - name: login into server
         run: |
           ssh ${{ secrets.USER_IP }} "cd gestor; git pull"
