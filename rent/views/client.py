@@ -211,8 +211,9 @@ def process_payment(request, payment: Payment):
         occurrences = payment.lease.event.occurrences_after(start_time)
         for occurrence in occurrences:
             amount -= payment.lease.payment_amount
+            due_date = occurrence.start.date()
             due = Due.objects.create(
-                due_date=occurrence.start.date(),
+                due_date=due_date,
                 amount=payment.lease.payment_amount,
                 client=payment.client,
                 lease=payment.lease
