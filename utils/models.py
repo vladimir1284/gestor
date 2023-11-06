@@ -109,7 +109,7 @@ class Order(models.Model):
     processing_date = models.DateTimeField(blank=True, null=True)
     discount = models.FloatField(default=0)
     quotation = models.BooleanField(default=False)
-    is_initial = True
+    is_initial = False
 
     def __str__(self):
         return f"{self.concept}  ({self.type}) {self.created_date}"

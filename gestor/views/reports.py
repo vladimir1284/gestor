@@ -190,7 +190,7 @@ def monthly_report(request, year=None, month=None):
     context.setdefault('interval', 'monthly')
 
     context.setdefault('membership', getMonthlyMembership(
-        currentYear, currentMonth)['total']['gross'])
+        currentYear, currentMonth, all=True)['total']['gross'])
 
     return render(request, 'monthly.html', context)
 
@@ -344,7 +344,7 @@ def monthly_membership_report(request, year=None, month=None):
     return render(request, 'monthly_membership.html', context)
 
 
-def getMonthlyMembership(currentYear, currentMonth):
+def getMonthlyMembership(currentYear, currentMonth, all=False):
     orders = Order.objects.filter(
         status='complete',
         type='sell',
@@ -354,14 +354,15 @@ def getMonthlyMembership(currentYear, currentMonth):
         company__membership=False).exclude(
         company=None).exclude(
         associated__isnull=False)
-
-    orders.has_initial = False
-    for order in orders:
-        first_terminated_date = Order.objects.filter(
-            trailer=order.trailer).aggregate(oldest=Min('terminated_date'))['oldest']
-        order.is_initial = (order.terminated_date == first_terminated_date)
-        if order.is_initial:
-            orders.has_initial = True
+    # Separate initial orders only for Rental Report
+    if not all:
+        orders.has_initial = False
+        for order in orders:
+            first_terminated_date = Order.objects.filter(
+                trailer=order.trailer).aggregate(oldest=Min('terminated_date'))['oldest']
+            order.is_initial = (order.terminated_date == first_terminated_date)
+            if order.is_initial:
+                orders.has_initial = True
 
     costs = Cost.objects.filter(date__year=currentYear,
                                 date__month=currentMonth).order_by("-date")
