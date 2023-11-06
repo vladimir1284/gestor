@@ -10,7 +10,6 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
-from weasyprint import HTML
 import tempfile
 from collections import defaultdict
 from django.conf import settings
@@ -352,8 +351,11 @@ def generate_pdf(request, id):
     context = prepare_contract_view(id)
     context.setdefault('pdf', True)
     html_string = render_to_string('rent/contract/contract_pdf.html', context)
-    html = HTML(string=html_string, base_url=request.build_absolute_uri())
-    return html.write_pdf()
+    if settings.USE_WEASYPRINT:
+        from weasyprint import HTML
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        return html.write_pdf()
+    return None
 
 
 class ContractUpdateView(LoginRequiredMixin, UpdateView):
