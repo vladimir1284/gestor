@@ -168,7 +168,7 @@ def dashboard(request):
             if len(paid_dues) == 0:
                 client = lease.contract.lessee
                 client.debt, client.last_payment, client.unpaid_dues = compute_client_debt(
-                    client, lease)
+                    lease)
                 if client.debt > 0:
                     client.last_payment = client.unpaid_dues[0].start
                 yesterday_dues.append(client)
