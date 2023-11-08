@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  pull:
+  production:
     runs-on: ubuntu-latest
     environment:
-      name: pull
+      name: production
       url: https://towithouston.com/erp
     steps:
       - name: Setup SSH
