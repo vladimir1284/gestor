@@ -1,12 +1,8 @@
-name: Pull
+name: Deploy
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+  workflow_dispatch:
+
 jobs:
   pull:
     runs-on: ubuntu-latest
@@ -24,4 +20,4 @@ jobs:
           ssh-keyscan -H 74.208.106.28 >> ~/.ssh/known_hosts
       - name: work in remote server
         run: |
-          ssh ${{ secrets.USER_IP }} "cd gestor; git pull"
+          ssh ${{ secrets.USER_IP }} "./gestor/deploy_gestor.sh ${{ secrets.SUDO_PASS }}"
