@@ -68,9 +68,13 @@ class Contract(models.Model):
 
     def paid(self):
         if self.contract_type == 'lto':
-            paid_amount = float(Due.objects.filter(
+            total_amount = Due.objects.filter(
                 lease__contract=self).aggregate(
-                total_amount=Sum('amount'))['total_amount'])
+                total_amount=Sum('amount'))['total_amount']
+            if total_amount is not None:
+                paid_amount = float(total_amount)
+            else:
+                paid_amount = 0
             return paid_amount >= self.total_amount
         return False
 
