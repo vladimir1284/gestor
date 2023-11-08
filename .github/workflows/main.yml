@@ -22,6 +22,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa.pub
           ssh-keyscan -H 74.208.106.28 >> ~/.ssh/known_hosts
-      - name: login into server
+      - name: work in remote server
         run: |
-          ssh ${{ secrets.USER_IP }} "cd gestor; git pull"
+          ssh ${{ secrets.USER_IP }}
+          cd gestor
+          git pull
