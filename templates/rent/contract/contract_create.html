@@ -21,14 +21,14 @@
     <script>
         function toggleInput() {
             var contractType = document.getElementById("id_contract_type");
-            var totalAmount = document.getElementById("id_total_amount");
+            var totalAmount = document.getElementById("div_id_total_amount");
             var label = document.querySelector('label[for="id_security_deposit"]');
             
             if (contractType.value === "lto") {
-                totalAmount.disabled = false;
+                totalAmount.style.display = 'block';
                 label.innerHTML = 'Down payment*';
             } else {
-                totalAmount.disabled = true;
+                totalAmount.style.display = 'none';
                 label.innerHTML = 'Security deposit*';
             }
         }
