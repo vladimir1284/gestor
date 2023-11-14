@@ -90,6 +90,11 @@
                     <div class="tab-pane fade {% if forloop.first %}active show{% endif %}"
                          id="navs-pills-justified-{{ lease.id }}"
                          role="tabpanel">
+                        {% if lease.contract.contract_type == 'lto' %}
+                            <h5 class="ps-3 me-2">
+                                <div id="payment_progress_{{lease.id}}"></div>
+                            </h5>
+                        {% endif %}
                         <h5 class="ps-3 me-2">
                             Remaining: $
                             {% if lease.remaining %}
@@ -263,7 +268,7 @@
                         <!-- Deposits -->
                         <hr class="mt-0" />
                         <div class="card-header">
-                            <strong>Deposits (${{ total_deposit|floatformat:"0" }}/${{ lease.contract.security_deposit|floatformat:"0" }}):</strong>
+                            <strong>Deposits (${{ lease.total_deposit|floatformat:"0" }}/${{ lease.contract.security_deposit|floatformat:"0" }}):</strong>
                             <a class="btn btn-icon btn-outline-primary ms-3"
                                type="button"
                                href="{% url 'lease-deposit-create' lease.id %}">
@@ -286,4 +291,92 @@
                     {% endfor %}
                 </div>
             </div>
+            <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
+            <script>
+                // Get data
+                let ids = [{% for lease in leases %}"#payment_progress_"+'{{lease.id}}',{% endfor %}];
+                let paids = [{% for lease in leases %}{{lease.paid}},{% endfor %}];
+                let debts = [{% for lease in leases %}{{lease.debt}},{% endfor %}];
+
+                (function () {
+                    plot_status(ids[0], paids[0], debts[0]);
+                })();
+                function computePercentage(value, total) {
+                    // Calculate the percentage
+                    const percentage = (value / total) * 100;
+
+                    // Round the percentage to the nearest integer
+                    const roundedPercentage = Math.round(percentage);
+
+                    // Return the result as an integer
+                    return roundedPercentage;
+                }
+                function plot_status(id, paid, debt){
+                    let total = paid+debt;
+                    var options = {
+                        series: [{
+                        name: `Paid: \$${paid}`,
+                        data: [computePercentage(paid, total)],
+                        color: '#0f0'
+                      }, {
+                        name: `Debt: \$${debt}`,
+                        data: [computePercentage(debt, total)],
+                        color: '#f00'
+                      }],
+                        chart: {
+                        type: 'bar',
+                        height: 120,
+                        stacked: true,
+                        stackType: '100%',
+                        toolbar: {
+                          show: false 
+                        }
+                      },
+                      plotOptions: {
+                        bar: {
+                          horizontal: true,
+                        },
+                      },
+                      stroke: {
+                        width: 1,
+                        colors: ['#fff']
+                      },
+                      title: {
+                        text: `Total amount: \$${total}`,
+                        offsetY: 20
+                      },
+                      fill: {
+                        opacity: 1
+                      
+                      },
+                      yaxis: {
+                        show: false,
+                        labels: {
+                          show: false
+                        },
+                        axisBorder: {
+                          show: false
+                        },
+                        axisTicks: {
+                          show: false
+                        }
+                      },
+                      xaxis: {
+                        show: false,
+                        labels: {
+                          show: false
+                        },
+                        axisBorder: {
+                          show: false
+                        },
+                        axisTicks: {
+                          show: false
+                        }
+                      }
+                      };
+              
+                      var chart = new ApexCharts(document.querySelector(id), options);
+                      chart.render();
+                }
+            </script>
         {% endblock content %}

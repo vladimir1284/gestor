@@ -51,7 +51,7 @@ def get_sorted_clients(n=None, order_by="date"):
         client.trailer = contract.trailer
         client.contract = contract
         if contract.contract_type == 'lto':
-            client.contract.paid = contract.paid()
+            _, client.contract.paid = contract.paid()
         payment_dates.setdefault(client.id, timezone.now())
         debt_amounts.setdefault(client.id, 0)
         if contract.stage == "active":
@@ -117,7 +117,6 @@ def client_detail(request, id):
     leases = Lease.objects.filter(
         contract__lessee=client, contract__stage="active")
 
-    total_deposit = 0
     dues = None
     for lease in leases:
         # Debt associated with this lease
@@ -140,10 +139,15 @@ def client_detail(request, id):
         if len(payments) > 0:
             lease.payments = payments
 
-        lease.paid_dues = Due.objects.filter(
-            lease=lease).order_by('-due_date')
-        lease.paid = lease.paid_dues.aggregate(
-            sum_amount=Sum('amount'))['sum_amount']
+        if lease.contract.contract_type == 'lto':
+            lease.paid, done = lease.contract.paid()
+            lease.debt = lease.contract.total_amount - lease.paid
+        else:
+            lease.paid_dues = Due.objects.filter(
+                lease=lease).order_by('-due_date')
+            lease.paid = lease.paid_dues.aggregate(
+                sum_amount=Sum('amount'))['sum_amount']
+
         # Documents
         lease.documents = LeaseDocument.objects.filter(lease=lease)
         # Check for document expiration
@@ -152,15 +156,15 @@ def client_detail(request, id):
                 FILES_ICONS[document.document_type]
 
         # Deposits
+        lease.total_deposit = 0
         lease.deposits = LeaseDeposit.objects.filter(lease=lease)
         for deposit in lease.deposits:
-            total_deposit += deposit.amount
+            lease.total_deposit += deposit.amount
 
     context = {
         "client": client,
         "leases": leases,
         "dues": dues,
-        "total_deposit": total_deposit,
     }
 
     return render(request, "rent/client/client_detail.html", context=context)

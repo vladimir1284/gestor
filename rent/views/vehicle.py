@@ -44,7 +44,7 @@ def list_equipment(request):
             stage='ended')
         if contracts:
             trailer.current_contract = contracts.last()
-            trailer.paid = trailer.current_contract.paid()
+            _, trailer.paid = trailer.current_contract.paid()
         # Images
         images, pinned_image = getImages(trailer)
         trailer.images = images
