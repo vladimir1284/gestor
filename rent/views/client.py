@@ -36,14 +36,18 @@ def toggle_alarm(request, lease_id):
     return redirect('client-list')
 
 
-def get_sorted_clients(n=None, order_by="date"):
+def get_sorted_clients(n=None, order_by="date", exclude=True):
     # Create leases if needed
-    contracts = Contract.objects.exclude(stage="ended")
+    if exclude:
+        contracts = Contract.objects.exclude(stage="ended")
+    else:
+        contracts = Contract.objects.all()
     clients = []
     payment_dates = {}
     debt_amounts = {}
     n_active = 0
     n_processing = 0
+    n_ended = 0
     rental_debt = 0
     for contract in contracts:
         client = contract.lessee
@@ -54,8 +58,11 @@ def get_sorted_clients(n=None, order_by="date"):
             _, client.contract.paid = contract.paid()
         payment_dates.setdefault(client.id, timezone.now())
         debt_amounts.setdefault(client.id, 0)
-        if contract.stage == "active":
-            n_active += 1
+        if contract.stage == "active" or contract.stage == "ended":
+            if contract.stage == "active":
+                n_active += 1
+            elif contract.stage == "ended":
+                n_ended += 1
             try:
                 lease = Lease.objects.get(contract=contract)
             except Lease.DoesNotExist:
@@ -92,17 +99,18 @@ def get_sorted_clients(n=None, order_by="date"):
         sorted_clients = sorted(
             clients, key=lambda client: debt_amounts[client.id], reverse=True)
     if n is not None:
-        return sorted_clients[:n], n_active, n_processing, rental_debt
-    return sorted_clients, n_active, n_processing, rental_debt
+        return sorted_clients[:n], n_active, n_processing, n_ended, rental_debt
+    return sorted_clients, n_active, n_processing, n_ended, rental_debt
 
 
 @login_required
 def client_list(request):
-    sorted_clients, n_active, n_processing, _ = get_sorted_clients()
+    sorted_clients, n_active, n_processing, n_ended, _ = get_sorted_clients(exclude=False)
     context = {
         "clients": sorted_clients,
         "n_active": n_active,
         "n_processing": n_processing,
+        "n_ended": n_ended
     }
 
     return render(request, "rent/client/client_list.html", context=context)

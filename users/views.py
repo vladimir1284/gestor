@@ -3,6 +3,8 @@ from typing import List
 from services.views.order import computeOrderAmount
 from datetime import datetime, timedelta
 import pytz
+from django.utils import timezone
+from django.conf import settings
 from django.shortcuts import (
     render,
     redirect,
@@ -31,6 +33,33 @@ from services.models import DebtStatus, PendingPayment
 from utils.models import Order
 from django.utils.translation import gettext_lazy as _
 
+from rent.models.lease import Contract, Lease, Due, Payment
+
+def compute_client_debt(lease: Lease):
+    interval_start = get_start_paying_date(lease)
+    occurrences = lease.event.get_occurrences(interval_start,
+                                              timezone.now())
+    unpaid_dues = []
+    for occurrence in occurrences:
+        paid_due = Due.objects.filter(due_date=occurrence.start.date(),
+                                      lease=lease)
+        if len(paid_due) == 0:
+            unpaid_dues.append(occurrence)
+    n_unpaid = len(unpaid_dues)
+    return n_unpaid*lease.payment_amount, interval_start, unpaid_dues
+
+def get_start_paying_date(lease: Lease):
+    # Find the last due payed by the client
+    last_due = Due.objects.filter(lease=lease).last()
+    if last_due is not None:
+        interval_start = last_due.due_date + timedelta(days=2)
+    else:
+        # If the client hasn't paid, then start paying on effective date
+        interval_start = lease.contract.effective_date - timedelta(days=1)
+    # Make it timezone aware
+    interval_start = timezone.make_aware(datetime.combine(
+        interval_start, datetime.min.time()), pytz.timezone(settings.TIME_ZONE))
+    return interval_start
 
 @permission_required('auth.user.can_add_user')
 def create_user(request):
@@ -321,11 +350,32 @@ def detail_associated(request, id):
             except ValueError:
                 pass  # Order without debt
 
+    rental_debt = 0
+    for contract in Contract.objects.all().filter(lessee=associated):
+        print(contract)
+        if contract.stage == "active":
+            try:
+                lease = Lease.objects.get(contract=contract)
+            except Lease.DoesNotExist:
+                lease = Lease.objects.create(
+                    contract=contract,
+                    payment_amount=contract.payment_amount,
+                    payment_frequency=contract.payment_frequency,
+                    event=None,
+                )
+            client_debt, last_payment, unpaid_dues = compute_client_debt(lease)
+            if client_debt > 0:
+                last_payment = Payment.objects.filter(lease=lease).last()
+                if last_payment is not None:
+                    client_debt -= lease.remaining
+            rental_debt += client_debt
+
     context = {'contact': associated,
                'orders': orders,
                'type': 'associated',
                'title': 'Associated detail',
-               'pending_payments': pending_payments}
+               'pending_payments': pending_payments,
+               "rental_debt":rental_debt}
 
     return render(request, 'users/contact_detail.html', context)
 

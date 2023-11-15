@@ -1,0 +1,170 @@
+{% extends 'base/base.html' %}
+{% block title %}
+{% endblock title %}
+{% block page %}
+    <style>
+        .add {
+            position: fixed;
+            font-size: 27px;
+            bottom: 3rem;
+            right: 1.625rem;
+            z-index: 999999;
+            box-shadow: 0 1px 20px 1px #696cff;
+        }
+        .add .tooltip{
+            opacity: 1;
+        }
+        .tooltip-inner{
+            font-size: 10px;
+        }
+        .tabs {
+            padding-top: 0;
+        }
+        html {
+            height: 110%;
+            margin-bottom: 0.01em;
+        }
+        .pl-0 {
+            padding-left: 0! important;
+        }
+        .stock{
+            border: 2px solid #fff;
+        }
+        .chapilla{
+            position: relative;
+        }
+        .chapilla a{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .chapilla a span{
+            font-size: 15px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-100%, -20%);
+        }
+        .chapilla span{
+            font-size: 15px;
+            position: absolute;
+            bottom: 5%;
+            right: 5%;
+        }
+    </style>
+    {% block extra_scripts %}
+    {% endblock extra_scripts %}
+{% endblock page %}
+{% block content %}
+    {% block nav %}
+    {% endblock nav %}
+    <!-- Basic with Icons -->
+    <div class="card">
+        {% block card %}
+            <div class="card-header">
+            <ul class="nav nav-pills card-header-pills" role="tablist">
+                <li class="nav-item">
+                    <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#navs-trailer-active" role="tab">Active Trailers</button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#navs-trailer-inactive" role="tab">Inactive Trailers</button>
+                </li>
+            </ul>
+            </div>
+            
+            <div class="tab-content p-0">
+                <div class="tab-pane fade show active" id="navs-trailer-active" role="tabpanel">
+                    <div class="list-head">
+                        {% block Ttitle %}
+                        {% endblock Ttitle %}
+                    </div>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                {% block Theader %}
+                                {% endblock Theader %}
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                            {% block Tbody %}
+                            {% endblock Tbody %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="navs-trailer-inactive" role="tabpanel">
+                    <div class="list-head">
+                        {% block TtitleInactive %}
+                        {% endblock TtitleInactive %}
+                    </div>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                {% block TheaderInactive %}
+                                {% endblock TheaderInactive %}
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                            {% block TbodyInactive %}
+                            {% endblock TbodyInactive %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endblock card %}
+    </div>
+    {% block addButton %}
+        <a href="{% block createUrl %} {% endblock createUrl %}">
+            <button type="button"
+                    style="visibility: {% block add %}{% endblock add %}"
+                    class="btn rounded-pill btn-primary btn-icon add"
+                    data-bs-toggle="tooltip"
+                    data-bs-offset="0,4"
+                    data-bs-placement="left"
+                    data-bs-html="true"
+                    title=""
+                    data-bs-original-title="{% block help %} {% endblock help %}">
+                <b>+</b>
+            </button>
+        </a>
+    {% endblock addButton %}
+{% endblock content %}
+{% block scripts %}
+    <script>
+    window.onload = function(){  
+            add = document.getElementsByClassName("add")[0];  
+            if (add.style.visibility != "hidden"){
+                $(add).tooltip('show'); 
+            }  
+    }
+    function filterTag(tagName) {
+        let i, j;
+
+        let title_tag = document.getElementById("filter_tag");
+        if(tagName == 'all'){
+            title_tag.innerHTML = "";
+                search = document.getElementById("search");
+                search.value="";
+        } else {
+            title_tag.innerHTML = "("+tagName+")";
+        }
+
+        let tables = document.getElementsByTagName("tbody");
+        for (j = 0; j < tables.length; j++) {
+            tr = tables[j].getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                if (tr[i].dataset['tag'] == tagName || tagName == 'all') {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }                    
+            }
+        }
+    }
+    </script>
+{% endblock scripts %}
