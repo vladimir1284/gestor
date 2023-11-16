@@ -33,7 +33,8 @@ from services.models import DebtStatus, PendingPayment
 from utils.models import Order
 from django.utils.translation import gettext_lazy as _
 
-from rent.models.lease import Contract, Lease, Due, Payment
+from rent.models.lease import Contract, Lease, Due
+from rent.models.lease import Payment as RentPayment
 
 def compute_client_debt(lease: Lease):
     interval_start = get_start_paying_date(lease)
@@ -365,7 +366,7 @@ def detail_associated(request, id):
                 )
             client_debt, last_payment, unpaid_dues = compute_client_debt(lease)
             if client_debt > 0:
-                last_payment = Payment.objects.filter(lease=lease).last()
+                last_payment = RentPayment.objects.filter(lease=lease).last()
                 if last_payment is not None:
                     client_debt -= lease.remaining
             rental_debt += client_debt
