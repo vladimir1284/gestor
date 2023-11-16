@@ -75,21 +75,22 @@
                 {% endif %}
                 <span class="tf-icons bx bx-edit"></span>
             </a>
-            <a class="btn btn-icon btn-outline-primary" href="{% url 'export-contact' type contact.id %}">
+            <a class="btn btn-icon btn-outline-primary"
+               href="{% url 'export-contact' type contact.id %}">
                 <i class='tf-icons bx bx-download'></i>
             </a>
-
         </div>
     </div>
     <div class="card-header">
-        <h5>
-            <strong>Service orders</strong> - ${{ orders.total|floatformat:"2" }}
-        </h5>
         <h5>
             <strong>Maintenance debt</strong> - ${{ contact.debt|floatformat:"2" }}
         </h5>
         <h5>
             <strong>Rent debt</strong> - ${{ rental_debt|floatformat:"2" }}
+        </h5>
+        <hr />
+        <h5>
+            <strong>Service orders</strong> - ${{ orders.total|floatformat:"2" }}
         </h5>
     </div>
     <div class="table-responsive text-nowrap">

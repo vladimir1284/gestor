@@ -76,11 +76,14 @@ class Contract(models.Model):
             paid_amount = 0
         # Add the down payment for LTO (security_deposit)
         if self.contract_type == 'lto':
-            lease = Lease.objects.get(contract=self)
-            total_deposit = LeaseDeposit.objects.filter(
-                lease=lease).aggregate(total=Sum('amount'))['total']
-            if total_deposit is not None:
-                paid_amount += total_deposit
+            if self.stage == "active":
+                lease = Lease.objects.get(contract=self)
+                total_deposit = LeaseDeposit.objects.filter(
+                    lease=lease).aggregate(total=Sum('amount'))['total']
+                if total_deposit is not None:
+                    paid_amount += total_deposit
+            else:
+                paid_amount += self.security_deposit
 
         return paid_amount, (paid_amount >= self.total_amount)
 
