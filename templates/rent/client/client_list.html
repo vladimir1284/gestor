@@ -35,6 +35,18 @@
                             <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ n_processing }}</span>
                         </button>
                     </li>
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#navs-pills-justified-ended"
+                                aria-controls="navs-pills-justified-ended"
+                                aria-selected="false">
+                             Ended
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ n_ended }}</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -117,7 +129,7 @@
                     </thead>
                     <tbody class="table-border-bottom-0">
                         {% for client in clients %}
-                            {% if client.contract.stage != "active" %}
+                            {% if client.contract.stage != "active" and client.contract.stage != "ended" %}
                                 <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
                                     <td>
                                         <a href={% url 'detail-contract' client.contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
@@ -131,6 +143,48 @@
                                     <td>
                                         {% if client.debt %}
                                             {{ client.contract.effective_date|date:"m/d/Y" }}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade"
+             id="navs-pills-justified-ended"
+             role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table" id="table_consumables">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th>Client</th>
+                            <th>Debt</th>
+                            <th>Trailer</th>
+                            <th>Ended Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for client in clients %}
+                            {% if client.contract.stage == "ended" %}
+                                <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
+                                    <td>
+                                        <a href={% url 'detail-contract' client.contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                    </td>
+                                    <td>{% include "users/associated_line.html" with associated=client %}</td>
+                                    <td>${{ client.debt }}</td>
+                                    <td>
+                                        <div class="d-flex">
+                                            {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if client.debt %}
+                                            {{ client.contract.ended_date|date:"m/d/Y" }}
                                         </td>
                                     {% endif %}
                                 </tr>

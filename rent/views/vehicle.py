@@ -44,6 +44,36 @@ def list_equipment(request):
             stage='ended')
         if contracts:
             trailer.current_contract = contracts.last()
+            _, trailer.paid = trailer.current_contract.paid()
+        # Images
+        images, pinned_image = getImages(trailer)
+        trailer.images = images
+        trailer.pinned_image = pinned_image
+        # Documents
+        doc_color = None
+        docs = TrailerDocument.objects.filter(trailer=trailer, is_active=True)
+        if docs:
+            doc_color = "green"
+        for doc in docs:
+            if doc.remainder():
+                doc_color = "orange"
+            if doc.is_expired():
+                doc_color = "red"
+                break
+        if doc_color is not None:
+            trailer.doc_color = F"assets/img/icons/doc_{doc_color}.png"
+        # Orders
+        last_order = Order.objects.filter(
+            trailer=trailer).order_by("-created_date").first()
+        if last_order is not None:
+            trailer.last_order = last_order
+    inactive_trailers = Trailer.objects.filter(active=False)
+    for trailer in inactive_trailers:
+        # Contracts
+        contracts = Contract.objects.filter(trailer=trailer).exclude(
+            stage='ended')
+        if contracts:
+            trailer.current_contract = contracts.last()
             trailer.paid = trailer.current_contract.paid()
         # Images
         images, pinned_image = getImages(trailer)
@@ -69,6 +99,7 @@ def list_equipment(request):
             trailer.last_order = last_order
     context = {
         'trailers': trailers,
+        "inactive_trailers": inactive_trailers
     }
     return render(request, 'rent/equipment_list.html', context)
 
