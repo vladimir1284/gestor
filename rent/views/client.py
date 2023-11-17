@@ -70,9 +70,7 @@ def get_sorted_clients(n=None, order_by="date"):
                 lease)
             if client.debt > 0:
                 # Discount remaining from debt
-                last_payment = Payment.objects.filter(lease=lease).last()
-                if last_payment is not None:
-                    client.debt -= lease.remaining
+                client.debt -= lease.remaining
                 client.last_payment = client.unpaid_dues[0].start
                 rental_debt += client.debt
             else:

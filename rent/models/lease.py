@@ -37,6 +37,7 @@ class Contract(models.Model):
     trailer_location = models.TextField()
     effective_date = models.DateField()
     ended_date = models.DateField(null=True)
+    final_debt = models.FloatField(default=0)
     payment_amount = models.IntegerField()
     service_charge = models.IntegerField(default=100)
     PERIODICITY_CHOICES = [

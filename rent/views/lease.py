@@ -20,6 +20,7 @@ from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from django.core.mail import EmailMessage, get_connection
 from django.contrib import messages
+from rent.views.client import compute_client_debt
 
 
 from ..models.lease import (
@@ -228,6 +229,7 @@ def update_due(request, id):
 
 
 @login_required
+@transaction.atomic
 def update_contract_stage(request, id, stage):
     contract = get_object_or_404(Contract, id=id)
     contract.stage = stage
@@ -236,13 +238,14 @@ def update_contract_stage(request, id, stage):
         mail_send_contract(request, id)
         return redirect('client-detail', contract.lessee.id)
     if stage == "ended":
+        # Compute the final debt
+        contract.final_debt, _, _ = compute_client_debt(lease)
+        leases = Lease.objects.filter(contract=contract)
+        contract.final_debt -= leases.last().remaining
         # Remove lease
-        try:
-            leases = Lease.objects.filter(contract=contract)
-            for lease in leases:
-                lease.delete()
-        except Exception as err:
-            print(F"Error deleting lease: {err}")
+        for lease in leases:
+            lease.delete()
+        contract.save()
         return redirect('detail-trailer', contract.trailer.id)
     return redirect('detail-contract', id)
 
