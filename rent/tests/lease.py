@@ -106,3 +106,47 @@ class LeaseUpdateTests(TestCase):
         # Check if the payment and due instances were deleted correctly
         self.assertEqual(Payment.objects.count(), 0)
         self.assertEqual(Due.objects.count(), 0)
+
+    def test_closing_contract(self):
+        # Create a valid payment form data
+        form_data = {
+            'amount': 200,
+            'lease': self.lease.id,
+            'date_of_payment': timezone.now().date()
+        }
+
+        # Login the user
+        self.client.post('/erp/users/login/', follow=True,
+                         username='testuser', password='testpassword')
+
+        # Check the covered date without payment
+        self.lease.compute_payment_cover()
+        self.assertEqual(self.lease.last_payment_cover, None)
+
+        # Make a POST request to the payment view with the valid form data
+        response = self.client.post(self.payment_url, data=form_data)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse(
+            'client-detail', args=[self.lessee.id]))
+
+        # Check if the payment and due instances were created correctly
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(Due.objects.count(), 2)
+
+        # Check the covered date after one payment
+        self.lease.compute_payment_cover()
+        self.assertEqual(self.lease.last_payment_cover,
+                         self.effective_date+timedelta(days=15))
+
+        # Close the contract
+        close_url = f'/erp/rent/update_contract_stage/{self.contract.id}/ended'
+        response = self.client.get(close_url)
+
+        # Check if the payment was processed and redirected to the client detail page
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Contract.objects.get(
+            id=self.contract.id).ended_date, timezone.now().date())
+        self.assertEqual(Contract.objects.get(
+            id=self.contract.id).final_debt, 400)

@@ -233,20 +233,23 @@ def update_due(request, id):
 def update_contract_stage(request, id, stage):
     contract = get_object_or_404(Contract, id=id)
     contract.stage = stage
-    contract.save()
     if stage == "active":
         mail_send_contract(request, id)
+        contract.save()
         return redirect('client-detail', contract.lessee.id)
     if stage == "ended":
+        contract.ended_date = timezone.now()
         # Compute the final debt
-        contract.final_debt, _, _ = compute_client_debt(lease)
         leases = Lease.objects.filter(contract=contract)
-        contract.final_debt -= leases.last().remaining
+        lease = leases.last()
+        contract.final_debt, _, _ = compute_client_debt(lease)
+        contract.final_debt -= lease.remaining
         # Remove lease
         for lease in leases:
             lease.delete()
         contract.save()
         return redirect('detail-trailer', contract.trailer.id)
+    contract.save()
     return redirect('detail-contract', id)
 
 

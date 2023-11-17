@@ -43,7 +43,7 @@
                                 data-bs-target="#navs-pills-justified-ended"
                                 aria-controls="navs-pills-justified-ended"
                                 aria-selected="false">
-                             Ended
+                            Ended
                             <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ n_ended }}</span>
                         </button>
                     </li>
@@ -152,9 +152,7 @@
                 </table>
             </div>
         </div>
-        <div class="tab-pane fade"
-             id="navs-pills-justified-ended"
-             role="tabpanel">
+        <div class="tab-pane fade" id="navs-pills-justified-ended" role="tabpanel">
             <div class="table-responsive text-nowrap">
                 <table class="table" id="table_consumables">
                     <thead>
@@ -176,7 +174,7 @@
                                         <a href={% url 'detail-contract' client.contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
                                     </td>
                                     <td>{% include "users/associated_line.html" with associated=client %}</td>
-                                    <td>${{ client.debt }}</td>
+                                    <td>${{ client.contract.final_debt }}</td>
                                     <td>
                                         <div class="d-flex">
                                             {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
