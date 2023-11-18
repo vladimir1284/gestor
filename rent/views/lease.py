@@ -21,7 +21,7 @@ from google.oauth2 import service_account
 from django.core.mail import EmailMessage, get_connection
 from django.contrib import messages
 from rent.views.client import compute_client_debt
-
+from math import ceil
 
 from ..models.lease import (
     HandWriting,
@@ -103,8 +103,15 @@ def create_handwriting(request, lease_id, position, external=False):
 def get_contract(id):
     contract = Contract.objects.get(id=id)
     contract.inspection = Inspection.objects.get(lease=contract)
-    contract.contract_end_date = contract.effective_date + \
-        timedelta(days=contract.contract_term * 30)
+    if contract.contract_type == 'lto':
+        contract.n_payments = ceil(
+            (contract.total_amount
+             - contract.security_deposit)/contract.payment_amount)
+        contract.contract_end_date = contract.effective_date + \
+            timedelta(days=contract.contract_term * 30)
+    else:
+        contract.contract_end_date = contract.effective_date + \
+            timedelta(days=contract.contract_term * 30)
     contract.lessee.data = LesseeData.objects.get(associated=contract.lessee)
     return contract
 
