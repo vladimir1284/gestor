@@ -20,7 +20,8 @@ from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from django.core.mail import EmailMessage, get_connection
 from django.contrib import messages
-
+from rent.views.client import compute_client_debt
+from math import ceil
 
 from ..models.lease import (
     HandWriting,
@@ -102,8 +103,15 @@ def create_handwriting(request, lease_id, position, external=False):
 def get_contract(id):
     contract = Contract.objects.get(id=id)
     contract.inspection = Inspection.objects.get(lease=contract)
-    contract.contract_end_date = contract.effective_date + \
-        timedelta(days=contract.contract_term * 30)
+    if contract.contract_type == 'lto':
+        contract.n_payments = ceil(
+            (contract.total_amount
+             - contract.security_deposit)/contract.payment_amount)
+        contract.contract_end_date = contract.effective_date + \
+            timedelta(days=contract.contract_term * 30)
+    else:
+        contract.contract_end_date = contract.effective_date + \
+            timedelta(days=contract.contract_term * 30)
     contract.lessee.data = LesseeData.objects.get(associated=contract.lessee)
     return contract
 
@@ -228,22 +236,27 @@ def update_due(request, id):
 
 
 @login_required
+@transaction.atomic
 def update_contract_stage(request, id, stage):
     contract = get_object_or_404(Contract, id=id)
     contract.stage = stage
-    contract.save()
     if stage == "active":
         mail_send_contract(request, id)
+        contract.save()
         return redirect('client-detail', contract.lessee.id)
     if stage == "ended":
+        contract.ended_date = timezone.now()
+        # Compute the final debt
+        leases = Lease.objects.filter(contract=contract)
+        lease = leases.last()
+        contract.final_debt, _, _ = compute_client_debt(lease)
+        contract.final_debt -= lease.remaining
         # Remove lease
-        try:
-            leases = Lease.objects.filter(contract=contract)
-            for lease in leases:
-                lease.delete()
-        except Exception as err:
-            print(F"Error deleting lease: {err}")
+        for lease in leases:
+            lease.delete()
+        contract.save()
         return redirect('detail-trailer', contract.trailer.id)
+    contract.save()
     return redirect('detail-contract', id)
 
 

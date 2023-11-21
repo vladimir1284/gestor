@@ -145,9 +145,9 @@ def dashboard(request):
     ]
 
     # Rental
-    clients_by_date, n_active, n_processing, rental_debt = get_sorted_clients(
+    clients_by_date, n_active, n_processing, n_ended, rental_debt = get_sorted_clients(
         n=5)
-    clients_by_amount, n_active, n_processing, rental_debt = get_sorted_clients(
+    clients_by_amount, n_active, n_processing, n_ended, rental_debt = get_sorted_clients(
         n=5, order_by='amount')
 
     # Get unpaid dues from yesterday

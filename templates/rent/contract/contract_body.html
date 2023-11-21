@@ -9,24 +9,43 @@
 <p>
    <strong>EQUIPMENT SUBJECT TO LEASE</strong>. The Lessor shall lease the equipment listed on the attached exhibit "A".
 </p>
-<p>
-   <strong>PAYMENT TERMS</strong>. The Lessee shall make a  payment of $<mark>{{ contract.payment_amount }}</mark> <mark>{{ contract.payment_frequency }}</mark>.
-   The lease payments shall be due whether or not the Lessee has received notice of payment due.
-</p>
+{% if contract.contract_type == "lto" %}
+   <p>
+      <strong>PAYMENT TERMS</strong>. The Lessee shall make  <mark>{{ contract.n_payments }} {{ contract.payment_frequency }}</mark> payments of $<mark>{{ contract.payment_amount }}</mark>.
+      The lease payments shall be due whether or not the Lessee has received notice of payment due.
+   </p>
+{% else %}
+   <p>
+      <strong>PAYMENT TERMS</strong>. The Lessee shall make a  payment of $<mark>{{ contract.payment_amount }}</mark> <mark>{{ contract.payment_frequency }}</mark>.
+      The lease payments shall be due whether or not the Lessee has received notice of payment due.
+   </p>
+{% endif %}
 <p>
    <strong>SERVICE CHARGE</strong>. If any lease installment is not paid within 7 day(s) after the due date,
    the Lessee shall pay to the Lessor a service charge of $<mark>{{ contract.service_charge }}</mark> for every week the payment is late.
 </p>
-<p>
-   <strong>SECURITY DEPOSIT</strong>. In addition to the Lease payment charge, the Lessee shall pay a security deposit of
-   $<mark>{{ contract.security_deposit }}</mark> at the time that this Lease is signed. Any amount refundable to the Lessee shall
-   be paid at the time this Lease is terminated, subject to the option of the Lessor to apply it against Lease charges and damages.
-   This security deposit shall not bear interest.
-</p>
-<p>
-   <strong>LEASE TERM</strong>. This Lease shall begin on the above effective date and shall terminate on <mark>{{ contract.contract_end_date|date:'F d, Y' }}</mark>,
-   unless otherwise terminated in a manner consistent with the terms of this Lease.
-</p>
+{% if contract.contract_type == "lto" %}
+   <p>
+      <strong>DOWN PAYMENT</strong>. In addition to the Lease payment charge, the Lessee shall pay a down payment of
+      $<mark>{{ contract.security_deposit }}</mark> at the time that this Lease is signed.
+   </p>
+   <p>
+      <strong>LEASE TO OWN TERM</strong>. This Lease shall begin on the above effective date and shall terminate on <mark>{{ contract.contract_end_date|date:'F d, Y' }}</mark>,
+      unless otherwise terminated in a manner consistent with the terms of this Lease. Once the last payment is received by the Lessor, the title shall be released and granted
+      to the Lease, which will be the new owner of the equipment.
+   </p>
+{% else %}
+   <p>
+      <strong>SECURITY DEPOSIT</strong>. In addition to the Lease payment charge, the Lessee shall pay a security deposit of
+      $<mark>{{ contract.security_deposit }}</mark> at the time that this Lease is signed. Any amount refundable to the Lessee shall
+      be paid at the time this Lease is terminated, subject to the option of the Lessor to apply it against Lease charges and damages.
+      This security deposit shall not bear interest.
+   </p>
+   <p>
+      <strong>LEASE TERM</strong>. This Lease shall begin on the above effective date and shall terminate on <mark>{{ contract.contract_end_date|date:'F d, Y' }}</mark>,
+      unless otherwise terminated in a manner consistent with the terms of this Lease.
+   </p>
+{% endif %}
 <p>
    <strong>LOCATION OF EQUIPMENT</strong>. The equipment shall be located at <mark>{{ contract.trailer_location }}</mark>, during the Lease term, and shall not be
    removed from that location without the Lessor prior written consent.

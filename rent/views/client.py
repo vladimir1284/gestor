@@ -36,14 +36,18 @@ def toggle_alarm(request, lease_id):
     return redirect('client-list')
 
 
-def get_sorted_clients(n=None, order_by="date"):
+def get_sorted_clients(n=None, order_by="date", exclude=True):
     # Create leases if needed
-    contracts = Contract.objects.exclude(stage="ended")
+    if exclude:
+        contracts = Contract.objects.exclude(stage="ended")
+    else:
+        contracts = Contract.objects.all()
     clients = []
     payment_dates = {}
     debt_amounts = {}
     n_active = 0
     n_processing = 0
+    n_ended = 0
     rental_debt = 0
     for contract in contracts:
         client = contract.lessee
@@ -51,11 +55,14 @@ def get_sorted_clients(n=None, order_by="date"):
         client.trailer = contract.trailer
         client.contract = contract
         if contract.contract_type == 'lto':
-            client.contract.paid = contract.paid()
+            _, client.contract.paid = contract.paid()
         payment_dates.setdefault(client.id, timezone.now())
         debt_amounts.setdefault(client.id, 0)
-        if contract.stage == "active":
-            n_active += 1
+        if contract.stage == "active" or contract.stage == "ended":
+            if contract.stage == "active":
+                n_active += 1
+            elif contract.stage == "ended":
+                n_ended += 1
             try:
                 lease = Lease.objects.get(contract=contract)
             except Lease.DoesNotExist:
@@ -70,9 +77,7 @@ def get_sorted_clients(n=None, order_by="date"):
                 lease)
             if client.debt > 0:
                 # Discount remaining from debt
-                last_payment = Payment.objects.filter(lease=lease).last()
-                if last_payment is not None:
-                    client.debt -= lease.remaining
+                client.debt -= lease.remaining
                 client.last_payment = client.unpaid_dues[0].start
                 rental_debt += client.debt
             else:
@@ -92,17 +97,18 @@ def get_sorted_clients(n=None, order_by="date"):
         sorted_clients = sorted(
             clients, key=lambda client: debt_amounts[client.id], reverse=True)
     if n is not None:
-        return sorted_clients[:n], n_active, n_processing, rental_debt
-    return sorted_clients, n_active, n_processing, rental_debt
+        return sorted_clients[:n], n_active, n_processing, n_ended, rental_debt
+    return sorted_clients, n_active, n_processing, n_ended, rental_debt
 
 
 @login_required
 def client_list(request):
-    sorted_clients, n_active, n_processing, _ = get_sorted_clients()
+    sorted_clients, n_active, n_processing, n_ended, _ = get_sorted_clients(exclude=False)
     context = {
         "clients": sorted_clients,
         "n_active": n_active,
         "n_processing": n_processing,
+        "n_ended": n_ended
     }
 
     return render(request, "rent/client/client_list.html", context=context)
@@ -117,7 +123,6 @@ def client_detail(request, id):
     leases = Lease.objects.filter(
         contract__lessee=client, contract__stage="active")
 
-    total_deposit = 0
     dues = None
     for lease in leases:
         # Debt associated with this lease
@@ -140,10 +145,15 @@ def client_detail(request, id):
         if len(payments) > 0:
             lease.payments = payments
 
-        lease.paid_dues = Due.objects.filter(
-            lease=lease).order_by('-due_date')
-        lease.paid = lease.paid_dues.aggregate(
-            sum_amount=Sum('amount'))['sum_amount']
+        if lease.contract.contract_type == 'lto':
+            lease.paid, done = lease.contract.paid()
+            lease.debt = lease.contract.total_amount - lease.paid
+        else:
+            lease.paid_dues = Due.objects.filter(
+                lease=lease).order_by('-due_date')
+            lease.paid = lease.paid_dues.aggregate(
+                sum_amount=Sum('amount'))['sum_amount']
+
         # Documents
         lease.documents = LeaseDocument.objects.filter(lease=lease)
         # Check for document expiration
@@ -152,15 +162,15 @@ def client_detail(request, id):
                 FILES_ICONS[document.document_type]
 
         # Deposits
+        lease.total_deposit = 0
         lease.deposits = LeaseDeposit.objects.filter(lease=lease)
         for deposit in lease.deposits:
-            total_deposit += deposit.amount
+            lease.total_deposit += deposit.amount
 
     context = {
         "client": client,
         "leases": leases,
         "dues": dues,
-        "total_deposit": total_deposit,
     }
 
     return render(request, "rent/client/client_detail.html", context=context)

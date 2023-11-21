@@ -3,11 +3,6 @@ from django.db import models
 from utils.models import Category
 from users.models import User
 from django.utils.translation import gettext_lazy as _
-from gdstorage.storage import GoogleDriveStorage
-
-# Define Google Drive Storage
-gd_storage = GoogleDriveStorage()
-
 
 class CostCategory(Category):
     pass
@@ -16,7 +11,7 @@ class CostCategory(Category):
 class Cost(models.Model):
     concept = models.CharField(max_length=120)
     image = models.ImageField(upload_to='images/costs',
-                              blank=True, storage=gd_storage)
+                              blank=True)
     note = models.TextField(blank=True)
     created_date = models.DateField(auto_now_add=True)
     date = models.DateField()

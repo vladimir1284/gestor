@@ -7,11 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from users.models import User
 
 from django.urls import reverse
-from gdstorage.storage import GoogleDriveStorage
-
-# Define Google Drive Storage
-gd_storage = GoogleDriveStorage()
-
 
 class ServiceCategory(Category):
     pass
@@ -39,7 +34,7 @@ class Service(models.Model):
 class Expense(models.Model):
     concept = models.CharField(max_length=120)
     image = models.ImageField(upload_to='images/expenses',
-                              blank=True, storage=gd_storage)
+                              blank=True)
     description = models.TextField(blank=True)
     associated = models.ForeignKey(Associated, blank=True, null=True,
                                    on_delete=models.SET_NULL)
@@ -62,7 +57,7 @@ class ServicePicture(models.Model):
                               on_delete=models.CASCADE,
                               related_name='service_picture')
     # image = models.ImageField(upload_to='pictures')
-    image = models.ImageField(upload_to='images/services', storage=gd_storage)
+    image = models.ImageField(upload_to='images/services')
 
     def get_absolute_url(self):
         return reverse('detail-service-order', kwargs={'id': self.order.id}) + '#gallery'

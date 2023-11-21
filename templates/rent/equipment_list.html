@@ -1,4 +1,4 @@
-{% extends "base/base_list.html" %}
+{% extends "rent/custom_list.html" %}
 {% load static %}
 {% block title %}
     {{ title }}
@@ -70,6 +70,75 @@
         </tr>
     {% endfor %}
 {% endblock Tbody %}
+
+{% block TtitleInactive %}
+    <h5 class="card-header">Deactivated Trailers</h5>
+{% endblock TtitleInactive %}
+{% block TheaderInactive %}
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
+    <th>Vehicle</th>
+    <th>Rent</th>
+    <th>Doc</th>
+    <th>Last Order</th>
+{% endblock TheaderInactive %}
+{% block TbodyInactive %}
+    {% for equipment in inactive_trailers %}
+        <tr data-search="{{ equipment.vin }}{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}">
+            <td>
+                <a href={% url 'detail-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+            </td>
+            <td>
+                <div class="d-flex">
+                    {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
+                </div>
+            </td>
+            <td>
+                {% if equipment.current_contract %}
+                    <a {% if equipment.current_contract.stage == 'active' %}href="{% url 'client-detail' equipment.current_contract.lessee.id %}"{% else %} href="{% url 'detail-contract' equipment.current_contract.id %}"{% endif %}>
+                        {% if equipment.current_contract.contract_type == 'lto' %}
+                            {% if equipment.paid %}
+                                <img src="{% static 'assets/img/icons/paid.png' %}"
+                                     alt="contract icon"
+                                     class="h-px-40 w-auto" />
+                            {% else %}
+                                <img src="{% static 'assets/img/icons/lto.jpg' %}"
+                                     alt="contract icon"
+                                     class="h-px-40 w-auto" />
+                            {% endif %}
+                        {% else %}
+                            <img src="{% static 'assets/img/icons/contract.jpg' %}"
+                                 alt="contract icon"
+                                 class="h-px-40 w-auto" />
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'select-lessee' equipment.id %}">
+                        <span class="tf-icons bx bx-key" style="font-size:1.5em"></span>
+                    </a>
+                {% endif %}
+            </td>
+            <td>
+                {% if equipment.doc_color %}
+                    <img src="{% static equipment.doc_color %}"
+                         alt="doc icon"
+                         class="h-px-40 w-auto" />
+                {% endif %}
+            </td>
+            <td>
+                {% if equipment.last_order %}
+                    <a href="{% url 'detail-service-order' equipment.last_order.id %}">{{ equipment.last_order.concept }}</a> ({{ equipment.last_order.created_date|date:"m/d/Y" }})
+                {% else %}
+                    None
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock TbodyInactive %}
+
 {% block createUrl %}
     {% url 'create-trailer' %}
 {% endblock createUrl %}

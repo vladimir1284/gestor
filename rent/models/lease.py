@@ -37,6 +37,7 @@ class Contract(models.Model):
     trailer_location = models.TextField()
     effective_date = models.DateField()
     ended_date = models.DateField(null=True)
+    final_debt = models.FloatField(default=0)
     payment_amount = models.IntegerField()
     service_charge = models.IntegerField(default=100)
     PERIODICITY_CHOICES = [
@@ -67,16 +68,25 @@ class Contract(models.Model):
         return self.trailer.__str__() + " -> " + self.lessee.__str__()
 
     def paid(self):
+        total_amount = Due.objects.filter(
+            lease__contract=self).aggregate(
+            total_amount=Sum('amount'))['total_amount']
+        if total_amount is not None:
+            paid_amount = float(total_amount)
+        else:
+            paid_amount = 0
+        # Add the down payment for LTO (security_deposit)
         if self.contract_type == 'lto':
-            total_amount = Due.objects.filter(
-                lease__contract=self).aggregate(
-                total_amount=Sum('amount'))['total_amount']
-            if total_amount is not None:
-                paid_amount = float(total_amount)
+            if self.stage == "active":
+                lease = Lease.objects.get(contract=self)
+                total_deposit = LeaseDeposit.objects.filter(
+                    lease=lease).aggregate(total=Sum('amount'))['total']
+                if total_deposit is not None:
+                    paid_amount += total_deposit
             else:
-                paid_amount = 0
-            return paid_amount >= self.total_amount
-        return False
+                paid_amount += self.security_deposit
+
+        return paid_amount, (paid_amount >= self.total_amount)
 
     class Meta:
         ordering = ('-effective_date',)
