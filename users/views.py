@@ -36,6 +36,7 @@ from django.utils.translation import gettext_lazy as _
 from rent.models.lease import Contract, Lease, Due
 from rent.models.lease import Payment as RentPayment
 
+
 def compute_client_debt(lease: Lease):
     interval_start = get_start_paying_date(lease)
     occurrences = lease.event.get_occurrences(interval_start,
@@ -49,6 +50,7 @@ def compute_client_debt(lease: Lease):
     n_unpaid = len(unpaid_dues)
     return n_unpaid*lease.payment_amount, interval_start, unpaid_dues
 
+
 def get_start_paying_date(lease: Lease):
     # Find the last due payed by the client
     last_due = Due.objects.filter(lease=lease).last()
@@ -61,6 +63,7 @@ def get_start_paying_date(lease: Lease):
     interval_start = timezone.make_aware(datetime.combine(
         interval_start, datetime.min.time()), pytz.timezone(settings.TIME_ZONE))
     return interval_start
+
 
 @permission_required('auth.user.can_add_user')
 def create_user(request):
@@ -208,7 +211,7 @@ def create_associated(request, type):
 def update_associated(request, id):
     next_url = request.GET.get('next')
     only_fields = request.GET.get('only_fields', '').split(',')
-    
+
     # fetch the object related to passed id
     associated = get_object_or_404(Associated, id=id)
 
@@ -221,10 +224,9 @@ def update_associated(request, id):
 
     # pass the object as instance in form
     # if only_fields and type(only_fields) == list:
-    form = FORMS[associated.type](instance=associated, only_fields = only_fields)
+    form = FORMS[associated.type](instance=associated, only_fields=only_fields)
     # else:
-        # form = FORMS[associated.type](instance=associated)
-
+    # form = FORMS[associated.type](instance=associated)
 
     if request.method == 'POST':
         # pass the object as instance in form
@@ -237,7 +239,7 @@ def update_associated(request, id):
             form.save()
             if next_url:
                 return redirect(next_url)
-            
+
             if associated.type == 'client':
                 return redirect('list-client')
             if associated.type == 'provider':
@@ -303,7 +305,7 @@ def get_debtor(request):
         debt_status = DebtStatus.objects.filter(client=client)[0]
         if debt_status.status == 'pending':
             try:
-                client.oldest_debt = getDebtOrders(client)[0]
+                client.oldest_debt = getDebtOrders(client)[-1]
                 total += client.debt
                 debtors_list.append(client)
                 client.overdue = client.oldest_debt.terminated_date < (
@@ -353,7 +355,6 @@ def detail_associated(request, id):
 
     rental_debt = 0
     for contract in Contract.objects.all().filter(lessee=associated):
-        print(contract)
         if contract.stage == "active":
             try:
                 lease = Lease.objects.get(contract=contract)
@@ -376,7 +377,7 @@ def detail_associated(request, id):
                'type': 'associated',
                'title': 'Associated detail',
                'pending_payments': pending_payments,
-               "rental_debt":rental_debt}
+               "rental_debt": rental_debt}
 
     return render(request, 'users/contact_detail.html', context)
 
@@ -540,7 +541,7 @@ def delete_company(request, id):
     return redirect('list-company')
 
 
-def generate_vcard(first_name = ' ', last_name = ' ', work= ' ', phone_number=' ', email=' ', street = ' ', city = ' ', zip_code = ' ', country = 'United States', web=' '):
+def generate_vcard(first_name=' ', last_name=' ', work=' ', phone_number=' ', email=' ', street=' ', city=' ', zip_code=' ', country='United States', web=' '):
     vcard = f"BEGIN:VCARD\nVERSION:3.0\nFN:{first_name} {last_name}\nORG:{work}\nTEL:{phone_number}\nEMAIL:{email}\nADR:;{street};{city};;{zip_code};{country}\nURL:{web}\nEND:VCARD\n"
     return vcard
 
@@ -548,8 +549,8 @@ def generate_vcard(first_name = ' ', last_name = ' ', work= ' ', phone_number=' 
 @ login_required
 def export_contact(request, type, id):
     filename = 'towit-contact-'
-    
-    if id == '-1':   
+
+    if id == '-1':
         filename += 'all-' + type + 's'
         if type == 'client' or type == 'associated':
             contacts = Associated.objects.filter(active=True, type=type)
@@ -560,13 +561,13 @@ def export_contact(request, type, id):
     else:
         filename += type + '-' + id
         if type == 'client' or type == 'associated':
-            contacts = [get_object_or_404(Associated, id=id)       ]
+            contacts = [get_object_or_404(Associated, id=id)]
         elif type == 'company':
             contacts = [get_object_or_404(Company, id=id)]
         else:
             return HttpResponseNotFound("El recurso no fue encontrado.")
-        
-    vcard_data = ''    
+
+    vcard_data = ''
     for contact in contacts:
         name_parts = (contact.name).split()
         first_name = name_parts[0]
@@ -577,11 +578,12 @@ def export_contact(request, type, id):
         state = contact.state
         location = city + ', ' + state
         country = 'United States'
-    
-        vcard_data += generate_vcard(first_name = first_name, last_name = last_name, phone_number = phone_number, 
-                                    email = email, city = location, country = country)
-    
+
+        vcard_data += generate_vcard(first_name=first_name, last_name=last_name, phone_number=phone_number,
+                                     email=email, city=location, country=country)
+
     response = HttpResponse(vcard_data, content_type='text/vcard')
-    response['Content-Disposition'] = 'attachment; filename="' + filename + '.vcf"'
+    response['Content-Disposition'] = 'attachment; filename="' + \
+        filename + '.vcf"'
 
     return response
