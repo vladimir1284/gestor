@@ -241,6 +241,12 @@ def update_contract_stage(request, id, stage):
     contract = get_object_or_404(Contract, id=id)
     contract.stage = stage
     if stage == "active":
+        Lease.objects.create(
+            contract=contract,
+            payment_amount=contract.payment_amount,
+            payment_frequency=contract.payment_frequency,
+            event=None,
+        )
         mail_send_contract(request, id)
         contract.save()
         return redirect('client-detail', contract.lessee.id)
