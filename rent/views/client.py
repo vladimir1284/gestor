@@ -12,6 +12,7 @@ from .invoice import mail_send_invoice
 from .vehicle import FILES_ICONS
 from rent.models.lease import LeaseDocument, LeaseDeposit
 from django.db.models import Sum
+from rent.permissions import staff_required
 
 
 def compute_client_debt(lease: Lease):
@@ -29,6 +30,7 @@ def compute_client_debt(lease: Lease):
 
 
 @login_required
+@staff_required
 def toggle_alarm(request, lease_id):
     lease = get_object_or_404(Lease, id=lease_id)
     lease.notify = not lease.notify
@@ -103,7 +105,8 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
 
 @login_required
 def client_list(request):
-    sorted_clients, n_active, n_processing, n_ended, _ = get_sorted_clients(exclude=False)
+    sorted_clients, n_active, n_processing, n_ended, _ = get_sorted_clients(
+        exclude=False)
     context = {
         "clients": sorted_clients,
         "n_active": n_active,
@@ -250,6 +253,7 @@ def detail_payment(request, id):
 
 @login_required
 @transaction.atomic
+@staff_required
 def payment(request, client_id):
     client = get_object_or_404(Associated, id=client_id)
 
@@ -276,6 +280,7 @@ def payment(request, client_id):
 
 
 @login_required
+@staff_required
 @transaction.atomic
 def revert_payment(request, id):
     payment = get_object_or_404(Payment, id=id)

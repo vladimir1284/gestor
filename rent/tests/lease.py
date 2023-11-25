@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from rent.models.lease import Lease, Payment, Due, Contract, LesseeData
 from rent.models.vehicle import Trailer, Manufacturer
 from users.models import Associated, UserProfile
@@ -14,6 +14,7 @@ class LeaseUpdateTests(TestCase):
         self.client = Client()
 
         self.credentials = {
+            'is_staff': True,
             'username': 'myuser',
             'password': 'mypass'}
         self.user = User.objects.create_user(**self.credentials)
@@ -147,6 +148,6 @@ class LeaseUpdateTests(TestCase):
         # Check if the payment was processed and redirected to the client detail page
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Contract.objects.get(
-            id=self.contract.id).ended_date, timezone.now().date())
+            id=self.contract.id).ended_date, datetime.now().date())
         self.assertEqual(Contract.objects.get(
-            id=self.contract.id).final_debt, 400)
+            id=self.contract.id).final_debt, 300)

@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import vehicle, tracker, lease, calendar, client, invoice
 from django.views.generic import TemplateView
+from .permissions import staff_required_view
 
 urlpatterns = [
     # -------------------- Vehicle ----------------------------
@@ -119,5 +120,7 @@ urlpatterns = [
          lease.create_due, name='create-due'),
     path('update_due/<id>',
          lease.update_due, name='update-due'),
+    # -------------------- Permissions ----------------------------
+    path('staff_required/', staff_required_view, name='staff_required'),
 
 ]

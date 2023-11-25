@@ -1,19 +1,18 @@
 {
-    "files.associations": {
-        "**/*.html": "django-html",
-        "**/templates/*/*.html": "django-html",
-        "**/templates/*": "django-html",
-        "**/requirements{/**,*}.{txt,in}": "pip-requirements"
-    },
-    "emmet.includeLanguages": {
-        "django-html": "django-html"
-    },
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.autopep8"
-    },
-    "python.formatting.provider": "none",
-    "cSpell.words": [
-        "towit"
-    ],
-    "python.analysis.typeCheckingMode": "off",
+  "files.associations": {
+    "**/*.html": "django-html",
+    "**/templates/*/*.html": "django-html",
+    "**/templates/*": "django-html",
+    "**/requirements{/**,*}.{txt,in}": "pip-requirements"
+  },
+  "emmet.includeLanguages": {
+    "django-html": "django-html"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "python.formatting.provider": "none",
+  "cSpell.words": ["towit"],
+  "python.analysis.typeCheckingMode": "off",
+  "editor.inlineSuggest.showToolbar": "onHover"
 }

@@ -1,0 +1,9 @@
+{% extends "base/base.html" %}
+{% block content %}
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        {{ message }}
+        <a href="{{ back_url }}">
+            <button type="button" class="btn-close" aria-label="Close"></button>
+        </a>
+    </div>
+{% endblock content %}

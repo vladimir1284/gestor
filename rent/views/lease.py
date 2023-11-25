@@ -22,6 +22,7 @@ from django.core.mail import EmailMessage, get_connection
 from django.contrib import messages
 from rent.views.client import compute_client_debt
 from math import ceil
+from rent.permissions import staff_required
 
 from ..models.lease import (
     HandWriting,
@@ -167,6 +168,7 @@ def contracts(request):
 
 
 @login_required
+@staff_required
 def update_lease(request, id):
     lease = get_object_or_404(Lease, id=id)
     lease.compute_payment_cover()
@@ -184,6 +186,7 @@ def update_lease(request, id):
 
 
 @login_required
+@staff_required
 @transaction.atomic
 def create_due(request, lease_id, date):
     lease = get_object_or_404(Lease, id=lease_id)
@@ -219,6 +222,7 @@ def create_due(request, lease_id, date):
 
 
 @login_required
+@staff_required
 def update_due(request, id):
     due = get_object_or_404(Due, id=id)
 
@@ -236,6 +240,7 @@ def update_due(request, id):
 
 
 @login_required
+@staff_required
 @transaction.atomic
 def update_contract_stage(request, id, stage):
     contract = get_object_or_404(Contract, id=id)
@@ -397,6 +402,7 @@ class LeseeDataUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('detail-contract', kwargs={'id': contract.id})
 
 
+@staff_required
 def contract_create_view(request, lessee_id, trailer_id):
     lessee = get_object_or_404(Associated, pk=lessee_id)
     trailer = get_object_or_404(Trailer, pk=trailer_id)
@@ -421,6 +427,7 @@ def contract_create_view(request, lessee_id, trailer_id):
 
 
 @login_required
+@staff_required
 def select_lessee(request, trailer_id):
     if request.method == 'POST':
         lessee = get_object_or_404(Associated, id=request.POST.get('id'))
@@ -438,6 +445,7 @@ def select_lessee(request, trailer_id):
 
 
 @login_required
+@staff_required
 def update_lessee(request, trailer_id, lessee_id=None):
     if lessee_id is not None:
         # fetch the object related to passed id
@@ -482,6 +490,7 @@ def update_lessee(request, trailer_id, lessee_id=None):
 
 
 @login_required
+@staff_required
 def create_lessee_data(request, trailer_id, lessee_id):
     lessee = get_object_or_404(Associated, id=lessee_id)
     try:
@@ -597,6 +606,7 @@ def create_document(request, lease_id):
 
 
 @login_required
+@staff_required
 def update_document(request, id):
     document = get_object_or_404(LeaseDocument, id=id)
     form = LeaseDocumentForm(request.POST or None,
@@ -615,6 +625,7 @@ def update_document(request, id):
 
 
 @login_required
+@staff_required
 def delete_document(request, id):
     document = get_object_or_404(
         LeaseDocument, id=id)
@@ -626,6 +637,7 @@ def delete_document(request, id):
 
 
 @login_required
+@staff_required
 def create_deposit(request, lease_id):
     lease = get_object_or_404(Lease, id=lease_id)
     if request.method == 'POST':
@@ -645,6 +657,7 @@ def create_deposit(request, lease_id):
 
 
 @login_required
+@staff_required
 def delete_deposit(request, id):
     deposit = get_object_or_404(
         LeaseDeposit, id=id)

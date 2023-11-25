@@ -18,6 +18,7 @@ import json
 from requests.auth import HTTPBasicAuth
 
 from .bat_percent import vbat2percent
+from rent.permissions import staff_required
 
 
 class TrackerUpdateView(LoginRequiredMixin, UpdateView):
@@ -50,6 +51,7 @@ class TrackerCreateView(LoginRequiredMixin, CreateView):
 
 
 @login_required
+@staff_required
 def delete_tracker(request, id):
     try:
         tracker = Tracker.objects.get(id=id)

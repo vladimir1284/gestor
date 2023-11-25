@@ -14,6 +14,7 @@ class PaymentViewTests(TestCase):
         self.client = Client()
 
         self.credentials = {
+            'is_staff': True,
             'username': 'myuser',
             'password': 'mypass'}
         self.user = User.objects.create_user(**self.credentials)

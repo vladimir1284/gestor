@@ -169,6 +169,7 @@ EMAIL_USE_TLS = False
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'info@towithouston.com'
+DEFAULT_FROM_EMAIL = 'info@towithouston.com'
 EMAIL_HOST_PASSWORD = os.getenv('MAIL_PASS')
 
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(

@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.conf import settings
 import tempfile
 from django.template.loader import render_to_string
+from rent.permissions import staff_required
 
 
 def get_invoice_context(lease_id, date, paid):

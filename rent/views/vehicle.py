@@ -31,6 +31,7 @@ from rent.models.lease import (
 )
 from django.utils.translation import gettext_lazy as _
 from .tracker import Tracker
+from rent.permissions import staff_required
 
 # -------------------- Equipment ----------------------------
 
@@ -158,6 +159,7 @@ def select_trailer(request):
 
 
 @login_required
+@staff_required
 def create_trailer(request):
     form = TrailerCreateForm()
     if request.method == 'POST':
@@ -179,6 +181,7 @@ def create_trailer(request):
 
 
 @login_required
+@staff_required
 def update_trailer(request, id):
     # fetch the object related to passed id
     trailer = get_object_or_404(Trailer, id=id)
@@ -280,6 +283,7 @@ def detail_trailer(request, id):
 
 
 @login_required
+@staff_required
 def delete_trailer(request, id):
     # fetch the object related to passed id
     trailer = get_object_or_404(Trailer, id=id)
@@ -296,6 +300,7 @@ def manufacturer_list(request):
 
 
 @login_required
+@staff_required
 def manufacturer_create(request):
     if request.method == 'POST':
         form = ManufacturerForm(request.POST, request.FILES)
@@ -310,6 +315,7 @@ def manufacturer_create(request):
 
 
 @login_required
+@staff_required
 def manufacturer_update(request, pk):
     manufacturer = Manufacturer.objects.get(pk=pk)
     if request.method == 'POST':
@@ -326,6 +332,7 @@ def manufacturer_update(request, pk):
 
 
 @login_required
+@staff_required
 def manufacturer_delete(request, pk):
     manufacturer = Manufacturer.objects.get(pk=pk)
     manufacturer.delete()
@@ -363,6 +370,7 @@ def share_pictures(request, ids):
 
 
 @login_required
+@staff_required
 def delete_trailer_pictures(request, ids):
     """
     Delete an existing TrailerPicture object.
@@ -416,6 +424,7 @@ def create_document(request, trailer_id):
 
 
 @login_required
+@staff_required
 def update_document(request, id):
     document = get_object_or_404(TrailerDocument, id=id)
     form = TrailerDocumentUpdateForm(request.POST or None,
@@ -433,6 +442,7 @@ def update_document(request, id):
 
 
 @login_required
+@staff_required
 def delete_document(request, id):
     document = get_object_or_404(
         TrailerDocument, id=id)
