@@ -31,7 +31,8 @@ from services.forms import (
 )
 from rent.models.vehicle import Trailer
 from django.utils.translation import gettext_lazy as _
-
+from gestor.views.utils import getMonthYear
+from datetime import datetime
 
 # -------------------- Order ----------------------------
 
@@ -211,10 +212,40 @@ def list_order(request):
 
 
 @login_required
-def list_terminated_order(request):
+def list_terminated_order(request,year=None, month=None):
+    ((previousMonth, previousYear),
+     (currentMonth, currentYear),
+     (nextMonth, nextYear)) = getMonthYear(month, year)
+    
+    orders = Order.objects.all().order_by('-created_date','-id')
+    orders  = orders.filter(created_date__year=currentYear, 
+                            created_date__month=currentMonth)
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if start_date is not None:
+        orders  = orders.filter(date__gte=start_date)
+
+    if end_date is not None:
+        orders  = orders.filter(date__lte=end_date)
+
     context = prepareListOrder(request, ('complete', 'decline'))
     context.setdefault('stage', 'Active')
     context.setdefault('alternative_view', 'list-service-order')
+    context.setdefault('orders',orders)
+    context.setdefault('previousMonth',previousMonth)
+    context.setdefault('currentMonth',currentMonth)
+    context.setdefault('nextMonth',nextMonth)
+    context.setdefault('thisMonth',datetime.now().month)
+    context.setdefault('previousYear',previousYear)
+    context.setdefault('currentYear',currentYear)
+    context.setdefault('nextYear',nextYear)
+    context.setdefault('thisYear',datetime.now().year)
+    context.setdefault('interval','monthly') 
+    context.setdefault('currentM','%i'%currentMonth)
+    context.setdefault('currentY','%i'%currentYear)
+    context.setdefault('currentM_Y','%i/%i'% (currentMonth,currentYear))
     return render(request, 'services/order_list.html', context)
 
 
