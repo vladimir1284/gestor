@@ -217,23 +217,10 @@ def list_terminated_order(request,year=None, month=None):
      (currentMonth, currentYear),
      (nextMonth, nextYear)) = getMonthYear(month, year)
     
-    orders = Order.objects.all().order_by('-created_date','-id')
-    orders  = orders.filter(created_date__year=currentYear, 
-                            created_date__month=currentMonth)
-
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-
-    if start_date is not None:
-        orders  = orders.filter(date__gte=start_date)
-
-    if end_date is not None:
-        orders  = orders.filter(date__lte=end_date)
-
-    context = prepareListOrder(request, ('complete', 'decline'))
+    context = prepareListOrder1(request, ('complete', 'decline'),currentYear,currentMonth)
     context.setdefault('stage', 'Active')
     context.setdefault('alternative_view', 'list-service-order')
-    context.setdefault('orders',orders)
+   
     context.setdefault('previousMonth',previousMonth)
     context.setdefault('currentMonth',currentMonth)
     context.setdefault('nextMonth',nextMonth)
@@ -243,9 +230,6 @@ def list_terminated_order(request,year=None, month=None):
     context.setdefault('nextYear',nextYear)
     context.setdefault('thisYear',datetime.now().year)
     context.setdefault('interval','monthly') 
-    context.setdefault('currentM','%i'%currentMonth)
-    context.setdefault('currentY','%i'%currentYear)
-    context.setdefault('currentM_Y','%i/%i'% (currentMonth,currentYear))
     return render(request, 'services/order_list.html', context)
 
 
@@ -257,6 +241,28 @@ def prepareListOrder(request, status_list):
     # List orders
     orders = Order.objects.filter(
         type='sell', status__in=status_list).order_by('-created_date')
+    # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
+    statuses = set()
+    for order in orders:
+        statuses.add(order.status)
+        # transactions = ProductTransaction.objects.filter(order=order)
+        computeOrderAmount(order)
+    return {'orders': orders,
+            'statuses': statuses}
+
+def prepareListOrder1(request, status_list, currentYear,currentMonth):
+    # Prepare the flow for creating order
+    cleanSession(request)
+    request.session['creating_order'] = True
+
+    # List orders
+    orders = Order.objects.filter(created_date__year=currentYear, 
+                            created_date__month=currentMonth).order_by('-created_date')
+    
+    end_date = request.GET.get('end_date')
+
+    if end_date is not None:
+        orders  = orders.filter(date__lte=end_date)
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
     for order in orders:
