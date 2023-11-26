@@ -217,7 +217,7 @@ def list_terminated_order(request,year=None, month=None):
      (currentMonth, currentYear),
      (nextMonth, nextYear)) = getMonthYear(month, year)
     
-    context = prepareListOrder1(request, ('complete', 'decline'),currentYear,currentMonth)
+    context = preparePaginatedListOrder(request, ('complete', 'decline'),currentYear,currentMonth)
     context.setdefault('stage', 'Active')
     context.setdefault('alternative_view', 'list-service-order')
    
@@ -250,19 +250,15 @@ def prepareListOrder(request, status_list):
     return {'orders': orders,
             'statuses': statuses}
 
-def prepareListOrder1(request, status_list, currentYear,currentMonth):
+def preparePaginatedListOrder(request, status_list, currentYear,currentMonth):
     # Prepare the flow for creating order
     cleanSession(request)
     request.session['creating_order'] = True
 
     # List orders
-    orders = Order.objects.filter(created_date__year=currentYear, 
+    orders = Order.objects.filter(type='sell', status__in=status_list,created_date__year=currentYear, 
                             created_date__month=currentMonth).order_by('-created_date')
     
-    end_date = request.GET.get('end_date')
-
-    if end_date is not None:
-        orders  = orders.filter(date__lte=end_date)
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
     for order in orders:
