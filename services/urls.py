@@ -53,6 +53,7 @@ urlpatterns = [
     path('list-order/', order.list_order, name='list-service-order'),
     path('list-terminated-order/', order.list_terminated_order,
          name='list-service-order-terminated'),
+    path('list-terminated-order/<year>/<month>', order.list_terminated_order, name='list-service-order-terminated'),
     path('update-order-status/<id>/<status>',
          order.update_order_status, name='update-service-order-status'),
     path('send-sms/<order_id>', sms.sendSMS, name='send-sms'),
