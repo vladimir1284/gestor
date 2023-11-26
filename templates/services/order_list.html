@@ -5,28 +5,28 @@
     Service Orders
 {% endblock title %}
 {% block nav %}
-   {% if stage == 'Active' %}
-    {% if previousYear and previousMonth %}
-    <!-- Month -->
-    <div class="text-center">
-        <div class="demo-inline-spacing pb-3">
-            <a type="button"
-               href="{% url 'list-service-order-terminated' previousYear previousMonth %}"
-               class="btn btn-icon btn-outline-primary">
-                <span class="tf-icons bx bx-chevron-left"></span>
-            </a>
-            <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
-            {% if thisMonth == currentMonth and thisYear == currentYear %}
-            {% else %}
-             <a type="button"
-               href="{% url 'list-service-order-terminated' nextYear nextMonth  %}"
-               class="btn btn-icon btn-outline-primary">
-                <span class="tf-icons bx bx-chevron-right"></span>
-             </a>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
+    {% if stage == 'Active' %}
+        {% if previousYear and previousMonth %}
+            <!-- Month -->
+            <div class="text-center">
+                <div class="demo-inline-spacing pb-3">
+                    <a type="button"
+                       href="{% url 'list-service-order-terminated' previousYear previousMonth %}"
+                       class="btn btn-icon btn-outline-primary">
+                        <span class="tf-icons bx bx-chevron-left"></span>
+                    </a>
+                    <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
+                    {% if thisMonth == currentMonth and thisYear == currentYear %}
+                    {% else %}
+                        <a type="button"
+                           href="{% url 'list-service-order-terminated' nextYear nextMonth %}"
+                           class="btn btn-icon btn-outline-primary">
+                            <span class="tf-icons bx bx-chevron-right"></span>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
 {% endblock nav %}
 {% block Ttitle %}
@@ -63,7 +63,7 @@
     <th>Amount</th>
 {% endblock Theader %}
 {% block Tbody %}
-       {% for order in orders %}
+    {% for order in orders %}
         <tr data-tag="{{ order.status }}"
             data-search="{{ order.associated.alias }}{{ order.associated.name }}{{ order.associated.phone_number }}">
             <td class="chapilla">
@@ -133,7 +133,7 @@
                 <td></td>
             {% endif %}
             <td>
-                <i class="fab fa-angular fa-lg text-danger"></i> <strong {% if order.status == 'decline' and order.terminated_date %}class="bg-label-danger"{% endif %}>{{ order.concept }}</strong>
+                <i class="fab fa-angular fa-lg text-danger"></i> <strong {% if order.status == 'decline' and order.terminated_date %}class="bg-label-danger"{% endif %}>{{ order.concept| truncatechars:50 }}</strong>
             </td>
             <td>{{ order.created_date|date:"m/d/Y" }}</td>
             <td>${{ order.amount|floatformat:"2" }}</td>
