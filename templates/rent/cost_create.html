@@ -12,7 +12,7 @@
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">{{ title }}</h5>
                 {% if form.instance.id %}
-                    <a onclick="deleteCost('{% url 'delete-cost' form.instance.id %}', '')"
+                    <a onclick="deleteCost('{% url 'delete-cost-rental' form.instance.id %}', '')"
                        type="button"
                        class="btn btn-icon btn-outline-danger float-end">
                         <span class="tf-icons bx bx-trash"></span>

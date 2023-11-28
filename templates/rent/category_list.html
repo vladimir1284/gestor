@@ -18,10 +18,10 @@
                     <div class="demo-inline-spacing">
                         <a class="btn btn-icon btn-outline-primary"
                            type="button"
-                           href="{% url 'update-costs-category' category.id %}">
+                           href="{% url 'update-costs-rental-category' category.id %}">
                             <span class="tf-icons bx bx-edit"></span>
                         </a>
-                        <a onclick="deleteCategory('{% url 'delete-costs-category' category.id %}', '{{ category.name }}')"
+                        <a onclick="deleteCategory('{% url 'delete-costs-rental-category' category.id %}', '{{ category.name }}')"
                            type="button"
                            class="btn btn-icon btn-outline-danger">
                             <span class="tf-icons bx bx-trash"></span>
@@ -41,7 +41,7 @@
     </script>
 {% endblock Cards %}
 {% block createUrl %}
-    {% url 'create-costs-category' %}
+    {% url 'create-costs-rental-category' %}
 {% endblock createUrl %}
 {% block help %}
     New category

@@ -6,7 +6,7 @@
         <div class="text-center">
             <div class="demo-inline-spacing pb-3">
                 <a type="button"
-                   href="{% url 'list-cost' previousYear previousMonth %}"
+                   href="{% url 'list-cost-rental' previousYear previousMonth %}"
                    class="btn btn-icon btn-outline-primary">
                     <span class="tf-icons bx bx-chevron-left"></span>
                 </a>
@@ -14,7 +14,7 @@
                 {% if thisMonth == currentMonth and thisYear == currentYear %}
                 {% else %}
                     <a type="button"
-                       href="{% url 'list-cost' nextYear nextMonth %}"
+                       href="{% url 'list-cost-rental' nextYear nextMonth %}"
                        class="btn btn-icon btn-outline-primary">
                         <span class="tf-icons bx bx-chevron-right"></span>
                     </a>
@@ -40,7 +40,7 @@
     {% for cost in costs %}
         <tr data-tag="{{ cost.category.name }}">
             <td>
-                <a href={% url 'update-cost' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
+                <a href={% url 'update-cost-rental' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
             </td>
             <td>
                 <strong>{{ cost.concept }}</strong>
@@ -72,7 +72,7 @@
     {% endfor %}
 {% endblock Tbody %}
 {% block createUrl %}
-    {% url 'create-cost' %}
+    {% url 'create-cost-rental' %}
 {% endblock createUrl %}
 {% block help %}
     Add cost
