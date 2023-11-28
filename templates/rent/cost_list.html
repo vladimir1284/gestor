@@ -1,0 +1,79 @@
+{% extends "base/base_list.html" %}
+{% load month_name %}
+{% block nav %}
+    {% if previousYear and previousMonth %}
+        <!-- Month -->
+        <div class="text-center">
+            <div class="demo-inline-spacing pb-3">
+                <a type="button"
+                   href="{% url 'list-cost' previousYear previousMonth %}"
+                   class="btn btn-icon btn-outline-primary">
+                    <span class="tf-icons bx bx-chevron-left"></span>
+                </a>
+                <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
+                {% if thisMonth == currentMonth and thisYear == currentYear %}
+                {% else %}
+                    <a type="button"
+                       href="{% url 'list-cost' nextYear nextMonth %}"
+                       class="btn btn-icon btn-outline-primary">
+                        <span class="tf-icons bx bx-chevron-right"></span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock nav %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">Costs</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>Amount</th>
+    <th>concept</th>
+    <th>category</th>
+    <th>date</th>
+    <th>User</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for cost in costs %}
+        <tr data-tag="{{ cost.category.name }}">
+            <td>
+                <a href={% url 'update-cost' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
+            </td>
+            <td>
+                <strong>{{ cost.concept }}</strong>
+                {% if cost.image %}
+                    <a href="{{ cost.image.url }}" target="blank" class="float-end"><span class="tf-icons bx bx-image"></span></a>
+                {% endif %}
+            </td>
+            <td>
+                {% if cost.category %}{{ cost.category.name }}{% endif %}
+            </td>
+            <td>{{ cost.date|date:"m/d/Y" }}</td>
+            <td>
+                {% if cost.related_to %}
+                    <div class="avatar avatar-online">
+                        {% if cost.related_to.profile_user.avatar %}
+                            <img src="{{ cost.related_to.profile_user.avatar.url }}"
+                                 alt=""
+                                 class="w-px-40 rounded-circle" />
+                        {% else %}
+                            <span style="font-size:1.5em"
+                                  class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                {{ cost.related_to.first_name|first }}
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'create-cost' %}
+{% endblock createUrl %}
+{% block help %}
+    Add cost
+{% endblock help %}

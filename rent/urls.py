@@ -2,8 +2,34 @@ from django.urls import path
 from .views import vehicle, tracker, lease, calendar, client, invoice
 from django.views.generic import TemplateView
 from .permissions import staff_required_view
-
+from .viewrental  import (
+    # ---- Category -------
+    CategoryListView,
+    delete_category,
+    CategoryUpdateView,
+    CategoryCreateView,
+    # ---- Costs ----------
+    create_cost,
+    update_cost,
+    list_cost,
+    delete_cost,
+    detail_cost
+)
 urlpatterns = [
+    # -------------------- Category ----------------------------
+    path('create-category/', CategoryCreateView.as_view(),
+         name='create-costs-rental-category'),
+    path('update-category/<pk>', CategoryUpdateView.as_view(),
+         name='update-costs-rental-category'),
+    path('list-category/', CategoryListView.as_view(), name='list-costs-rental-category'),
+    path('delete-category/<id>', delete_category, name='delete-costs-rental-category'),
+    # -------------------- Costs ----------------------------
+    path('create-cost/', create_cost, name='create-cost-rental'),
+    path('update-cost/<id>', update_cost, name='update-cost-rental'),
+    path('list-cost/', list_cost, name='list-cost-rental'),
+    path('list-cost/<year>/<month>', list_cost, name='list-cost-rental'),
+    path('detail-cost/<id>', detail_cost, name='detail-cost-rental'),
+    path('delete-cost/<id>', delete_cost, name='delete-cost-rental'),
     # -------------------- Vehicle ----------------------------
     path('create-trailer', vehicle.create_trailer, name='create-trailer'),
     path('list-trailer', vehicle.list_equipment, name='list-trailer'),
@@ -122,5 +148,5 @@ urlpatterns = [
          lease.update_due, name='update-due'),
     # -------------------- Permissions ----------------------------
     path('staff_required/', staff_required_view, name='staff_required'),
-
+     # -------------------- Cost ----------------------------
 ]
