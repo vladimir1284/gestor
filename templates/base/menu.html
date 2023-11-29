@@ -165,24 +165,10 @@
             </a>
         </li>
         <li class="menu-item">
-            <a href="{% url 'calendar' %}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-calendar"></i>
-                <div data-i18n="Sells">Calendar</div>
+            <a href="{% url 'list-trailer' %}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-traffic-cone"></i>
+                <div data-i18n="Sells">Trailers</div>
             </a>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-cog"></i>
-                <div data-i18n="Account Settings">Configuración</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{% url 'list-trailer' %}" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-traffic-cone"></i>
-                        <div data-i18n="Sells">Trailers</div>
-                    </a>
-                </li>
-            </ul>
         </li>
         {% if perms.can_add_user %}
             <li class="menu-item">
@@ -198,7 +184,6 @@
                     </li>
                     <li class="menu-item">
                         <a href="{% url 'list-costs-rental-category' %}" class="menu-link">
-            
                             <div data-i18n="Clientes">Categorías</div>
                         </a>
                     </li>
