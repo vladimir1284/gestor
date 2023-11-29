@@ -2,7 +2,7 @@ from django.urls import path
 from .views import vehicle, tracker, lease, calendar, client, invoice
 from django.views.generic import TemplateView
 from .permissions import staff_required_view
-from .viewrental  import (
+from .views.cost  import (
     # ---- Category -------
     CategoryListView,
     delete_category,
