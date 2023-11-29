@@ -28,23 +28,7 @@
             </td>
             <td>
                 {% if equipment.current_contract %}
-                    <a {% if equipment.current_contract.stage == 'active' %}href="{% url 'client-detail' equipment.current_contract.lessee.id %}"{% else %} href="{% url 'detail-contract' equipment.current_contract.id %}"{% endif %}>
-                        {% if equipment.current_contract.contract_type == 'lto' %}
-                            {% if equipment.paid %}
-                                <img src="{% static 'assets/img/icons/paid.png' %}"
-                                     alt="contract icon"
-                                     class="h-px-40 w-auto" />
-                            {% else %}
-                                <img src="{% static 'assets/img/icons/lto.jpg' %}"
-                                     alt="contract icon"
-                                     class="h-px-40 w-auto" />
-                            {% endif %}
-                        {% else %}
-                            <img src="{% static 'assets/img/icons/contract.jpg' %}"
-                                 alt="contract icon"
-                                 class="h-px-40 w-auto" />
-                        {% endif %}
-                    </a>
+                    {% include "rent/contract_icon.html" with contract=equipment.current_contract equipment=equipment %}
                 {% else %}
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"
@@ -70,7 +54,6 @@
         </tr>
     {% endfor %}
 {% endblock Tbody %}
-
 {% block TtitleInactive %}
     <h5 class="card-header">Deactivated Trailers</h5>
 {% endblock TtitleInactive %}
@@ -96,23 +79,7 @@
             </td>
             <td>
                 {% if equipment.current_contract %}
-                    <a {% if equipment.current_contract.stage == 'active' %}href="{% url 'client-detail' equipment.current_contract.lessee.id %}"{% else %} href="{% url 'detail-contract' equipment.current_contract.id %}"{% endif %}>
-                        {% if equipment.current_contract.contract_type == 'lto' %}
-                            {% if equipment.paid %}
-                                <img src="{% static 'assets/img/icons/paid.png' %}"
-                                     alt="contract icon"
-                                     class="h-px-40 w-auto" />
-                            {% else %}
-                                <img src="{% static 'assets/img/icons/lto.jpg' %}"
-                                     alt="contract icon"
-                                     class="h-px-40 w-auto" />
-                            {% endif %}
-                        {% else %}
-                            <img src="{% static 'assets/img/icons/contract.jpg' %}"
-                                 alt="contract icon"
-                                 class="h-px-40 w-auto" />
-                        {% endif %}
-                    </a>
+                    {% include "rent/contract_icon.html" with contract=equipment.current_contract equipment=equipment %}
                 {% else %}
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"
@@ -138,7 +105,6 @@
         </tr>
     {% endfor %}
 {% endblock TbodyInactive %}
-
 {% block createUrl %}
     {% url 'create-trailer' %}
 {% endblock createUrl %}

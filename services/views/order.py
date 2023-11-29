@@ -31,7 +31,8 @@ from services.forms import (
 )
 from rent.models.vehicle import Trailer
 from django.utils.translation import gettext_lazy as _
-
+from gestor.views.utils import getMonthYear
+from datetime import datetime
 
 # -------------------- Order ----------------------------
 
@@ -211,10 +212,24 @@ def list_order(request):
 
 
 @login_required
-def list_terminated_order(request):
-    context = prepareListOrder(request, ('complete', 'decline'))
+def list_terminated_order(request,year=None, month=None):
+    ((previousMonth, previousYear),
+     (currentMonth, currentYear),
+     (nextMonth, nextYear)) = getMonthYear(month, year)
+    
+    context = preparePaginatedListOrder(request, ('complete', 'decline'),currentYear,currentMonth)
     context.setdefault('stage', 'Active')
     context.setdefault('alternative_view', 'list-service-order')
+   
+    context.setdefault('previousMonth',previousMonth)
+    context.setdefault('currentMonth',currentMonth)
+    context.setdefault('nextMonth',nextMonth)
+    context.setdefault('thisMonth',datetime.now().month)
+    context.setdefault('previousYear',previousYear)
+    context.setdefault('currentYear',currentYear)
+    context.setdefault('nextYear',nextYear)
+    context.setdefault('thisYear',datetime.now().year)
+    context.setdefault('interval','monthly') 
     return render(request, 'services/order_list.html', context)
 
 
@@ -226,6 +241,24 @@ def prepareListOrder(request, status_list):
     # List orders
     orders = Order.objects.filter(
         type='sell', status__in=status_list).order_by('-created_date')
+    # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
+    statuses = set()
+    for order in orders:
+        statuses.add(order.status)
+        # transactions = ProductTransaction.objects.filter(order=order)
+        computeOrderAmount(order)
+    return {'orders': orders,
+            'statuses': statuses}
+
+def preparePaginatedListOrder(request, status_list, currentYear,currentMonth):
+    # Prepare the flow for creating order
+    cleanSession(request)
+    request.session['creating_order'] = True
+
+    # List orders
+    orders = Order.objects.filter(type='sell', status__in=status_list,created_date__year=currentYear, 
+                            created_date__month=currentMonth).order_by('-created_date')
+    
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
     for order in orders:

@@ -63,21 +63,24 @@
                                 <i class="bx bx-cog"></i>
                             </th>
                             <th>Client</th>
-                            <th>Debt</th>
+                            <th data-type="amount">Debt</th>
+                            <th data-type="number">BD</th>
                             <th>Alarm</th>
+                            <th data-type="string">type</th>
                             <th>Trailer</th>
-                            <th>Overdue</th>
+                            <th data-type="days">Overdue</th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
                         {% for client in clients %}
                             {% if client.contract.stage == "active" %}
-                                <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
+                                <tr data-search="{{ client.trailer.plate }}{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
                                     <td>
                                         <a href={% url 'client-detail' client.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
                                     </td>
                                     <td>{% include "users/associated_line.html" with associated=client %}</td>
                                     <td>${{ client.debt }}</td>
+                                    <td>{{ client.contract.effective_date|date:"d" }}</td>
                                     <td>
                                         {% if client.contract.contract_type == 'lto' and  client.contract.paid %}
                                             <img src="{% static 'assets/img/icons/paid.png' %}"
@@ -88,23 +91,29 @@
                                                type="button"
                                                class="btn btn-icon btn-outline-primary upper-right">
                                                 {% if client.lease.notify %}
-                                                    <i class="bx bx-alarm"></i>
+                                                    <i class="bx bx-bell"></i>
                                                 {% else %}
-                                                    <i class="bx bx-alarm-off"></i>
+                                                    <i class="bx bx-bell-off"></i>
                                                 {% endif %}
                                             </a>
                                         {% endif %}
+                                    </td>
+                                    <td>
+                                        <div data-contract="{{ client.contract.contract_type }}" />
+                                        {% include "rent/contract_icon.html" with contract=client.contract equipment=client.contract.trailer %}
                                     </td>
                                     <td>
                                         <div class="d-flex">
                                             {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
                                         </div>
                                     </td>
-                                    <td>
-                                        {% if client.debt %}
-                                            {{ client.last_payment|timesince }}
-                                        </td>
-                                    {% endif %}
+                                    <td data-days="{{ client.overdue_days }}">
+                                        {% if client.debt and client.overdue_days > 3 %}
+                                            <strong>{{ client.last_payment|timesince }}</strong>
+                                            <br />
+                                            <small class="text-muted">{{ client.last_payment|date:"m/d/Y" }}</small>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endif %}
                         {% endfor %}
@@ -123,6 +132,7 @@
                                 <i class="bx bx-cog"></i>
                             </th>
                             <th>Client</th>
+                            <th>type</th>
                             <th>Trailer</th>
                             <th>Effective Date</th>
                         </tr>
@@ -135,16 +145,15 @@
                                         <a href={% url 'detail-contract' client.contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
                                     </td>
                                     <td>{% include "users/associated_line.html" with associated=client %}</td>
+                                    <td>{% include "rent/contract_icon.html" with contract=client.contract equipment=client.contract.trailer %}</td>
                                     <td>
                                         <div class="d-flex">
                                             {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
                                         </div>
                                     </td>
                                     <td>
-                                        {% if client.debt %}
-                                            {{ client.contract.effective_date|date:"m/d/Y" }}
-                                        </td>
-                                    {% endif %}
+                                        {% if client.debt %}{{ client.contract.effective_date|date:"m/d/Y" }}{% endif %}
+                                    </td>
                                 </tr>
                             {% endif %}
                         {% endfor %}
@@ -162,6 +171,7 @@
                             </th>
                             <th>Client</th>
                             <th>Debt</th>
+                            <th>type</th>
                             <th>Trailer</th>
                             <th>Ended Date</th>
                         </tr>
@@ -175,6 +185,7 @@
                                     </td>
                                     <td>{% include "users/associated_line.html" with associated=client %}</td>
                                     <td>${{ client.contract.final_debt }}</td>
+                                    <td>{% include "rent/contract_icon.html" with contract=client.contract equipment=client.contract.trailer %}</td>
                                     <td>
                                         <div class="d-flex">
                                             {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}

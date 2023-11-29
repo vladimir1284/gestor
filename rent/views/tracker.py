@@ -247,7 +247,8 @@ def tracker_upload(request):
                                    speed=speed,
                                    precision=precision)
 
-        except:
+        except Exception as err:
+            print(err)
             return HttpResponse("Malformed message!")
 
         td.save()
