@@ -1,0 +1,45 @@
+{% extends 'base/base_form.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block img_id %}
+    const img_id = "id_image";
+{% endblock img_id %}
+{% block content %}
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">{{ title }}</h5>
+                {% if form.instance.id %}
+                    <a onclick="deleteCost('{% url 'delete-cost-rental' form.instance.id %}', '')"
+                       type="button"
+                       class="btn btn-icon btn-outline-danger float-end">
+                        <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function deleteCost(url, name) {
+            let confirmAction = confirm("Are you sure to delete this cost?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+
+        // fix the date in edit mode 
+        let d = document.getElementById('id_date')
+        let dateParts = d.defaultValue.split("/");
+        let formattedDate = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
+        d.value = formattedDate;
+
+    </script>
+{% endblock content %}

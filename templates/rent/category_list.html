@@ -1,0 +1,48 @@
+{% extends 'utils/category_list.html' %}
+{% load static %}
+{% block title %}
+    Costs categories
+{% endblock title %}
+{% block Ctitle %}
+    <h5>Costs categories</h5>
+{% endblock Ctitle %}
+{% block Cards %}
+    {% for category in object_list %}
+        <div class="col-6 col-md-3 mb-3 text-center">
+            <div class="card h-100">
+                <img class="card-img-top"
+                     {% if category.icon %} src="{{ category.icon.url }}" {% else %} src="{% static 'assets/img/icons/no_image.jpg' %}" {% endif %}
+                     alt="{{ category.name }} icon">
+                <div class="card-body">
+                    <h5 class="card-title">{{ category.name }}</h5>
+                    <div class="demo-inline-spacing">
+                        <a class="btn btn-icon btn-outline-primary"
+                           type="button"
+                           href="{% url 'update-costs-rental-category' category.id %}">
+                            <span class="tf-icons bx bx-edit"></span>
+                        </a>
+                        <a onclick="deleteCategory('{% url 'delete-costs-rental-category' category.id %}', '{{ category.name }}')"
+                           type="button"
+                           class="btn btn-icon btn-outline-danger">
+                            <span class="tf-icons bx bx-trash"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    <script>
+        function deleteCategory(url, name) {
+            let confirmAction = confirm("Are you sure to delete the category " + name + "?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+    </script>
+{% endblock Cards %}
+{% block createUrl %}
+    {% url 'create-costs-rental-category' %}
+{% endblock createUrl %}
+{% block help %}
+    New category
+{% endblock help %}
