@@ -82,6 +82,8 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
                 client.debt -= lease.remaining
                 client.last_payment = client.unpaid_dues[0].start
                 rental_debt += client.debt
+                client.overdue_days = (
+                    timezone.now() - client.last_payment).days
             else:
                 client.last_payment = timezone.now()
             payment_dates[client.id] = client.last_payment

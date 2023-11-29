@@ -1,0 +1,18 @@
+{% load static %}
+<a {% if contract.stage == 'active' %}href="{% url 'client-detail' contract.lessee.id %}"{% else %} href="{% url 'detail-contract' contract.id %}"{% endif %}>
+    {% if contract.contract_type == 'lto' %}
+        {% if equipment.paid %}
+            <img src="{% static 'assets/img/icons/paid.png' %}"
+                 alt="contract icon"
+                 class="h-px-40 w-auto" />
+        {% else %}
+            <img src="{% static 'assets/img/icons/lto.jpg' %}"
+                 alt="contract icon"
+                 class="h-px-40 w-auto" />
+        {% endif %}
+    {% else %}
+        <img src="{% static 'assets/img/icons/contract.jpg' %}"
+             alt="contract icon"
+             class="h-px-40 w-auto" />
+    {% endif %}
+</a>
