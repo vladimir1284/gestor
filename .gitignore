@@ -167,3 +167,5 @@ costs.pickle
 import_costs.py
 static/rental/signatures/*
 
+trackers.csv
+trackers.json
