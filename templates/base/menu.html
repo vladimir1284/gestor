@@ -190,6 +190,12 @@
                 </ul>
             </li>
         {% endif %}
+        <li class="menu-item">
+            <a href="{% url 'list-toll' %}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-traffic-cone"></i>
+                <div data-i18n="Sells">Tolls</div>
+            </a>
+        </li>
         <!--Inventario-->
         {% if perms.can_add_user %}
             <li class="menu-header small text-uppercase">

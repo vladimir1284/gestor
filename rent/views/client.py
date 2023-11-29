@@ -56,6 +56,7 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
         clients.append(client)
         client.trailer = contract.trailer
         client.contract = contract
+        client.unpaid_tolls = True if client.contract.tolldue_set.all().filter(stage='unpaid') else False
         if contract.contract_type == 'lto':
             _, client.contract.paid = contract.paid()
         payment_dates.setdefault(client.id, timezone.now())
@@ -171,6 +172,16 @@ def client_detail(request, id):
         lease.deposits = LeaseDeposit.objects.filter(lease=lease)
         for deposit in lease.deposits:
             lease.total_deposit += deposit.amount
+
+        lease.contract.toll_totalpaid = 0
+        lease.contract.toll_totalunpaid = 0
+        lease.contract.tolls = lease.contract.tolldue_set.all()
+        print(lease.contract.tolls, lease.contract.id)
+        for toll in lease.contract.tolls:
+            if toll.stage == "paid":
+                lease.contract.toll_totalpaid += toll.amount
+            else:
+                lease.contract.toll_totalunpaid += toll.amount
 
     context = {
         "client": client,

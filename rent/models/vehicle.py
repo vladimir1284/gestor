@@ -164,3 +164,13 @@ class TrailerDocument(models.Model):
             if self.remainder_date < timezone.now().date():
                 raise ValueError(_('Reminder date cannot be in the past.'))
         super().save(*args, **kwargs)
+
+class TrailerPlates(models.Model):
+    """Special model to store the plates of the trailer even if it changes"""
+    plate = models.CharField(max_length=50, blank=True)
+    trailer =  models.ForeignKey(Trailer, on_delete=models.SET_NULL, null=True)
+    assign_date = models.DateField(auto_now_add=True)
+    active_plate = models.BooleanField(default=False)
+
+    def __str__(self):
+        return F"{self.plate} ({self.trailer})"

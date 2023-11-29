@@ -1,0 +1,42 @@
+{% extends "base/base_list.html" %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">Select a Contract</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>Lessee</th>
+    <th>Trailer</th>
+    <th>Contract</th>
+    <th>Stage</th>
+    <th>Created date</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for contract in contracts %}
+        <tr data-search="{{ contract.lessee }}">
+            <td>
+                {% include "users/associated_line.html" with associated=contract.lessee %}
+            </td>
+            <td>
+                <div class="d-flex">
+                    {% include "rent/equipment_line.html" with equipment=contract.trailer equipment_type="trailer" pinned_image=contract.trailer.pinned_image %}
+                </div>
+            </td>
+            <td>
+                {% include "rent/contract_icon.html" with contract=contract equipment=contract.trailer %}
+            </td>
+            <td>
+                <strong>{{contract.stage}}</strong>
+            </td>
+            <td>{{ plate.assign_date|date:"m/d/Y" }}</td>
+            <td>
+                <a class="btn btn-icon btn-outline-primary" href="{% url 'create-toll' plate.id contract.id %}">
+                    <span class="tf-icons bx bx-check"></span>
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block add %}hidden{% endblock add %}

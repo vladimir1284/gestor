@@ -1,0 +1,103 @@
+{% extends "base/base_list.html" %}
+{% load month_name %}
+{% block nav %}
+    {% if previousYear and previousMonth %}
+        <!-- Month -->
+        <div class="text-center">
+            <div class="demo-inline-spacing pb-3">
+                <a type="button"
+                    {% if id %}
+                   href="{% url 'list-toll' id %}?year={{previousYear}}&month={{previousMonth}}"
+                    {% else %}
+                    href="{% url 'list-toll' %}?year={{previousYear}}&month={{previousMonth}}"
+                    {% endif %}
+                   class="btn btn-icon btn-outline-primary">
+                    <span class="tf-icons bx bx-chevron-left"></span>
+                </a>
+                <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
+                {% if thisMonth == currentMonth and thisYear == currentYear %}
+                {% else %}
+                    <a type="button"
+                    {% if id %}
+                   href="{% url 'list-toll' id %}?year={{nextYear}}&month={{nextMonth}}"
+                    {% else %}
+                    href="{% url 'list-toll' %}?year={{nextYear}}&month={{nextMonth}}"
+                    {% endif %}
+                       class="btn btn-icon btn-outline-primary">
+                        <span class="tf-icons bx bx-chevron-right"></span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock nav %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">Tolls</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>
+        <i class="bx bx-cog"></i>
+    </th>
+    <th>Amount</th>
+    <th>Trailer</th>
+    <th>Plate</th>
+    <th>Stage</th>
+    <th>Invoice</th>
+    <th>Creation date</th>
+    <th>Contract</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for toll in tolls %}
+        <tr data-search="{{ toll.plate.plate }}">
+            <td>
+                <a href="{% if contract %}{% url 'update-toll' toll.id  %}?next_id={{contract.id}}{% else %}{% url 'update-toll' toll.id %}{% endif %}">
+                <i class="bx bx-dots-vertical-rounded"></i>
+                </a>
+            </td>
+            <td>
+                <strong>${{ toll.amount|floatformat:"2" }}</strong>
+            </td>
+            <td>
+                <div class="d-flex">
+                {% include "rent/equipment_line.html" with equipment=toll.plate.trailer equipment_type="trailer" pinned_image=toll.plate.trailer.pinned_image %}
+                </div>
+            </td>
+            <td>
+                <strong>{{ toll.plate.plate }}</strong>
+            </td>
+            <td>
+                <strong class='badge me-1 bg-label-{% if toll.stage == "paid"%}success{%else%}danger{%endif%}'>{{ toll.stage }}</strong>
+            </td>
+            <td>
+                {% if toll.invoice %}
+                <a class="btn btn-icon btn-outline-primary ms-3"
+                    type="button"
+                    target="_blank"
+                    href="{{ toll.invoice.url }}">
+                    <span class="tf-icons bx bx-download"></span>
+                </a>
+                {% endif %}
+            </td>
+
+            <td>{{ toll.created_date|date:"m/d/Y" }}</td>
+            <td>
+                {% if toll.contract %}
+                    {% include "rent/contract_icon.html" with contract=toll.contract equipment=toll.plate.trailer %}
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% if contract %}
+    {% url 'create-toll' contract.trailer.id contract.id  %}?next_id={{contract.id}}
+    {% else %}
+    {% url 'create-toll' %}
+    {% endif %}
+{% endblock createUrl %}
+{% block help %}
+    Add Toll
+{% endblock help %}
