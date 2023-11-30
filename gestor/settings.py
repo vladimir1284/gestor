@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'rent.apps.RentConfig',
     'django.contrib.humanize',
     'schedule',
+    'tolls.apps.TollsConfig',
 ]
 
 MIDDLEWARE = [

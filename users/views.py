@@ -371,6 +371,10 @@ def detail_associated(request, id):
                 if last_payment is not None:
                     client_debt -= lease.remaining
             rental_debt += client_debt
+        
+        unpaid_tolls = contract.tolldue_set.all().filter(stage="unpaid")
+        for toll in unpaid_tolls:
+            rental_debt += toll.amount
 
     context = {'contact': associated,
                'orders': orders,

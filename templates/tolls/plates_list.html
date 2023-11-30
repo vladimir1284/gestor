@@ -1,0 +1,39 @@
+{% extends "base/base_list.html" %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">Select a plate</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th>Plate</th>
+    <th>Trailer</th>
+    <th>Active Plate</th>
+    <th>Assign date</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for plate in plates %}
+        <tr data-search="{{ plate.plate }}">
+            <td>
+                <strong>{{ plate.plate }}</strong>
+            <td>
+                <div class="d-flex">
+                    {% include "rent/equipment_line.html" with equipment=plate.trailer equipment_type="trailer" pinned_image=plate.trailer.pinned_image %}
+                </div>
+            </td>
+            <td>
+                {% if plate.active_plate %}
+                    <span class="tf-icons bx bx-check"></span>
+                {% endif %}
+            </td>
+            <td>{{ plate.assign_date|date:"m/d/Y" }}</td>
+            <td>
+                <a class="btn btn-icon btn-outline-primary" href="{% url 'create-toll' plate.id %}">
+                    <span class="tf-icons bx bx-check"></span>
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block add %}hidden{% endblock add %}

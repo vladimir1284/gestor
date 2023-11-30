@@ -68,6 +68,7 @@
                             <th>Alarm</th>
                             <th data-type="string">type</th>
                             <th>Trailer</th>
+                            <th>Tolls</th>
                             <th data-type="days">Overdue</th>
                         </tr>
                     </thead>
@@ -76,7 +77,7 @@
                             {% if client.contract.stage == "active" %}
                                 <tr data-search="{{ client.trailer.plate }}{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
                                     <td>
-                                        <a href={% url 'client-detail' client.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                        <a href="{% url 'client-detail' client.id %}"><i class="bx bx-dots-vertical-rounded"></i></a>
                                     </td>
                                     <td>{% include "users/associated_line.html" with associated=client %}</td>
                                     <td>${{ client.debt }}</td>
@@ -106,6 +107,13 @@
                                         <div class="d-flex">
                                             {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
                                         </div>
+                                    </td>
+                                    <td>
+                                        {% if client.contract.tolldue_set.all  %}
+                                        <a class="btn btn-icon btn-outline-{% if client.unpaid_tolls %}danger{% else %}primary{% endif %} ms-3"
+                                            href="{% url 'list-toll' client.contract.id %}">
+                                            <span class="tf-icons bx bx-note"></span>
+                                        {% endif %}
                                     </td>
                                     <td data-days="{{ client.overdue_days }}">
                                         {% if client.debt and client.overdue_days > 3 %}
@@ -142,7 +150,7 @@
                             {% if client.contract.stage != "active" and client.contract.stage != "ended" %}
                                 <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
                                     <td>
-                                        <a href={% url 'detail-contract' client.contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                        <a href="{% url 'detail-contract' client.contract.id %}"><i class="bx bx-dots-vertical-rounded"></i></a>
                                     </td>
                                     <td>{% include "users/associated_line.html" with associated=client %}</td>
                                     <td>{% include "rent/contract_icon.html" with contract=client.contract equipment=client.contract.trailer %}</td>
@@ -171,8 +179,9 @@
                             </th>
                             <th>Client</th>
                             <th>Debt</th>
-                            <th>type</th>
+                            <th>Type</th>
                             <th>Trailer</th>
+                            <th>Tolls</th>
                             <th>Ended Date</th>
                         </tr>
                     </thead>
@@ -190,6 +199,13 @@
                                         <div class="d-flex">
                                             {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
                                         </div>
+                                    </td>
+                                    <td>
+                                        {% if client.contract.tolldue_set.all  %}
+                                        <a class="btn btn-icon btn-outline-{% if client.unpaid_tolls %}danger{% else %}primary{% endif %} ms-3"
+                                            href="{% url 'list-toll' client.contract.id %}">
+                                            <span class="tf-icons bx bx-note"></span>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% if client.debt %}

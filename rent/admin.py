@@ -4,6 +4,7 @@ from .models.vehicle import (
     TrailerPicture,
     Manufacturer,
     TrailerDocument,
+    TrailerPlates
 )
 from .models.tracker import (
     Tracker,
@@ -38,3 +39,4 @@ admin.site.register(Payment)
 admin.site.register(Due)
 admin.site.register(LeaseDocument)
 admin.site.register(LeaseDeposit)
+admin.site.register(TrailerPlates)

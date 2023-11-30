@@ -15,6 +15,7 @@ from rent.models.vehicle import (
     Manufacturer,
     TrailerPicture,
     TrailerDocument,
+    TrailerPlates
 )
 from utils.models import (
     Order,
@@ -166,6 +167,7 @@ def create_trailer(request):
         form = TrailerCreateForm(request.POST, request.FILES)
         if form.is_valid():
             trailer = form.save()
+            TrailerPlates.objects.create(plate=trailer.plate, trailer=trailer, active_plate=True)
             # order_data = request.session.get('creating_order')
             return redirect('detail-trailer', trailer.id)
             # request.session['trailer_id'] = trailer.id
@@ -194,7 +196,13 @@ def update_trailer(request, id):
     # save the data from the form and
     # redirect to detail_view
     if form.is_valid():
-        form.save()
+        active_plate = TrailerPlates.objects.all().filter(trailer=trailer, active_plate=True)[0]
+        updated_trailer = form.save()
+        if not updated_trailer.plate == active_plate.plate:
+            active_plate.active_plate = False
+            active_plate.save()
+            TrailerPlates.objects.create(plate=updated_trailer.plate, trailer=updated_trailer, active_plate=True)
+        
         return redirect('detail-trailer', id)
 
     # add form dictionary to context
