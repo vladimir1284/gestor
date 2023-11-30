@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from ..models.tracker import (
     Tracker,
     TrackerUpload)
-from datetime import datetime
+from datetime import datetime, timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import requests
@@ -73,7 +73,7 @@ def tracker_detail(request, id):
 
 def getTrackerUpload(id, n):
     tracker = Tracker.objects.get(id=id)
-
+    online = False
     try:
         data = TrackerUpload.objects.filter(
             tracker=tracker).order_by("-timestamp")[:n]
@@ -100,8 +100,7 @@ def getTrackerUpload(id, n):
         else:
             max_elapsed_time = 80*tracker.Tint
 
-        elapsed_time = (datetime.now().replace(tzinfo=pytz.timezone(
-            settings.TIME_ZONE)) - data[0].timestamp).total_seconds()
+        elapsed_time = (timezone.now() - data[0].timestamp).total_seconds()
 
         # print("elapsed_time: %is" % elapsed_time)
         # print("max_elapsed_time: %is" % max_elapsed_time)

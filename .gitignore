@@ -169,3 +169,5 @@ static/rental/signatures/*
 
 trackers.csv
 trackers.json
+last_data_id.pkl
+last_upload_id.pkl
