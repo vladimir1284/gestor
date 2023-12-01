@@ -14,5 +14,5 @@
   "python.formatting.provider": "none",
   "cSpell.words": ["towit"],
   "python.analysis.typeCheckingMode": "off",
-  "editor.inlineSuggest.showToolbar": "onHover"
+  "editor.inlineSuggest.showToolbar": "always"
 }
