@@ -573,9 +573,15 @@ def computeReport(orders, costs, pending_payments, rental_costs=None):
     }
     
     #Rental cost
-    rental_costs.total = 0
-    for rental_cost in rental_costs:
+    rent_cost = 0
+    try:
+     rental_costs.total = 0
+     for rental_cost in rental_costs:
         rental_costs.total += cost.amount
+        rent_cost += cost.amount
+    except:
+      rental_costs = None
+      
 
     # Costs
     costs.total = 0
@@ -714,7 +720,7 @@ def computeReport(orders, costs, pending_payments, rental_costs=None):
         'chart_payments': chart_payments,
         'debt_paid': debt_paid,
         'payment_transactions': len(payments),
-        'profit': total['net'] - costs.total - rental_costs.total,
+        'profit': total['net'] - costs.total - rent_cost,
         'products': sorted_products,
         'parts_profit': parts_profit,
         'parts_cost': parts_cost,
