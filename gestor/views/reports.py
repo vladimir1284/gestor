@@ -27,6 +27,9 @@ from rent.models.lease import (
     Payment as RentalPayment,
     Lease,
 )
+from rent.models.cost import(
+  RentalCost,
+)
 from rent.views.client import get_start_paying_date
 from datetime import datetime
 from django.utils import timezone
@@ -177,8 +180,12 @@ def monthly_report(request, year=None, month=None):
     pending_payments = PendingPayment.objects.filter(
         created_date__year=currentYear,
         created_date__month=currentMonth).order_by("-created_date")
+    
+    rental_costs = RentalCost.objects.filter(
+        date__year=currentYear,
+        date__month=currentMonth).order_by("-date")
 
-    context = computeReport(orders, costs, pending_payments)
+    context = computeReport(orders, costs, pending_payments,rental_costs)
     context.setdefault('previousMonth', previousMonth)
     context.setdefault('currentMonth', currentMonth)
     context.setdefault('nextMonth', nextMonth)
@@ -374,7 +381,12 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
     pending_payments = PendingPayment.objects.filter(
         created_date__year=currentYear,
         created_date__month=currentMonth).order_by("-created_date")
-    return computeReport(orders, costs, pending_payments)
+
+    rental_costs = RentalCost.objects.filter(
+        date__year=currentYear,
+        date__month=currentMonth).order_by("-date")
+
+    return computeReport(orders, costs, pending_payments, rental_costs)
 
 
 @login_required
@@ -469,7 +481,7 @@ def getPaymentContext(orders, category, pending_payments):
             'category': category}
 
 
-def computeReport(orders, costs, pending_payments):
+def computeReport(orders, costs, pending_payments, rental_costs=None):
     """ 
     The function  `computeReport`  is designed to generate a report based on 
     several parameters: orders, costs, and pending payments. 
@@ -559,6 +571,12 @@ def computeReport(orders, costs, pending_payments):
         'discount': discount_initial,
         'tax': tax_initial,
     }
+    
+    #Rental cost
+    rental_costs.total = 0
+    for rental_cost in rental_costs:
+        rental_costs.total += cost.amount
+
     # Costs
     costs.total = 0
     cats = {}
@@ -688,6 +706,7 @@ def computeReport(orders, costs, pending_payments):
         'total': total,
         'total_initial': total_initial,
         'costs': costs,
+        'rental_costs': rental_costs,
         'cost_cats': sorted_cats,
         'chart_costs': chart_costs,
         'payment_cats': sorted_payment_cats,
@@ -695,7 +714,7 @@ def computeReport(orders, costs, pending_payments):
         'chart_payments': chart_payments,
         'debt_paid': debt_paid,
         'payment_transactions': len(payments),
-        'profit': total['net'] - costs.total,
+        'profit': total['net'] - costs.total - rental_costs.total,
         'products': sorted_products,
         'parts_profit': parts_profit,
         'parts_cost': parts_cost,
