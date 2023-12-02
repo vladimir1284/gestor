@@ -578,7 +578,7 @@ def computeReport(orders, costs, pending_payments, rental_costs=None):
      rental_costs.total = 0
      for rental_cost in rental_costs:
         rental_costs.total += cost.amount
-        rent_cost += cost.amount
+     rent_cost = rental_costs.total
     except:
       rental_costs = None
       
