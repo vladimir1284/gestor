@@ -13,7 +13,8 @@ vbat = 3111  # mV
 
 msg = f"{imei},{seq},{mode},{event},{lat},{lon},{speed},{heading},{sats},{vbat}"
 
-response = requests.post("http://localhost:8888/towit/tracker_data", data=msg)
+response = requests.post(
+    "http://trailerrental.pythonanywhere.com/towit/tracker_data", data=msg)
 if response.status_code == 200:
     print("ok")
 else:
@@ -33,7 +34,8 @@ precision = 20
 
 msg = f"{imei},{seq},{charging},{vbat},{wur},{wdgc},{source},{lat},{lon},{speed},{precision}"
 
-response = requests.post("http://localhost:8888/towit/upload_data", data=msg)
+response = requests.post(
+    "http://trailerrental.pythonanywhere.com/towit/upload_data", data=msg)
 if response.status_code == 200:
     print("ok")
 else:

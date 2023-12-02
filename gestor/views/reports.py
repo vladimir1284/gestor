@@ -229,15 +229,19 @@ def getRentalReport(currentYear, currentMonth):
                 unpaid_lease = True
         if unpaid_lease:
             unpaid_leases.append(lease)
+    try:
+        pending_payments = total_income-float(invoice_income)
+    except:
+        pending_payments = 0
 
     rental = {
         'paid_dues': paid_dues,
-        'total_income': total_income,
+        'total_income': total_income or 0,
         'invoice_income': invoice_income,
         'unpaid_amount': unpaid_amount,
         'planned_income': unpaid_amount+invoice_income,
         'unpaid_leases': unpaid_leases,
-        'pending_payments': total_income-float(invoice_income),
+        'pending_payments': pending_payments,
     }
     return rental
 
