@@ -130,7 +130,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                       {% for cost in rental_costs %}
+                       {% for cost in costs %}
                         <tr data-tag="{{ cost.category.name }}">
                          <td>
                           <a href={% url 'update-cost-rental' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
