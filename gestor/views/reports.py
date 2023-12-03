@@ -64,6 +64,7 @@ STYLE_COLOR = {
 }
 
 
+
 def getOrderBalance(order: Order, products: dict):
     """ 
     This function calculates the balance of an order by computing the
@@ -181,11 +182,7 @@ def monthly_report(request, year=None, month=None):
         created_date__year=currentYear,
         created_date__month=currentMonth).order_by("-created_date")
     
-    rental_costs = RentalCost.objects.filter(
-        date__year=currentYear,
-        date__month=currentMonth).order_by("-date")
-
-    context = computeReport(orders, costs, pending_payments,rental_costs)
+    context = computeReport(orders, costs, pending_payments)
     context.setdefault('previousMonth', previousMonth)
     context.setdefault('currentMonth', currentMonth)
     context.setdefault('nextMonth', nextMonth)
@@ -351,7 +348,7 @@ def monthly_membership_report(request, year=None, month=None):
     context.setdefault('nextYear', nextYear)
     context.setdefault('thisYear', datetime.now().year)
     context.setdefault('rental', getRentalReport(currentYear, currentMonth))
-
+    context["profit"] =  context["rental"]["total_income"] - context["total"]["gross"] - context["costs"].total
     return render(request, 'monthly_membership.html', context)
 
 
@@ -375,18 +372,14 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
             if order.is_initial:
                 orders.has_initial = True
 
-    costs = Cost.objects.filter(date__year=currentYear,
+    costs = RentalCost.objects.filter(date__year=currentYear,
                                 date__month=currentMonth).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__year=currentYear,
         created_date__month=currentMonth).order_by("-created_date")
-
-    rental_costs = RentalCost.objects.filter(
-        date__year=currentYear,
-        date__month=currentMonth).order_by("-date")
-
-    return computeReport(orders, costs, pending_payments, rental_costs)
+    
+    return  computeReport(orders, costs, pending_payments)
 
 
 @login_required
@@ -481,7 +474,7 @@ def getPaymentContext(orders, category, pending_payments):
             'category': category}
 
 
-def computeReport(orders, costs, pending_payments, rental_costs=None):
+def computeReport(orders, costs, pending_payments):
     """ 
     The function  `computeReport`  is designed to generate a report based on 
     several parameters: orders, costs, and pending payments. 
@@ -572,17 +565,6 @@ def computeReport(orders, costs, pending_payments, rental_costs=None):
         'tax': tax_initial,
     }
     
-    #Rental cost
-    rent_cost = 0
-    try:
-     rental_costs.total = 0
-     for rental_cost in rental_costs:
-        rental_costs.total += cost.amount
-     rent_cost = rental_costs.total
-    except:
-      rental_costs = None
-      
-
     # Costs
     costs.total = 0
     cats = {}
@@ -712,7 +694,6 @@ def computeReport(orders, costs, pending_payments, rental_costs=None):
         'total': total,
         'total_initial': total_initial,
         'costs': costs,
-        'rental_costs': rental_costs,
         'cost_cats': sorted_cats,
         'chart_costs': chart_costs,
         'payment_cats': sorted_payment_cats,
@@ -720,7 +701,7 @@ def computeReport(orders, costs, pending_payments, rental_costs=None):
         'chart_payments': chart_payments,
         'debt_paid': debt_paid,
         'payment_transactions': len(payments),
-        'profit': total['net'] - costs.total - rent_cost,
+        'profit': total['net'] - costs.total,
         'products': sorted_products,
         'parts_profit': parts_profit,
         'parts_cost': parts_cost,
