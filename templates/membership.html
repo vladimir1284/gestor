@@ -56,7 +56,7 @@
             <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
                 Profit amount:
                 <div class="text-success">
-                    <strong>{{ profit }}</strong>
+                    <strong>{{ profit|floatformat:"0"|intcomma }}</strong>
                     <span class="text-muted">USD</span>
                 </div>
             </h5>
