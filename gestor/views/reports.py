@@ -27,6 +27,9 @@ from rent.models.lease import (
     Payment as RentalPayment,
     Lease,
 )
+from rent.models.cost import(
+  RentalCost,
+)
 from rent.views.client import get_start_paying_date
 from datetime import datetime
 from django.utils import timezone
@@ -59,6 +62,7 @@ STYLE_COLOR = {
     '#03c3ec': 'info',
     '#233446': 'dark',
 }
+
 
 
 def getOrderBalance(order: Order, products: dict):
@@ -177,7 +181,7 @@ def monthly_report(request, year=None, month=None):
     pending_payments = PendingPayment.objects.filter(
         created_date__year=currentYear,
         created_date__month=currentMonth).order_by("-created_date")
-
+    
     context = computeReport(orders, costs, pending_payments)
     context.setdefault('previousMonth', previousMonth)
     context.setdefault('currentMonth', currentMonth)
@@ -344,7 +348,7 @@ def monthly_membership_report(request, year=None, month=None):
     context.setdefault('nextYear', nextYear)
     context.setdefault('thisYear', datetime.now().year)
     context.setdefault('rental', getRentalReport(currentYear, currentMonth))
-
+    context["profit"] =  context["rental"]["total_income"] - context["total"]["gross"] - context["costs"].total
     return render(request, 'monthly_membership.html', context)
 
 
@@ -368,13 +372,14 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
             if order.is_initial:
                 orders.has_initial = True
 
-    costs = Cost.objects.filter(date__year=currentYear,
+    costs = RentalCost.objects.filter(date__year=currentYear,
                                 date__month=currentMonth).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__year=currentYear,
         created_date__month=currentMonth).order_by("-created_date")
-    return computeReport(orders, costs, pending_payments)
+    
+    return  computeReport(orders, costs, pending_payments)
 
 
 @login_required
@@ -559,6 +564,7 @@ def computeReport(orders, costs, pending_payments):
         'discount': discount_initial,
         'tax': tax_initial,
     }
+    
     # Costs
     costs.total = 0
     cats = {}
