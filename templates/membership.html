@@ -55,8 +55,8 @@
             </h5>
             <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
                 Profit amount:
-                <div class="text-danger">
-                    <strong>{{ profit}} </strong>
+                <div class="text-success">
+                    <strong>{{ profit }}</strong>
                     <span class="text-muted">USD</span>
                 </div>
             </h5>
@@ -115,54 +115,54 @@
                 <div class="text-danger">
                     <strong>{{ costs.total|floatformat:"2" }}</strong>
                     <span class="text-muted">USD</span>
-                </div>            
-            </h5>   
+                </div>
+            </h5>
             <div class="table-responsive text-nowrap">
                 <div class="container ps-0" style="height: 500px; overflow-y: auto;">
                     <table class="table">
                         <thead>
                             <tr>
-                                   <th>Amount</th>
-                                   <th>concept</th>
-                                   <th>category</th>
-                                   <th>date</th>
-                                   <th>User</th>
+                                <th>Amount</th>
+                                <th>concept</th>
+                                <th>category</th>
+                                <th>date</th>
+                                <th>User</th>
                             </tr>
                         </thead>
                         <tbody>
-                       {% for cost in costs %}
-                        <tr data-tag="{{ cost.category.name }}">
-                         <td>
-                          <a href={% url 'update-cost-rental' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
-                         </td>
-                         <td>
-                          <strong>{{ cost.concept }}</strong>
-                          {% if cost.image %}
-                           <a href="{{ cost.image.url }}" target="blank" class="float-end"><span class="tf-icons bx bx-image"></span></a>
-                          {% endif %}
-                        </td>
-                        <td>
-                         {% if cost.category %}{{ cost.category.name }}{% endif %}
-                          </td>
-                          <td>{{ cost.date|date:"m/d/Y" }}</td>
-                          <td>
-                          {% if cost.related_to %}
-                           <div class="avatar avatar-online">
-                            {% if cost.related_to.profile_user.avatar %}
-                              <img src="{{ cost.related_to.profile_user.avatar.url }}"
-                                 alt=""
-                                 class="w-px-40 rounded-circle" />
-                             {% else %}
-                             <span style="font-size:1.5em"
-                                  class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
-                                {{ cost.related_to.first_name|first }}
-                            </span>
-                          {% endif %}
-                         </div>
-                        {% endif %}
-                       </td>
-                       </tr>
-                       {% endfor %}
+                            {% for cost in costs %}
+                                <tr data-tag="{{ cost.category.name }}">
+                                    <td>
+                                        <a href={% url 'update-cost-rental' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
+                                    </td>
+                                    <td>
+                                        <strong>{{ cost.concept }}</strong>
+                                        {% if cost.image %}
+                                            <a href="{{ cost.image.url }}" target="blank" class="float-end"><span class="tf-icons bx bx-image"></span></a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if cost.category %}{{ cost.category.name }}{% endif %}
+                                    </td>
+                                    <td>{{ cost.date|date:"m/d/Y" }}</td>
+                                    <td>
+                                        {% if cost.related_to %}
+                                            <div class="avatar avatar-online">
+                                                {% if cost.related_to.profile_user.avatar %}
+                                                    <img src="{{ cost.related_to.profile_user.avatar.url }}"
+                                                         alt=""
+                                                         class="w-px-40 rounded-circle" />
+                                                {% else %}
+                                                    <span style="font-size:1.5em"
+                                                          class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                                        {{ cost.related_to.first_name|first }}
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
