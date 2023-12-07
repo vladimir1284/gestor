@@ -217,8 +217,9 @@ def create_due(request, lease_id, date):
     context = {
         'title': F"Invoice for {lease.contract.lessee} on " + date.strftime("%m/%d/%Y"),
         'form': form,
+        'initial': lease.payment_amount,
     }
-    return render(request, 'rent/contract/contract_create.html', context)
+    return render(request, 'rent/client/due_create.html', context)
 
 
 @login_required

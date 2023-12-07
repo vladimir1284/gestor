@@ -120,6 +120,59 @@ def client_list(request):
     return render(request, "rent/client/client_list.html", context=context)
 
 
+def process_remaining(request, lease: Lease):
+    # This is a process_payment replica that uses only Lease, it will be called
+    # in client_detail to ensure that all of the remaining payment is used to
+    # pay unpaid and future dues
+
+    # Retrieve the remaining
+    amount = lease.remaining
+
+    # Create as many dues as possible
+    _, _, unpaid_dues = compute_client_debt(lease)
+    # Clean up debts
+    due = None
+    for unpaid_due in unpaid_dues:
+        if amount >= lease.payment_amount:
+            amount -= lease.payment_amount
+            due_date = unpaid_due.start.date()
+            due = Due.objects.create(
+                due_date=due_date,
+                amount=lease.payment_amount,
+                client=lease.contract.lessee,
+                lease=lease
+            )
+            # Send invoice by email
+            mail_send_invoice(request, lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
+    # Pay dues in the future
+    if amount >= lease.payment_amount:
+        start_time = timezone.now()
+        if due is not None:
+            start_time = timezone.make_aware(datetime.combine(
+                due.due_date, datetime.min.time()),
+                pytz.timezone(settings.TIME_ZONE))+timedelta(days=1)
+        occurrences = lease.event.occurrences_after(start_time)
+        for occurrence in occurrences:
+            amount -= lease.payment_amount
+            due_date = occurrence.start.date()
+            due = Due.objects.create(
+                due_date=due_date,
+                amount=lease.payment_amount,
+                client=lease.contract.lessee,
+                lease=lease
+            )
+            # Send invoice by email
+            mail_send_invoice(request, lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
+            if amount < lease.payment_amount:
+                break
+
+    # Save back the remaining
+    lease.remaining = amount
+    lease.save()
+
+
 @login_required
 def client_detail(request, id):
     # Create leases if needed
@@ -132,6 +185,7 @@ def client_detail(request, id):
     dues = None
     for lease in leases:
         # Debt associated with this lease
+        process_remaining(request, lease)
         lease.debt, last_date, lease.unpaid_dues = compute_client_debt(lease)
         # Payments for thi lease
         payments = Payment.objects.filter(

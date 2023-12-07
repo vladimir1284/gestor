@@ -1,0 +1,40 @@
+{% extends "base/base_form.html" %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{{ title }}</h5>
+                <h6 style='margin-bottom: 0px' id='condonation_label'>Condonation of $0</h6>
+            </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function updateNumber() {
+            let initial = {{ initial }};
+            let amountElement = document.getElementById("id_amount");
+            let label = document.getElementById('condonation_label');
+
+            if (amountElement.value) {
+                label.className = '';
+                label.innerText = 'Condonation of $'+((initial-amountElement.value).toFixed(2));
+            } else {
+                label.className = 'text-danger';
+                label.innerText = 'Invalid amount'
+            }
+        }
+        
+        updateNumber();
+        document.getElementById("id_amount").addEventListener("input", updateNumber);
+    </script>
+{% endblock content %}
