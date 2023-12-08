@@ -122,7 +122,7 @@
                         </h5>
                         <hr class="mt-0" />
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <strong>Due payments: $
                                     {% if lease.debt %}
                                         {{ lease.debt|floatformat:"0" }}
@@ -153,7 +153,7 @@
                                     </table>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <strong>Payment history: $
                                     {% if lease.total_payment %}
                                         {{ lease.total_payment|floatformat:"0" }}
@@ -172,8 +172,17 @@
                                                     <td>
                                                         <strong>${{ payment.amount|floatformat:"0" }}</strong>
                                                     </td>
-                                                    {% if payment.user %}
-                                                        <td>
+                                                    <td>
+                                                        {% if forloop.first %}
+                                                            <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
+                                                                <span class="tf-icons bx bx-trash text-danger"></span>
+                                                            </a>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                <tr style='border-top-style:hidden;'>
+                                                    <td>
+                                                        {% if payment.user %}
                                                             <div class="avatar avatar-online">
                                                                 {% if payment.user.profile_user.avatar %}
                                                                     <img src="{{ payment.user.profile_user.avatar.url }}"
@@ -186,15 +195,10 @@
                                                                     </span>
                                                                 {% endif %}
                                                             </div>
-                                                        </td>
-                                                    {% endif %}
-                                                    <td>({{ payment.date|date:"m/d/Y" }})</td>
-                                                    <td>
-                                                        {% if forloop.first %}
-                                                            <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
-                                                                <span class="tf-icons bx bx-trash text-danger"></span>
-                                                            </a>
                                                         {% endif %}
+                                                    </td>
+                                                    <td colspan='2'>
+                                                        <span>   <strong>{{ payment.date|timesince }}</strong> ago</span>
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -202,7 +206,7 @@
                                     </table>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <strong>Invoices: $
                                     {% if lease.paid %}
                                         {{ lease.paid|floatformat:"0" }}
