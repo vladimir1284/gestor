@@ -120,6 +120,57 @@ def client_list(request):
     return render(request, "rent/client/client_list.html", context=context)
 
 
+def base_process_payment(request, lease: Lease, payment_amount=0):
+    """This function ensures that all of the remaining payment is used to pay unpaid and future dues"""
+ 
+    # Retrieve the remaining
+    amount = lease.remaining + payment_amount
+
+    # Create as many dues as possible
+    _, _, unpaid_dues = compute_client_debt(lease)
+    # Clean up debts
+    due = None
+    for unpaid_due in unpaid_dues:
+        if amount >= lease.payment_amount:
+            amount -= lease.payment_amount
+            due_date = unpaid_due.start.date()
+            due = Due.objects.create(
+                due_date=due_date,
+                amount=lease.payment_amount,
+                client=lease.contract.lessee,
+                lease=lease
+            )
+            # Send invoice by email
+            mail_send_invoice(request, lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
+    # Pay dues in the future
+    if amount >= lease.payment_amount:
+        start_time = timezone.now()
+        if due is not None:
+            start_time = timezone.make_aware(datetime.combine(
+                due.due_date, datetime.min.time()),
+                pytz.timezone(settings.TIME_ZONE))+timedelta(days=1)
+        occurrences = lease.event.occurrences_after(start_time)
+        for occurrence in occurrences:
+            amount -= lease.payment_amount
+            due_date = occurrence.start.date()
+            due = Due.objects.create(
+                due_date=due_date,
+                amount=lease.payment_amount,
+                client=lease.contract.lessee,
+                lease=lease
+            )
+            # Send invoice by email
+            mail_send_invoice(request, lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
+            if amount < lease.payment_amount:
+                break
+
+    # Save back the remaining
+    lease.remaining = amount
+    lease.save()
+
+
 @login_required
 def client_detail(request, id):
     # Create leases if needed
@@ -132,6 +183,7 @@ def client_detail(request, id):
     dues = None
     for lease in leases:
         # Debt associated with this lease
+        base_process_payment(request, lease)
         lease.debt, last_date, lease.unpaid_dues = compute_client_debt(lease)
         # Payments for thi lease
         payments = Payment.objects.filter(
@@ -176,7 +228,7 @@ def client_detail(request, id):
         lease.contract.toll_totalpaid = 0
         lease.contract.toll_totalunpaid = 0
         lease.contract.tolls = lease.contract.tolldue_set.all()
-        print(lease.contract.tolls, lease.contract.id)
+
         for toll in lease.contract.tolls:
             if toll.stage == "paid":
                 lease.contract.toll_totalpaid += toll.amount
@@ -208,51 +260,7 @@ def get_start_paying_date(lease: Lease):
 
 def process_payment(request, payment: Payment):
     # Retrieve the remaining
-    amount = payment.amount + payment.lease.remaining
-
-    # Create as many dues as possible
-    _, _, unpaid_dues = compute_client_debt(payment.lease)
-    # Clean up debts
-    due = None
-    for unpaid_due in unpaid_dues:
-        if amount >= payment.lease.payment_amount:
-            amount -= payment.lease.payment_amount
-            due_date = unpaid_due.start.date()
-            due = Due.objects.create(
-                due_date=due_date,
-                amount=payment.lease.payment_amount,
-                client=payment.client,
-                lease=payment.lease
-            )
-            # Send invoice by email
-            mail_send_invoice(request, payment.lease.id,
-                              due_date.strftime("%m%d%Y"), "true")
-    # Pay dues in the future
-    if amount >= payment.lease.payment_amount:
-        start_time = timezone.now()
-        if due is not None:
-            start_time = timezone.make_aware(datetime.combine(
-                due.due_date, datetime.min.time()),
-                pytz.timezone(settings.TIME_ZONE))+timedelta(days=1)
-        occurrences = payment.lease.event.occurrences_after(start_time)
-        for occurrence in occurrences:
-            amount -= payment.lease.payment_amount
-            due_date = occurrence.start.date()
-            due = Due.objects.create(
-                due_date=due_date,
-                amount=payment.lease.payment_amount,
-                client=payment.client,
-                lease=payment.lease
-            )
-            # Send invoice by email
-            mail_send_invoice(request, payment.lease.id,
-                              due_date.strftime("%m%d%Y"), "true")
-            if amount < payment.lease.payment_amount:
-                break
-
-    # Save back the remaining
-    payment.lease.remaining = amount
-    payment.lease.save()
+    base_process_payment(request, payment.lease, payment.amount)
 
 
 @login_required
