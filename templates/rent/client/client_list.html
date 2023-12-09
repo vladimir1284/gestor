@@ -213,7 +213,11 @@
                                             <span class="tf-icons bx bx-note"></span>
                                         {% endif %}
                                     </td>
-                                    <td>
+                                    {% if client.contract.days > 30  %}
+                                     <td style="color:green"> 
+                                    {%  else %}
+                                     <td style="color:red">
+                                    {% endif %}
                                         {% if client.debt %}
                                             {{ client.contract.ended_date|date:"m/d/Y" }}
                                         </td>
