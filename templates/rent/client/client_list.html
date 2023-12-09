@@ -179,6 +179,7 @@
                             </th>
                             <th>Client</th>
                             <th>Debt</th>
+                            <th>LTO</th>
                             <th>Type</th>
                             <th>Trailer</th>
                             <th>Tolls</th>
@@ -194,6 +195,11 @@
                                     </td>
                                     <td>{% include "users/associated_line.html" with associated=client %}</td>
                                     <td>${{ client.contract.final_debt }}</td>
+                                    {% if client.contract.contract_type == 'lto'  %}
+                                      <td>${{ client.contract.lto }}</td>
+                                     {% else %} 
+                                       <td> </td>
+                                     {% endif %}
                                     <td>{% include "rent/contract_icon.html" with contract=client.contract equipment=client.contract.trailer %}</td>
                                     <td>
                                         <div class="d-flex">

@@ -91,6 +91,12 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
             debt_amounts[client.id] = client.debt
         else:
             n_processing += 1
+      #Calculate LTO 
+        if lease.contract.contract_type == 'lto':
+            lease.paid, done = lease.contract.paid()
+            client.contract.lto = lease.contract.total_amount - lease.paid
+
+
     # No sorting
     sorted_clients = clients
     # Sorted by most overdue first
