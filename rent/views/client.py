@@ -129,6 +129,23 @@ def client_list(request):
 
     return render(request, "rent/client/client_list.html", context=context)
 
+@login_required
+def client_ended_garbage(request, id):
+    sorted_clients, n_active, n_processing, n_ended, _ = get_sorted_clients(exclude=False)
+    clientId = get_object_or_404(Contract, id=id)
+    for client in sorted_clients:
+        if client.contract.id == clientId.id:
+           client.contract.stage = "garbage"
+           client.contract.save()
+           break
+      
+    context = {
+        "clients": sorted_clients,
+        "n_active": n_active,
+        "n_processing": n_processing,
+        "n_ended": n_ended
+     }
+    return render(request, "rent/client/client_list.html", context=context)
 
 def base_process_payment(request, lease: Lease, payment_amount=0):
     """This function ensures that all of the remaining payment is used to pay unpaid and future dues"""

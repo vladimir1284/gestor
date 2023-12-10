@@ -188,7 +188,9 @@
                     </thead>
                     <tbody class="table-border-bottom-0">
                         {% for client in clients %}
+                         
                             {% if client.contract.stage == "ended" %}
+                                
                                 <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
                                     <td>
                                         <a href={% url 'detail-contract' client.contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
@@ -220,6 +222,13 @@
                                     {% endif %}
                                         {% if client.debt %}
                                             {{ client.contract.ended_date|date:"m/d/Y" }}
+                                            {% if client.contract.stage != "garbage" %}
+                                             <a onclick="updateStatus('{% url 'client-garbage'  client.contract.id %}', 'garbage')"
+                                              type="button"
+                                              class="btn btn-icon btn-outline-danger float-end">
+                                              <span class="tf-icons bx bx-trash"></span>
+                                              </a>
+                                             {% endif %}
                                         </td>
                                     {% endif %}
                                 </tr>
@@ -230,6 +239,14 @@
             </div>
         </div>
     </div>
+      <script>
+        function updateStatus(url, status) {
+            let confirmAction = confirm("Are you sure change the order status to " + status + "?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
+    </script>
 {% endblock card %}
 {% block add %}
     hidden

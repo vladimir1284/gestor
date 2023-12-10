@@ -115,6 +115,7 @@ urlpatterns = [
     path('toggle_alarm/<lease_id>/', client.toggle_alarm, name='toggle-alarm'),
     path('client_detail/<id>/', client.client_detail, name='client-detail'),
     path('client_list/', client.client_list, name='client-list'),
+    path('client-garbage/<id>', client.client_ended_garbage, name='client-garbage'),
     path('payment/<client_id>/', client.payment, name='rental-payment'),
     path('detail_payment/<id>/', client.detail_payment, name='detail-payment'),
     path('revert_payment/<id>',
