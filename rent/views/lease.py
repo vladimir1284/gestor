@@ -245,7 +245,8 @@ def update_due(request, id):
 @transaction.atomic
 def update_contract_stage(request, id, stage):
     contract = get_object_or_404(Contract, id=id)
-    contract.stage = stage
+    contract.stage = stage 
+   
     if stage == "active":
         Lease.objects.create(
             contract=contract,
@@ -256,6 +257,7 @@ def update_contract_stage(request, id, stage):
         mail_send_contract(request, id)
         contract.save()
         return redirect('client-detail', contract.lessee.id)
+    
     if stage == "ended":
         contract.ended_date = timezone.now()
         # Compute the final debt
@@ -665,3 +667,5 @@ def delete_deposit(request, id):
     deposit.delete()
     messages.success(request, 'Deposit deleted successfully.')
     return redirect('client-detail', id=deposit.lease.contract.lessee.id)
+
+

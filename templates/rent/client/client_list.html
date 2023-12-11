@@ -147,7 +147,7 @@
                     </thead>
                     <tbody class="table-border-bottom-0">
                         {% for client in clients %}
-                            {% if client.contract.stage != "active" and client.contract.stage != "ended" %}
+                            {% if client.contract.stage != "active" and client.contract.stage != "ended" and client.contract.stage != "garbage" %}
                                 <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
                                     <td>
                                         <a href="{% url 'detail-contract' client.contract.id %}"><i class="bx bx-dots-vertical-rounded"></i></a>
