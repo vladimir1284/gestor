@@ -161,6 +161,13 @@
                                     </td>
                                     <td>
                                         {% if client.debt %}{{ client.contract.effective_date|date:"m/d/Y" }}{% endif %}
+                                        {% if client.contract.stage != "garbage" %}
+                                             <a onclick="updateStatus('{% url 'client-garbage'  client.contract.id %}', 'garbage')"
+                                              type="button"
+                                              class="btn btn-icon btn-outline-danger float-end">
+                                              <span class="tf-icons bx bx-trash"></span>
+                                              </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endif %}
