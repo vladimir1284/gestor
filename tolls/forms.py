@@ -17,6 +17,7 @@ class TollCreateForm(BaseForm):
             'amount',
             'created_date',
             'stage',
+            'invoice_number',
             'invoice',
             'plate',
             'contract'
@@ -38,7 +39,7 @@ class TollCreateForm(BaseForm):
             self.fields['contract'].initial = self.contract
 
         self.helper.layout = Layout(
-             Div(
+            Div(
                 Field(
                     PrependedText('amount', '$')
                 ),
@@ -53,6 +54,10 @@ class TollCreateForm(BaseForm):
                 css_class="mb-3"
             ),
             Div(
+                Field('invoice_number'),
+                css_class="mb-3"
+            ),
+            Div(
                 Field('invoice'),
                 css_class="mb-3"
             ),
@@ -61,8 +66,9 @@ class TollCreateForm(BaseForm):
             ),
             Field('plate', type='hidden', value=self.plate.id or ''),
             Field('contract', type='hidden', value=self.contract.id or '')
-            
+
         )
+
 
 class TollUpdateForm(BaseForm):
 
@@ -72,6 +78,7 @@ class TollUpdateForm(BaseForm):
             'amount',
             'created_date',
             'stage',
+            'invoice_number',
             'invoice',
             'plate',
             'contract'
@@ -87,9 +94,10 @@ class TollUpdateForm(BaseForm):
         )
 
         if self.plate:
-            self.fields['contract'].queryset = Contract.objects.filter(trailer=self.plate.trailer)
+            self.fields['contract'].queryset = Contract.objects.filter(
+                trailer=self.plate.trailer)
         self.helper.layout = Layout(
-             Div(
+            Div(
                 Field(
                     PrependedText('amount', '$')
                 ),
@@ -101,6 +109,10 @@ class TollUpdateForm(BaseForm):
             ),
             Div(
                 Field('stage', css_class="form-select"),
+                css_class="mb-3"
+            ),
+            Div(
+                Field('invoice_number'),
                 css_class="mb-3"
             ),
             Div(
