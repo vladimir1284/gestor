@@ -97,7 +97,7 @@ class Lease(models.Model):
     contract = models.ForeignKey(Contract,
                                  on_delete=models.CASCADE)
     event = models.ForeignKey(Event, null=True, blank=True,
-                              on_delete=models.SET_NULL)
+                              on_delete=models.CASCADE)
     notify = models.BooleanField(default=False)
     PERIODICITY_CHOICES = [
         ('weekly', 'Weekly'),
