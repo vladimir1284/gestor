@@ -265,8 +265,15 @@ def update_contract_stage(request, id, stage):
         lease = leases.last()
         contract.final_debt, _, _ = compute_client_debt(lease)
         contract.final_debt -= lease.remaining
+        #contract.total_amount = lease.contract.total_amount
+        #paid, done = contract.paid()
+        contract.pending_amount =  10
+        
         # Remove lease
         for lease in leases:
+            lease.paid, done = lease.contract.paid()
+            lease.debt = lease.contract.total_amount - lease.paid
+            contract.pending_amount += lease.debt + 10
             lease.delete()
         contract.save()
         return redirect('detail-trailer', contract.trailer.id)

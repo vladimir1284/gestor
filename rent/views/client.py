@@ -58,8 +58,9 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
         client.trailer = contract.trailer
         client.contract = contract
         client.unpaid_tolls = True if client.contract.tolldue_set.all().filter(stage='unpaid') else False
+        amount_paid = 0
         if contract.contract_type == 'lto':
-            _, client.contract.paid = contract.paid()
+            amount_paid, client.contract.paid = contract.paid()
         payment_dates.setdefault(client.id, timezone.now())
         debt_amounts.setdefault(client.id, 0)
         if contract.stage == "active" or contract.stage == "ended" or contract.stage == "garbage":
@@ -96,14 +97,8 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
             n_processing += 1
       #Calculate LTO 
       
-        try:
-         client.contract.lto = 0
-         if lease.contract.contract_type == 'lto':
-          lease.contract.paid, done = lease.contract.paid()
-          client.contract.lto = lease.contract.total_amount -  lease.contract.paid
-        except:
-         client.contract.lto = 0
-        
+        if contract.contract_type == 'lto':
+          client.contract.lto = contract.total_amount - amount_paid
       
       #Calculate Days
         if client.contract.ended_date: 
