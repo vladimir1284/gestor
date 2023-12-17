@@ -56,7 +56,14 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
         clients.append(client)
         client.trailer = contract.trailer
         client.contract = contract
-        client.unpaid_tolls = True if client.contract.tolldue_set.all().filter(stage='unpaid') else False
+        client.unpaid_tolls = True if client.contract.tolldue_set.all().filter(
+            stage='unpaid') else False
+
+        client.tolls_amount = (
+            client.contract.tolldue_set.all()
+            .filter(stage='unpaid' if client.unpaid_tolls else 'paid')
+            .aggregate(Sum('amount'))['amount__sum']
+        )
         if contract.contract_type == 'lto':
             _, client.contract.paid = contract.paid()
         payment_dates.setdefault(client.id, timezone.now())
@@ -122,7 +129,7 @@ def client_list(request):
 
 def base_process_payment(request, lease: Lease, payment_amount=0):
     """This function ensures that all of the remaining payment is used to pay unpaid and future dues"""
- 
+
     # Retrieve the remaining
     amount = lease.remaining + payment_amount
 
