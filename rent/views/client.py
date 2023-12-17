@@ -95,9 +95,15 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
         else:
             n_processing += 1
       #Calculate LTO 
-        if lease.contract.contract_type == 'lto':
-            lease.contract.paid, done = lease.contract.paid()
-            client.contract.lto = lease.contract.total_amount -  lease.contract.paid
+      
+        try:
+         client.contract.lto = 0
+         if lease.contract.contract_type == 'lto':
+          lease.contract.paid, done = lease.contract.paid()
+          client.contract.lto = lease.contract.total_amount -  lease.contract.paid
+        except:
+         client.contract.lto = 0
+        
       
       #Calculate Days
         if client.contract.ended_date: 
