@@ -98,7 +98,7 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
       #Calculate LTO 
       
         if contract.contract_type == 'lto':
-          client.contract.lto = contract.total_amount - amount_paid
+          client.contract.lto = calculate_LTO(client.id)
       
       #Calculate Days
         if client.contract.ended_date: 
@@ -118,6 +118,21 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
     if n is not None:
         return sorted_clients[:n], n_active, n_processing, n_ended, rental_debt
     return sorted_clients, n_active, n_processing, n_ended, rental_debt
+
+
+def calculate_LTO(id):
+    client = get_object_or_404(Associated, id=id)
+    client.contract = Contract.objects.filter(stage="active").last()
+    client.data = LesseeData.objects.get(associated=client)
+    leases = Lease.objects.filter(
+        contract__lessee=client, contract__stage="active")
+    amount_Lto =0
+    for lease in leases:  
+       if lease.contract.contract_type == 'lto':
+            lease.paid, done = lease.contract.paid()
+            lease.debt = lease.contract.total_amount - lease.paid
+            amount_Lto += lease.debt
+    return amount_Lto
 
 
 @login_required
@@ -201,7 +216,7 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
     lease.remaining = amount
     lease.save()
 
-
+               
 @login_required
 def client_detail(request, id):
     # Create leases if needed
