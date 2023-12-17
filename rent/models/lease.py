@@ -111,7 +111,7 @@ class Lease(models.Model):
     )
     payment_amount = models.IntegerField()
     num_due_payments = models.IntegerField(default=0)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     last_payment_cover = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
