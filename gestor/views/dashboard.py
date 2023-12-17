@@ -12,7 +12,7 @@ from services.models import (
     PendingPayment,
 )
 from costs.models import Cost
-from utils.models import Order, Statistics
+from utils.models import Order, Statistics, MonthlyStatistics
 from users.views import get_debtor
 import calendar
 from rent.views.client import get_sorted_clients, compute_client_debt
@@ -26,9 +26,8 @@ from django.utils import timezone
 
 @login_required
 def dashboard(request):
-    N = 6  # number of weeks in the dashboard
-    # stats_list = weekly_stats_array(n=N)
-    stats_list = monthly_stats_array(n=N)
+    stats_list = weekly_stats_array(n=2)
+    last_date = stats_list[0].date - timedelta(days=1)
 
     # Profit
     current_profit = stats_list[0].profit_before_costs - stats_list[0].costs
@@ -96,6 +95,7 @@ def dashboard(request):
                                     previous_membership)/current_membership
 
     # Time series
+    stats_list = monthly_stats_array(n=6)
     stats_list.reverse()
 
     time_labels = [stats.date.strftime("%b") for stats in stats_list]
@@ -181,7 +181,7 @@ def dashboard(request):
     available = Trailer.objects.filter(active=True).exclude(id__in=rented_ids)
     context = {
         'indicators': indicators,
-        'last_date': stats_list[-1].date - timedelta(days=1),  # TODO fix this
+        'last_date': last_date,  # TODO fix this
         'time_labels': time_labels,
         'insights': stats_list[-1].gpt_insights,
         'rental_debt': rental_debt,
@@ -196,7 +196,7 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
-def monthly_stats_array(n=6) -> List[Statistics]:
+def monthly_stats_array(n=6) -> List[MonthlyStatistics]:
     """ 
     Compute monthly stats for a given date
     Returns a list for several month stats
@@ -217,11 +217,11 @@ def monthly_stats_array(n=6) -> List[Statistics]:
         _, last_day = calendar.monthrange(currentYear, currentMonth)
         last_date = datetime(currentYear, currentMonth, last_day)
         try:
-            stats = Statistics.objects.get(date=last_date)
+            stats = MonthlyStatistics.objects.get(date=last_date)
             stats_list.append(stats)
             continue
-        except Statistics.DoesNotExist:
-            stats = Statistics(date=last_date)
+        except MonthlyStatistics.DoesNotExist:
+            stats = MonthlyStatistics(date=last_date)
             calculate_stats(stats, start_date, last_date)
 
             stats_list.append(stats)

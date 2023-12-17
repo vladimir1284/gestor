@@ -196,3 +196,7 @@ class Plate(models.Model):
 
     def __str__(self):
         return self.plate
+
+
+class MonthlyStatistics(Statistics):
+    pass
