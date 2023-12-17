@@ -115,27 +115,26 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
         sorted_clients = sorted(
             clients, key=lambda client: debt_amounts[client.id], reverse=True)
     if n is not None:
-        return sorted_clients[:n], n_active, n_processing, n_ended,n_garbage, rental_debt
-    return sorted_clients, n_active, n_processing, n_ended,n_garbage, rental_debt
+        return sorted_clients[:n], n_active, n_processing, n_ended, rental_debt
+    return sorted_clients, n_active, n_processing, n_ended, rental_debt
 
 
 @login_required
 def client_list(request):
-    sorted_clients, n_active, n_processing, n_ended,n_garbage, _ = get_sorted_clients(
+    sorted_clients, n_active, n_processing, n_ended,_ = get_sorted_clients(
         exclude=False)
     context = {
         "clients": sorted_clients,
         "n_active": n_active,
         "n_processing": n_processing,
         "n_ended": n_ended,
-        "n_garbage": n_garbage 
     }
 
     return render(request, "rent/client/client_list.html", context=context)
 
 @login_required
 def client_ended_garbage(request, id):
-    sorted_clients, n_active, n_processing, n_ended,n_garbage, _ = get_sorted_clients(exclude=False)
+    sorted_clients, n_active, n_processing, n_ended, _ = get_sorted_clients(exclude=False)
     clientId = get_object_or_404(Contract, id=id)
     for client in sorted_clients:
         if client.contract.id == clientId.id:
@@ -147,8 +146,7 @@ def client_ended_garbage(request, id):
         "clients": sorted_clients,
         "n_active": n_active,
         "n_processing": n_processing,
-        "n_ended": n_ended,
-        "n_garbage": n_garbage 
+        "n_ended": n_ended, 
      }
     return render(request, "rent/client/client_list.html", context=context)
 
