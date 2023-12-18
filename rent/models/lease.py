@@ -32,6 +32,7 @@ class Contract(models.Model):
         ('signed', 'Signed'),
         ('ready', 'Ready to sign'),
         ('missing', 'Missing data'),
+        ('garbage', 'Garbage'),
     )
     stage = models.CharField(max_length=10, choices=STAGE_CHOICES)
     trailer_location = models.TextField()

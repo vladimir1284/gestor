@@ -73,6 +73,10 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
                 n_active += 1
             elif contract.stage == "ended":
                 n_ended += 1
+                # Calculate Days
+                if contract.ended_date:
+                    client.contract.days = (
+                        timezone.now().date() - contract.ended_date).days
             try:
                 lease = Lease.objects.get(contract=contract)
             except Lease.DoesNotExist:
@@ -96,7 +100,7 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
                 client.last_payment = timezone.now()
             payment_dates[client.id] = client.last_payment
             debt_amounts[client.id] = client.debt
-        else:
+        elif contract.stage != "garbage":
             n_processing += 1
     # No sorting
     sorted_clients = clients

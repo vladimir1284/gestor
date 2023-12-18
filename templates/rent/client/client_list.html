@@ -113,114 +113,138 @@
                                             <a class="text-{% if client.unpaid_tolls %}danger{% else %}primary{% endif %}"
                                                href="{% url 'list-toll' client.contract.id %}">
                                                 ${{ client.tolls_amount }}
-                                            {% endif %}
-                                        </td>
-                                        <td data-days="{{ client.overdue_days }}">
-                                            {% if client.debt and client.overdue_days > 3 %}
-                                                <strong>{{ client.last_payment|timesince }}</strong>
-                                                <br />
-                                                <small class="text-muted">{{ client.last_payment|date:"m/d/Y" }}</small>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td data-days="{{ client.overdue_days }}">
+                                        {% if client.debt and client.overdue_days > 3 %}
+                                            <strong>{{ client.last_payment|timesince }}</strong>
+                                            <br />
+                                            <small class="text-muted">{{ client.last_payment|date:"m/d/Y" }}</small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <div class="tab-pane fade"
-                 id="navs-pills-justified-processing"
-                 role="tabpanel">
-                <div class="table-responsive text-nowrap">
-                    <table class="table" id="table_consumables">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <i class="bx bx-cog"></i>
-                                </th>
-                                <th>Client</th>
-                                <th>type</th>
-                                <th>Trailer</th>
-                                <th>Effective Date</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
-                            {% for client in clients %}
-                                {% if client.contract.stage != "active" and client.contract.stage != "ended" %}
-                                    <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
-                                        <td>
-                                            <a href="{% url 'detail-contract' client.contract.id %}"><i class="bx bx-dots-vertical-rounded"></i></a>
-                                        </td>
-                                        <td>{% include "users/associated_line.html" with associated=client %}</td>
-                                        <td>{% include "rent/contract_icon.html" with contract=client.contract equipment=client.contract.trailer %}</td>
-                                        <td>
-                                            <div class="d-flex">
-                                                {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {% if client.debt %}{{ client.contract.effective_date|date:"m/d/Y" }}{% endif %}
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+        </div>
+        <div class="tab-pane fade"
+             id="navs-pills-justified-processing"
+             role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table" id="table_consumables">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th>Client</th>
+                            <th>type</th>
+                            <th>Trailer</th>
+                            <th>Effective Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for client in clients %}
+                            {% if client.contract.stage != "active" and client.contract.stage != "ended" and client.contract.stage != "garbage" %}
+                                <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
+                                    <td>
+                                        <a href="{% url 'detail-contract' client.contract.id %}"><i class="bx bx-dots-vertical-rounded"></i></a>
+                                    </td>
+                                    <td>{% include "users/associated_line.html" with associated=client %}</td>
+                                    <td>{% include "rent/contract_icon.html" with contract=client.contract equipment=client.contract.trailer %}</td>
+                                    <td>
+                                        <div class="d-flex">
+                                            {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if client.debt %}{{ client.contract.effective_date|date:"m/d/Y" }}{% endif %}
+                                    </td>
+                                    <td>
+                                        <a onclick="updateStatus('{% url 'update-contract-stage'  client.contract.id 'garbage' %}',  '{{ client.contract }}')"
+                                           type="button"
+                                           class="btn btn-icon btn-outline-danger float-end">
+                                            <span class="tf-icons bx bx-trash"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <div class="tab-pane fade" id="navs-pills-justified-ended" role="tabpanel">
-                <div class="table-responsive text-nowrap">
-                    <table class="table" id="table_consumables">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <i class="bx bx-cog"></i>
-                                </th>
-                                <th>Client</th>
-                                <th>Debt</th>
-                                <th>Type</th>
-                                <th>Trailer</th>
-                                <th>Tolls</th>
-                                <th>Ended Date</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
-                            {% for client in clients %}
-                                {% if client.contract.stage == "ended" %}
-                                    <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
-                                        <td>
-                                            <a href={% url 'detail-contract' client.contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
-                                        </td>
-                                        <td>{% include "users/associated_line.html" with associated=client %}</td>
-                                        <td>${{ client.contract.final_debt }}</td>
-                                        <td>{% include "rent/contract_icon.html" with contract=client.contract equipment=client.contract.trailer %}</td>
-                                        <td>
-                                            <div class="d-flex">
-                                                {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {% if client.contract.tolldue_set.all %}
-                                                <a class="btn btn-icon btn-outline-{% if client.unpaid_tolls %}danger{% else %}primary{% endif %} ms-3"
-                                                   href="{% url 'list-toll' client.contract.id %}">
-                                                    <span class="tf-icons bx bx-note"></span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if client.debt %}
-                                                    {{ client.contract.ended_date|date:"m/d/Y" }}
-                                                </td>
-                                            {% endif %}
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        </div>
+        <div class="tab-pane fade" id="navs-pills-justified-ended" role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table" id="table_consumables">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th>Client</th>
+                            <th>Debt</th>
+                            <th>Type</th>
+                            <th>Trailer</th>
+                            <th>Tolls</th>
+                            <th>Ended Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for client in clients %}
+                            {% if client.contract.stage == "ended" %}
+                                <tr data-search="{{ client.trailer.vin }}{{ client.trailer.model }}{{ client.trailer.manufacturer }}{{ client.name }}{{ client.phone_number }}">
+                                    <td>
+                                        <a href={% url 'detail-contract' client.contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                    </td>
+                                    <td>{% include "users/associated_line.html" with associated=client %}</td>
+                                    <td>${{ client.contract.final_debt }}</td>
+                                    <td>{% include "rent/contract_icon.html" with contract=client.contract equipment=client.contract.trailer %}</td>
+                                    <td>
+                                        <div class="d-flex">
+                                            {% include "rent/equipment_line.html" with equipment=client.trailer equipment_type="trailer" pinned_image=client.trailer.pinned_image %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if client.contract.tolldue_set.all %}
+                                            <a class="text-{% if client.unpaid_tolls %}danger{% else %}primary{% endif %}"
+                                               href="{% url 'list-toll' client.contract.id %}">
+                                                ${{ client.tolls_amount }}
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td {% if client.contract.days > 30 %}class="text-success"{% endif %}>
+                                        {% if client.debt %}{{ client.contract.ended_date|date:"m/d/Y" }}{% endif %}
+                                    </td>
+                                    <td>
+                                        <a onclick="updateStatus('{% url 'update-contract-stage'  client.contract.id 'garbage' %}',  '{{ client.contract }}')"
+                                           type="button"
+                                           class="btn btn-icon btn-outline-danger float-end">
+                                            <span class="tf-icons bx bx-trash"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        {% endblock card %}
-        {% block add %}
-            hidden
-        {% endblock add %}
+        </div>
+    </div>
+    <script>
+                function updateStatus(url, contract) {
+                    let confirmAction = confirm("Are you sure move the contract: " + contract +" to garbage?");
+                    if (confirmAction) {
+                        window.location = url;
+                    }
+                }
+    </script>
+{% endblock card %}
+{% block add %}
+    hidden
+{% endblock add %}

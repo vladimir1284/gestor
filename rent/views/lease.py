@@ -245,6 +245,7 @@ def update_due(request, id):
 @transaction.atomic
 def update_contract_stage(request, id, stage):
     contract = get_object_or_404(Contract, id=id)
+    contract.user = request.user
     contract.stage = stage
     if stage == "active":
         Lease.objects.create(
@@ -261,14 +262,21 @@ def update_contract_stage(request, id, stage):
         # Compute the final debt
         leases = Lease.objects.filter(contract=contract)
         lease = leases.last()
-        contract.final_debt, _, _ = compute_client_debt(lease)
-        contract.final_debt -= lease.remaining
+        if contract.contract_type == "lto":
+            paid, _ = contract.paid()
+            contract.final_debt = contract.total_amount - paid
+        else:
+            contract.final_debt, _, _ = compute_client_debt(lease)
+            contract.final_debt -= lease.remaining
         # Remove lease
         for lease in leases:
             lease.delete()
         contract.save()
         return redirect('detail-trailer', contract.trailer.id)
     contract.save()
+    if stage == "garbage":
+        return redirect('client-list')
+
     return redirect('detail-contract', id)
 
 
