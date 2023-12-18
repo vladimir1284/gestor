@@ -16,3 +16,4 @@ class TollDue(models.Model):
     invoice = models.FileField(upload_to='toll-invoices', blank=True)
     invoice_number = models.CharField(max_length=50, blank=True)
     created_date = models.DateField()
+    note = models.TextField(blank=True)

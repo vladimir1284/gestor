@@ -20,6 +20,7 @@ class TollCreateForm(BaseForm):
             'invoice_number',
             'invoice',
             'plate',
+            'note',
             'contract'
         )
 
@@ -61,6 +62,10 @@ class TollCreateForm(BaseForm):
                 Field('invoice'),
                 css_class="mb-3"
             ),
+            Div(
+                Field('note', rows='2'),
+                css_class="mb-3"
+            ),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             ),
@@ -81,6 +86,7 @@ class TollUpdateForm(BaseForm):
             'invoice_number',
             'invoice',
             'plate',
+            'note',
             'contract'
         )
 
@@ -127,7 +133,10 @@ class TollUpdateForm(BaseForm):
                 Field('contract'),
                 css_class="mb-3"
             ),
-
+            Div(
+                Field('note', rows='2'),
+                css_class="mb-3"
+            ),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             ),
