@@ -18,7 +18,7 @@ import calendar
 from rent.views.client import get_sorted_clients, compute_client_debt
 from gestor.views.reports import computeReport
 from gestor.views.utils import getWeek, getMonthYear
-from rent.models.lease import Due, Lease, Contract
+from rent.models.lease import Due, Lease, Contract, SecurityDepositDevolution, LeaseDeposit
 from rent.models.vehicle import Trailer
 from datetime import datetime, time
 from django.utils import timezone
@@ -101,7 +101,9 @@ def dashboard(request):
     time_labels = [stats.date.strftime("%b") for stats in stats_list]
     # time_labels[0] = ""
 
-    profit_data = [int(x.profit_before_costs - x.costs) for x in stats_list]
+    profit_data = [int(x.profit_before_costs - x.costs + x.security_payments - x.returned_security_payments) for x in stats_list]
+    print(int(x.profit_before_costs - x.costs + x.security_payments - x.returned_security_payments) for x in stats_list)
+
     parts_data = [int(x.parts_price - x.parts_cost) for x in stats_list]
     expenses_data = [int(x.costs) for x in stats_list]
 
@@ -352,5 +354,27 @@ def calculate_stats(stats, start_date, end_date):
 
     stats.membership_orders = len(context['orders'])
     stats.membership_amount = context['total']['net']
+
+    total_security_payments = 0
+    total_returned_security_payments = 0
+
+    security_payments = LeaseDeposit.objects.filter(
+        date__gt=start_date,
+        date__lte=end_date
+    ).order_by("-date")
+
+    returned_security_payments = SecurityDepositDevolution.objects.filter(
+        returned_date__gt=start_date,
+        returned_date__lte=end_date
+    ).order_by("-returned_date")
+
+    for payment in security_payments:
+        total_security_payments += payment.amount
+
+    for payment in returned_security_payments:
+        total_returned_security_payments += payment.amount
+
+    stats.security_payments=total_security_payments
+    stats.returned_security_payments=total_returned_security_payments
 
     stats.save()

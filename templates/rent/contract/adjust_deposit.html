@@ -1,0 +1,96 @@
+{% extends "base/base_form.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    <script>
+        function deleteDocument(name, id) {
+                let confirmAction = confirm("Are you sure to delete the document: " + name + "?");
+                if (confirmAction) {
+                    window.location ="{% url 'delete-document-on-ended-contract' id='PLACEHOLDER' %}".replace('PLACEHOLDER', id);
+                }
+            }
+    </script>
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">{{ title }}</h5>
+                <h6 style='margin-bottom: 0px' id='condonation_label'>Difference of $0</h6>
+            </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
+                <div class="card-header">
+                    <h5>
+                        <strong>Documents</strong>
+                        <a class="btn btn-icon btn-outline-primary ms-2"
+                           type="button"
+                           href="{% url 'create-document-on-ended-contract' lease.id %}">
+                            <span class="tf-icons bx bx-plus"></span>
+                        </a>
+                    </h5>
+                        <div class="row">
+                            {% for document in lease.documents %}
+                                <div class="col-md-4">
+                                    <div class="card mb-3 shadow-sm">
+                                        <div class="card-body">
+                                            <div class="d-flex mb-4 pb-1">
+                                                <div class="avatar flex-shrink-0 me-3">
+                                                    <img src="{% static document.icon %}" alt="" />
+                                                </div>
+                                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                                    <div class="me-2">
+                                                        <h6 class="mb-0">{{ document.name }}</h6>
+                                                        {% if document.expiration_date %}<small class="text-muted">{{ document.note }}</small>{% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="card-text">
+                                                {{ document.note }}
+                                                <div class="demo-inline-spacing">
+                                                    <a class="btn btn-icon btn-outline-primary ms-3"
+                                                        type="button"
+                                                        target="_blank"
+                                                        href="{{ document.file.url }}">
+                                                        <span class="tf-icons bx bx-download"></span>
+                                                    </a>
+                                                    <a class="btn btn-icon btn-outline-danger float-end"
+                                                        type="button"
+                                                        onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
+                                                    <span class="tf-icons bx bx-trash"></span>
+                                                </a>
+                                                </div>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function updateNumber() {
+            let initial = {{ initial }};
+            let amountElement = document.getElementById("id_amount");
+            let label = document.getElementById('condonation_label');
+
+            if (amountElement.value) {
+                label.className = '';
+                label.innerText = 'Difference of $'+((initial-amountElement.value).toFixed(2));
+            } else {
+                label.className = 'text-danger';
+                label.innerText = 'Invalid amount'
+            }
+        }
+        
+        updateNumber();
+        document.getElementById("id_amount").addEventListener("input", updateNumber);
+    </script>
+{% endblock content %}

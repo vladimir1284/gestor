@@ -35,6 +35,7 @@ from ..models.lease import (
     LeaseDeposit,
     Due,
     Payment,
+    SecurityDepositDevolution,
 )
 from ..forms.lease import (
     ContractForm,
@@ -47,10 +48,12 @@ from ..forms.lease import (
     LeaseDepositForm,
     LeaseUpdateForm,
     DueForm,
+    SecurityDepositDevolutionForm
 )
 from users.views import addStateCity
 from ..models.vehicle import Trailer
 from users.models import Associated
+from .vehicle import FILES_ICONS
 
 
 def create_handwriting(request, lease_id, position, external=False):
@@ -165,6 +168,71 @@ def contract_detail_signed(request, id):
 def contracts(request):
     contracts = Contract.objects.all()
     return render(request, 'rent/contract/contract_list.html', {'contracts': contracts})
+
+@login_required
+def adjust_end_deposit(request, id):
+    closing = request.GET.get('closing', False)
+    contract = get_object_or_404(Contract, id=id)
+    deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=contract)
+    if c:
+        deposit.amount = contract.security_deposit
+        deposit.save()
+    
+    if request.method == "POST":
+        form = SecurityDepositDevolutionForm(request.POST, instance=deposit)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            if instance.returned:
+                instance.returned_date = timezone.now().date()
+                instance.save()
+            else:
+                instance.returned_date = None
+
+            if closing:
+                return redirect('update-contract-stage', id, 'ended')
+            else:
+                return redirect('detail-contract', id)
+            
+    form = SecurityDepositDevolutionForm(instance=deposit)
+    lease = contract.lease_set.all()[0]
+    lease.documents = LeaseDocument.objects.filter(lease=lease)
+    for doc in lease.documents:
+        doc.icon = 'assets/img/icons/' + \
+                FILES_ICONS[doc.document_type]
+    context = {
+        'title': "Adjust Security Deposit devolution.",
+        'form': form,
+        'initial': contract.security_deposit,
+        'lease': lease
+    }
+    return render(request, 'rent/contract/adjust_deposit.html', context)
+
+@login_required
+def create_document_on_ended_contract(request, lease_id):
+    lease = get_object_or_404(Lease, id=lease_id)
+    if request.method == 'POST':
+        form = LeaseDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.lease = lease
+            document.save()
+            messages.success(request, 'Document created successfully.')
+            return redirect('adjust-deposit', id=lease.contract.id)
+    else:
+        form = LeaseDocumentForm()
+
+    context = {'form': form,
+               'title': _('Add document')}
+    return render(request, 'rent/trailer_document_create.html', context)
+
+@login_required
+@staff_required
+def delete_document_on_ended_contract(request, id):
+    document = get_object_or_404(
+        LeaseDocument, id=id)
+    document.delete()
+    messages.success(request, 'Document deleted successfully.')
+    return redirect('adjust-deposit', id=document.lease.contract.id)
 
 
 @login_required

@@ -199,6 +199,12 @@ class LeaseDocument(models.Model):
         self.document_type = classify_file(self.file.name)
         super().save(*args, **kwargs)
 
+class SecurityDepositDevolution(models.Model):
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
+
+    amount = models.FloatField(default=0)
+    returned = models.BooleanField(default=False)
+    returned_date = models.DateField(null=True)
 
 class LeaseDeposit(models.Model):
     lease = models.ForeignKey(Lease,
