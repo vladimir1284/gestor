@@ -91,7 +91,7 @@ urlpatterns = [
     path('capture_signature/<lease_id>/<position>/<external>',
          lease.create_handwriting, name='capture-signature'),
     path('adjust_deposit/<id>/', lease.adjust_end_deposit, name='adjust-deposit'),
-    path('create_document_on_ended_contract/<lease_id>/', lease.create_document_on_ended_contract,
+    path('create_document_on_ended_contract/<id>/', lease.create_document_on_ended_contract,
           name='create-document-on-ended-contract'),
     path('delete_document_on_ended_contract/<id>/', lease.delete_document_on_ended_contract,
          name='delete-document-on-ended-contract'),

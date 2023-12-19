@@ -102,7 +102,6 @@ def dashboard(request):
     # time_labels[0] = ""
 
     profit_data = [int(x.profit_before_costs - x.costs + x.security_payments - x.returned_security_payments) for x in stats_list]
-    print(int(x.profit_before_costs - x.costs + x.security_payments - x.returned_security_payments) for x in stats_list)
 
     parts_data = [int(x.parts_price - x.parts_cost) for x in stats_list]
     expenses_data = [int(x.costs) for x in stats_list]

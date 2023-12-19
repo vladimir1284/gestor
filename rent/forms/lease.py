@@ -150,14 +150,14 @@ class SecurityDepositDevolutionForm(forms.ModelForm):
         instance = kwargs.get("instance", None)
 
         if instance:
-            self.fields['amount'].initial = instance.contract.security_deposit
+            self.fields['amount'].initial = instance.total_deposited_amount
 
         self.helper = FormHelper()
         self.helper.field_class = 'mb-3'
         self.helper.form_method = 'post'
         self.helper.layout = Layout(
             PrependedText('amount', '$'),
-            Field('returned'),
+            Field('returned', style='margin-bottom: 1rem !important;'),
             ButtonHolder(
                 Submit('submit', 'Enviar', css_class='btn btn-success')
             )

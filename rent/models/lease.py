@@ -183,8 +183,10 @@ pre_save.connect(update_effective_date, sender=Contract)
 
 class LeaseDocument(models.Model):
     lease = models.ForeignKey(Lease,
-                              on_delete=models.CASCADE,
+                              on_delete=models.SET_NULL,
+                              null=True,
                               related_name='lease_document')
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
     file = models.FileField(upload_to='documents/leases')
     name = models.CharField(max_length=255)
     note = models.TextField(blank=True)
@@ -203,6 +205,7 @@ class SecurityDepositDevolution(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
 
     amount = models.FloatField(default=0)
+    total_deposited_amount = models.FloatField(default=0)
     returned = models.BooleanField(default=False)
     returned_date = models.DateField(null=True)
 

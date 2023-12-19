@@ -174,9 +174,13 @@ def adjust_end_deposit(request, id):
     closing = request.GET.get('closing', False)
     contract = get_object_or_404(Contract, id=id)
     deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=contract)
+
     if c:
-        deposit.amount = contract.security_deposit
+        total_amount = sum([lease_deposit.amount for lease in contract.lease_set.all() for lease_deposit in lease.lease_deposit.all()])
+        
+        deposit.total_deposited_amount = total_amount
         deposit.save()
+    
     
     if request.method == "POST":
         form = SecurityDepositDevolutionForm(request.POST, instance=deposit)
@@ -191,33 +195,35 @@ def adjust_end_deposit(request, id):
             if closing:
                 return redirect('update-contract-stage', id, 'ended')
             else:
-                return redirect('detail-contract', id)
+                return redirect('client-list')
             
     form = SecurityDepositDevolutionForm(instance=deposit)
-    lease = contract.lease_set.all()[0]
-    lease.documents = LeaseDocument.objects.filter(lease=lease)
-    for doc in lease.documents:
+    documents = LeaseDocument.objects.filter(contract=contract)
+    for doc in documents:
         doc.icon = 'assets/img/icons/' + \
                 FILES_ICONS[doc.document_type]
     context = {
         'title': "Adjust Security Deposit devolution.",
         'form': form,
-        'initial': contract.security_deposit,
-        'lease': lease
+        'initial': deposit.total_deposited_amount,
+        'on_contract': deposit.contract.security_deposit,
+        'documents': documents,
+        'contract': contract,
     }
     return render(request, 'rent/contract/adjust_deposit.html', context)
 
 @login_required
-def create_document_on_ended_contract(request, lease_id):
-    lease = get_object_or_404(Lease, id=lease_id)
+def create_document_on_ended_contract(request, id):
+    contract = get_object_or_404(Contract, id=id)
     if request.method == 'POST':
         form = LeaseDocumentForm(request.POST, request.FILES)
         if form.is_valid():
             document = form.save(commit=False)
-            document.lease = lease
+            document.lease = None
+            document.contract = contract
             document.save()
             messages.success(request, 'Document created successfully.')
-            return redirect('adjust-deposit', id=lease.contract.id)
+            return redirect('adjust-deposit', id=id)
     else:
         form = LeaseDocumentForm()
 
@@ -232,7 +238,7 @@ def delete_document_on_ended_contract(request, id):
         LeaseDocument, id=id)
     document.delete()
     messages.success(request, 'Document deleted successfully.')
-    return redirect('adjust-deposit', id=document.lease.contract.id)
+    return redirect('adjust-deposit', id=document.contract.id)
 
 
 @login_required
@@ -671,6 +677,7 @@ def create_document(request, lease_id):
         if form.is_valid():
             document = form.save(commit=False)
             document.lease = lease
+            document.contract = lease.contract
             document.save()
             messages.success(request, 'Document created successfully.')
             return redirect('client-detail', id=lease.contract.lessee.id)
@@ -717,6 +724,7 @@ def delete_document(request, id):
 @staff_required
 def create_deposit(request, lease_id):
     lease = get_object_or_404(Lease, id=lease_id)
+    security_deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=lease.contract)
     if request.method == 'POST':
         form = LeaseDepositForm(request.POST, request.FILES)
         if form.is_valid():
@@ -724,6 +732,8 @@ def create_deposit(request, lease_id):
             deposit.lease = lease
             deposit.save()
             messages.success(request, 'Deposit created successfully.')
+            security_deposit.total_deposited_amount += deposit.amount
+            security_deposit.save()
             return redirect('client-detail', id=lease.contract.lessee.id)
     else:
         form = LeaseDepositForm()
@@ -738,6 +748,9 @@ def create_deposit(request, lease_id):
 def delete_deposit(request, id):
     deposit = get_object_or_404(
         LeaseDeposit, id=id)
+    security_deposit = get_object_or_404(SecurityDepositDevolution, contract=deposit.lease.contract)
+    security_deposit.total_deposited_amount -= deposit.amount
+    security_deposit.save()
     deposit.delete()
     messages.success(request, 'Deposit deleted successfully.')
     return redirect('client-detail', id=deposit.lease.contract.lessee.id)
