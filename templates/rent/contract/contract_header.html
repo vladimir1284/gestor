@@ -60,11 +60,19 @@
                     class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-check"></span>
             </button>
-            <button onClick="cancelContract('{% url 'update-contract-stage' contract.id 'ended' %}')"
+            {% if contract.stage == 'ended' %}
+            <a href="{% url 'adjust-deposit' contract.id %}"
+                type="button"
+                class="btn btn-icon btn-outline-primary">
+                <span class="tf-icons bx bx-wallet"></span>
+            </a>
+            {% else %}
+            <button onClick="cancelContract('{% url 'adjust-deposit' contract.id %}?closing=1')"
                     id="submit-id-submit"
                     class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-x"></span>
             </button>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -172,6 +172,10 @@ class Statistics(models.Model):
     membership_orders = models.IntegerField(default=0)
     membership_amount = models.FloatField(default=0)
 
+    # Returned security payments
+    security_payments = models.FloatField(default=0)
+    returned_security_payments = models.FloatField(default=0)
+
     # Sunday after the week
     date = models.DateField()
 
