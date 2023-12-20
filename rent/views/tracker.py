@@ -9,7 +9,8 @@ from django.http import HttpResponse
 from ..models.tracker import (
     Tracker,
     TrackerUpload)
-from datetime import datetime, timezone
+from rent.models.lease import Contract
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import requests
@@ -123,36 +124,31 @@ def trackers(request):
 @login_required
 def trackers_table(request):
     trackers = Tracker.objects.all()
-    trackers = []
     for tracker in trackers:
         try:
-            # V1.0
-            data_v1 = TrackerUpload.objects.filter(
-                tracker=tracker).order_by("-timestamp")
-            td = data_v1[0]
-            td.mode = {True: 0, False: 1}[td.charging]
-            if (td.charging):  # Powered
-                max_elapsed_time = 4800
-            else:
-                max_elapsed_time = 80*tracker.Tint
+            if tracker.trailer:
+                print(tracker.trailer)
+                contract = Contract.objects.filter(
+                    stage="active", trailer=tracker.trailer).last()
+                if contract:
+                    print(contract)
+                    tracker.lessee = contract.lessee
+            data = TrackerUpload.objects.filter(
+                tracker=tracker).order_by('-timestamp')[0]
+            if data:
+                data.mode = {True: 0, False: 1}[data.charging]
+                if (data.charging):  # Powered
+                    max_elapsed_time = 4800
+                else:
+                    max_elapsed_time = 25200
 
-            elapsed_time = (datetime.now().replace(tzinfo=pytz.timezone(
-                settings.TIME_ZONE)) - td.timestamp).total_seconds()
+                elapsed_time = (timezone.now() -
+                                data.timestamp).total_seconds()
 
-            print("elapsed_time: %is" % elapsed_time)
-            print("max_elapsed_time: %is" % max_elapsed_time)
-
-            online = elapsed_time < max_elapsed_time
-
-            trackers.append({
-                'id': td.tracker.id,
-                'updated': td.timestamp,
-                'bat': int(vbat2percent(td.battery)*100)/100.,
-                'mode': td.mode,
-                'online': online,
-                'lessee_name': td.tracker.lessee_name,
-                'trailer_description': td.tracker.trailer_description,
-            })
+                tracker.online = elapsed_time < max_elapsed_time
+                tracker.charging = data.charging
+                tracker.timestamp = data.timestamp
+                tracker.bat = (vbat2percent(data.battery)*100)/100.
 
         except Exception as err:
             print(err)
@@ -211,7 +207,7 @@ def tracker_upload(request):
                 print("Cell ID: %i" % cellid)
 
                 td = TrackerUpload(tracker=tracker,
-                                   timestamp=datetime.now().replace(tzinfo=pytz.timezone(settings.TIME_ZONE)),
+                                   timestamp=timezone.now(),
                                    sequence=seq,
                                    charging=charging,
                                    battery=vbat,
@@ -234,7 +230,7 @@ def tracker_upload(request):
                 print("precision: %i" % precision)
 
                 td = TrackerUpload(tracker=tracker,
-                                   timestamp=datetime.now().replace(tzinfo=pytz.timezone(settings.TIME_ZONE)),
+                                   timestamp=timezone.now(),
                                    sequence=seq,
                                    charging=charging,
                                    battery=vbat,

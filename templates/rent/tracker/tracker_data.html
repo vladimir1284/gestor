@@ -11,9 +11,24 @@
     <style>#map { height: 450px; }</style>
 {% endblock map_scripts %}
 {% block map %}
-    <div id="map"></div>
-    Last update: <b class="datetime"
-    style="background: {% if online == True %} #b9ec94 {% else %} #FF0000 {% endif %}">{{ data.timestamp|utc|date:'m/d/Y h:i:s A' }}</b>
+    <div class="card mb-4">
+        <h3 class="card-header">
+            Tracker <b> {{ tracker.id }}</b>
+            <a class="btn btn-icon btn-outline-primary"
+               type="button"
+               href="{% url 'update-tracker' tracker.id %}">
+                <span class="tf-icons bx bx-edit"></span>
+            </a>
+            <button onclick="deleteTracker()"
+                    class="btn btn-icon btn-outline-danger float-end">
+                <span class="tf-icons bx bx-trash"></span>
+            </button>
+        </h3>
+        <div id="map"></div>
+        <div class="card-body">
+            Last update: <span {% if tracker.online != True %}class="text-danger"{% endif %}>{{ data.timestamp|timesince }}</span>
+        </div>
+    </div>
     <script>
          // Creating map options
          var mapOptions = {
@@ -48,74 +63,63 @@
     </script>
 {% endblock map %}
 {% block table %}
-    <hr class="mt-0 mb-4" />
-    <h4 class="mt-3">
-        <b>History </b>
-        <button onclick="uploadHistory()"
-                class="btn btn-primary data-toggle="
-                tooltip
-                data-placement="left"
-                title="Copy to clipboard">
-            <i class="bx bx-share-alt"></i>
-        </button>
-        {% comment %} <a href="/towit/tracker_detail/{{ tracker.id }}/100">
-        <i class="bx bx-search"></i>
-        </a> {% endcomment %}
-    </h4>
-    <div class="row">
-        <div class="table-responsive-md col-6 overflow-auto"
-             style="max-height: 500px">
-            <table id="table"
-                   class="table table-striped table-bordered table-sm"
-                   cellspacing="0"
-                   width="100%">
-                <thead>
-                    <tr>
-                        <th class="th-sm">Seq</th>
-                        <th class="th-sm">Datetime</th>
-                        <!-- <th class="th-sm">Latitude</th>
-                <th class="th-sm">Longitude</th>
-                <th class="th-sm">Speed</th> -->
-                        <th class="th-sm">Vbat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for element in history %}
-                        <tr>
-                            <td>
-                                <a>{{ element.sequence }}</a>
-                                {% if element.source == "LTE" %}
-                                    <i class="bx bx-signal"></i>
-                                {% else %}
-                                    <i class="bx bx-location-arrow"></i>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <button class="datetime"
-                                        onclick="update_map({{ element.latitude }}, {{ element.longitude }}, {{ element.speed }}, '{{ element.timestamp }}')">
-                                    {{ element.timestamp|utc|date:'m/d/Y h:i:s A' }}
-                                </button>
-                            </td>
-                            <!-- <td>{{ element.latitude }}</td>
-                    <td>{{ element.longitude }}</td>
-                    <td>{{ element.speed }}</td> -->
-                            <td style="background: {% if element.mode == 0 %} #b9ec94 {% else %} #f5ada1 {% endif %}">
-                                {{ element.battery|floatformat:"0" }}%
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="col-6">
-            <b>Datetime: </b>
-            <div class="datetime" id="datetime">{{ data.timestamp|utc|date:'m/d/Y h:i:s A' }}</div>
-            <b>Latitude: </b>
-            <div id="lat">{{ data.latitude }}</div>
-            <b>Longitude: </b>
-            <div id="lon">{{ data.longitude }}</div>
-            <b>Speed: </b>
-            <div id="speed">{{ data.speed }}</div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="mt-3">
+                <b>History </b>
+                <button onclick="uploadHistory()"
+                        class="btn btn-icon btn-outline-primary"
+                        type="button"
+                        href="{% url 'export-inventory' %}">
+                    <span class="tf-icons bx bx-share-alt"></span>
+                </button>
+            </h4>
+            <div class="row">
+                <div class="table-responsive col-md-6 overflow-auto"
+                     style="max-height: 500px">
+                    <table id="table"
+                           class="table table-striped table-bordered table-sm"
+                           cellspacing="0"
+                           width="100%">
+                        <thead>
+                            <tr>
+                                <th class="th-sm">Seq</th>
+                                <th class="th-sm">Datetime</th>
+                                <th class="th-sm">Vbat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for element in history %}
+                                <tr>
+                                    <td>
+                                        <a>{{ element.sequence }}</a>
+                                        {{ element.source }}
+                                    </td>
+                                    <td>
+                                        <button class="datetime"
+                                                onclick="update_map({{ element.latitude }}, {{ element.longitude }}, {{ element.speed }}, '{{ element.timestamp }}')">
+                                            {{ element.timestamp|utc|date:'m/d/Y h:i:s A' }}
+                                        </button>
+                                    </td>
+                                    <td style="background: {% if element.mode == 0 %} #b9ec94 {% else %} #f5ada1 {% endif %}">
+                                        {{ element.battery|floatformat:"0" }}%
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6 flex">
+                    <b>Datetime: </b>
+                    <div class="datetime" id="datetime">{{ data.timestamp|utc|date:'m/d/Y h:i:s A' }}</div>
+                    <b>Latitude: </b>
+                    <div id="lat">{{ data.latitude }}</div>
+                    <b>Longitude: </b>
+                    <div id="lon">{{ data.longitude }}</div>
+                    <b>Speed: </b>
+                    <div id="speed">{{ data.speed }}</div>
+                </div>
+            </div>
         </div>
     </div>
     <script>
