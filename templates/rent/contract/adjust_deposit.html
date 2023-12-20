@@ -18,7 +18,9 @@
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0">{{ title }}</h5>
-                <h6 style='margin-bottom: 0px' id='condonation_label'>Difference of $0</h6>
+                <h6 style='margin-bottom: 0px' >On contract ${{on_contract}}</h6>
+                <h6 style='margin-bottom: 0px' >Deposited ${{initial}}</h6>
+                <h6 style='margin-bottom: 0px' id='condonation_label'>Difference between deposited and returned $0</h6>
             </div>
             <div class="card-body">
                 <form enctype="multipart/form-data" method="post" id="update-form">
@@ -30,12 +32,12 @@
                         <strong>Documents</strong>
                         <a class="btn btn-icon btn-outline-primary ms-2"
                            type="button"
-                           href="{% url 'create-document-on-ended-contract' lease.id %}">
+                           href="{% url 'create-document-on-ended-contract' contract.id %}">
                             <span class="tf-icons bx bx-plus"></span>
                         </a>
                     </h5>
                         <div class="row">
-                            {% for document in lease.documents %}
+                            {% for document in documents %}
                                 <div class="col-md-4">
                                     <div class="card mb-3 shadow-sm">
                                         <div class="card-body">
@@ -83,7 +85,7 @@
 
             if (amountElement.value) {
                 label.className = '';
-                label.innerText = 'Difference of $'+((initial-amountElement.value).toFixed(2));
+                label.innerText = 'Difference between deposited and returned $'+((initial-amountElement.value).toFixed(2));
             } else {
                 label.className = 'text-danger';
                 label.innerText = 'Invalid amount'
