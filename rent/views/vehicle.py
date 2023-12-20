@@ -167,7 +167,8 @@ def create_trailer(request):
         form = TrailerCreateForm(request.POST, request.FILES)
         if form.is_valid():
             trailer = form.save()
-            TrailerPlates.objects.create(plate=trailer.plate, trailer=trailer, active_plate=True)
+            TrailerPlates.objects.create(
+                plate=trailer.plate, trailer=trailer, active_plate=True)
             # order_data = request.session.get('creating_order')
             return redirect('detail-trailer', trailer.id)
             # request.session['trailer_id'] = trailer.id
@@ -196,13 +197,15 @@ def update_trailer(request, id):
     # save the data from the form and
     # redirect to detail_view
     if form.is_valid():
-        active_plate = TrailerPlates.objects.all().filter(trailer=trailer, active_plate=True)[0]
+        active_plate = TrailerPlates.objects.all().filter(
+            trailer=trailer, active_plate=True)[0]
         updated_trailer = form.save()
         if not updated_trailer.plate == active_plate.plate:
             active_plate.active_plate = False
             active_plate.save()
-            TrailerPlates.objects.create(plate=updated_trailer.plate, trailer=updated_trailer, active_plate=True)
-        
+            TrailerPlates.objects.create(
+                plate=updated_trailer.plate, trailer=updated_trailer, active_plate=True)
+
         return redirect('detail-trailer', id)
 
     # add form dictionary to context
@@ -259,8 +262,7 @@ def detail_trailer(request, id):
         document.icon = 'assets/img/icons/' + \
             FILES_ICONS[document.document_type]
     # Get tracker
-    tracker = Tracker.objects.filter(trailer=trailer).first()
-    print(tracker)
+    trailer.tracker = Tracker.objects.filter(trailer=trailer).first()
 
     processOrders(orders)
 
@@ -283,7 +285,6 @@ def detail_trailer(request, id):
         'pinned_image': pinned_image,
         'images': images,
         'type': 'trailer',
-        'tracker': tracker,
         'title': _("Trailer details")
     }
 

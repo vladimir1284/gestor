@@ -145,6 +145,10 @@
                    href="{% url 'update-trailer' equipment.id %}">
                     <span class="tf-icons bx bx-edit"></span>
                 </a>
+                {% if equipment.tracker %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       href="{% url 'detail-tracker' equipment.tracker.id %}"><span class="tf-icons bx bx-location-plus"></span></a>
+                {% endif %}
                 {% if equipment.current_contract %}
                     <a class="btn btn-icon btn-outline-primary"
                        href="{% url 'detail-contract' equipment.current_contract.id %}">
