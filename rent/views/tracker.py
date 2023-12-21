@@ -72,40 +72,40 @@ def tracker_detail(request, id):
 def getTrackerUpload(id, n):
     tracker = Tracker.objects.get(id=id)
     online = False
-    # try:
-    data = TrackerUpload.objects.filter(
-        tracker=tracker).order_by("-timestamp")[:n]
+    try:
+        data = TrackerUpload.objects.filter(
+            tracker=tracker).order_by("-timestamp")[:n]
 
-    for item in data:
-        # Get coordinates remotely if the data came from LTE cell
-        if item.latitude is None:
-            url = F"http://opencellid.org/cell/get?key={settings.OCELLID_KEY}&mcc={item.mcc}&mnc={item.mnc}&lac={item.lac}&cellid={item.cellid}&format=json"
-            response = requests.get(url)
-            if response.status_code == 200:
-                print("Location data downloaded for Tracker {} at {}".format(
-                    tracker.id, item.timestamp))
-                json_data = response.json()
-                item.latitude = json_data['lat']
-                item.longitude = json_data['lon']
-                item.speed = 0
-                item.save()
+        for item in data:
+            # Get coordinates remotely if the data came from LTE cell
+            if item.latitude is None:
+                url = F"http://opencellid.org/cell/get?key={settings.OCELLID_KEY}&mcc={item.mcc}&mnc={item.mnc}&lac={item.lac}&cellid={item.cellid}&format=json"
+                response = requests.get(url)
+                if response.status_code == 200:
+                    print("Location data downloaded for Tracker {} at {}".format(
+                        tracker.id, item.timestamp))
+                    json_data = response.json()
+                    item.latitude = json_data['lat']
+                    item.longitude = json_data['lon']
+                    item.speed = 0
+                    item.save()
 
-        # Get percent of charge
-        item.battery = vbat2percent(item.battery)
+            # Get percent of charge
+            item.battery = vbat2percent(item.battery)
 
-    if (data[0].charging):  # Powered
-        max_elapsed_time = 4800
-    else:
-        max_elapsed_time = 80*tracker.Tint
+        if (data[0].charging):  # Powered
+            max_elapsed_time = 4800
+        else:
+            max_elapsed_time = 80*tracker.Tint
 
-    elapsed_time = (timezone.now() - data[0].timestamp).total_seconds()
+        elapsed_time = (timezone.now() - data[0].timestamp).total_seconds()
 
-    # print("elapsed_time: %is" % elapsed_time)
-    # print("max_elapsed_time: %is" % max_elapsed_time)
+        # print("elapsed_time: %is" % elapsed_time)
+        # print("max_elapsed_time: %is" % max_elapsed_time)
 
-    online = elapsed_time < max_elapsed_time
-    # except Exception as err:
-    #     print(err)
+        online = elapsed_time < max_elapsed_time
+    except Exception as err:
+        print(err)
     return {'tracker': tracker,
             'data': data[0],
             'online': online,
