@@ -76,6 +76,8 @@ for data in upload_data:
         cellid=data['fields']['cellid']
     )
 
+print(f"Retrieved {len(upload_data)} records in the new format")
+
 # Save old format
 for data in tracker_data:
     TrackerUpload.objects.create(
@@ -89,3 +91,5 @@ for data in tracker_data:
         longitude=data['fields']['longitude'],
         speed=data['fields']['speed']
     )
+
+print(f"Retrieved {len(tracker_data)} records in the old format")
