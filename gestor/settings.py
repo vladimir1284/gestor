@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import sentry_sdk
 from dotenv import load_dotenv
 import os
 
@@ -208,3 +209,16 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+# Sentry
+if ENVIRONMENT == 'production':
+    sentry_sdk.init(
+        dsn="https://6bce95e5c92d5f78f9ff5193d3b43a95@o4506418139299840.ingest.sentry.io/4506435248193536",
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        traces_sample_rate=1.0,
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=1.0,
+    )

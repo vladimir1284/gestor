@@ -24,7 +24,13 @@ from .views import (
     cost,
 )
 
+
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
+    path('erp/sentry-debug/', trigger_error),
     path('erp/admin/', admin.site.urls),
     path('erp/', dashboard.dashboard, name='dashboard'),
     # Weekly reports
