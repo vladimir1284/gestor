@@ -147,7 +147,7 @@ def trackers_table(request):
                 tracker.online = elapsed_time < max_elapsed_time
                 tracker.charging = data.charging
                 tracker.timestamp = data.timestamp
-                tracker.bat = (vbat2percent(data.battery)*100)/100.
+                tracker.bat = vbat2percent(data.battery)
 
         except Exception as err:
             print(err)

@@ -31,7 +31,7 @@
             </td>
             <td>
                 {% if tracker.bat %}
-                    <span class="badge bg-{% if tracker.charging %}success"{% else %}{% if tracker.bat < 25 %}warning{% else %}danger{% endif %}{% endif %}">{{ tracker.bat|floatformat:"0" }}%</span>
+                    <span class="badge bg-{% if tracker.charging %}success"{% else %}{% if tracker.bat  > 25 %}warning{% else %}danger{% endif %}{% endif %}">{{ tracker.bat|floatformat:"0" }}%</span>
                 {% endif %}
             </td>
             <td {% if tracker.online != True %}class="text-danger"{% endif %}>{{ tracker.timestamp|timesince }}</td>
