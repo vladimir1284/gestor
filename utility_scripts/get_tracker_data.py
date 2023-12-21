@@ -77,12 +77,12 @@ for data in upload_data:
     )
 
 # Save old format
-for data in upload_data:
+for data in tracker_data:
     TrackerUpload.objects.create(
         tracker=Tracker.objects.get(id=data['fields']['tracker']),
         timestamp=data['fields']['timestamp'],
         sequence=data['fields']['sequence'],
-        charging=data['fields']['charging'],
+        charging=data['fields']['power'],
         battery=data['fields']['battery'],
         source='GPS',
         latitude=data['fields']['latitude'],

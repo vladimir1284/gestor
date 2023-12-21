@@ -127,11 +127,9 @@ def trackers_table(request):
     for tracker in trackers:
         try:
             if tracker.trailer:
-                print(tracker.trailer)
                 contract = Contract.objects.filter(
                     stage="active", trailer=tracker.trailer).last()
                 if contract:
-                    print(contract)
                     tracker.lessee = contract.lessee
             data = TrackerUpload.objects.filter(
                 tracker=tracker).order_by('-timestamp')[0]
