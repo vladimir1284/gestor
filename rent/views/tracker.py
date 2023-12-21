@@ -79,16 +79,20 @@ def getTrackerUpload(id, n):
         for item in data:
             # Get coordinates remotely if the data came from LTE cell
             if item.latitude is None:
-                url = F"http://opencellid.org/cell/get?key={settings.OCELLID_KEY}&mcc={item.mcc}&mnc={item.mnc}&lac={item.lac}&cellid={item.cellid}&format=json"
-                response = requests.get(url)
-                if response.status_code == 200:
-                    print("Location data downloaded for Tracker {} at {}".format(
-                        tracker.id, item.timestamp))
-                    json_data = response.json()
-                    item.latitude = json_data['lat']
-                    item.longitude = json_data['lon']
-                    item.speed = 0
-                    item.save()
+                try:
+                    url = F"http://opencellid.org/cell/get?key={settings.OCELLID_KEY}&mcc={item.mcc}&mnc={item.mnc}&lac={item.lac}&cellid={item.cellid}&format=json"
+                    response = requests.get(url)
+                    if response.status_code == 200:
+                        print("Location data downloaded for Tracker {} at {}".format(
+                            tracker.id, item.timestamp))
+                        json_data = response.json()
+                        print(json_data)
+                        item.latitude = json_data['lat']
+                        item.longitude = json_data['lon']
+                        item.speed = 0
+                        item.save()
+                except Exception as err:
+                    print(err)
 
             # Get percent of charge
             item.battery = vbat2percent(item.battery)
