@@ -7,23 +7,30 @@
           integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
           crossorigin="" />
     <script type="text/javascript" src="{% static '/js/leaflet.js' %}"></script>
-    <script type="text/javascript" src="{% static '/js/date.format.js' %}"></script>
+    {% comment %} <script type="text/javascript" src="{% static '/js/date.format.js' %}"></script> {% endcomment %}
     <style>#map { height: 450px; }</style>
 {% endblock map_scripts %}
 {% block map %}
     <div class="card mb-4">
-        <h3 class="card-header">
-            Tracker <b> {{ tracker.id }}</b>
-            <a class="btn btn-icon btn-outline-primary"
-               type="button"
-               href="{% url 'update-tracker' tracker.id %}">
-                <span class="tf-icons bx bx-edit"></span>
-            </a>
-            <button onclick="deleteTracker()"
-                    class="btn btn-icon btn-outline-danger float-end">
-                <span class="tf-icons bx bx-trash"></span>
-            </button>
-        </h3>
+        <div class="card-header">
+            <h3>
+                Tracker <b> {{ tracker.id }}</b>
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'update-tracker' tracker.id %}">
+                    <span class="tf-icons bx bx-edit"></span>
+                </a>
+                <button onclick="deleteTracker()"
+                        class="btn btn-icon btn-outline-danger float-end">
+                    <span class="tf-icons bx bx-trash"></span>
+                </button>
+            </h3>
+            {% if tracker.trailer %}
+                <div class="d-flex">
+                    {% include "rent/equipment_line.html" with equipment=tracker.trailer equipment_type="trailer" pinned_image=tracker.trailer.pinned_image %}
+                </div>
+            {% endif %}
+        </div>
         <div id="map"></div>
         <div class="card-body">
             Last update: <span {% if tracker.online != True %}class="text-danger"{% endif %}>{{ data.timestamp|timesince }}</span>
@@ -83,7 +90,7 @@
                            width="100%">
                         <thead>
                             <tr>
-                                <th class="th-sm">Seq</th>
+                                <th class="th-sm">Seq/Src</th>
                                 <th class="th-sm">Datetime</th>
                                 <th class="th-sm">Vbat</th>
                             </tr>
@@ -96,13 +103,13 @@
                                         {{ element.source }}
                                     </td>
                                     <td>
-                                        <button class="datetime"
+                                        <button class="btn rounded-pill btn-outline-primary"
                                                 onclick="update_map({{ element.latitude }}, {{ element.longitude }}, {{ element.speed }}, '{{ element.timestamp }}')">
-                                            {{ element.timestamp|utc|date:'m/d/Y h:i:s A' }}
+                                            {{ element.timestamp|date:'m/d/Y h:i:s A' }}
                                         </button>
                                     </td>
-                                    <td style="background: {% if element.mode == 0 %} #b9ec94 {% else %} #f5ada1 {% endif %}">
-                                        {{ element.battery|floatformat:"0" }}%
+                                    <td>
+                                        <span class="badge bg-{% if element.charging %}success"{% else %}{% if element.battery < 25 %}danger{% else %}warning{% endif %}{% endif %}">{{ element.battery|floatformat:"0" }}%</span>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -122,16 +129,4 @@
             </div>
         </div>
     </div>
-    <script>
-        function updateTZ() {
-            let elements = document.getElementsByClassName("datetime");
-            for (let element of elements){
-                let date = new Date(element.innerHTML + ' UTC');
-                console.log(date);
-                element.innerHTML = date.format("mmm dd, h:MMtt");
-            }
-        }
-
-        updateTZ();
-    </script>
 {% endblock table %}

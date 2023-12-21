@@ -65,9 +65,6 @@ def delete_tracker(request, id):
 
 @login_required
 def tracker_detail(request, id):
-    tracker = Tracker.objects.get(id=id)
-    data_v1 = TrackerUpload.objects.filter(
-        tracker=tracker).order_by("-timestamp")
     return render(request, 'rent/tracker/tracker_data.html',
                   getTrackerUpload(id, 30))
 
