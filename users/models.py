@@ -48,7 +48,7 @@ class Contact(models.Model):
     AVATAR_SIZE = 100
     avatar = models.ImageField(upload_to='images/avatars/',
                                blank=True)
-    phone_number = PhoneNumberField(blank=True)
+    phone_number = PhoneNumberField(blank=True, unique=True)
 
     def save(self, *args, **kwargs):
         super(Contact, self).save(*args, **kwargs)
