@@ -187,7 +187,7 @@ def client_detail(request, id):
     # Create leases if needed
     client = get_object_or_404(Associated, id=id)
     client.contract = Contract.objects.filter(stage="active").last()
-    client.data = LesseeData.objects.get(associated=client)
+    client.data = LesseeData.objects.filter(associated=client).last()
     leases = Lease.objects.filter(
         contract__lessee=client, contract__stage="active")
 
