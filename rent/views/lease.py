@@ -116,7 +116,8 @@ def get_contract(id):
     else:
         contract.contract_end_date = contract.effective_date + \
             timedelta(days=contract.contract_term * 30)
-    contract.lessee.data = LesseeData.objects.get(associated=contract.lessee)
+    contract.lessee.data = LesseeData.objects.filter(
+        associated=contract.lessee).last()
     return contract
 
 
@@ -169,19 +170,21 @@ def contracts(request):
     contracts = Contract.objects.all()
     return render(request, 'rent/contract/contract_list.html', {'contracts': contracts})
 
+
 @login_required
 def adjust_end_deposit(request, id):
     closing = request.GET.get('closing', False)
     contract = get_object_or_404(Contract, id=id)
-    deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=contract)
+    deposit, c = SecurityDepositDevolution.objects.get_or_create(
+        contract=contract)
 
     if c:
-        total_amount = sum([lease_deposit.amount for lease in contract.lease_set.all() for lease_deposit in lease.lease_deposit.all()])
-        
+        total_amount = sum([lease_deposit.amount for lease in contract.lease_set.all(
+        ) for lease_deposit in lease.lease_deposit.all()])
+
         deposit.total_deposited_amount = total_amount
         deposit.save()
-    
-    
+
     if request.method == "POST":
         form = SecurityDepositDevolutionForm(request.POST, instance=deposit)
         if form.is_valid():
@@ -196,12 +199,12 @@ def adjust_end_deposit(request, id):
                 return redirect('update-contract-stage', id, 'ended')
             else:
                 return redirect('client-list')
-            
+
     form = SecurityDepositDevolutionForm(instance=deposit)
     documents = LeaseDocument.objects.filter(contract=contract)
     for doc in documents:
         doc.icon = 'assets/img/icons/' + \
-                FILES_ICONS[doc.document_type]
+            FILES_ICONS[doc.document_type]
     context = {
         'title': "Adjust Security Deposit devolution.",
         'form': form,
@@ -211,6 +214,7 @@ def adjust_end_deposit(request, id):
         'contract': contract,
     }
     return render(request, 'rent/contract/adjust_deposit.html', context)
+
 
 @login_required
 def create_document_on_ended_contract(request, id):
@@ -230,6 +234,7 @@ def create_document_on_ended_contract(request, id):
     context = {'form': form,
                'title': _('Add document')}
     return render(request, 'rent/trailer_document_create.html', context)
+
 
 @login_required
 @staff_required
@@ -724,7 +729,8 @@ def delete_document(request, id):
 @staff_required
 def create_deposit(request, lease_id):
     lease = get_object_or_404(Lease, id=lease_id)
-    security_deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=lease.contract)
+    security_deposit, c = SecurityDepositDevolution.objects.get_or_create(
+        contract=lease.contract)
     if request.method == 'POST':
         form = LeaseDepositForm(request.POST, request.FILES)
         if form.is_valid():
@@ -748,7 +754,8 @@ def create_deposit(request, lease_id):
 def delete_deposit(request, id):
     deposit = get_object_or_404(
         LeaseDeposit, id=id)
-    security_deposit = get_object_or_404(SecurityDepositDevolution, contract=deposit.lease.contract)
+    security_deposit = get_object_or_404(
+        SecurityDepositDevolution, contract=deposit.lease.contract)
     security_deposit.total_deposited_amount -= deposit.amount
     security_deposit.save()
     deposit.delete()
