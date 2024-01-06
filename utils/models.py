@@ -109,6 +109,9 @@ class Order(models.Model):
     processing_date = models.DateTimeField(blank=True, null=True)
     discount = models.FloatField(default=0)
     quotation = models.BooleanField(default=False)
+    regular_client = models.BooleanField(default=False)
+    rent_trailer = models.BooleanField(default=False)
+    towit_trailer = models.BooleanField(default=False)
     is_initial = False
 
     def __str__(self):

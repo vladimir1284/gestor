@@ -45,6 +45,9 @@ class OrderCreateForm(BaseForm):
             'note',
             'position',
             'quotation',
+            'regular_client',
+            'rent_trailer',
+            'towit_trailer',
             'vin',
             'invoice_data',
         )
@@ -70,6 +73,7 @@ class OrderCreateForm(BaseForm):
                 ),
                 css_class="mb-3"
             ),
+            
             Div(
                 Div(
                     Field('position')
@@ -85,6 +89,24 @@ class OrderCreateForm(BaseForm):
             Div(
                 Div(
                     Field('note', rows='2')
+                ),
+                css_class="mb-3"
+            ),
+             Div(
+                Div(
+                    Field('regular_client')
+                ),
+                css_class="mb-3"
+            ),
+             Div(
+                Div(
+                    Field('rent_trailer')
+                ),
+                css_class="mb-3"
+            ),
+            Div(
+                Div(
+                    Field('towit_trailer')
                 ),
                 css_class="mb-3"
             ),
