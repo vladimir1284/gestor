@@ -79,8 +79,8 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
                         timezone.now().date() - contract.ended_date).days
             try:
                 leases = Lease.objects.filter(contract=contract)
-                lease = leases.last()
-            except Lease.DoesNotExist:
+                lease = leases[0]
+            except (Lease.DoesNotExist, IndexError):
                 lease = Lease.objects.create(
                     contract=contract,
                     payment_amount=contract.payment_amount,
