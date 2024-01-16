@@ -60,6 +60,16 @@ class Category(models.Model):
         return self.name
 
 
+
+from django.core.exceptions import ValidationError
+
+def custom_validator(value):
+    if value.isdigit():
+        if not 1 <= int(value) <= 8:
+            raise ValidationError('El valor debe estar entre 1 y 8.')
+    elif value != 'storage':
+        raise ValidationError('El valor debe ser un número entre 1 y 8 o "storage".')
+
 class Order(models.Model):
     # There can be several products in a single order.
     STATUS_CHOICE = (
@@ -73,19 +83,21 @@ class Order(models.Model):
         ('sell', _('Sell')),
         ('purchase', _('Purchase')),
     )
+    
+    POSITION_CHOICES = [(str(i), i) for i in range(1, 9)] + [('storage', 'Storage')]
+
     type = models.CharField(
         max_length=20, choices=TYPE_CHOICE, default='purchase')
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICE, default='pending')
     concept = models.CharField(max_length=120, default='Initial')
     note = models.TextField(blank=True)
-    position = models.IntegerField(
+
+    position = models.CharField(max_length=10,choices = POSITION_CHOICES,
         blank=True,
         null=True,
-        validators=[
-            MinValueValidator(1),
-            MaxValueValidator(8)
-        ]
+        validators=[custom_validator],
+        default="storage"
     )
     invoice_data = models.TextField(blank=True)
     vin = models.CharField(max_length=5, blank=True, null=True)

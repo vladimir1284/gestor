@@ -61,9 +61,11 @@ def create_order(request):
             order.trailer = trailer
 
     form = OrderCreateForm(initial=initial)
+    position = request.POST.get('position')
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
+            order = Order(position=position)
             order = form.save(commit=False)
             order.type = 'sell'
             order.created_by = request.user
@@ -115,6 +117,7 @@ def cleanSession(request):
 
 @login_required
 def select_client(request):
+    
     if request.method == 'POST':
         client = get_object_or_404(Associated, id=request.POST.get('id'))
         request.session['client_id'] = client.id
@@ -148,16 +151,19 @@ def update_order(request, id):
     order = get_object_or_404(Order, id=id)
 
     form = OrderCreateForm(instance=order)
-
+    status = request.POST.get('status')
+    
     if request.method == 'POST':
-        # pass the object as instance in form
         form = OrderCreateForm(request.POST, instance=order)
+        
+        if form.is_valid():
+        # pass the object as instance in form
 
         # save the data from the form and
         # redirect to detail_view
-        if form.is_valid():
             form.save()
-            return redirect('detail-service-order', id)
+        
+        return redirect('detail-service-order', id)
 
     # add form dictionary to context
     context = {
@@ -172,7 +178,7 @@ def update_order(request, id):
 @login_required
 def update_order_status(request, id, status):
     order = get_object_or_404(Order, id=id)
-
+    terminated = [order.status in ['complete', 'decline']]
     try:
         if status == 'complete':
             return redirect('process-payment', id)
@@ -192,6 +198,10 @@ def update_order_status(request, id, status):
             # Send SMS
             order.processing_date = timezone.localtime(timezone.now())
             twilioSendSMS(order, status)
+        
+        if terminated:
+            order.position = 'storage'
+            order.save()
 
         order.status = status
         order.save()

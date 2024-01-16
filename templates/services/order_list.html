@@ -74,8 +74,13 @@
                          width="20px"
                          class="h-px-40 w-auto" />
                     {% if  order.status == 'processing' or order.status == 'pending' %}
-                        {% if order.position %}<span>{{ order.position }}</span>{% endif %}
+                        {% if order.position %}
+                        {% if order.position == "storage" %}
+                            <span>S</span>
+                            {%else%}
+                        <span>{{ order.position }}</span>{% endif %}
                     {% endif %}
+                    {%endif%}
                 </a>
                 {% if order.trailer %}
                     <span>T</span>

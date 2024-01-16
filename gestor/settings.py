@@ -51,13 +51,13 @@ INSTALLED_APPS = [
     'utils.apps.UtilsConfig',
     'inventory.apps.inventoryConfig',
     'users.apps.UsersConfig',
-    'services.apps.ServicesConfig',
     'equipment.apps.EquipmentConfig',
     'costs.apps.CostsConfig',
     'rent.apps.RentConfig',
     'django.contrib.humanize',
     'schedule',
     'tolls.apps.TollsConfig',
+    'services.apps.ServicesConfig',
 ]
 
 MIDDLEWARE = [

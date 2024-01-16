@@ -14,7 +14,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 class BaseForm(forms.ModelForm):
-
+    class Meta:
+        abstract = True
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

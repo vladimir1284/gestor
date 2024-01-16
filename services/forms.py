@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms import ModelForm
 from django.utils.safestring import mark_safe
 from utils.models import (
     Order,
@@ -36,8 +37,11 @@ from crispy_forms.bootstrap import (
 )
 from django.utils.translation import gettext_lazy as _
 
+from utility_scripts.get_avainable_positions import get_available_positions
 
-class OrderCreateForm(BaseForm):
+class OrderCreateForm(BaseForm, ModelForm):
+    status_order = forms.ChoiceField(choices=Order.STATUS_CHOICE, required=False)
+    position = forms.ChoiceField(choices=Order.POSITION_CHOICES, required=False)
     class Meta:
         model = Order
         fields = (
@@ -48,9 +52,14 @@ class OrderCreateForm(BaseForm):
             'vin',
             'invoice_data',
         )
-
+        widgets = {
+            'status_order': forms.Select(attrs={'class': "mb-3"}),
+            'position': forms.Select( attrs={'class': "mb-3"}),
+        }
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(OrderCreateForm, self).__init__(*args, **kwargs)
+        self.fields['position'].choices = [(pos, str(pos)) if isinstance(pos, int) else (pos, pos) for pos in get_available_positions()]
+        
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -77,7 +86,7 @@ class OrderCreateForm(BaseForm):
                 css_class="mb-3"
             ),
             Div(
-                Div(
+                (
                     Field('invoice_data', rows='2')
                 ),
                 css_class="mb-3"
@@ -93,6 +102,7 @@ class OrderCreateForm(BaseForm):
             )
         )
 
+        
 
 class CategoryCreateForm(BaseCategoryCreateForm):
 

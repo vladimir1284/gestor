@@ -65,3 +65,5 @@ weasyprint==59.0
 webencodings==0.5.1
 yarl==1.9.2
 zopfli==0.2.2
+
+schedule~=1.2.1

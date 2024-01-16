@@ -1,0 +1,7 @@
+export TWILIO_ACCOUNT_SID='ACa5bdfa8b31dfca1f541be9c2b513ba9d'
+export TWILIO_AUTH_TOKEN='95becb1fc4dbf308fb43f6254a31b898'
+export OPENAI_API_KEY='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'
+export OPEN_AI_ORG='org-degeolpgJNWE2x5RoseQnUcN'
+export MAIL_PASS='ysQeHzAZ6#KV$KT'
+export ENVIRONMENT='development'
+
