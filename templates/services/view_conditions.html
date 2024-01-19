@@ -1,0 +1,46 @@
+{% extends "base/base_select.html" %}
+{% load static %}
+{% block title %}
+    Service conditions
+{% endblock title %}
+{% block Ctitle %}
+    Service conditions
+    {% if signature.img %}
+        <a href="{% url 'get-vin-plate' %}"
+           type="button"
+           class="btn btn-outline-primary float-end">Continue</a>
+    {% endif %}
+{% endblock Ctitle %}
+{% block Cards %}
+    <p class="bottom-three" id="contract_detail_sign">
+        <strong>LESSORS</strong>:
+    </p>
+    <section id="signature_daniel">
+        By:
+        <img class="signature" src="{% static '/images/signs/firma_daniel.png' %}">
+    </section>
+    <p class="bottom-three-left-two">Daniel Hernández Duarte</p>
+    <div style="margin-top: 3em;"></div>
+    <p class="bottom-three">
+        <strong>LESSEE</strong>:
+    </p>
+    <section id="signature_lessee">
+        By:
+        {% if pdf %}
+        {% else %}
+            <a class="signature_btn"
+               href="{% url 'client-service-order-signature' %}">
+                <button type="button" class="btn btn-icon btn-primary">
+                    <span class="tf-icons bx bx-edit"></span>
+                </button>
+            </a>
+        {% endif %}
+        {% if signature.img %}<img class="signature" src="{{ signature.img.url }}">{% endif %}
+    </section>
+    <p class="bottom-three-left-two">
+        <mark>{{ signature.associated.name }}</mark>
+    </p>
+{% endblock Cards %}
+{% block createVisibility %}
+    none
+{% endblock createVisibility %}

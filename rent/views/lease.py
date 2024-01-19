@@ -20,6 +20,7 @@ from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from django.core.mail import EmailMessage, get_connection
 from django.contrib import messages
+from rent.forms.hand_writing import HandWritingForm
 from rent.views.client import compute_client_debt
 from math import ceil
 from rent.permissions import staff_required
@@ -39,7 +40,6 @@ from ..models.lease import (
 )
 from ..forms.lease import (
     ContractForm,
-    HandWritingForm,
     InspectionForm,
     TireFormSet,
     AssociatedCreateForm,

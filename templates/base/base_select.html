@@ -21,7 +21,9 @@
         <h5 class="card-header">
             {% block Ctitle %}
             {% endblock Ctitle %}
-            <a href={% block createUrl %} {% endblock createUrl %}>
+            <a style="display: {% block createVisibility %}inline-flow{% endblock createVisibility %}"
+               href="{% block createUrl %}"
+               {% endblock createUrl %}>
                 <button type="button"
                         class="btn rounded-pill btn-icon btn-primary create"
                         data-bs-toggle="tooltip"

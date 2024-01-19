@@ -1,0 +1,36 @@
+{% extends 'base/base_select.html' %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ctitle %}
+    Select a client from lessees
+{% endblock Ctitle %}
+{% block Cards %}
+    {% for equipment in trailers %}
+        <div class="col-md-6 infocard">
+            <div class="d-flex pb-1">
+                <div class="card-body d-flex">
+                    {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
+                    <div class="user-progress">
+                        <form enctype="multipart/form-data" method="post" id="update-form">
+                            {% csrf_token %}
+                            <div>
+                                <input type="hidden" name="next" value="{{ next }}" />
+                            </div>
+                            <div>
+                                <input type="hidden" name="id" value="{{ equipment.id }}" />
+                            </div>
+                            <button class="btn btn-icon btn-outline-primary" type="submit">
+                                <span class="tf-icons bx bx-check"></span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock Cards %}
+{% block createVisibility %}
+    none
+{% endblock createVisibility %}
