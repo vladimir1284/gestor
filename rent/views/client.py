@@ -192,6 +192,7 @@ def client_detail(request, id):
                 lease=lease, due_date__lte=payment.date_of_payment
             ).order_by("-due_date")
             if i > 0:
+                previous_date = payment.date_of_payment
                 dues = dues.exclude(due_date__lte=previous_date)
             payment.dues = dues
 
