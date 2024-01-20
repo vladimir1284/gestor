@@ -51,7 +51,7 @@ from datetime import datetime, timedelta
 
 @login_required
 def create_order(request):
-    if request.session["using_signature"] and request.session['signature'] is None:
+    if request.session["using_signature"] and request.session["signature"] is None:
         return redirect("view-conditions")
 
     initial = {"concept": None}
@@ -116,8 +116,11 @@ def create_order(request):
                 order.company = company
 
             order.save()
-            if 'signature' in request.session and request.session['signature'] is not None:
-                signature = OrderSignature.objects.get(id=request.session['signature'])
+            if (
+                "signature" in request.session
+                and request.session["signature"] is not None
+            ):
+                signature = OrderSignature.objects.get(id=request.session["signature"])
                 signature.order = order
                 signature.save()
             cleanSession(request)
@@ -141,10 +144,11 @@ def cleanSession(request):
     request.session["all_selected"] = None
     request.session["order_detail"] = None
     request.session["equipment_type"] = None
-    request.session['VIN'] = None
-    request.session['Plate'] = None
-    request.session['signature'] = None
-    request.session['using_signature'] = False
+    request.session["VIN"] = None
+    request.session["Plate"] = None
+    request.session["signature"] = None
+    request.session["using_signature"] = False
+    request.session["next"] = None
 
 
 @login_required
@@ -443,6 +447,7 @@ def select_order_flow(request):
 # Flow: client owns trailer
 @login_required
 def select_client(request):
+    request.session["next"] = "view-conditions"
     request.session["using_signature"] = True
     if request.method == "POST":
         client = get_object_or_404(Associated, id=request.POST.get("id"))
@@ -471,7 +476,7 @@ def select_client(request):
 
 @login_required
 def get_vin_plate(request):
-    if request.session["using_signature"] and request.session['signature'] is None:
+    if request.session["using_signature"] and request.session["signature"] is None:
         return redirect("view-conditions")
 
     if request.method == "POST":
@@ -495,8 +500,8 @@ def get_vin_plate(request):
 
 @login_required
 def view_conditions(request):
-    if 'signature' in request.session and request.session['signature'] is not None:
-        signature = OrderSignature.objects.get(id=request.session['signature'])
+    if "signature" in request.session and request.session["signature"] is not None:
+        signature = OrderSignature.objects.get(id=request.session["signature"])
     else:
         signature = OrderSignature()
     context = {
