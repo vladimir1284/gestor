@@ -1,0 +1,46 @@
+{% extends "base/base_select.html" %}
+{% load static %}
+{% block title %}
+    Details
+{% endblock title %}
+{% block Ctitle %}
+    Details
+    <a href="{% url 'create-service-order' %}"
+       type="button"
+       class="btn btn-outline-primary float-end">Continue</a>
+    {% if last_order %}
+        <a href="{% url 'detail-service-order' last_order.id %}"
+           class="btn btn-outline-primary float-end">Last order</a>
+    {% endif %}
+{% endblock Ctitle %}
+{% block Cards %}
+    <span class="pt-2">
+        <b>Effective time:</b>
+        {{ effective_time }}
+    </span>
+    {% if rental_debt > 0 %}
+        <span class="pt-2">
+            <b>Rental debt:</b>
+            {{ rental_debt }}
+            <spam class="bg-label-danger p-1 rounded">
+            {{ rental_last_payment|timesince }}
+            </spam>
+        </span>
+    {% endif %}
+    {% if repair_debt > 0 %}
+        <span class="pt-2">
+            <b>Repair debt:</b>
+            {{ repair_debt }}
+            {% if repair_last_payment %}
+                <spam
+                {% if repair_overdue %}class="bg-label-danger p-1 rounded"{% endif %}
+                >
+                {{ repair_last_payment|timesince }}
+                </spam>
+            {% endif %}
+        </span>
+    {% endif %}
+{% endblock Cards %}
+{% block createVisibility %}
+    none
+{% endblock createVisibility %}

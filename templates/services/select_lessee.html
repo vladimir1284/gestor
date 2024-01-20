@@ -1,0 +1,15 @@
+{% extends 'base/base_select.html' %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block Ctitle %}
+    Select a client from lessees
+{% endblock Ctitle %}
+{% block Cards %}
+    {% for associated in associates %}
+        <div class="col-md-6 infocard">{% include "users/associated_select_card.html" %}</div>
+    {% endfor %}
+{% endblock Cards %}
+{% block createVisibility %}
+    none
+{% endblock createVisibility %}
