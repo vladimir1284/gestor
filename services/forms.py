@@ -472,7 +472,7 @@ class OrderVinPlateForm(forms.Form):
         plate = cleaned_data.get("Plate")
 
         if vin == "" and plate == "":
-            raise ValidationError("At list one field is required.")
+            raise ValidationError("At least one field is required.")
 
 
 class OrderSignatureForm(ModelForm):

@@ -582,7 +582,6 @@ def select_lessee_trailer(request, id):
     for contract in contracts:
         if contract.trailer not in trailers:
             trailers.append(contract.trailer)
-
     context = {
         "trailers": trailers,
     }
