@@ -76,7 +76,9 @@ class Order(models.Model):
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
-        blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(8)]
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0), MaxValueValidator(8)],
     )
     invoice_data = models.TextField(blank=True)
     vin = models.CharField(max_length=5, blank=True, null=True)
