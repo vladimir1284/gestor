@@ -71,7 +71,8 @@ urlpatterns = [
     ),
     path("delete-service/<id>", service.delete_service, name="delete-service"),
     # -------------------- Order ----------------------------
-    path("order-flow/", order.select_order_flow, name="select-service-order-flow"),
+    path("order-flow/", order.select_order_flow,
+         name="select-service-order-flow"),
     path("select-client/", order.select_client, name="select-service-client"),
     path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
     path("view-conditions/", order.view_conditions, name="view-conditions"),
@@ -104,7 +105,8 @@ urlpatterns = [
         {"msg": ""},
         name="detail-service-order",
     ),
-    path("detail-order/<id>/<msg>/", order.detail_order, name="detail-service-order"),
+    path("detail-order/<id>/<msg>/", order.detail_order,
+         name="detail-service-order"),
     path("list-order/", order.list_order, name="list-service-order"),
     path(
         "list-terminated-order/",
@@ -121,6 +123,11 @@ urlpatterns = [
         order.update_order_status,
         name="update-service-order-status",
     ),
+    path(
+        "update-order-position/<id>/<status>",
+        order.order_end_update_position,
+        name="update-order-position",
+    ),
     path("send-sms/<order_id>", sms.sendSMS, name="send-sms"),
     # -------------------- Invoice ----------------------------
     path("service-invoice/<id>", invoice.view_invoice, name="service-invoice"),
@@ -131,7 +138,8 @@ urlpatterns = [
     path("pdf-labor/<id>", labor.generate_labor, name="pdf-labor"),
     path("html-labor/<id>", labor.html_labor, name="html-labor"),
     # -------------------- Expense ----------------------------
-    path("create-expense/<order_id>", expense.create_expense, name="create-expense"),
+    path("create-expense/<order_id>",
+         expense.create_expense, name="create-expense"),
     path("update-expense/<id>", expense.update_expense, name="update-expense"),
     path("delete-expense/<id>", expense.delete_expense, name="delete-expense"),
     # ----------------- Service Picture -----------------------
