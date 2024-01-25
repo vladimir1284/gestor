@@ -10,13 +10,22 @@
        class="btn btn-outline-primary float-end">Continue</a>
     {% if last_order %}
         <a href="{% url 'detail-service-order' last_order.id %}"
-           class="btn btn-outline-primary float-end">Last order</a>
+           class="btn btn-outline-primary float-end me-2">Last order</a>
     {% endif %}
 {% endblock Ctitle %}
 {% block Cards %}
     <span class="pt-2">
         <b>Effective time:</b>
+        <spam
+        {% if effective_time < 90 %}class="bg-label-danger p-1 rounded"{% endif %}
+        >
         {{ effective_time }}
+        {% if effective_time == 1 %}
+            day
+        {% else %}
+            days
+        {% endif %}
+        </spam>
     </span>
     {% if rental_debt > 0 %}
         <span class="pt-2">
@@ -40,6 +49,9 @@
             {% endif %}
         </span>
     {% endif %}
+    <div class="d-flex align-items-center justify-content-center mt-4">
+        {% include "rent/equipment_line.html" with equipment_type="trailer" %}
+    </div>
 {% endblock Cards %}
 {% block createVisibility %}
     none

@@ -42,7 +42,7 @@ from services.forms import (
     OrderSignatureForm,
     OrderVinPlateForm,
 )
-from rent.models.vehicle import Trailer
+from rent.models.vehicle import Trailer, TrailerPicture
 from django.utils.translation import gettext_lazy as _
 from gestor.views.utils import getMonthYear
 from datetime import datetime, timedelta
@@ -55,7 +55,7 @@ def create_order(request):
     if request.session["using_signature"] and request.session["signature"] is None:
         return redirect("view-conditions")
 
-    initial = {"concept": None}
+    initial = {"concept": "Maintenance to trailer"}
     creating_order = request.session.get("creating_order")
     request.session["all_selected"] = True
     order = Order()
@@ -76,18 +76,11 @@ def create_order(request):
             initial = {"concept": _("Maintenance to trailer")}
             order.trailer = trailer
 
-        VIN = request.session.get("VIN")
-        if VIN:
-            order.vin = VIN
-            initial["vin"] = VIN
-
-        Plate = request.session.get("Plate")
-        if Plate:
-            order.plate = Plate
-
-    form = OrderCreateForm(initial=initial)
+    getPlate = request.session["plate"]
+    form = OrderCreateForm(initial=initial, get_plate=getPlate)
     if request.method == "POST":
-        form = OrderCreateForm(request.POST)
+        form = OrderCreateForm(request.POST, get_plate=getPlate)
+        form.clean()
         if form.is_valid():
             order = form.save(commit=False)
             order.type = "sell"
@@ -146,8 +139,7 @@ def cleanSession(request):
     request.session["all_selected"] = None
     request.session["order_detail"] = None
     request.session["equipment_type"] = None
-    request.session["VIN"] = None
-    request.session["Plate"] = None
+    request.session["plate"] = False
     request.session["signature"] = None
     request.session["using_signature"] = False
     request.session["next"] = None
@@ -478,6 +470,7 @@ def select_order_flow(request):
 def select_client(request):
     request.session["next"] = "view-conditions"
     request.session["using_signature"] = True
+    request.session["plate"] = True
     if request.method == "POST":
         client = get_object_or_404(Associated, id=request.POST.get("id"))
         request.session["client_id"] = client.id
@@ -644,13 +637,16 @@ def view_contract_details(request, id):
         contract.lessee)
 
     last_order = (
-        Order.objects.filter(associated=contract.lessee).order_by(
-            "created_date").last()
+        Order.objects.filter(trailer=contract.trailer).order_by("created_date").last()
     )
-    if last_order is not None and last_order.created_date < (
-        datetime.now(pytz.timezone("UTC")) - timedelta(days=90)
-    ):
-        last_order = None
+    if last_order is not None:
+        effective_time = (
+            last_order.created_date.now(timezone.utc) - last_order.created_date
+        )
+        if last_order.created_date < (
+            datetime.now(pytz.timezone("UTC")) - timedelta(days=90)
+        ):
+            last_order = None
 
     towit, created = Company.objects.get_or_create(
         name="Towithouston", defaults={"name": "Towithouston"}
@@ -659,15 +655,24 @@ def view_contract_details(request, id):
     request.session["trailer_id"] = contract.trailer.id
     request.session["company_id"] = towit.id
 
+    images = TrailerPicture.objects.filter(trailer=contract.trailer)
+    pinned_image = None
+    for image in images:
+        if image.pinned:
+            pinned_image = image
+            break
+
     context = {
         "contract": contract,
-        "effective_time": effective_time,
+        "effective_time": effective_time.days,
         "rental_debt": rental_debt,
         "rental_last_payment": rental_last_payment,
         "repair_debt": repair_debt,
         "repair_overdue": repair_overdue,
         "repair_last_payment": repair_weekly_payment,
         "last_order": last_order,
+        "equipment": contract.trailer,
+        "pinned_image": pinned_image,
     }
     return render(request, "services/view_contract_details.html", context)
 
