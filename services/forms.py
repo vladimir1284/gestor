@@ -41,6 +41,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 class OrderCreateForm(BaseForm):
+    getPlate = False
+
     class Meta:
         model = Order
         fields = (
@@ -49,11 +51,13 @@ class OrderCreateForm(BaseForm):
             "position",
             "quotation",
             "vin",
+            "plate",
             "invoice_data",
         )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, get_plate=False, **kwargs):
         super().__init__(*args, **kwargs)
+        self.getPlate = get_plate
 
         position = kwargs["instance"].position if "instance" in kwargs.keys(
         ) else None
@@ -68,16 +72,44 @@ class OrderCreateForm(BaseForm):
         self.fields["position"].widget = forms.Select(
             choices=availables_positions)
 
-        self.helper.layout = Layout(
-            Div(Div(Field("concept")), css_class="mb-3"),
-            Div(Div(Field("vin")), css_class="mb-3"),
-            Div(Div(Field("quotation")), css_class="mb-3"),
-            Div(Div(Field("position")), css_class="mb-3"),
-            Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
-            Div(Div(Field("note", rows="2")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
-        )
+        if self.getPlate:
+            self.helper.layout = Layout(
+                Div(Div(Field("concept")), css_class="mb-3"),
+                Div(Div(Field("vin")), css_class="mb-3"),
+                Div(Div(Field("plate")), css_class="mb-3"),
+                Div(Div(Field("quotation")), css_class="mb-3"),
+                Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
+                Div(Div(Field("note", rows="2")), css_class="mb-3"),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
+            )
+        else:
+            self.helper.layout = Layout(
+                Div(Div(Field("concept")), css_class="mb-3"),
+                Div(Div(Field("vin")), css_class="mb-3"),
+                Div(Div(Field("quotation")), css_class="mb-3"),
+                Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
+                Div(Div(Field("note", rows="2")), css_class="mb-3"),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        vin = cleaned_data.get("vin")
+        plate = cleaned_data.get("plate")
+
+        if (
+            self.getPlate
+            and (vin is None or vin == "")
+            and (plate is None or plate == "")
+        ):
+            self.add_error("vin", "One of VIN or Plate is required")
+            self.add_error("plate", "One of VIN or Plate is required")
+            # raise ValidationError("Vin or Plate is required.")
 
     def get_available_positions(self):
         options = []
