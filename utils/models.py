@@ -1,5 +1,6 @@
 from django.db import models
 from PIL import Image
+from django.dispatch import receiver
 
 from users.models import User, Associated, Company
 from equipment.models import Vehicle
@@ -45,7 +46,8 @@ class Category(models.Model):
         ("#03c3ec", "blue"),
         ("#233446", "black"),
     )
-    chartColor = models.CharField(max_length=7, default="#8592a3", choices=COLOR_CHOICE)
+    chartColor = models.CharField(
+        max_length=7, default="#8592a3", choices=COLOR_CHOICE)
 
     ICON_SIZE = 64
     icon = models.ImageField(upload_to="images/icons", blank=True)
@@ -71,12 +73,16 @@ class Order(models.Model):
         ("sell", _("Sell")),
         ("purchase", _("Purchase")),
     )
-    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default="purchase")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default="pending")
+    type = models.CharField(
+        max_length=20, choices=TYPE_CHOICE, default="purchase")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICE, default="pending")
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
-        blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(8)]
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0), MaxValueValidator(8)],
     )
     invoice_data = models.TextField(blank=True)
     vin = models.CharField(max_length=5, blank=True, null=True)
@@ -115,6 +121,30 @@ class Order(models.Model):
         qs = self.model._default_manager.get_queryset()
         order = ["pending", "processing", "approved", "complete", "decline"]
         return sorted(qs, key=lambda x: order.index(x.status))
+
+
+@receiver(models.signals.pre_save, sender=Order)
+def on_field_change(sender, instance, **kwargs):
+    try:
+        old_order = Order.objects.get(id=instance.id)
+    except Exception:
+        return
+
+    if old_order.position != instance.position:
+        if instance.position == 0:
+            trace = OrderTrace(
+                order=instance, trace="storage_in", status=instance.status
+            )
+        else:
+            trace = OrderTrace(
+                order=instance, trace="storage_out", status=instance.status
+            )
+        trace.save()
+    if old_order.status != instance.status and instance.position == 0:
+        trace = OrderTrace(
+            order=instance, trace="storage_stage", status=instance.status
+        )
+        trace.save()
 
 
 class Transaction(models.Model):
@@ -202,3 +232,15 @@ class Plate(models.Model):
 
 class MonthlyStatistics(Statistics):
     pass
+
+
+class OrderTrace(models.Model):
+    TRACE_TYPE = [
+        ("storage_in", "Storage in"),
+        ("storage_out", "Storage out"),
+        ("storage_stage", "Storage stage change"),
+    ]
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    trace = models.CharField(max_length=50, choices=TRACE_TYPE)
+    status = models.CharField(max_length=50)

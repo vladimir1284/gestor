@@ -38,6 +38,7 @@ from services.models import (
 from services.forms import (
     DiscountForm,
     OrderCreateForm,
+    OrderEndUpdatePositionForm,
     OrderSignatureForm,
     OrderVinPlateForm,
 )
@@ -120,7 +121,8 @@ def create_order(request):
                 "signature" in request.session
                 and request.session["signature"] is not None
             ):
-                signature = OrderSignature.objects.get(id=request.session["signature"])
+                signature = OrderSignature.objects.get(
+                    id=request.session["signature"])
                 signature.order = order
                 signature.save()
             cleanSession(request)
@@ -169,7 +171,8 @@ def update_order(request, id):
             return redirect("detail-service-order", id)
 
     # add form dictionary to context
-    context = {"form": form, "order": order, "title": _("Update service order")}
+    context = {"form": form, "order": order,
+               "title": _("Update service order")}
 
     return render(request, "services/order_create.html", context)
 
@@ -180,7 +183,7 @@ def update_order_status(request, id, status):
 
     try:
         if status == "complete":
-            return redirect("process-payment", id)
+            return redirect("update-order-position", id, status)
 
         elif order.status == "complete":
             if status == "decline":
@@ -204,7 +207,32 @@ def update_order_status(request, id, status):
         order.save()
     except NotEnoughStockError as error:
         print(error)
+
+    if status == "decline":
+        return redirect("update-order-position", id, status)
     return redirect("list-service-order")
+
+
+@login_required
+def order_end_update_position(request, id, status):
+    if request.method == "POST":
+        order = get_object_or_404(Order, id=id)
+        form = OrderEndUpdatePositionForm(request.POST)
+        if form.is_valid():
+            pos = form.cleaned_data["position"]
+            order.position = pos
+            order.save()
+            if status == "complete":
+                return redirect("process-payment", id)
+            return redirect("list-service-order")
+    else:
+        form = OrderEndUpdatePositionForm()
+
+    context = {
+        "form": form,
+        "title": "Select position",
+    }
+    return render(request, "services/order_end_update_position.html", context)
 
 
 STATUS_ORDER = ["pending", "processing", "approved", "complete", "decline"]
@@ -431,7 +459,8 @@ def detail_order(request, id, msg=None):
 
     if context["terminated"]:
         # Payments
-        context.setdefault("payments", Payment.objects.filter(order=context["order"]))
+        context.setdefault(
+            "payments", Payment.objects.filter(order=context["order"]))
 
     return render(request, "services/order_detail.html", context)
 
@@ -611,10 +640,12 @@ def view_contract_details(request, id):
         rental_debt = debs
         rental_last_payment = unpaid[0].start
 
-    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(contract.lessee)
+    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(
+        contract.lessee)
 
     last_order = (
-        Order.objects.filter(associated=contract.lessee).order_by("created_date").last()
+        Order.objects.filter(associated=contract.lessee).order_by(
+            "created_date").last()
     )
     if last_order is not None and last_order.created_date < (
         datetime.now(pytz.timezone("UTC")) - timedelta(days=90)
@@ -659,7 +690,8 @@ def select_unrented_trailer(request):
     for trailer in trailers:
         # Contracts
         has_contract = (
-            Contract.objects.filter(trailer=trailer).exclude(stage="ended").exists()
+            Contract.objects.filter(trailer=trailer).exclude(
+                stage="ended").exists()
         )
         if not has_contract:
             unrented_trailers.append(trailer)
