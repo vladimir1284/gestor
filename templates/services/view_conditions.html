@@ -37,20 +37,11 @@
             Todas las reglas son obligatorias. Si no estás de acuerdo con alguna, lamentablemente, no podremos llevar a cabo el servicio.
         </li>
     </ol>
-    <p class="bottom-three" id="contract_detail_sign">
-        <strong>LESSORS</strong>:
-    </p>
-    <section id="signature_daniel">
-        By:
-        <img class="signature" src="{% static '/images/signs/firma_daniel.png' %}">
-    </section>
-    <p class="bottom-three-left-two">Daniel Hernández Duarte</p>
-    <div style="margin-top: 3em;"></div>
+
     <p class="bottom-three">
-        <strong>LESSEE</strong>:
+        <strong>Cliente</strong>:
     </p>
     <section id="signature_lessee">
-        By:
         {% if pdf %}
         {% else %}
             <a class="signature_btn"
@@ -63,7 +54,7 @@
         {% if signature.img %}<img class="signature" src="{{ signature.img.url }}">{% endif %}
     </section>
     <p class="bottom-three-left-two">
-        <mark>{{ signature.associated.name }}</mark>
+        <mark>{{ client }}</mark>
     </p>
 {% endblock Cards %}
 {% block createVisibility %}

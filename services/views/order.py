@@ -526,8 +526,13 @@ def view_conditions(request):
         signature = OrderSignature.objects.get(id=request.session["signature"])
     else:
         signature = OrderSignature()
+    
+    client = None
+    if request.session["client_id"]:
+        client = Associated.objects.get(id=request.session["client_id"])
     context = {
         "signature": signature,
+        "client": client
     }
     return render(request, "services/view_conditions.html", context)
 
