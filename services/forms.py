@@ -59,18 +59,15 @@ class OrderCreateForm(BaseForm):
         super().__init__(*args, **kwargs)
         self.getPlate = get_plate
 
-        position = kwargs["instance"].position if "instance" in kwargs.keys(
-        ) else None
+        position = kwargs["instance"].position if "instance" in kwargs.keys() else None
         print(position)
 
         availables_positions = self.get_available_positions()
 
         if position is not None and position >= 1 and position <= 8:
-            availables_positions.insert(
-                0, (position, f"Current position {position}"))
+            availables_positions.insert(0, (position, f"Current position {position}"))
 
-        self.fields["position"].widget = forms.Select(
-            choices=availables_positions)
+        self.fields["position"].widget = forms.Select(choices=availables_positions)
 
         if self.getPlate:
             self.helper.layout = Layout(
@@ -81,8 +78,7 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("position")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
-                ButtonHolder(Submit("submit", "Enviar",
-                             css_class="btn btn-success")),
+                ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
             )
         else:
             self.helper.layout = Layout(
@@ -92,8 +88,7 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("position")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
-                ButtonHolder(Submit("submit", "Enviar",
-                             css_class="btn btn-success")),
+                ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
             )
 
     def clean(self):
@@ -113,7 +108,7 @@ class OrderCreateForm(BaseForm):
 
     def get_available_positions(self):
         options = []
-        for i in range(1, 8):
+        for i in range(1, 9):
             if not Order.objects.filter(
                 Q(position=i),
                 Q(status="pending") | Q(status="processing"),
@@ -146,8 +141,7 @@ class PendingPaymentCreateForm(BaseForm):
 
 
 class PaymentCreateForm(BaseForm):
-    weeks = forms.IntegerField(
-        required=False, initial=0)  # Add the "weeks" field
+    weeks = forms.IntegerField(required=False, initial=0)  # Add the "weeks" field
 
     class Meta:
         model = Payment
@@ -194,8 +188,7 @@ class PaymentCategoryCreateForm(BaseForm):
                 """
             ),
             Div(Div(Field("icon", css_class="form-select")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
 
 
@@ -203,8 +196,7 @@ class CommonTransactionLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
             Div(
-                Div(Field(PrependedText("price", "$")),
-                    css_class="col-md-4 mb-3"),
+                Div(Field(PrependedText("price", "$")), css_class="col-md-4 mb-3"),
                 Div(Div(AppendedText("tax", "%")), css_class="col-md-4 mb-3"),
                 Div(Field("quantity"), css_class="col-md-4 mb-3"),
                 css_class="row",
@@ -341,8 +333,7 @@ class ServiceCreateForm(forms.ModelForm):
                             css_class="row mb-3",
                         ),
                         ButtonHolder(
-                            Submit("submit", "Enviar",
-                                   css_class="btn btn-success")
+                            Submit("submit", "Enviar", css_class="btn btn-success")
                         ),
                         css_class="card-body",
                     ),
@@ -492,8 +483,7 @@ class ExpenseCreateForm(BaseForm):
             Div(Div(Field("concept")), css_class="mb-3"),
             Div(Div(Field("description", rows="2")), css_class="mb-3"),
             Div(Div(Field(PrependedText("cost", "$"))), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
 
 
