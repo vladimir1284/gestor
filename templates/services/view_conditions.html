@@ -5,7 +5,7 @@
 {% endblock title %}
 {% block Ctitle %}
     CONDICIONES DE SRVICIO
-    {% if signature.img %}
+    {% if signature.img or hasOrder %}
         <a href="{% url 'create-service-order' %}"
            type="button"
            class="btn btn-outline-primary float-end">Continue</a>

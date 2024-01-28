@@ -46,8 +46,7 @@ class Category(models.Model):
         ("#03c3ec", "blue"),
         ("#233446", "black"),
     )
-    chartColor = models.CharField(
-        max_length=7, default="#8592a3", choices=COLOR_CHOICE)
+    chartColor = models.CharField(max_length=7, default="#8592a3", choices=COLOR_CHOICE)
 
     ICON_SIZE = 64
     icon = models.ImageField(upload_to="images/icons", blank=True)
@@ -73,10 +72,8 @@ class Order(models.Model):
         ("sell", _("Sell")),
         ("purchase", _("Purchase")),
     )
-    type = models.CharField(
-        max_length=20, choices=TYPE_CHOICE, default="purchase")
-    status = models.CharField(
-        max_length=20, choices=STATUS_CHOICE, default="pending")
+    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default="purchase")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default="pending")
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
@@ -85,6 +82,7 @@ class Order(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(8)],
     )
     invoice_data = models.TextField(blank=True)
+    external = models.BooleanField(default=False)
     vin = models.CharField(max_length=5, blank=True, null=True)
     plate = models.CharField(max_length=20, blank=True, null=True)
     created_date = models.DateTimeField(auto_now_add=True)

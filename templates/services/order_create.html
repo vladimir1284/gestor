@@ -18,4 +18,30 @@
             </form>
         </div>
     </div>
+    <script>
+        const quotation = document.querySelector('#id_quotation')
+        const position = document.querySelector('#id_position')
+        var oldValue = 0
+
+        function updatePosition() {
+            const q = quotation.checked
+            console.log(q)
+            position.disabled = q
+            if (q) {
+                const nullOption = document.createElement("option");
+                nullOption.value = "";
+                nullOption.text = "Null";
+                position.add(nullOption);
+                oldValue = position.value
+                position.value = ''
+            } else {
+                nullOption = position.querySelector('option[value=""]')
+                position.removeChild(nullOption)
+                position.value = oldValue
+            }
+        }
+
+        quotation.addEventListener('change', updatePosition)
+        updatePosition()
+    </script>
 {% endblock content %}

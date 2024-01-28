@@ -52,17 +52,22 @@ from datetime import datetime, timedelta
 
 @login_required
 def create_order(request):
+    client_id = request.session.get("client_id")
+    client = None
+    if client_id:
+        client = Associated.objects.get(id=client_id)
+
     if request.session["using_signature"] and request.session["signature"] is None:
-        return redirect("view-conditions")
+        orders = Order.objects.filter(associated=client)
+        if len(orders) == 0:
+            return redirect("view-conditions")
 
     initial = {"concept": "Maintenance to trailer"}
     creating_order = request.session.get("creating_order")
     request.session["all_selected"] = True
     order = Order()
     if creating_order:
-        client_id = request.session.get("client_id")
-        if client_id:
-            client = Associated.objects.get(id=client_id)
+        if client:
             order.associated = client
 
         company_id = request.session.get("company_id")
@@ -76,8 +81,11 @@ def create_order(request):
             initial = {"concept": _("Maintenance to trailer")}
             order.trailer = trailer
 
-    getPlate = request.session["plate"]
-    form = OrderCreateForm(initial=initial, get_plate=getPlate)
+        getPlate = request.session["plate"]
+        if getPlate:
+            order.external = True
+
+    form = OrderCreateForm(initial=initial, get_plate=order.external)
     if request.method == "POST":
         form = OrderCreateForm(request.POST, get_plate=getPlate)
         form.clean()
@@ -109,13 +117,16 @@ def create_order(request):
                 company = Company.objects.get(id=company_id)
                 order.company = company
 
+            getPlate = request.session["plate"]
+            if getPlate:
+                order.external = True
+
             order.save()
             if (
                 "signature" in request.session
                 and request.session["signature"] is not None
             ):
-                signature = OrderSignature.objects.get(
-                    id=request.session["signature"])
+                signature = OrderSignature.objects.get(id=request.session["signature"])
                 signature.order = order
                 signature.save()
             cleanSession(request)
@@ -150,11 +161,11 @@ def update_order(request, id):
     # fetch the object related to passed id
     order = get_object_or_404(Order, id=id)
 
-    form = OrderCreateForm(instance=order)
+    form = OrderCreateForm(instance=order, get_plate=order.external)
 
     if request.method == "POST":
         # pass the object as instance in form
-        form = OrderCreateForm(request.POST, instance=order)
+        form = OrderCreateForm(request.POST, instance=order, get_plate=order.external)
 
         # save the data from the form and
         # redirect to detail_view
@@ -163,8 +174,7 @@ def update_order(request, id):
             return redirect("detail-service-order", id)
 
     # add form dictionary to context
-    context = {"form": form, "order": order,
-               "title": _("Update service order")}
+    context = {"form": form, "order": order, "title": _("Update service order")}
 
     return render(request, "services/order_create.html", context)
 
@@ -207,18 +217,25 @@ def update_order_status(request, id, status):
 
 @login_required
 def order_end_update_position(request, id, status):
+    order = get_object_or_404(Order, id=id)
+    if status in ["complete", "decline"] and order.position is None:
+        if status == "complete":
+            return redirect("process-payment", id)
+        return redirect("list-service-order")
+
     if request.method == "POST":
-        order = get_object_or_404(Order, id=id)
-        form = OrderEndUpdatePositionForm(request.POST)
+        form = OrderEndUpdatePositionForm(request.POST, order=order)
         if form.is_valid():
             pos = form.cleaned_data["position"]
+            if pos == "":
+                pos = None
             order.position = pos
             order.save()
             if status == "complete":
                 return redirect("process-payment", id)
             return redirect("list-service-order")
     else:
-        form = OrderEndUpdatePositionForm()
+        form = OrderEndUpdatePositionForm(order=order)
 
     context = {
         "form": form,
@@ -451,8 +468,7 @@ def detail_order(request, id, msg=None):
 
     if context["terminated"]:
         # Payments
-        context.setdefault(
-            "payments", Payment.objects.filter(order=context["order"]))
+        context.setdefault("payments", Payment.objects.filter(order=context["order"]))
 
     return render(request, "services/order_detail.html", context)
 
@@ -526,13 +542,20 @@ def view_conditions(request):
         signature = OrderSignature.objects.get(id=request.session["signature"])
     else:
         signature = OrderSignature()
-    
+
     client = None
     if request.session["client_id"]:
         client = Associated.objects.get(id=request.session["client_id"])
+
+    HasOrders = False
+    if client is not None:
+        orders = Order.objects.filter(associated=client)
+        HasOrders = len(orders) > 0
+
     context = {
         "signature": signature,
-        "client": client
+        "client": client,
+        "hasOrder": HasOrders,
     }
     return render(request, "services/view_conditions.html", context)
 
@@ -638,8 +661,7 @@ def view_contract_details(request, id):
         rental_debt = debs
         rental_last_payment = unpaid[0].start
 
-    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(
-        contract.lessee)
+    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(contract.lessee)
 
     last_order = (
         Order.objects.filter(trailer=contract.trailer).order_by("created_date").last()
@@ -700,8 +722,7 @@ def select_unrented_trailer(request):
     for trailer in trailers:
         # Contracts
         has_contract = (
-            Contract.objects.filter(trailer=trailer).exclude(
-                stage="ended").exists()
+            Contract.objects.filter(trailer=trailer).exclude(stage="ended").exists()
         )
         if not has_contract:
             unrented_trailers.append(trailer)

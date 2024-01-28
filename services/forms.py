@@ -60,7 +60,6 @@ class OrderCreateForm(BaseForm):
         self.getPlate = get_plate
 
         position = kwargs["instance"].position if "instance" in kwargs.keys() else None
-        print(position)
 
         availables_positions = self.get_available_positions()
 
@@ -69,12 +68,19 @@ class OrderCreateForm(BaseForm):
 
         self.fields["position"].widget = forms.Select(choices=availables_positions)
 
+        self.fields["invoice_data"].widget.attrs[
+            "placeholder"
+        ] = "Datos adicionales para mostrar en la factura"
+        self.fields["note"].widget.attrs[
+            "placeholder"
+        ] = "Información adicional relativa a esta orden"
+
         if self.getPlate:
             self.helper.layout = Layout(
+                Div(Div(Field("quotation")), css_class="mb-3"),
                 Div(Div(Field("concept")), css_class="mb-3"),
                 Div(Div(Field("vin")), css_class="mb-3"),
                 Div(Div(Field("plate")), css_class="mb-3"),
-                Div(Div(Field("quotation")), css_class="mb-3"),
                 Div(Div(Field("position")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
@@ -82,9 +88,9 @@ class OrderCreateForm(BaseForm):
             )
         else:
             self.helper.layout = Layout(
+                Div(Div(Field("quotation")), css_class="mb-3"),
                 Div(Div(Field("concept")), css_class="mb-3"),
                 Div(Div(Field("vin")), css_class="mb-3"),
-                Div(Div(Field("quotation")), css_class="mb-3"),
                 Div(Div(Field("position")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
@@ -116,7 +122,7 @@ class OrderCreateForm(BaseForm):
                 options.append((i, f"Position {i}"))
 
         options.append((0, "Storage"))
-        options.append((None, "Null"))
+        # options.append((None, "Null"))
 
         return options
 
@@ -541,13 +547,37 @@ class OrderSignatureForm(ModelForm):
 
 
 class OrderEndUpdatePositionForm(forms.Form):
-    POSITIONS = [
-        (0, "Storage"),
-        (None, "Null"),
-    ]
-    position = forms.IntegerField(required=False)
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, order: Order, **kwargs):
+        position = order.position
         super().__init__(*args, **kwargs)
 
-        self.fields["position"].widget = forms.Select(choices=self.POSITIONS)
+        if order.quotation:
+            positions = [(None, "Null")]
+            position = None
+            readonly = True
+        else:
+            positions = self.get_available_positions()
+            if order.status in ["complete", "decline"]:
+                positions.append((None, "Null"))
+            readonly = False
+
+        self.fields["position"] = forms.ChoiceField(
+            required=False,
+            choices=positions,
+            initial=position,
+        )
+        self.fields["position"].widget.attrs["readonly"] = readonly
+
+    def get_available_positions(self):
+        options = []
+        for i in range(1, 9):
+            if not Order.objects.filter(
+                Q(position=i),
+                Q(status="pending") | Q(status="processing"),
+            ).exists():
+                options.append((i, f"Position {i}"))
+
+        options.append((0, "Storage"))
+        # options.append((None, "Null"))
+
+        return options
