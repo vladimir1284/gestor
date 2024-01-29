@@ -11,7 +11,9 @@ import base64
 import tempfile
 from rent.models.lease import Contract, Lease
 from rent.tools.client import compute_client_debt
+from services.tools.conditios_to_pdf import conditions_to_pdf, send_pdf_conditions_to_email
 from services.tools.order import getRepairDebt
+from django.http import HttpResponse
 
 
 from .sms import twilioSendSMS
@@ -126,10 +128,14 @@ def create_order(request):
                 "signature" in request.session
                 and request.session["signature"] is not None
             ):
-                signature = OrderSignature.objects.get(id=request.session["signature"])
+                signature = OrderSignature.objects.get(
+                    id=request.session["signature"])
                 signature.order = order
                 signature.save()
             cleanSession(request)
+
+            if order.associated is not None and order.associated.email is not None:
+                send_pdf_conditions_to_email(request, order.id, [order.associated.email])
 
             return redirect("detail-service-order", id=order.id)
 
@@ -165,7 +171,8 @@ def update_order(request, id):
 
     if request.method == "POST":
         # pass the object as instance in form
-        form = OrderCreateForm(request.POST, instance=order, get_plate=order.external)
+        form = OrderCreateForm(
+            request.POST, instance=order, get_plate=order.external)
 
         # save the data from the form and
         # redirect to detail_view
@@ -174,7 +181,8 @@ def update_order(request, id):
             return redirect("detail-service-order", id)
 
     # add form dictionary to context
-    context = {"form": form, "order": order, "title": _("Update service order")}
+    context = {"form": form, "order": order,
+               "title": _("Update service order")}
 
     return render(request, "services/order_create.html", context)
 
@@ -468,7 +476,8 @@ def detail_order(request, id, msg=None):
 
     if context["terminated"]:
         # Payments
-        context.setdefault("payments", Payment.objects.filter(order=context["order"]))
+        context.setdefault(
+            "payments", Payment.objects.filter(order=context["order"]))
 
     return render(request, "services/order_detail.html", context)
 
@@ -661,10 +670,12 @@ def view_contract_details(request, id):
         rental_debt = debs
         rental_last_payment = unpaid[0].start
 
-    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(contract.lessee)
+    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(
+        contract.lessee)
 
     last_order = (
-        Order.objects.filter(trailer=contract.trailer).order_by("created_date").last()
+        Order.objects.filter(trailer=contract.trailer).order_by(
+            "created_date").last()
     )
     if last_order is not None:
         effective_time = (
@@ -722,7 +733,8 @@ def select_unrented_trailer(request):
     for trailer in trailers:
         # Contracts
         has_contract = (
-            Contract.objects.filter(trailer=trailer).exclude(stage="ended").exists()
+            Contract.objects.filter(trailer=trailer).exclude(
+                stage="ended").exists()
         )
         if not has_contract:
             unrented_trailers.append(trailer)
@@ -731,3 +743,21 @@ def select_unrented_trailer(request):
         "trailers": unrented_trailers,
     }
     return render(request, "services/select_trailer.html", context)
+
+
+##### PDF #####
+@login_required
+def show_conditions_as_pdf(request, id):
+    result = conditions_to_pdf(request, id)
+    if result is not None:
+        response = HttpResponse(content_type="application/pdf;")
+        response["Content-Disposition"] = "inline; filename=invoice_towit.pdf"
+        response["Content-Transfer-Encoding"] = "binary"
+        with tempfile.NamedTemporaryFile() as output:
+            output.write(result)
+            output.flush()
+            output = open(output.name, "rb")
+            response.write(output.read())
+        return response
+
+    return None

@@ -77,6 +77,11 @@ urlpatterns = [
     path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
     path("view-conditions/", order.view_conditions, name="view-conditions"),
     path(
+        "view-conditions-pdf/<id>",
+        order.show_conditions_as_pdf,
+        name="view-conditions-pdf",
+    ),
+    path(
         "client-signature/",
         order.create_handwriting,
         name="client-service-order-signature",
