@@ -1,0 +1,22 @@
+{% extends "base/base_select.html" %}
+{% load static %}
+{% block title %}
+    Nueva orden
+{% endblock title %}
+{% block Ctitle %}
+    Nueva orden
+{% endblock Ctitle %}
+{% block Cards %}
+    <a href="{% url "select-service-client" %}">
+        <button class="btn btn-outline-primary m-2">Cliente con su propio trailer</button>
+    </a>
+    <a href="{% url 'select-service-lessee' %}">
+        <button class="btn btn-outline-primary m-2">Cliente con trailer de renta</button>
+    </a>
+    <a href="{% url 'select-service-unrented-trailer' %}">
+        <button class="btn btn-outline-primary m-2">Trailer de renta sin cliente</button>
+    </a>
+{% endblock Cards %}
+{% block createVisibility %}
+    none
+{% endblock createVisibility %}

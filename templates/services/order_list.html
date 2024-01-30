@@ -74,7 +74,7 @@
                          width="20px"
                          class="h-px-40 w-auto" />
                     {% if  order.status == 'processing' or order.status == 'pending' %}
-                        {% if order.position %}<span>{{ order.position }}</span>{% endif %}
+                        {% if order.position %}<span>{{ order.position }}</span>{% elif order.position == 0 %}<span>S</span>{% endif %}
                     {% endif %}
                 </a>
                 {% if order.trailer %}
@@ -122,7 +122,7 @@
     {% endfor %}
 {% endblock Tbody %}
 {% block createUrl %}
-    {% url 'select-service-client' %}
+    {% url 'select-service-order-flow' %}
 {% endblock createUrl %}
 {% block help %}
     New order

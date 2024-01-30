@@ -30,7 +30,7 @@ from rent.models.lease import (
 from rent.models.cost import(
   RentalCost,
 )
-from rent.views.client import get_start_paying_date
+from rent.tools.client import get_start_paying_date
 from datetime import datetime
 from django.utils import timezone
 import pytz

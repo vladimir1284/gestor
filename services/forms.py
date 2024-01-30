@@ -1,10 +1,14 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.safestring import mark_safe
+from django.forms import ModelForm
+from django import forms
 from utils.models import (
     Order,
 )
 from .models import (
+    OrderSignature,
     Service,
     ServiceTransaction,
     ServiceCategory,
@@ -32,90 +36,113 @@ from crispy_forms.layout import (
 from crispy_forms.bootstrap import (
     PrependedText,
     AppendedText,
-    PrependedAppendedText,
 )
 from django.utils.translation import gettext_lazy as _
 
 
 class OrderCreateForm(BaseForm):
+    getPlate = False
+
     class Meta:
         model = Order
         fields = (
-            'concept',
-            'note',
-            'position',
-            'quotation',
-            'vin',
-            'invoice_data',
+            "concept",
+            "note",
+            "position",
+            "quotation",
+            "vin",
+            "plate",
+            "invoice_data",
         )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, get_plate=False, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    Field('concept')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    Field('vin')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    Field('quotation')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    Field('position')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    Field('invoice_data', rows='2')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    Field('note', rows='2')
-                ),
-                css_class="mb-3"
-            ),
-            ButtonHolder(
-                Submit('submit', 'Enviar', css_class='btn btn-success')
+        self.getPlate = get_plate
+
+        position = kwargs["instance"].position if "instance" in kwargs.keys(
+        ) else None
+        print(position)
+
+        availables_positions = self.get_available_positions()
+
+        if position is not None and position >= 1 and position <= 8:
+            availables_positions.insert(
+                0, (position, f"Current position {position}"))
+
+        self.fields["position"].widget = forms.Select(
+            choices=availables_positions)
+
+        if self.getPlate:
+            self.helper.layout = Layout(
+                Div(Div(Field("concept")), css_class="mb-3"),
+                Div(Div(Field("vin")), css_class="mb-3"),
+                Div(Div(Field("plate")), css_class="mb-3"),
+                Div(Div(Field("quotation")), css_class="mb-3"),
+                Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
+                Div(Div(Field("note", rows="2")), css_class="mb-3"),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
             )
-        )
+        else:
+            self.helper.layout = Layout(
+                Div(Div(Field("concept")), css_class="mb-3"),
+                Div(Div(Field("vin")), css_class="mb-3"),
+                Div(Div(Field("quotation")), css_class="mb-3"),
+                Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
+                Div(Div(Field("note", rows="2")), css_class="mb-3"),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        vin = cleaned_data.get("vin")
+        plate = cleaned_data.get("plate")
+
+        if (
+            self.getPlate
+            and (vin is None or vin == "")
+            and (plate is None or plate == "")
+        ):
+            self.add_error("vin", "One of VIN or Plate is required")
+            self.add_error("plate", "One of VIN or Plate is required")
+            # raise ValidationError("Vin or Plate is required.")
+
+    def get_available_positions(self):
+        options = []
+        for i in range(1, 8):
+            if not Order.objects.filter(
+                Q(position=i),
+                Q(status="pending") | Q(status="processing"),
+            ).exists():
+                options.append((i, f"Position {i}"))
+
+        options.append((0, "Storage"))
+        options.append((None, "Null"))
+
+        return options
 
 
 class CategoryCreateForm(BaseCategoryCreateForm):
-
     class Meta:
         model = ServiceCategory
-        fields = ('name', 'icon',)
+        fields = (
+            "name",
+            "icon",
+        )
 
 
 class PendingPaymentCreateForm(BaseForm):
-
     class Meta:
         model = PendingPayment
-        fields = ('amount', )
+        fields = ("amount",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper.layout = Layout(
-            Div(
-                Div(
-                    PrependedText('amount', '$')
-                )
-            )
-        )
+        self.helper.layout = Layout(Div(Div(PrependedText("amount", "$"))))
 
 
 class PaymentCreateForm(BaseForm):
@@ -124,50 +151,39 @@ class PaymentCreateForm(BaseForm):
 
     class Meta:
         model = Payment
-        fields = ('amount', )
+        fields = ("amount",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.category = self.initial['category']
-        self.fields['amount'].label = self.category.name
+        self.category = self.initial["category"]
+        self.fields["amount"].label = self.category.name
         if self.category.extra_charge > 0:
-            self.fields['amount'].help_text = F"Extra charge: {self.category.extra_charge}%"
+            self.fields[
+                "amount"
+            ].help_text = f"Extra charge: {self.category.extra_charge}%"
 
         self.helper.layout = Layout(
             Div(
+                Div(PrependedText("amount", "$")),
                 Div(
-                    PrependedText('amount', '$')
-                ),
-                Div(
-                    'weeks',  # Add the "weeks" field to the layout
+                    "weeks",  # Add the "weeks" field to the layout
                     # Hide the field based on condition
-                    css_class='d-none' if self.category.name != 'debt' else ''
+                    css_class="d-none" if self.category.name != "debt" else "",
                 ),
             )
         )
 
 
 class PaymentCategoryCreateForm(BaseForm):
-
     class Meta:
         model = PaymentCategory
-        fields = ('name', 'icon', 'extra_charge')
+        fields = ("name", "icon", "extra_charge")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper.layout = Layout(
-            Div(
-                Div(
-                    Field('name')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    AppendedText('extra_charge', '%')
-                ),
-                css_class="mb-3"
-            ),
+            Div(Div(Field("name")), css_class="mb-3"),
+            Div(Div(AppendedText("extra_charge", "%")), css_class="mb-3"),
             HTML(
                 """
                 <img id="preview" 
@@ -177,15 +193,9 @@ class PaymentCategoryCreateForm(BaseForm):
                 {% endif %}">
                 """
             ),
-            Div(
-                Div(
-                    Field('icon', css_class="form-select")
-                ),
-                css_class="mb-3"
-            ),
-            ButtonHolder(
-                Submit('submit', 'Enviar', css_class='btn btn-success')
-            )
+            Div(Div(Field("icon", css_class="form-select")), css_class="mb-3"),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -193,72 +203,43 @@ class CommonTransactionLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
             Div(
-                Div(
-                    Field(
-                        PrependedText('price', '$')
-                    ),
-                    css_class="col-md-4 mb-3"
-                ),
-                Div(
-                    Div(
-                        AppendedText('tax', '%')
-                    ),
-                    css_class="col-md-4 mb-3"
-                ),
-                Div(
-                    Field('quantity'),
-                    css_class="col-md-4 mb-3"
-                ),
-                css_class="row"
+                Div(Field(PrependedText("price", "$")),
+                    css_class="col-md-4 mb-3"),
+                Div(Div(AppendedText("tax", "%")), css_class="col-md-4 mb-3"),
+                Div(Field("quantity"), css_class="col-md-4 mb-3"),
+                css_class="row",
             ),
-            Div(
-                Div(
-                    Field('note', rows='2')
-                ),
-                css_class="mb-3"
-            )
+            Div(Div(Field("note", rows="2")), css_class="mb-3"),
         )
 
 
 class TransactionCreateForm(forms.ModelForm):
-
     class Meta:
         model = ServiceTransaction
-        fields = (
-            'price',
-            'note',
-            'quantity',
-            'tax'
-        )
+        fields = ("price", "note", "quantity", "tax")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
         for item in errorList:
-            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            self.fields[item].widget.attrs.update({"autofocus": "autofocus"})
             break
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
         self.helper.disable_csrf = True  # Don't render CSRF token
-        self.helper.label_class = 'form-label'
+        self.helper.label_class = "form-label"
         self.helper.add_input(Submit("submit", "Save"))
         self.helper.layout = Layout(CommonTransactionLayout())
 
 
 class TransactionProviderCreateForm(TransactionCreateForm):
-    associated = forms.fields_for_model(Order)['associated']
+    associated = forms.fields_for_model(Order)["associated"]
 
     class Meta:
         model = ServiceTransaction
-        fields = (
-            'price',
-            'note',
-            'quantity',
-            'tax',
-            'associated'
-        )
+        fields = ("price", "note", "quantity", "tax", "associated")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -268,12 +249,13 @@ class TransactionProviderCreateForm(TransactionCreateForm):
             Div(
                 Div(
                     Field(
-                        PrependedText('associated',
-                                      mark_safe(
-                                          '<i class="bx bx-user-circle"></i>'),
-                                      css_class="form-select")
+                        PrependedText(
+                            "associated",
+                            mark_safe('<i class="bx bx-user-circle"></i>'),
+                            css_class="form-select",
+                        )
                     ),
-                    css_class="col-10"
+                    css_class="col-10",
                 ),
                 Div(
                     HTML(
@@ -283,31 +265,33 @@ class TransactionProviderCreateForm(TransactionCreateForm):
                        href="{% url 'create-provider' %}?next={{ request.path|urlencode }}">
                         <span class="tf-icons bx bx-plus"></span>
                     </a>
-                    """),
-                    css_class="col-2 position-relative"
+                    """
+                    ),
+                    css_class="col-2 position-relative",
                 ),
-                css_class="row mb-3"
+                css_class="row mb-3",
             ),
         )
 
 
 class ServiceCreateForm(forms.ModelForm):
-
     class Meta:
         model = Service
-        fields = ('name',
-                  'description',
-                  'category',
-                  'sell_tax',
-                  'tire',
-                  'internal',
-                  'marketing',
-                  'suggested_price',)
+        fields = (
+            "name",
+            "description",
+            "category",
+            "sell_tax",
+            "tire",
+            "internal",
+            "marketing",
+            "suggested_price",
+        )
 
     def __init__(self, *args, **kwargs):
-        if 'title' in kwargs:
-            self.title = kwargs['title']
-            kwargs.pop('title')
+        if "title" in kwargs:
+            self.title = kwargs["title"]
+            kwargs.pop("title")
         else:
             self.title = _("Create Service")
 
@@ -315,89 +299,57 @@ class ServiceCreateForm(forms.ModelForm):
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
         for item in errorList:
-            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            self.fields[item].widget.attrs.update({"autofocus": "autofocus"})
             break
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
         self.helper.disable_csrf = True  # Don't render CSRF token
-        self.helper.label_class = 'form-label'
+        self.helper.label_class = "form-label"
         self.helper.layout = Layout(
             Div(
                 Div(
                     Fieldset(
                         self.title,
+                        Div(Div(Field("name")), css_class="mb-3"),
+                        Div(Div(Field("description", rows="2")), css_class="mb-3"),
                         Div(
-                            Div(
-                                Field('name')
-                            ),
-                            css_class="mb-3"
+                            Div(Field("category", css_class="form-select")),
+                            css_class="mb-3",
                         ),
-                        Div(
-                            Div(
-                                Field('description', rows='2')
-                            ),
-                            css_class="mb-3"
-                        ),
-                        Div(
-                            Div(
-                                Field('category', css_class="form-select")
-                            ),
-                            css_class="mb-3"
-                        ),
-                        css_class="card-body"
+                        css_class="card-body",
                     ),
-                    css_class="card mb-4"
+                    css_class="card mb-4",
                 ),
-                css_class="col-xxl"
+                css_class="col-xxl",
             ),
-
             Div(
                 Div(
                     Fieldset(
                         _("Advance configuration"),
                         Div(
-                            Div(
-                                Field(
-                                    PrependedText('suggested_price', '$')
-                                )
-                            ),
-                            css_class="mb-3"
+                            Div(Field(PrependedText("suggested_price", "$"))),
+                            css_class="mb-3",
                         ),
                         Div(
-                            Div(
-                                Field(
-                                    AppendedText('sell_tax', '%')
-                                )
-                            ),
-                            css_class="mb-3"
+                            Div(Field(AppendedText("sell_tax", "%"))), css_class="mb-3"
                         ),
                         Div(
-                            Div(
-                                Field('tire'),
-                                css_class="col-3"
-                            ),
-                            Div(
-                                Field('internal'),
-                                css_class="col-4"
-                            ),
-                            Div(
-                                Field('marketing'),
-                                css_class="col-5"
-                            ),
-                            css_class="row mb-3"
+                            Div(Field("tire"), css_class="col-3"),
+                            Div(Field("internal"), css_class="col-4"),
+                            Div(Field("marketing"), css_class="col-5"),
+                            css_class="row mb-3",
                         ),
-
                         ButtonHolder(
-                            Submit('submit', 'Enviar',
-                                   css_class='btn btn-success')
+                            Submit("submit", "Enviar",
+                                   css_class="btn btn-success")
                         ),
-                        css_class="card-body"
+                        css_class="card-body",
                     ),
-                    css_class="card mb-4"
+                    css_class="card mb-4",
                 ),
-                css_class="col-xxl"
-            )
+                css_class="col-xxl",
+            ),
         )
 
 
@@ -409,41 +361,41 @@ class DiscountForm(BaseForm):
         fields = ()
 
     def clean_round_to(self):
-        round_to = self.cleaned_data['round_to']
+        round_to = self.cleaned_data["round_to"]
         error_msg = ""
 
         if False:
-            error_msg += F'The price cannot be lower than ${self.product.min_price:.2f}.' + average
+            error_msg += (
+                f"The price cannot be lower than ${self.product.min_price:.2f}."
+                + average
+            )
             raise ValidationError(error_msg)
         return round_to
 
     def __init__(self, *args, **kwargs):
-
-        self.total = int(kwargs['total'])
-        kwargs.pop('total')
-        self.profit = int(kwargs['profit'])
-        kwargs.pop('profit')
+        self.total = int(kwargs["total"])
+        kwargs.pop("total")
+        self.profit = int(kwargs["profit"])
+        kwargs.pop("profit")
 
         super().__init__(*args, **kwargs)
 
         self.helper.layout = Layout(
             Div(
-                Div(
-                    Field(
-                        PrependedText('round_to', '$')
-                    ),
-                    css_class="mb-3"
-                ),
+                Div(Field(PrependedText("round_to", "$")), css_class="mb-3"),
                 ButtonHolder(
-                    Submit('submit', 'Create discount',
-                           css_class='btn btn-success float-end')
+                    Submit(
+                        "submit",
+                        "Create discount",
+                        css_class="btn btn-success float-end",
+                    )
                 ),
-                css_class="row mb-3"
+                css_class="row mb-3",
             )
         )
 
-        self.fields['round_to'].help_text = F"Profit: ${self.profit}"
-        self.fields['round_to'].initial = self.total
+        self.fields["round_to"].help_text = f"Profit: ${self.profit}"
+        self.fields["round_to"].initial = self.total
 
 
 class SendMailForm(forms.Form):
@@ -456,44 +408,40 @@ class SendMailForm(forms.Form):
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
         for item in errorList:
-            self.fields[item].widget.attrs.update({'autofocus': 'autofocus'})
+            self.fields[item].widget.attrs.update({"autofocus": "autofocus"})
             break
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
         self.helper.disable_csrf = True  # Don't render CSRF token
-        self.helper.label_class = 'form-label'
+        self.helper.label_class = "form-label"
         self.helper.layout = Layout(
+            Div(Field("mail_address"), css_class="row mb-3"),
             Div(
-                Field('mail_address'),
-                css_class="row mb-3"
-            ),
-            Div(
-                Div(
-                    Field('send_copy'),
-                    css_class="col-6"
-                ),
+                Div(Field("send_copy"), css_class="col-6"),
                 Div(
                     ButtonHolder(
-                        Submit('submit', 'Enviar',
-                               css_class='btn btn-success float-end')
+                        Submit(
+                            "submit", "Enviar", css_class="btn btn-success float-end"
+                        )
                     ),
-                    css_class="col-6"
+                    css_class="col-6",
                 ),
-                css_class="row mb-3"
+                css_class="row mb-3",
             ),
         )
 
 
 class ExpenseCreateForm(BaseForm):
-
     class Meta:
         model = Expense
-        fields = ('concept',
-                  'image',
-                  'description',
-                  'cost',
-                  'associated',)
+        fields = (
+            "concept",
+            "image",
+            "description",
+            "cost",
+            "associated",
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -501,12 +449,13 @@ class ExpenseCreateForm(BaseForm):
             Div(
                 Div(
                     Field(
-                        PrependedText('associated',
-                                      mark_safe(
-                                          '<i class="bx bx-user-circle"></i>'),
-                                      css_class="form-select")
+                        PrependedText(
+                            "associated",
+                            mark_safe('<i class="bx bx-user-circle"></i>'),
+                            css_class="form-select",
+                        )
                     ),
-                    css_class="col-10"
+                    css_class="col-10",
                 ),
                 Div(
                     HTML(
@@ -516,10 +465,11 @@ class ExpenseCreateForm(BaseForm):
                                 href="{% url 'select-provider' %}?next={{ request.path|urlencode }}">
                                     <span class="tf-icons bx bx-plus"></span>
                                 </a>
-                                """),
-                    css_class="col-2 position-relative"
+                                """
+                    ),
+                    css_class="col-2 position-relative",
                 ),
-                css_class="row mb-3"
+                css_class="row mb-3",
             ),
             Div(
                 HTML(
@@ -536,45 +486,21 @@ class ExpenseCreateForm(BaseForm):
                 {% endif %}>
                 """
                 ),
-                css_class="d-flex align-items-start align-items-sm-center gap-4"
+                css_class="d-flex align-items-start align-items-sm-center gap-4",
             ),
-            Div(
-                Div(
-                    Field('image')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    Field('concept')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    Field('description', rows='2')
-                ),
-                css_class="mb-3"
-            ),
-            Div(
-                Div(
-                    Field(
-                        PrependedText('cost', '$')
-                    )
-                ),
-                css_class="mb-3"
-            ),
-            ButtonHolder(
-                Submit('submit', 'Enviar',
-                       css_class='btn btn-success')
-            )
+            Div(Div(Field("image")), css_class="mb-3"),
+            Div(Div(Field("concept")), css_class="mb-3"),
+            Div(Div(Field("description", rows="2")), css_class="mb-3"),
+            Div(Div(Field(PrependedText("cost", "$"))), css_class="mb-3"),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
 class ServicePictureForm(BaseForm):
     class Meta:
         model = ServicePicture
-        fields = ('image',)
+        fields = ("image",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -595,15 +521,43 @@ class ServicePictureForm(BaseForm):
                 {% endif %}>
                 """
                 ),
-                css_class="d-flex align-items-start align-items-sm-center gap-4"
+                css_class="d-flex align-items-start align-items-sm-center gap-4",
             ),
-            Div(
-                Div(
-                    Field('image')
-                ),
-                css_class="mb-3"
-            ),
-            ButtonHolder(
-                Submit('submit', 'Add', css_class='btn btn-success')
-            )
+            Div(Div(Field("image")), css_class="mb-3"),
+            ButtonHolder(Submit("submit", "Add", css_class="btn btn-success")),
         )
+
+
+class OrderVinPlateForm(forms.Form):
+    VIN = forms.CharField(max_length=20, required=False)
+    Plate = forms.CharField(max_length=20, required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        vin = cleaned_data.get("VIN")
+        plate = cleaned_data.get("Plate")
+
+        if vin == "" and plate == "":
+            raise ValidationError("At least one field is required.")
+
+
+class OrderSignatureForm(ModelForm):
+    class Meta:
+        model = OrderSignature
+        fields = ("img",)  # 'position', 'lease')
+
+    img = forms.CharField(max_length=2000000)
+
+
+class OrderEndUpdatePositionForm(forms.Form):
+    POSITIONS = [
+        (0, "Storage"),
+        (None, "Null"),
+    ]
+    position = forms.IntegerField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["position"].widget = forms.Select(choices=self.POSITIONS)

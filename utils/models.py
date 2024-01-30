@@ -1,5 +1,6 @@
 from django.db import models
 from PIL import Image
+from django.dispatch import receiver
 
 from users.models import User, Associated, Company
 from equipment.models import Vehicle
@@ -37,20 +38,19 @@ class Category(models.Model):
     # dark (black) #233446
 
     COLOR_CHOICE = (
-        ('#696cff', 'violet'),
-        ('#8592a3', 'gray'),
-        ('#71dd37', 'green'),
-        ('#ff3e1d', 'red'),
-        ('#ffab00', 'yellow'),
-        ('#03c3ec', 'blue'),
-        ('#233446', 'black'),
+        ("#696cff", "violet"),
+        ("#8592a3", "gray"),
+        ("#71dd37", "green"),
+        ("#ff3e1d", "red"),
+        ("#ffab00", "yellow"),
+        ("#03c3ec", "blue"),
+        ("#233446", "black"),
     )
     chartColor = models.CharField(
         max_length=7, default="#8592a3", choices=COLOR_CHOICE)
 
     ICON_SIZE = 64
-    icon = models.ImageField(upload_to='images/icons',
-                             blank=True)
+    icon = models.ImageField(upload_to="images/icons", blank=True)
 
     def save(self, *args, **kwargs):
         super(Category, self).save(*args, **kwargs)
@@ -63,48 +63,51 @@ class Category(models.Model):
 class Order(models.Model):
     # There can be several products in a single order.
     STATUS_CHOICE = (
-        ('pending', _('Pending')),
-        ('decline', _('Decline')),
-        ('approved', _('Approved')),
-        ('processing', _('Processing')),
-        ('complete', _('Complete')),
+        ("pending", _("Pending")),
+        ("decline", _("Decline")),
+        ("approved", _("Approved")),
+        ("processing", _("Processing")),
+        ("complete", _("Complete")),
     )
     TYPE_CHOICE = (
-        ('sell', _('Sell')),
-        ('purchase', _('Purchase')),
+        ("sell", _("Sell")),
+        ("purchase", _("Purchase")),
     )
     type = models.CharField(
-        max_length=20, choices=TYPE_CHOICE, default='purchase')
+        max_length=20, choices=TYPE_CHOICE, default="purchase")
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICE, default='pending')
-    concept = models.CharField(max_length=120, default='Initial')
+        max_length=20, choices=STATUS_CHOICE, default="pending")
+    concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
         blank=True,
         null=True,
-        validators=[
-            MinValueValidator(1),
-            MaxValueValidator(8)
-        ]
+        validators=[MinValueValidator(0), MaxValueValidator(8)],
     )
     invoice_data = models.TextField(blank=True)
     vin = models.CharField(max_length=5, blank=True, null=True)
+    plate = models.CharField(max_length=20, blank=True, null=True)
     created_date = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    associated = models.ForeignKey(Associated, blank=True, null=True,
-                                   on_delete=models.SET_NULL)
-    EQUIPMENT_TYPE_CHOICE = (
-        ('trailer', _('Trailer')),
-        ('vehicle', _('Vehicle')),
+    associated = models.ForeignKey(
+        Associated, blank=True, null=True, on_delete=models.SET_NULL
     )
-    equipment_type = models.CharField(max_length=20, blank=True, null=True,
-                                      choices=EQUIPMENT_TYPE_CHOICE)
-    trailer = models.ForeignKey(Trailer, blank=True, null=True,
-                                on_delete=models.SET_NULL)
-    vehicle = models.ForeignKey(Vehicle, blank=True, null=True,
-                                on_delete=models.SET_NULL)
-    company = models.ForeignKey(Company, blank=True, null=True,
-                                on_delete=models.SET_NULL)
+    EQUIPMENT_TYPE_CHOICE = (
+        ("trailer", _("Trailer")),
+        ("vehicle", _("Vehicle")),
+    )
+    equipment_type = models.CharField(
+        max_length=20, blank=True, null=True, choices=EQUIPMENT_TYPE_CHOICE
+    )
+    trailer = models.ForeignKey(
+        Trailer, blank=True, null=True, on_delete=models.SET_NULL
+    )
+    vehicle = models.ForeignKey(
+        Vehicle, blank=True, null=True, on_delete=models.SET_NULL
+    )
+    company = models.ForeignKey(
+        Company, blank=True, null=True, on_delete=models.SET_NULL
+    )
     terminated_date = models.DateTimeField(blank=True, null=True)
     processing_date = models.DateTimeField(blank=True, null=True)
     discount = models.FloatField(default=0)
@@ -116,8 +119,32 @@ class Order(models.Model):
 
     def get_queryset(self, request):
         qs = self.model._default_manager.get_queryset()
-        order = ['pending', 'processing', 'approved', 'complete', 'decline']
+        order = ["pending", "processing", "approved", "complete", "decline"]
         return sorted(qs, key=lambda x: order.index(x.status))
+
+
+@receiver(models.signals.pre_save, sender=Order)
+def on_field_change(sender, instance, **kwargs):
+    try:
+        old_order = Order.objects.get(id=instance.id)
+    except Exception:
+        return
+
+    if old_order.position != instance.position:
+        if instance.position == 0:
+            trace = OrderTrace(
+                order=instance, trace="storage_in", status=instance.status
+            )
+        else:
+            trace = OrderTrace(
+                order=instance, trace="storage_out", status=instance.status
+            )
+        trace.save()
+    if old_order.status != instance.status and instance.position == 0:
+        trace = OrderTrace(
+            order=instance, trace="storage_stage", status=instance.status
+        )
+        trace.save()
 
 
 class Transaction(models.Model):
@@ -135,16 +162,17 @@ class Transaction(models.Model):
         return "{}-{}-${}".format(self.order, self.quantity, self.price)
 
     def getTax(self):
-        return self.tax/100*self.getAmount()
+        return self.tax / 100 * self.getAmount()
 
     def getAmount(self):
-        return self.quantity*self.price
+        return self.quantity * self.price
 
 
 class Statistics(models.Model):
     """
     Weekly data associated to the date of the sunday (last day of week)
     """
+
     # Orders
     completed_orders = models.IntegerField(default=0)
     gross_income = models.FloatField(default=0)
@@ -185,10 +213,10 @@ class Statistics(models.Model):
 
 class Plate(models.Model):
     REASON_CHOICES = [
-        ('repair', 'Repair'),
-        ('rental', 'Rental'),
-        ('storage', 'Storage'),
-        ('other', 'Other'),
+        ("repair", "Repair"),
+        ("rental", "Rental"),
+        ("storage", "Storage"),
+        ("other", "Other"),
     ]
 
     driver_name = models.CharField(max_length=100)
@@ -204,3 +232,15 @@ class Plate(models.Model):
 
 class MonthlyStatistics(Statistics):
     pass
+
+
+class OrderTrace(models.Model):
+    TRACE_TYPE = [
+        ("storage_in", "Storage in"),
+        ("storage_out", "Storage out"),
+        ("storage_stage", "Storage stage change"),
+    ]
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
+    trace = models.CharField(max_length=50, choices=TRACE_TYPE)
+    status = models.CharField(max_length=50)

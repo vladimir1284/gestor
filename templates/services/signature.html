@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
+        <link rel="stylesheet"
+              href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+              integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+              crossorigin="anonymous" />
+        <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+              rel="stylesheet"
+              integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+              crossorigin="anonymous" />
+        <script src="{% static 'assets/js/signature.js' %}"></script>
+        <style>
+        html {
+            font-size: 20px;
+            /*Needs to be adjusted */
+        }
+
+        body,
+        canvas,
+        div,
+        form,
+        input {
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper {
+            width: 100%;
+            padding: 1px;
+        }
+
+        canvas {
+            position: relative;
+            margin: 1px;
+            border: 1px solid #000000;
+        }
+
+        h1,
+        p {
+            padding-left: 2px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        #controlPanel {
+            margin: 2px;
+        }
+
+        #saveSignature {
+            display: none;
+        }
+
+        .signature {
+            position: relative;
+            margin: 1px;
+            border: 1px solid #000000;
+            max-width: 200px;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="wrapper">
+            <div class="row">
+                <div class="col-12 text-center" id="canvas">Canvas is not supported.</div>
+            </div>
+            <div class="col-12 text-center">
+                Please, insert
+                {% if position.value.0 == "s" %}
+                    your signature.
+                {% else
+                    %}
+                    the date.
+                {% endif %}
+            </div>
+            <script>zkSignature.capture();</script>
+            <br />
+            <form id="form1" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div style="display: none">{{ form.as_p }}</div>
+            </form>
+            <div class="container" style="max-width: 600px">
+                <div class="row justify-content-center">
+                    <div class="col-md-4">
+                        <button class="btn btn-danger btn-block"
+                                type="button"
+                                onclick="zkSignature.clear()">Clear</button>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'view-conditions' %}#{{ form.position.value }}">
+                            <button class="btn btn-secondary btn-block">
+                                <i class="fa fa-arrow-left"></i>
+                            </button>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success btn-block" onclick="zkSignature.save()">Capture</button>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">Example:</div>
+            <div class="text-center">
+                <img class="signature" src="{% static '/images/signs/firma_daniel.png' %}" />
+            </div>
+        </div>
+    </body>
+</html>
