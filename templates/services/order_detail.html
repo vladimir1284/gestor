@@ -179,6 +179,13 @@
                    href="{% url 'trailer-identification-pdf' order.id %}">
                     <span class="tf-icons bx bx-printer"></span>
                 </a>
+                {%if not order.invoice_sended%}
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'service-order-send-invoice' order.id %}">
+                    <span class="tf-icons bx bx-mail-send"></span>
+                </a>
+                {%endif%}
 
                 {% if order.status != 'decline' %}
                     <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')"

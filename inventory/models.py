@@ -143,6 +143,12 @@ class ProductTransaction(Transaction):
     def save(self, *args, **kwargs):
         super(ProductTransaction, self).save(*args, **kwargs)
         self.order.invoice_sended = False
+        self.order.save()
+
+    def delete(self, *args, **kwargs):
+        self.order.invoice_sended = False
+        self.order.save()
+        super(ProductTransaction, self).delete(*args, **kwargs)
 
 
 class PriceReference(models.Model):

@@ -58,6 +58,12 @@ class ServiceTransaction(Transaction):
     def save(self, *args, **kwargs):
         super(ServiceTransaction, self).save(*args, **kwargs)
         self.order.invoice_sended = False
+        self.order.save()
+
+    def delete(self, *args, **kwargs):
+        self.order.invoice_sended = False
+        self.order.save()
+        super(ServiceTransaction, self).delete(*args, **kwargs)
 
 
 class ServicePicture(models.Model):

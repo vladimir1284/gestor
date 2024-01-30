@@ -1,8 +1,17 @@
 from datetime import datetime, timedelta
 
 import pytz
-from services.models import Payment
-from utils.models import Associated, Order
+from utils.models import Associated
+from inventory.models import (
+    ProductTransaction,
+)
+from services.models import (
+    ServiceTransaction,
+    Order,
+    Expense,
+    Payment,
+    DebtStatus,
+)
 
 
 def getDebtOrders(debtor: Associated):
@@ -37,3 +46,114 @@ def getRepairDebt(client: Associated):
     except Exception as err:
         print(err)
     return 0, False, None
+
+
+def computeOrderAmount(order: Order):
+    transactions = ProductTransaction.objects.filter(order=order)
+    transactions.satisfied = True
+    services = ServiceTransaction.objects.filter(order=order)
+    expenses = Expense.objects.filter(order=order)
+    # Compute amount
+    amount = 0
+    tax = 0
+    for transaction in transactions:
+        transaction.satisfied = transaction.product.computeAvailable() >= 0
+        if not transaction.satisfied:
+            transactions.satisfied = False
+
+        transaction.amount = transaction.getAmount()
+        amount += transaction.amount
+        transaction.total_tax = transaction.getTax()
+        tax += transaction.total_tax
+    for service in services:
+        service.amount = service.getAmount()
+        amount += service.amount
+        service.total_tax = service.getTax()
+        tax += service.total_tax
+    expenses.amount = 0
+    for expense in expenses:
+        expenses.amount += expense.cost
+    amount += expenses.amount
+    order.amount = amount
+    order.tax = tax
+    return (transactions, services, expenses)
+
+
+def getOrderContext(order_id):
+    order = Order.objects.get(id=order_id)
+    (transactions, services, expenses) = computeOrderAmount(order)
+    satisfied = transactions.satisfied
+    # Order by amount
+    transactions = list(transactions)
+    # Costs
+    parts_cost = 0
+    consumable_cost = 0
+    # Count consumables and parts
+    consumable_amount = 0
+    parts_amount = 0
+    consumable_tax = 0
+    parts_tax = 0
+    consumables = False
+
+    for trans in transactions:
+        if trans.product.type == "part":
+            parts_amount += trans.amount
+            parts_tax += trans.total_tax
+            parts_cost += trans.getMinCost()
+        elif trans.product.type == "consumable":
+            consumables = True
+            consumable_amount += trans.amount
+            consumable_tax += trans.total_tax
+            if trans.cost is not None:
+                consumable_cost += trans.cost
+    # Account services
+    service_amount = 0
+    service_tax = 0
+    for service in services:
+        service_amount += service.amount
+        service_tax += service.total_tax
+    # Terminated order
+    terminated = order.status in ["decline", "complete"]
+    empty = (len(services) + len(transactions)) == 0
+    # Compute totals
+    order.total = order.amount + order.tax - order.discount
+    consumable_total = consumable_tax + consumable_amount
+    parts_total = parts_amount + parts_tax
+    service_total = service_amount + service_tax
+    # Compute tax percent
+    tax_percent = 8.25
+
+    # Profit
+    profit = order.amount - expenses.amount - consumable_cost - parts_cost
+
+    if order.associated:
+        if order.associated.debt > 0:
+            order.associated.debt_status = DebtStatus.objects.filter(
+                client=order.associated
+            )[0].status
+    try:
+        order.associated.phone_number = order.associated.phone_number.as_national
+    except:
+        pass
+    return {
+        "order": order,
+        "services": services,
+        "satisfied": satisfied,
+        "service_amount": service_amount,
+        "service_total": service_total,
+        "service_tax": service_tax,
+        "expenses": expenses,
+        "expenses_amount": expenses.amount,
+        "transactions": transactions,
+        "consumable_amount": consumable_amount,
+        "consumable_total": consumable_total,
+        "consumable_tax": consumable_tax,
+        "parts_amount": parts_amount,
+        "parts_total": parts_total,
+        "parts_tax": parts_tax,
+        "terminated": terminated,
+        "empty": empty,
+        "tax_percent": tax_percent,
+        "consumables": consumables,
+        "profit": profit,
+    }

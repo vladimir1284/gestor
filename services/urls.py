@@ -115,6 +115,11 @@ urlpatterns = [
         name="detail-service-order",
     ),
     path("detail-order/<id>/<msg>/", order.detail_order, name="detail-service-order"),
+    path(
+        "order-send-invoice/<id>",
+        order.send_invoice_email,
+        name="service-order-send-invoice",
+    ),
     path("list-order/", order.list_order, name="list-service-order"),
     path(
         "list-terminated-order/",

@@ -11,11 +11,15 @@ import base64
 import tempfile
 from rent.models.lease import Contract, Lease
 from rent.tools.client import compute_client_debt
-from services.tools.conditios_to_pdf import conditions_to_pdf, send_pdf_conditions_to_email
-from services.tools.order import getRepairDebt
+from services.tools.conditios_to_pdf import (
+    conditions_to_pdf,
+    send_pdf_conditions_to_email,
+)
+from services.tools.order import getRepairDebt, getOrderContext, computeOrderAmount
 from django.http import HttpResponse
 
 from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
+from services.views.invoice import get_invoice_context, sendMail
 
 
 from .sms import twilioSendSMS
@@ -32,12 +36,9 @@ from inventory.views.transaction import (
 )
 from services.models import (
     OrderSignature,
-    ServiceTransaction,
     Order,
-    Expense,
     ServicePicture,
     Payment,
-    DebtStatus,
 )
 from services.forms import (
     DiscountForm,
@@ -130,14 +131,15 @@ def create_order(request):
                 "signature" in request.session
                 and request.session["signature"] is not None
             ):
-                signature = OrderSignature.objects.get(
-                    id=request.session["signature"])
+                signature = OrderSignature.objects.get(id=request.session["signature"])
                 signature.order = order
                 signature.save()
             cleanSession(request)
 
             if order.associated is not None and order.associated.email is not None:
-                send_pdf_conditions_to_email(request, order.id, [order.associated.email])
+                send_pdf_conditions_to_email(
+                    request, order.id, [order.associated.email]
+                )
 
             return redirect("detail-service-order", id=order.id)
 
@@ -173,8 +175,7 @@ def update_order(request, id):
 
     if request.method == "POST":
         # pass the object as instance in form
-        form = OrderCreateForm(
-            request.POST, instance=order, get_plate=order.external)
+        form = OrderCreateForm(request.POST, instance=order, get_plate=order.external)
 
         # save the data from the form and
         # redirect to detail_view
@@ -183,8 +184,7 @@ def update_order(request, id):
             return redirect("detail-service-order", id)
 
     # add form dictionary to context
-    context = {"form": form, "order": order,
-               "title": _("Update service order")}
+    context = {"form": form, "order": order, "title": _("Update service order")}
 
     return render(request, "services/order_create.html", context)
 
@@ -331,117 +331,6 @@ def preparePaginatedListOrder(request, status_list, currentYear, currentMonth):
     return {"orders": orders, "statuses": statuses}
 
 
-def computeOrderAmount(order: Order):
-    transactions = ProductTransaction.objects.filter(order=order)
-    transactions.satisfied = True
-    services = ServiceTransaction.objects.filter(order=order)
-    expenses = Expense.objects.filter(order=order)
-    # Compute amount
-    amount = 0
-    tax = 0
-    for transaction in transactions:
-        transaction.satisfied = transaction.product.computeAvailable() >= 0
-        if not transaction.satisfied:
-            transactions.satisfied = False
-
-        transaction.amount = transaction.getAmount()
-        amount += transaction.amount
-        transaction.total_tax = transaction.getTax()
-        tax += transaction.total_tax
-    for service in services:
-        service.amount = service.getAmount()
-        amount += service.amount
-        service.total_tax = service.getTax()
-        tax += service.total_tax
-    expenses.amount = 0
-    for expense in expenses:
-        expenses.amount += expense.cost
-    amount += expenses.amount
-    order.amount = amount
-    order.tax = tax
-    return (transactions, services, expenses)
-
-
-def getOrderContext(order_id):
-    order = Order.objects.get(id=order_id)
-    (transactions, services, expenses) = computeOrderAmount(order)
-    satisfied = transactions.satisfied
-    # Order by amount
-    transactions = list(transactions)
-    # Costs
-    parts_cost = 0
-    consumable_cost = 0
-    # Count consumables and parts
-    consumable_amount = 0
-    parts_amount = 0
-    consumable_tax = 0
-    parts_tax = 0
-    consumables = False
-
-    for trans in transactions:
-        if trans.product.type == "part":
-            parts_amount += trans.amount
-            parts_tax += trans.total_tax
-            parts_cost += trans.getMinCost()
-        elif trans.product.type == "consumable":
-            consumables = True
-            consumable_amount += trans.amount
-            consumable_tax += trans.total_tax
-            if trans.cost is not None:
-                consumable_cost += trans.cost
-    # Account services
-    service_amount = 0
-    service_tax = 0
-    for service in services:
-        service_amount += service.amount
-        service_tax += service.total_tax
-    # Terminated order
-    terminated = order.status in ["decline", "complete"]
-    empty = (len(services) + len(transactions)) == 0
-    # Compute totals
-    order.total = order.amount + order.tax - order.discount
-    consumable_total = consumable_tax + consumable_amount
-    parts_total = parts_amount + parts_tax
-    service_total = service_amount + service_tax
-    # Compute tax percent
-    tax_percent = 8.25
-
-    # Profit
-    profit = order.amount - expenses.amount - consumable_cost - parts_cost
-
-    if order.associated:
-        if order.associated.debt > 0:
-            order.associated.debt_status = DebtStatus.objects.filter(
-                client=order.associated
-            )[0].status
-    try:
-        order.associated.phone_number = order.associated.phone_number.as_national
-    except:
-        pass
-    return {
-        "order": order,
-        "services": services,
-        "satisfied": satisfied,
-        "service_amount": service_amount,
-        "service_total": service_total,
-        "service_tax": service_tax,
-        "expenses": expenses,
-        "expenses_amount": expenses.amount,
-        "transactions": transactions,
-        "consumable_amount": consumable_amount,
-        "consumable_total": consumable_total,
-        "consumable_tax": consumable_tax,
-        "parts_amount": parts_amount,
-        "parts_total": parts_total,
-        "parts_tax": parts_tax,
-        "terminated": terminated,
-        "empty": empty,
-        "tax_percent": tax_percent,
-        "consumables": consumables,
-        "profit": profit,
-    }
-
-
 @login_required
 def detail_order(request, id, msg=None):
     # Prepare the flow for creating order
@@ -478,8 +367,7 @@ def detail_order(request, id, msg=None):
 
     if context["terminated"]:
         # Payments
-        context.setdefault(
-            "payments", Payment.objects.filter(order=context["order"]))
+        context.setdefault("payments", Payment.objects.filter(order=context["order"]))
 
     return render(request, "services/order_detail.html", context)
 
@@ -672,12 +560,10 @@ def view_contract_details(request, id):
         rental_debt = debs
         rental_last_payment = unpaid[0].start
 
-    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(
-        contract.lessee)
+    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(contract.lessee)
 
     last_order = (
-        Order.objects.filter(trailer=contract.trailer).order_by(
-            "created_date").last()
+        Order.objects.filter(trailer=contract.trailer).order_by("created_date").last()
     )
     if last_order is not None:
         effective_time = (
@@ -735,8 +621,7 @@ def select_unrented_trailer(request):
     for trailer in trailers:
         # Contracts
         has_contract = (
-            Contract.objects.filter(trailer=trailer).exclude(
-                stage="ended").exists()
+            Contract.objects.filter(trailer=trailer).exclude(stage="ended").exists()
         )
         if not has_contract:
             unrented_trailers.append(trailer)
@@ -764,6 +649,7 @@ def show_conditions_as_pdf(request, id):
 
     return None
 
+
 @login_required
 def gen_trailer_indentification_pdf(request, id):
     result = trailer_identification_to_pdf(request, id)
@@ -778,3 +664,25 @@ def gen_trailer_indentification_pdf(request, id):
             response.write(output.read())
         return response
     return None
+
+
+@login_required
+def send_invoice_email(request, id):
+    context = get_invoice_context(id)
+    order = context["order"]
+
+    if order is None:
+        return redirect("detail-service-order", id)
+
+    mail_address = ""
+    if order.associated and order.associated.email:
+        mail_address = order.associated.email
+    elif order.company and order.company.email:
+        mail_address = order.company.email
+
+    sendMail(context, request, mail_address, False)
+
+    order.invoice_sended = True
+    order.save()
+
+    return redirect("detail-service-order", id)
