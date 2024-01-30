@@ -15,6 +15,8 @@ from services.tools.conditios_to_pdf import conditions_to_pdf, send_pdf_conditio
 from services.tools.order import getRepairDebt
 from django.http import HttpResponse
 
+from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
+
 
 from .sms import twilioSendSMS
 from .transaction import reverse_transaction
@@ -257,7 +259,7 @@ STATUS_ORDER = ["pending", "processing", "approved", "complete", "decline"]
 
 @login_required
 def list_order(request):
-    context = prepareListOrder(request, ("processing", "pending"))
+    context = prepareListOrder(request, ("processing", "pending", "payment_pending"))
     context.setdefault("stage", "Terminated")
     context.setdefault("alternative_view", "list-service-order-terminated")
     return render(request, "services/order_list.html", context)
@@ -760,4 +762,19 @@ def show_conditions_as_pdf(request, id):
             response.write(output.read())
         return response
 
+    return None
+
+@login_required
+def gen_trailer_indentification_pdf(request, id):
+    result = trailer_identification_to_pdf(request, id)
+    if result is not None:
+        response = HttpResponse(content_type="application/pdf;")
+        response["Content-Disposition"] = "inline; filename=invoice_towit.pdf"
+        response["Content-Transfer-Encoding"] = "binary"
+        with tempfile.NamedTemporaryFile() as output:
+            output.write(result)
+            output.flush()
+            output = open(output.name, "rb")
+            response.write(output.read())
+        return response
     return None

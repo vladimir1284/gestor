@@ -66,6 +66,7 @@ class Order(models.Model):
         ("decline", _("Decline")),
         ("approved", _("Approved")),
         ("processing", _("Processing")),
+        ("payment_pending", _("Payment pending")),
         ("complete", _("Complete")),
     )
     TYPE_CHOICE = (
@@ -110,6 +111,7 @@ class Order(models.Model):
     processing_date = models.DateTimeField(blank=True, null=True)
     discount = models.FloatField(default=0)
     quotation = models.BooleanField(default=False)
+    invoice_sended = models.BooleanField(default=False)
     is_initial = False
 
     def __str__(self):

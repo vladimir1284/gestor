@@ -55,6 +55,10 @@ class ServiceTransaction(Transaction):
             super(Transaction, self).__str__(), self.service.name
         )
 
+    def save(self, *args, **kwargs):
+        super(ServiceTransaction, self).save(*args, **kwargs)
+        self.order.invoice_sended = False
+
 
 class ServicePicture(models.Model):
     order = models.ForeignKey(

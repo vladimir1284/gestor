@@ -94,7 +94,7 @@
                     </span>
                 {% else %}
                     <button type="button"
-                            class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% endif %} dropdown-toggle"
+                            class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'payment_pending' %}danger{% endif %} dropdown-toggle"
                             data-bs-toggle="dropdown"
                             aria-expanded="false">{{ order.get_status_display }}</button>
                     <ul class="dropdown-menu">
@@ -114,7 +114,15 @@
                                 </button>
                             </li>
                         {% endif %}
-                        {% if order.status != 'complete' and order.status != 'pending' and satisfied %}
+                        {% if order.status != 'payment_pending' %}
+                            <li>
+                                <button class="dropdown-item badge bg-danger"
+                                        onclick="updateStatus('{% url 'update-service-order-status' order.id 'payment_pending' %}', 'payment_pending')">
+                                    Payment pending
+                                </button>
+                            </li>
+                        {% endif %}
+                        {% if order.status != 'complete' and order.status != 'pending' and order.status != 'payment_pending' and satisfied %}
                             <li>
                                 <a class="dropdown-item badge bg-success"
                                    href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
@@ -165,6 +173,13 @@
                         <span class="tf-icons bx bx-edit"></span>
                     </a>
                 {% endif %}
+
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'trailer-identification-pdf' order.id %}">
+                    <span class="tf-icons bx bx-printer"></span>
+                </a>
+
                 {% if order.status != 'decline' %}
                     <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')"
                        type="button"
