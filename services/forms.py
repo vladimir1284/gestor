@@ -556,7 +556,7 @@ class OrderEndUpdatePositionForm(forms.Form):
             position = None
             readonly = True
         else:
-            positions = self.get_available_positions()
+            positions = self.get_available_positions(position)
             if order.status in ["complete", "decline"]:
                 positions.append((None, "Null"))
             readonly = False
@@ -568,13 +568,16 @@ class OrderEndUpdatePositionForm(forms.Form):
         )
         self.fields["position"].widget.attrs["readonly"] = readonly
 
-    def get_available_positions(self):
+    def get_available_positions(self, pos):
         options = []
         for i in range(1, 9):
-            if not Order.objects.filter(
-                Q(position=i),
-                Q(status="pending") | Q(status="processing"),
-            ).exists():
+            if (
+                not Order.objects.filter(
+                    Q(position=i),
+                    Q(status="pending") | Q(status="processing"),
+                ).exists()
+                or i == pos
+            ):
                 options.append((i, f"Position {i}"))
 
         options.append((0, "Storage"))
