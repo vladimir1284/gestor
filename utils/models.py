@@ -83,7 +83,7 @@ class Order(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(8)],
     )
     invoice_data = models.TextField(blank=True)
-    external = models.BooleanField(default=False)
+    # external = models.BooleanField(default=False)
     vin = models.CharField(max_length=5, blank=True, null=True)
     plate = models.CharField(max_length=20, blank=True, null=True)
     created_date = models.DateTimeField(auto_now_add=True)
@@ -121,6 +121,14 @@ class Order(models.Model):
         qs = self.model._default_manager.get_queryset()
         order = ["pending", "processing", "approved", "complete", "decline"]
         return sorted(qs, key=lambda x: order.index(x.status))
+
+    @property
+    def external(self):
+        return (
+            self.associated is not None
+            and self.trailer is None
+            and self.company is None
+        )
 
 
 @receiver(models.signals.pre_save, sender=Order)

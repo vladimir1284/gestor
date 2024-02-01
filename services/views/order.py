@@ -86,10 +86,7 @@ def create_order(request):
             initial = {"concept": _("Maintenance to trailer")}
             order.trailer = trailer
 
-        getPlate = request.session["plate"]
-        if getPlate:
-            order.external = True
-
+    getPlate = request.session["plate"]
     form = OrderCreateForm(initial=initial, get_plate=order.external)
     if request.method == "POST":
         form = OrderCreateForm(request.POST, get_plate=getPlate)
@@ -121,10 +118,6 @@ def create_order(request):
             if company_id:
                 company = Company.objects.get(id=company_id)
                 order.company = company
-
-            getPlate = request.session["plate"]
-            if getPlate:
-                order.external = True
 
             order.save()
             if (
