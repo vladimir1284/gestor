@@ -221,10 +221,13 @@ def update_order_status(request, id, status):
 @login_required
 def order_end_update_position(request, id, status):
     order = get_object_or_404(Order, id=id)
-    if status in ["complete", "decline"] and order.position is None:
-        if status == "complete":
-            return redirect("process-payment", id)
+    if status == "decline":
+        order.position = None
+        order.save()
         return redirect("list-service-order")
+
+    if status == "complete" and order.position is None:
+        return redirect("process-payment", id)
 
     if request.method == "POST":
         form = OrderEndUpdatePositionForm(request.POST, order=order)
