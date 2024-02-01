@@ -88,8 +88,8 @@
                         <i class='bx bx-error 'style="font-size:1.5em"></i>
                         quotation
                     </span>
-                {% elif terminated or empty %}
-                    <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' %}danger{% endif %}">
+                {% elif terminated or empty or order.status == 'payment_pending' %}
+                    <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' or order.status == 'payment_pending' %}danger{% endif %}">
                         {{ order.get_status_display }}
                     </span>
                 {% else %}
@@ -111,14 +111,6 @@
                                 <button class="dropdown-item badge bg-primary"
                                         onclick="updateStatus('{% url 'update-service-order-status' order.id 'processing' %}', 'processing')">
                                     Processing
-                                </button>
-                            </li>
-                        {% endif %}
-                        {% if order.status != 'payment_pending' %}
-                            <li>
-                                <button class="dropdown-item badge bg-danger"
-                                        onclick="updateStatus('{% url 'update-service-order-status' order.id 'payment_pending' %}', 'payment_pending')">
-                                    Payment pending
                                 </button>
                             </li>
                         {% endif %}
@@ -192,6 +184,13 @@
                        type="button"
                        class="btn btn-icon btn-outline-danger float-end">
                         <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                {% endif %}
+                {% if order.status == 'payment_pending' %}
+                    <a href="{% url 'process-payment' order.id %}"
+                       type="button"
+                       class="btn btn-icon btn-outline-success float-end">
+                        <span class="tf-icons bx bx-money"></span>
                     </a>
                 {% endif %}
             </div>

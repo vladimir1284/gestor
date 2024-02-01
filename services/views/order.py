@@ -252,7 +252,7 @@ STATUS_ORDER = ["pending", "processing", "approved", "complete", "decline"]
 
 @login_required
 def list_order(request):
-    context = prepareListOrder(request, ("processing", "pending", "payment_pending"))
+    context = prepareListOrder(request, ("processing", "pending"))
     context.setdefault("stage", "Terminated")
     context.setdefault("alternative_view", "list-service-order-terminated")
     return render(request, "services/order_list.html", context)
@@ -267,7 +267,7 @@ def list_terminated_order(request, year=None, month=None):
     ) = getMonthYear(month, year)
 
     context = preparePaginatedListOrder(
-        request, ("complete", "decline"), currentYear, currentMonth
+        request, ("complete", "decline", "payment_pending"), currentYear, currentMonth
     )
     context.setdefault("stage", "Active")
     context.setdefault("alternative_view", "list-service-order")
@@ -294,6 +294,8 @@ def prepareListOrder(request, status_list):
         "-created_date"
     )
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
+    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
+
     statuses = set()
     for order in orders:
         statuses.add(order.status)
@@ -314,6 +316,8 @@ def preparePaginatedListOrder(request, status_list, currentYear, currentMonth):
         created_date__year=currentYear,
         created_date__month=currentMonth,
     ).order_by("-created_date")
+
+    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
 
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()

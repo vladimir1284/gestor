@@ -46,7 +46,7 @@
             {% for status in statuses %}
                 <button onClick="filterTag('{{ status }}')"
                         type="button"
-                        class="btn rounded-pill btn-outline-{% if status == 'processing' %}primary{% elif status == 'complete' %}success{% elif status == 'pending' %}warning{% elif status == 'approved' %}info{% elif status == 'decline' %}danger{% endif %}">
+                        class="btn rounded-pill btn-outline-{% if status == 'processing' %}primary{% elif status == 'complete' %}success{% elif status == 'pending' %}warning{% elif status == 'approved' %}info{% elif status == 'payment_pending' %}danger{% elif status == 'decline' %}danger{% endif %}">
                     {{ status }}
                 </button>
             {% endfor %}
