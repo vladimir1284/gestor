@@ -557,6 +557,7 @@ class OrderEndUpdatePositionForm(forms.Form):
             readonly = True
         else:
             positions = self.get_available_positions(position)
+            print(order.status)
             if order.status in ["complete", "decline"]:
                 positions.append((None, "Null"))
             readonly = False

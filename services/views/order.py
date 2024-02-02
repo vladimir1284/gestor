@@ -229,9 +229,12 @@ def order_end_update_position(request, id, status):
     if status == "complete" and order.position is None:
         return redirect("process-payment", id)
 
+    old_status = order.status
+    order.status = status
     if request.method == "POST":
         form = OrderEndUpdatePositionForm(request.POST, order=order)
         if form.is_valid():
+            order.status = old_status
             pos = form.cleaned_data["position"]
             if pos == "":
                 pos = None
