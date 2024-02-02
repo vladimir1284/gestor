@@ -23,16 +23,24 @@
                             </h6>
                             <small id="extra_value" class="text-muted"></small>
                         </div>
-                        <input disabled
-                               class="btn btn-primary btn btn-success float-end"
-                               type="submit"
-                               id="summit_btn"
-                               value="Process">
+                        <div>
+                            {% if order.status != 'payment_pending' %}
+                                <a class="btn btn-danger me-2"
+                                   href="{% url 'update-service-order-status' order.id 'payment_pending' %}">
+                                    Pasar a pendiente por cobrar
+                                </a>
+                            {% endif %}
+                            <input disabled
+                                   class="btn btn-primary btn btn-success float-end"
+                                   type="submit"
+                                   id="summit_btn"
+                                   value="Process">
+                        </div>
                     </div>
                     {% for form in forms %}
                         <div class="d-flex pb-1">
                             <div class="flex-shrink-0 me-3">
-                                {% if form.category.icon %}<img src="{{ form.category.icon.url }}" alt="" class="w-px-75 h-auto"/>{% endif %}
+                                {% if form.category.icon %}<img src="{{ form.category.icon.url }}" alt="" class="w-px-75 h-auto" />{% endif %}
                             </div>
                             <div class="w-100">{% crispy form %}</div>
                         </div>
