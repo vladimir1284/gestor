@@ -46,7 +46,7 @@
             {% for status in statuses %}
                 <button onClick="filterTag('{{ status }}')"
                         type="button"
-                        class="btn rounded-pill btn-outline-{% if status == 'processing' %}primary{% elif status == 'complete' %}success{% elif status == 'pending' %}warning{% elif status == 'approved' %}info{% elif status == 'decline' %}danger{% endif %}">
+                        class="btn rounded-pill btn-outline-{% if status == 'processing' %}primary{% elif status == 'complete' %}success{% elif status == 'pending' %}warning{% elif status == 'approved' %}info{% elif status == 'payment_pending' %}danger{% elif status == 'decline' %}danger{% endif %}">
                     {{ status }}
                 </button>
             {% endfor %}
@@ -68,12 +68,12 @@
             data-search="{{ order.associated.alias }}{{ order.associated.name }}{{ order.associated.phone_number }}">
             <td class="chapilla">
                 <a href={% url 'detail-service-order' order.id %}>
-                    <img {% if order.status == 'processing' %} src="{% static 'assets/img/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'assets/img/icons/tag-success.png' %}" {% elif order.status == 'pending' %} src="{% static 'assets/img/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'assets/img/icons/tag-info.png' %}" {% elif order.status == 'decline' %} src="{% static 'assets/img/icons/cancel.png' %}" {% endif %}
+                    <img {% if order.status == 'processing' %} src="{% static 'assets/img/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'assets/img/icons/tag-success.png' %}" {% elif order.status == 'pending' %} src="{% static 'assets/img/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'assets/img/icons/tag-info.png' %}" {% elif order.status == 'payment_pending' %} src="{% static 'assets/img/icons/tag-danger.png' %}" {% elif order.status == 'decline' %} src="{% static 'assets/img/icons/cancel.png' %}" {% endif %}
                          alt="{{ order.position }}"
                          height="32px"
                          width="20px"
                          class="h-px-40 w-auto" />
-                    {% if  order.status == 'processing' or order.status == 'pending' %}
+                    {% if  order.status == 'processing' or order.status == 'pending' or order.status == 'payment_pending' %}
                         {% if order.position %}<span>{{ order.position }}</span>{% elif order.position == 0 %}<span>S</span>{% endif %}
                     {% endif %}
                 </a>

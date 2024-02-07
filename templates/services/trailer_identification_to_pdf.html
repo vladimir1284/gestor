@@ -1,0 +1,69 @@
+{% load static %}
+<head>
+    <meta charset="utf-8" />
+    <!-- Core CSS -->
+    <link rel="stylesheet"
+          href="{% static 'assets/vendor/css/core.css' %}"
+          class="template-customizer-core-css" />
+    <style>
+        @page {
+            size: A3;
+            margin: 20mm;
+        }
+        body{
+            background-color: white;
+        }
+        .invoice-descrpition{
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-page">
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+            <div class="row">
+                <div class='col'>
+                    <h5>IDENTIFICADOR DE TRAILER</h5>
+                </div>
+            </div>
+            <div class='row m-3'>
+                <div class='col d-flex'>
+                    {% if equipment %}
+                        {% include "rent/equipment_line.html" with equipment_type="trailer" %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class='row'>
+                <div class='col'>
+                    <strong>Position:</strong>
+                    {% if order.position == 0 %}
+                        Storage
+                    {% elif order.position is None %}
+                        Null
+                    {% else %}
+                        {{ order.position }}
+                    {% endif %}
+                </div>
+            </div>
+            {% if order.vin is not None and order.vin != '' %}
+                <div class='row'>
+                    <div class='col'>
+                        <strong>VIN:</strong>
+                        {{ order.vin }}
+                    </div>
+                </div>
+            {% endif %}
+            {% if order.plate is not None and order.plate != '' %}
+                <div class='row'>
+                    <div class='col'>
+                        <strong>Plate:</strong>
+                        {{ order.plate }}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <!-- Content wrapper -->
+    </div>
+    <!-- / Layout page -->
+</body>

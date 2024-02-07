@@ -88,13 +88,13 @@
                         <i class='bx bx-error 'style="font-size:1.5em"></i>
                         quotation
                     </span>
-                {% elif terminated or empty %}
-                    <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' %}danger{% endif %}">
+                {% elif terminated or empty or order.status == 'payment_pending' %}
+                    <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' or order.status == 'payment_pending' %}danger{% endif %}">
                         {{ order.get_status_display }}
                     </span>
                 {% else %}
                     <button type="button"
-                            class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% endif %} dropdown-toggle"
+                            class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'payment_pending' %}danger{% endif %} dropdown-toggle"
                             data-bs-toggle="dropdown"
                             aria-expanded="false">{{ order.get_status_display }}</button>
                     <ul class="dropdown-menu">
@@ -114,7 +114,7 @@
                                 </button>
                             </li>
                         {% endif %}
-                        {% if order.status != 'complete' and order.status != 'pending' and satisfied %}
+                        {% if order.status != 'complete' and order.status != 'pending' and order.status != 'payment_pending' and satisfied %}
                             <li>
                                 <a class="dropdown-item badge bg-success"
                                    href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
@@ -165,11 +165,32 @@
                         <span class="tf-icons bx bx-edit"></span>
                     </a>
                 {% endif %}
+
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'trailer-identification-pdf' order.id %}">
+                    <span class="tf-icons bx bx-printer"></span>
+                </a>
+                {%if not order.invoice_sended%}
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'service-order-send-invoice' order.id %}">
+                    <span class="tf-icons bx bx-mail-send"></span>
+                </a>
+                {%endif%}
+
                 {% if order.status != 'decline' %}
                     <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')"
                        type="button"
                        class="btn btn-icon btn-outline-danger float-end">
                         <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                {% endif %}
+                {% if order.status == 'payment_pending' %}
+                    <a href="{% url 'process-payment' order.id %}"
+                       type="button"
+                       class="btn btn-icon btn-outline-success float-end">
+                        <span class="tf-icons bx bx-money"></span>
                     </a>
                 {% endif %}
             </div>
