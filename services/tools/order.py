@@ -54,28 +54,31 @@ def computeOrderAmount(order: Order):
     services = ServiceTransaction.objects.filter(order=order)
     expenses = Expense.objects.filter(order=order)
     # Compute amount
-    amount = 0
     tax = 0
+    parts_amount = 0
+    service_amount = 0
     for transaction in transactions:
         transaction.satisfied = transaction.product.computeAvailable() >= 0
         if not transaction.satisfied:
             transactions.satisfied = False
 
         transaction.amount = transaction.getAmount()
-        amount += transaction.amount
+        parts_amount += transaction.amount
         transaction.total_tax = transaction.getTax()
         tax += transaction.total_tax
     for service in services:
         service.amount = service.getAmount()
-        amount += service.amount
+        service_amount += service.amount
         service.total_tax = service.getTax()
         tax += service.total_tax
     expenses.amount = 0
     for expense in expenses:
         expenses.amount += expense.cost
-    amount += expenses.amount
+    amount = expenses.amount + service_amount + parts_amount
     order.amount = amount
     order.tax = tax
+    order.service_amount = service_amount
+    order.parts_amount = parts_amount
     return (transactions, services, expenses)
 
 

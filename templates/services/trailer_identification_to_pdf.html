@@ -1,4 +1,5 @@
 {% load static %}
+{% load nbsp %}
 <head>
     <meta charset="utf-8" />
     <!-- Core CSS -->
@@ -12,9 +13,25 @@
         }
         body{
             background-color: white;
+            font-size: 2rem;
+        }
+        h6 {
+            font-size: 2rem;
+        }
+        img {
+            transform: scale(1.7);
         }
         .invoice-descrpition{
             width: 100%;
+        }
+        td {
+            padding-right: 0.3cm;
+        }
+        #qrcode{
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            height: 100vh;
         }
     </style>
 </head>
@@ -24,44 +41,71 @@
         <div class="content-wrapper">
             <div class="row">
                 <div class='col'>
-                    <h5>IDENTIFICADOR DE TRAILER</h5>
+                    <h2>IDENTIFICADOR DE TRAILER</h2>
                 </div>
             </div>
-            <div class='row m-3'>
-                <div class='col d-flex'>
-                    {% if equipment %}
-                        {% include "rent/equipment_line.html" with equipment_type="trailer" %}
-                    {% endif %}
-                </div>
-            </div>
-            <div class='row'>
-                <div class='col'>
-                    <strong>Position:</strong>
-                    {% if order.position == 0 %}
-                        Storage
-                    {% elif order.position is None %}
-                        Null
-                    {% else %}
-                        {{ order.position }}
-                    {% endif %}
-                </div>
-            </div>
-            {% if order.vin is not None and order.vin != '' %}
-                <div class='row'>
-                    <div class='col'>
-                        <strong>VIN:</strong>
-                        {{ order.vin }}
-                    </div>
+            {% if equipment %}
+                <div class='row m-3'>
+                    <div class='col d-flex'>{% include "rent/equipment_line.html" with equipment_type="trailer" %}</div>
                 </div>
             {% endif %}
-            {% if order.plate is not None and order.plate != '' %}
-                <div class='row'>
-                    <div class='col'>
-                        <strong>Plate:</strong>
-                        {{ order.plate }}
-                    </div>
-                </div>
-            {% endif %}
+            <table>
+                <tbody>
+                    {% if order.associated %}
+                        <tr>
+                            <td>
+                                <strong>Client name:</strong>
+                            </td>
+                            <td>{{ order.associated.name }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if phone %}
+                        <tr>
+                            <td>
+                                <strong>Client phone:</strong>
+                            </td>
+                            <td>{{ phone }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td>
+                            <strong>Position:</strong>
+                        </td>
+                        <td>
+                            {% if order.position == 0 %}
+                                Storage
+                            {% elif order.position is None %}
+                                Null
+                            {% else %}
+                                {{ order.position }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if order.vin is not None and order.vin != '' %}
+                        <tr>
+                            <td>
+                                <strong>VIN:</strong>
+                            </td>
+                            <td>{{ order.vin }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if order.plate is not None and order.plate != '' %}
+                        <tr>
+                            <td>
+                                <strong>Plate:</strong>
+                            </td>
+                            <td>{{ order.plate }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td>
+                            <strong>Date:</strong>
+                        </td>
+                        <td>{{ order.created_date }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="qrcode">{{ qr_url | safe }}</div>
         </div>
         <!-- Content wrapper -->
     </div>
