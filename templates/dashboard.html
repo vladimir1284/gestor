@@ -13,6 +13,30 @@
             height: 380px;
             overflow-y: auto;
         }
+
+        .chapilla{
+            position: relative;
+        }
+        .chapilla a{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .chapilla a span{
+            font-size: 15px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-100%, -20%);
+        }
+        .chapilla span{
+            font-size: 15px;
+            position: absolute;
+            bottom: 5%;
+            right: 5%;
+        }
     </style>
 {% endblock page %}
 {% block content %}
@@ -318,6 +342,35 @@
                             </table>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col mb-4">
+            <div class="card">
+                <div class="list-head">
+                    <h5 class="card-header">
+                        Ordenes pendientes por cobrar: <strong>{{ payment_pending|length }}</strong>
+                        <a href="{% url 'list-service-order' %}"
+                           class="btn btn-sm btn-outline-primary float-end">All</a>
+                    </h5>
+                </div>
+                <div class="card-body pt-0">
+                    <table class='table'>
+                        <thead>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th>Client</th>
+                            <th>Concept</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                        </thead>
+                        <tbody>
+                        {% for order in payment_pending %}
+                            {% include "services/order_item.html" with order=order %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
