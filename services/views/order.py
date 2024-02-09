@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import (
     render,
     redirect,
@@ -229,9 +230,12 @@ def order_end_update_position(request, id, status):
     if status == "complete" and order.position is None:
         return redirect("process-payment", id)
 
+    old_status = order.status
+    order.status = status
     if request.method == "POST":
         form = OrderEndUpdatePositionForm(request.POST, order=order)
         if form.is_valid():
+            order.status = old_status
             pos = form.cleaned_data["position"]
             if pos == "":
                 pos = None
@@ -364,6 +368,18 @@ def detail_order(request, id, msg=None):
     # Pictures
     images = ServicePicture.objects.filter(order=context["order"])
     context.setdefault("images", images)
+
+    order = context["order"]
+    client = order.associated
+    if client is not None:
+        orders = Order.objects.filter(
+            ~Q(id=1),
+            associated=client,
+            created_date__lt=order.created_date,
+        ).order_by("-created_date")
+        for order in orders:
+            computeOrderAmount(order)
+        context.setdefault("history", orders)
 
     if context["terminated"]:
         # Payments

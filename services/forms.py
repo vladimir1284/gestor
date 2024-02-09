@@ -1,9 +1,9 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.forms import ModelForm
 from django import forms
+from services.tools.available_positions import get_available_positions
 from utils.models import (
     Order,
 )
@@ -61,10 +61,7 @@ class OrderCreateForm(BaseForm):
 
         position = kwargs["instance"].position if "instance" in kwargs.keys() else None
 
-        availables_positions = self.get_available_positions()
-
-        if position is not None and position >= 1 and position <= 8:
-            availables_positions.insert(0, (position, f"Current position {position}"))
+        availables_positions = get_available_positions(current_pos=position)
 
         self.fields["position"].widget = forms.Select(choices=availables_positions)
 
@@ -111,20 +108,6 @@ class OrderCreateForm(BaseForm):
             self.add_error("vin", "One of VIN or Plate is required")
             self.add_error("plate", "One of VIN or Plate is required")
             # raise ValidationError("Vin or Plate is required.")
-
-    def get_available_positions(self):
-        options = []
-        for i in range(1, 9):
-            if not Order.objects.filter(
-                Q(position=i),
-                Q(status="pending") | Q(status="processing"),
-            ).exists():
-                options.append((i, f"Position {i}"))
-
-        options.append((0, "Storage"))
-        # options.append((None, "Null"))
-
-        return options
 
 
 class CategoryCreateForm(BaseCategoryCreateForm):
@@ -556,9 +539,11 @@ class OrderEndUpdatePositionForm(forms.Form):
             position = None
             readonly = True
         else:
-            positions = self.get_available_positions(position)
-            if order.status in ["complete", "decline"]:
-                positions.append((None, "Null"))
+            positions = get_available_positions(
+                current_pos=position,
+                null=order.status in ["complete", "decline"],
+            )
+            print(order.status)
             readonly = False
 
         self.fields["position"] = forms.ChoiceField(
@@ -567,20 +552,3 @@ class OrderEndUpdatePositionForm(forms.Form):
             initial=position,
         )
         self.fields["position"].widget.attrs["readonly"] = readonly
-
-    def get_available_positions(self, pos):
-        options = []
-        for i in range(1, 9):
-            if (
-                not Order.objects.filter(
-                    Q(position=i),
-                    Q(status="pending") | Q(status="processing"),
-                ).exists()
-                or i == pos
-            ):
-                options.append((i, f"Position {i}"))
-
-        options.append((0, "Storage"))
-        # options.append((None, "Null"))
-
-        return options
