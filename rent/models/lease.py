@@ -66,7 +66,7 @@ class Contract(models.Model):
     total_amount = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.trailer.__str__() + " -> " + self.lessee.__str__()
+        return f"({self.id}) {self.trailer} -> {self.lessee}"
 
     def paid(self):
         total_amount = Due.objects.filter(
@@ -288,6 +288,9 @@ class Inspection(models.Model):
         if self.ramp is not None and self.megaramp:
             raise ValidationError(
                 "If Ramp is selected, Megaramp must be False.")
+        
+    def __str__(self) -> str:
+        return f"{self.lease} ({self.id})"
 
 
 class Tire(models.Model):

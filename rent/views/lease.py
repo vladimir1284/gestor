@@ -106,7 +106,10 @@ def create_handwriting(request, lease_id, position, external=False):
 
 def get_contract(id):
     contract = Contract.objects.get(id=id)
-    contract.inspection = Inspection.objects.get(lease=contract)
+    try:
+        contract.inspection = Inspection.objects.get(lease=contract)
+    except Inspection.DoesNotExist:
+        contract.inspection = None
     if contract.contract_type == 'lto':
         contract.n_payments = ceil(
             (contract.total_amount
