@@ -46,6 +46,30 @@
             border:3px solid blue;
         }
     {% endfor %}
+
+        .chapilla{
+            position: relative;
+        }
+        .chapilla a{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .chapilla a span{
+            font-size: 15px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-100%, -20%);
+        }
+        .chapilla span{
+            font-size: 15px;
+            position: absolute;
+            bottom: 5%;
+            right: 5%;
+        }
     </style>
     {% if mensaje %}
     
@@ -55,7 +79,6 @@
     
     {% endif %}
     <div class="card mb-3">
-        
         <div class="card-body">
             <h5 class="card-title">
                 <b>{{ order.concept }}</b>
@@ -82,6 +105,16 @@
                             {% crispy form %}
                         </form>
                     </div>
+                </p>
+                <p>
+                    <strong>Position:</strong>
+                    {% if order.position == 0 %}
+                        Storage
+                    {% elif order.position is None %}
+                        Null
+                    {% else %}
+                        {{ order.position }}
+                    {% endif %}
                 </p>
                 {% if order.quotation %}
                     <span class="float-end px-3 me-1 badge rounded-pill bg-warning">
@@ -148,28 +181,28 @@
                    href="{% url 'list-service-order' %}">
                     <span class="tf-icons bx bx-arrow-back"></span>
                 </a>
+                <!-- <a class="btn btn-icon btn-outline-primary" -->
+                <!--    type="button" -->
+                <!--    href="{% url 'service-invoice' order.id %}"> -->
+                <!--     <span class="tf-icons bx bx-credit-card"></span> -->
+                <!-- </a> -->
+
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
-                   href="{% url 'service-invoice' order.id %}">
-                    <span class="tf-icons bx bx-credit-card"></span>
+                   href="{% url 'pdf-invoice' order.id %}">
+                    <span class="tf-icons bx bx-printer"></span>
                 </a>
+
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
                    href="{% url 'service-labor' order.id %}">
                     <span class="tf-icons bx bx-wrench"></span>
                 </a>
-                {% if not terminated %}
-                    <a class="btn btn-icon btn-outline-primary"
-                       type="button"
-                       href="{% url 'update-service-order' order.id %}">
-                        <span class="tf-icons bx bx-edit"></span>
-                    </a>
-                {% endif %}
 
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
                    href="{% url 'trailer-identification-pdf' order.id %}">
-                    <span class="tf-icons bx bx-printer"></span>
+                    <span class="tf-icons bx bx-purchase-tag"></span>
                 </a>
                 {%if not order.invoice_sended%}
                 <a class="btn btn-icon btn-outline-primary"
@@ -184,6 +217,13 @@
                        type="button"
                        class="btn btn-icon btn-outline-danger float-end">
                         <span class="tf-icons bx bx-trash"></span>
+                    </a>
+                {% endif %}
+                {% if not terminated %}
+                    <a class="btn btn-icon btn-outline-primary float-end"
+                       type="button"
+                       href="{% url 'update-service-order' order.id %}">
+                        <span class="tf-icons bx bx-edit"></span>
                     </a>
                 {% endif %}
                 {% if order.status == 'payment_pending' %}
@@ -433,6 +473,33 @@
             </div>
         {% endif %}
     </div>
+            <div class="card">
+                <div class="list-head">
+                    <h5 class="card-header">
+                        Historial del cliente: <strong>{{ history|length }}</strong>
+                    </h5>
+                </div>
+                <div class="card-body pt-0">
+                    <table class='table'>
+                        <thead>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th>Client</th>
+                            <th>Concept</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Parts</th>
+                            <th>Services</th>
+                        </thead>
+                        <tbody>
+                        {% for order in history %}
+                            {% include "services/order_item.html" with order=order extra_amounts="True" %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
     <a href="{% url 'select-service' 'create-service-transaction' order.id %}">
         <button type="button"
                 style="visibility: {% if terminated %}hidden{% endif %}"

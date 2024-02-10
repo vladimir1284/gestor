@@ -6,6 +6,9 @@ __pycache__
 db.sqlite3*
 media
 
+custom/
+openapi_client/
+
 # Backup files # 
 *.bak 
 
