@@ -1,7 +1,7 @@
 from openapi_client import CatalogApi
-from rent.models.lease import Lease
 import xml.etree.ElementTree as et
 from datetime import datetime, timezone
+from killbill.tools.get_leases import get_leases
 
 VALID_PERIODS = [
     "DAILY",
@@ -128,7 +128,8 @@ def generate_catalog(product_name: str = "TrailerRent", currency: str = "USD"):
     defaultPriceList.attrib["name"] = "DEFAULT"
     pricePlans = et.SubElement(defaultPriceList, "plans")
 
-    leases = Lease.objects.all()
+    # leases = Lease.objects.all()
+    leases = get_leases()
     processed = []
 
     # get period-price map

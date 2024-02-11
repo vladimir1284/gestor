@@ -1,11 +1,9 @@
-from rent.models.lease import Contract
+from killbill.tools.get_contracts import get_contracts
 from users.models import Associated
 
 
 def get_lessee() -> list[Associated]:
-    contracts = Contract.objects.filter(stage="active").order_by(
-        "lessee__name", "lessee__alias"
-    )
+    contracts = get_contracts()
     clients = []
     for contract in contracts:
         client = contract.lessee
