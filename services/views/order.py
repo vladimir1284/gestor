@@ -18,6 +18,7 @@ from services.tools.conditios_to_pdf import (
 )
 from services.tools.order import getRepairDebt, getOrderContext, computeOrderAmount
 from django.http import HttpResponse
+from services.tools.order_history import order_history
 
 from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
 from services.views.invoice import get_invoice_context, sendMail
@@ -52,6 +53,7 @@ from rent.models.vehicle import Trailer, TrailerPicture
 from django.utils.translation import gettext_lazy as _
 from gestor.views.utils import getMonthYear
 from datetime import datetime, timedelta
+
 
 # -------------------- Order ----------------------------
 
@@ -259,7 +261,12 @@ STATUS_ORDER = ["pending", "processing", "approved", "complete", "decline"]
 
 @login_required
 def list_order(request):
-    context = prepareListOrder(request, ("processing", "pending"))
+    context = prepareListOrder(
+        request,
+        ("processing", "pending"),
+        pos_null=False,
+        pos_storate=False,
+    )
     context.setdefault("stage", "Terminated")
     context.setdefault("alternative_view", "list-service-order-terminated")
     return render(request, "services/order_list.html", context)
@@ -291,15 +298,28 @@ def list_terminated_order(request, year=None, month=None):
     return render(request, "services/order_list.html", context)
 
 
-def prepareListOrder(request, status_list):
+def prepareListOrder(
+    request, status_list, pos_18=True, pos_storate=True, pos_null=True
+):
     # Prepare the flow for creating order
     cleanSession(request)
     request.session["creating_order"] = True
 
+    positions = []
+    if pos_18:
+        for i in range(1, 9):
+            positions.append(i)
+    if pos_storate:
+        positions.append(0)
+    if pos_null:
+        positions.append(None)
+
     # List orders
-    orders = Order.objects.filter(type="sell", status__in=status_list).order_by(
-        "-created_date"
-    )
+    orders = Order.objects.filter(
+        type="sell",
+        status__in=status_list,
+        position__in=positions,
+    ).order_by("-created_date")
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
 
@@ -373,7 +393,7 @@ def detail_order(request, id, msg=None):
     client = order.associated
     if client is not None:
         orders = Order.objects.filter(
-            ~Q(id=1),
+            ~Q(id=order.id),
             associated=client,
             created_date__lt=order.created_date,
         ).order_by("-created_date")
@@ -384,6 +404,10 @@ def detail_order(request, id, msg=None):
     if context["terminated"]:
         # Payments
         context.setdefault("payments", Payment.objects.filter(order=context["order"]))
+
+    parts, services = order_history(order)
+    context["parts_history"] = parts
+    context["services_history"] = services
 
     return render(request, "services/order_detail.html", context)
 
