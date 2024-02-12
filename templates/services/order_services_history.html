@@ -1,0 +1,18 @@
+<table class="table">
+    <thead>
+        <th>Service</th>
+        <th>Date</th>
+        <th>Price</th>
+    </thead>
+    <tbody>
+        {% for name, services in services_history.items %}
+        {% for service in services %}
+        <tr>
+            {% if forloop.counter0 == 0 %}<td rowspan="{{ services|length }}">{{ name }}</td>{% endif %}
+            <td>{{ service.order.created_date }}</td>
+            <td>${{ service.price }}</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,18 @@
+<table class="table">
+    <thead>
+        <th>Part</th>
+        <th>Date</th>
+        <th>Price</th>
+    </thead>
+    <tbody>
+        {% for name, parts in parts_history.items %}
+        {% for part in parts %}
+        <tr>
+            {% if forloop.counter0 == 0 %}<td rowspan="{{ parts|length }}">{{ name }}</td>{% endif %}
+            <td>{{ part.order.created_date }}</td>
+            <td>${{ part.price }}</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>

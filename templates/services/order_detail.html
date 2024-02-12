@@ -473,31 +473,24 @@
             </div>
         {% endif %}
     </div>
-            <div class="card">
+            <div class="card mb-3">
                 <div class="list-head">
                     <h5 class="card-header">
-                        Historial del cliente: <strong>{{ history|length }}</strong>
+                        Historial de partes: <strong>{{ parts_history|length }}</strong>
                     </h5>
                 </div>
                 <div class="card-body pt-0">
-                    <table class='table'>
-                        <thead>
-                            <th>
-                                <i class="bx bx-cog"></i>
-                            </th>
-                            <th>Client</th>
-                            <th>Concept</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th>Parts</th>
-                            <th>Services</th>
-                        </thead>
-                        <tbody>
-                        {% for order in history %}
-                            {% include "services/order_item.html" with order=order extra_amounts="True" %}
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                    {% include "services/order_parts_history.html" %}
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="list-head">
+                    <h5 class="card-header">
+                        Historial de servicios: <strong>{{ services_history|length }}</strong>
+                    </h5>
+                </div>
+                <div class="card-body pt-0">
+                    {% include "services/order_services_history.html" %}
                 </div>
             </div>
     <a href="{% url 'select-service' 'create-service-transaction' order.id %}">
