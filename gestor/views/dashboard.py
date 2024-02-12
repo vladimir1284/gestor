@@ -223,6 +223,16 @@ def dashboard(request):
     for order in orders_payment_pending:
         computeOrderAmount(order)
 
+    order_storage = Order.objects.filter(position=0)
+
+    for o in order_storage:
+        if o.trailer is None:
+            trailer = Trailer()
+            trailer.vin = o.vin
+            trailer.plate = o.plate
+            trailer.type = "Client's trailer"
+            o.trailer = trailer
+
     context = {
         "indicators": indicators,
         "last_date": last_date,  # TODO fix this
@@ -234,6 +244,7 @@ def dashboard(request):
         "yesterday_dues": yesterday_dues,
         "available": available,
         "payment_pending": orders_payment_pending,
+        "orders_storage": order_storage,
     }
     context = dict(context, **get_debtor(request))
 
