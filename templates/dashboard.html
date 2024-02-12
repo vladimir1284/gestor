@@ -345,7 +345,7 @@
                 </div>
             </div>
         </div>
-        <div class="col mb-4">
+        <div class="col-md-6 col-lg-6 mb-4">
             <div class="card">
                 <div class="list-head">
                     <h5 class="card-header">
@@ -355,22 +355,67 @@
                     </h5>
                 </div>
                 <div class="card-body pt-0">
-                    <table class='table'>
-                        <thead>
-                            <th>
-                                <i class="bx bx-cog"></i>
-                            </th>
-                            <th>Client</th>
-                            <th>Concept</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                        </thead>
-                        <tbody>
-                        {% for order in payment_pending %}
-                            {% include "services/order_item.html" with order=order %}
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <th>
+                                    <i class="bx bx-cog"></i>
+                                </th>
+                                <th>Client</th>
+                                <th>Concept</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                            </thead>
+                            <tbody>
+                            {% for order in payment_pending %}
+                                {% include "services/order_item.html" with order=order %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-6 mb-4">
+            <div class="card">
+                <div class="list-head">
+                    <h5 class="card-header">
+                        Trailers on storage: <strong>{{ trailers_storage|length }}</strong>
+                    </h5>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                            <thead>
+                                <th>
+                                    <i class="bx bx-cog"></i>
+                                </th>
+                                <th>VEHICLE</th>
+                                <th>
+                                    ORDER
+                                </th>
+                            </thead>
+                            <tbody>
+                            {% for order in orders_storage %}
+                                <tr data-search="{{ order.trailer.vin }}{{ order.trailer.year }}{{ order.trailer.model }}{{ order.trailer.manufacturer }}">
+                                    <td>
+                                        {%if order.trailer.id is not None%}
+                                        <a href={% url 'detail-trailer' order.trailer.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+                                        {%endif%}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex">
+                                            {% include "rent/equipment_line.html" with equipment=order.trailer equipment_type="trailer" pinned_image=order.trailer.pinned_image %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href={% url 'detail-service-order' order.id %}><i class="bx bx-wrench"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

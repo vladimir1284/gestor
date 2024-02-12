@@ -17,22 +17,20 @@ from django.db.models import Max, Sum
 
 
 class Contract(models.Model):
-    lessee = models.ForeignKey(Associated,
-                               on_delete=models.CASCADE)
-    trailer = models.ForeignKey(Trailer,
-                                on_delete=models.CASCADE)
+    lessee = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    trailer = models.ForeignKey(Trailer, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     STAGE_CHOICES = (
-        ('active', 'Active'),
-        ('ended', 'Ended'),
-        ('signed', 'Signed'),
-        ('ready', 'Ready to sign'),
-        ('missing', 'Missing data'),
-        ('garbage', 'Garbage'),
+        ("active", "Active"),
+        ("ended", "Ended"),
+        ("signed", "Signed"),
+        ("ready", "Ready to sign"),
+        ("missing", "Missing data"),
+        ("garbage", "Garbage"),
     )
     stage = models.CharField(max_length=10, choices=STAGE_CHOICES)
     trailer_location = models.TextField()
@@ -42,26 +40,26 @@ class Contract(models.Model):
     payment_amount = models.IntegerField()
     service_charge = models.IntegerField(default=100)
     PERIODICITY_CHOICES = [
-        ('weekly', 'Weekly'),
-        ('biweekly', 'Biweekly'),
-        ('monthly', 'Monthly'),
+        ("weekly", "Weekly"),
+        ("biweekly", "Biweekly"),
+        ("monthly", "Monthly"),
     ]
     payment_frequency = models.CharField(
         max_length=10,
         choices=PERIODICITY_CHOICES,
-        default='weekly',
+        default="weekly",
     )
     security_deposit = models.IntegerField()
     contract_term = models.FloatField(default=3)  # Months
     delayed_payments = models.IntegerField(default=0)
     TYPE_CHOICES = [
-        ('lto', 'Lease to own'),
-        ('rent', 'Rent'),
+        ("lto", "Lease to own"),
+        ("rent", "Rent"),
     ]
     contract_type = models.CharField(
         max_length=10,
         choices=TYPE_CHOICES,
-        default='rent',
+        default="rent",
     )
     total_amount = models.IntegerField(default=0)
 
@@ -69,19 +67,20 @@ class Contract(models.Model):
         return f"({self.id}) {self.trailer} -> {self.lessee}"
 
     def paid(self):
-        total_amount = Due.objects.filter(
-            lease__contract=self).aggregate(
-            total_amount=Sum('amount'))['total_amount']
+        total_amount = Due.objects.filter(lease__contract=self).aggregate(
+            total_amount=Sum("amount")
+        )["total_amount"]
         if total_amount is not None:
             paid_amount = float(total_amount)
         else:
             paid_amount = 0
         # Add the down payment for LTO (security_deposit)
-        if self.contract_type == 'lto':
+        if self.contract_type == "lto":
             if self.stage == "active":
                 lease = Lease.objects.get(contract=self)
-                total_deposit = LeaseDeposit.objects.filter(
-                    lease=lease).aggregate(total=Sum('amount'))['total']
+                total_deposit = LeaseDeposit.objects.filter(lease=lease).aggregate(
+                    total=Sum("amount")
+                )["total"]
                 if total_deposit is not None:
                     paid_amount += total_deposit
             else:
@@ -90,24 +89,22 @@ class Contract(models.Model):
         return paid_amount, (paid_amount >= self.total_amount)
 
     class Meta:
-        ordering = ('-effective_date',)
+        ordering = ("-effective_date",)
 
 
 class Lease(models.Model):
-    contract = models.ForeignKey(Contract,
-                                 on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, null=True, blank=True,
-                              on_delete=models.SET_NULL)
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.SET_NULL)
     notify = models.BooleanField(default=False)
     PERIODICITY_CHOICES = [
-        ('weekly', 'Weekly'),
-        ('biweekly', 'Biweekly'),
-        ('monthly', 'Monthly'),
+        ("weekly", "Weekly"),
+        ("biweekly", "Biweekly"),
+        ("monthly", "Monthly"),
     ]
     payment_frequency = models.CharField(
         max_length=10,
         choices=PERIODICITY_CHOICES,
-        default='weekly',
+        default="weekly",
     )
     payment_amount = models.IntegerField()
     num_due_payments = models.IntegerField(default=0)
@@ -118,23 +115,21 @@ class Lease(models.Model):
     remaining = models.FloatField(default=0)
 
     def compute_payment_cover(self):
-        PERIOD_DAYS = {'weekly': 8,
-                       'biweekly': 15,
-                       'monthly': 31}
+        PERIOD_DAYS = {"weekly": 8, "biweekly": 15, "monthly": 31}
         self.last_payment_cover = Due.objects.filter(lease=self).aggregate(
-            max_due_date=Max('due_date'))['max_due_date']
+            max_due_date=Max("due_date")
+        )["max_due_date"]
         if self.last_payment_cover is not None:
             self.last_payment_cover += timedelta(
-                days=PERIOD_DAYS[self.payment_frequency])
+                days=PERIOD_DAYS[self.payment_frequency]
+            )
 
     def save(self, *args, **kwargs):
-        STATUS_COLOR = {'weekly': 'green',
-                        'biweekly': 'brown',
-                        'monthly': 'blue'}
+        STATUS_COLOR = {"weekly": "green", "biweekly": "brown", "monthly": "blue"}
         RULES_DICT = {
-            'weekly': 'Weekly',
-            'biweekly': 'Biweekly',
-            'monthly': 'Monthly',
+            "weekly": "Weekly",
+            "biweekly": "Biweekly",
+            "monthly": "Monthly",
         }
         start_date = self.contract.effective_date
         if self.event is not None:
@@ -142,17 +137,18 @@ class Lease(models.Model):
                 start_date = self.last_payment_cover
             self.event.delete()
 
-        start = timezone.make_aware(datetime.combine(
-            start_date, datetime.min.time()) + timedelta(hours=12),
-            pytz.timezone(settings.TIME_ZONE))
+        start = timezone.make_aware(
+            datetime.combine(start_date, datetime.min.time()) + timedelta(hours=12),
+            pytz.timezone(settings.TIME_ZONE),
+        )
 
         self.event = Event.objects.create(
-            title=F"{self.contract.lessee.name.split()[0]} ${int(self.payment_amount)} {self.contract.trailer.manufacturer.brand_name} {self.contract.trailer.get_type_display()} ",
+            title=f"{self.contract.lessee.name.split()[0]} ${int(self.payment_amount)} {self.contract.trailer.manufacturer.brand_name if self.contract.trailer is not None and self.contract.trailer.manufacturer is not None else 'UnknownTrailer'} {self.contract.trailer.get_type_display()} ",
             start=start,
             end=self.contract.effective_date + timedelta(hours=1),
             calendar=Calendar.objects.get(slug="rental"),
             color_event=STATUS_COLOR[self.payment_frequency],
-            rule=Rule.objects.get(name=RULES_DICT[self.payment_frequency])
+            rule=Rule.objects.get(name=RULES_DICT[self.payment_frequency]),
         )
         super().save(*args, **kwargs)
 
@@ -188,10 +184,10 @@ class Note(models.Model):
 
 @receiver(pre_save, sender=Contract)
 def update_effective_date(sender, instance, **kwargs):
-    ''' 
+    """
     Add a rule so that if the effective_date is the 31st day, it will be
     automatically changed for the 1st of the next month at instance creation
-    '''
+    """
     if instance.effective_date.day == 31:
         instance.effective_date += timedelta(days=1)
 
@@ -201,12 +197,11 @@ pre_save.connect(update_effective_date, sender=Contract)
 
 
 class LeaseDocument(models.Model):
-    lease = models.ForeignKey(Lease,
-                              on_delete=models.SET_NULL,
-                              null=True,
-                              related_name='lease_document')
+    lease = models.ForeignKey(
+        Lease, on_delete=models.SET_NULL, null=True, related_name="lease_document"
+    )
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
-    file = models.FileField(upload_to='documents/leases')
+    file = models.FileField(upload_to="documents/leases")
     name = models.CharField(max_length=255)
     note = models.TextField(blank=True)
     document_type = models.CharField(max_length=3, choices=DOCUMENT_TYPES)
@@ -214,7 +209,7 @@ class LeaseDocument(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return F"{self.name} ({self.lease})"
+        return f"{self.name} ({self.lease})"
 
     def save(self, *args, **kwargs):
         self.document_type = classify_file(self.file.name)
@@ -231,43 +226,41 @@ class SecurityDepositDevolution(models.Model):
 
 
 class LeaseDeposit(models.Model):
-    lease = models.ForeignKey(Lease,
-                              on_delete=models.CASCADE,
-                              related_name='lease_deposit')
+    lease = models.ForeignKey(
+        Lease, on_delete=models.CASCADE, related_name="lease_deposit"
+    )
     date = models.DateField()
     amount = models.FloatField()
     note = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return F"${self.amount} ({self.lease})"
+        return f"${self.amount} ({self.lease})"
 
 
 class HandWriting(models.Model):
-    lease = models.ForeignKey(Contract,
-                              on_delete=models.CASCADE,
-                              related_name='hand_writing')
+    lease = models.ForeignKey(
+        Contract, on_delete=models.CASCADE, related_name="hand_writing"
+    )
     position = models.CharField(max_length=50)
-    img = models.ImageField(upload_to='rental/signatures')
+    img = models.ImageField(upload_to="rental/signatures")
     date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.lease.__str__() + "-" + self.position
 
     def get_absolute_url(self):
-        return reverse('detail-contract', args=[str(self.lease.id)])
+        return reverse("detail-contract", args=[str(self.lease.id)])
 
 
 class LesseeData(models.Model):
-    associated = models.ForeignKey(Associated,
-                                   on_delete=models.CASCADE)
+    associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
     contact_name = models.CharField(max_length=100)
     contact_phone = PhoneNumberField()
     insurance_number = models.CharField(max_length=150, blank=True)
-    insurance_file = models.FileField(
-        upload_to='rental/insurances', blank=True)
+    insurance_file = models.FileField(upload_to="rental/insurances", blank=True)
     license_number = models.CharField(max_length=150)
-    license_file = models.FileField(upload_to='rental/licenses', blank=True)
+    license_file = models.FileField(upload_to="rental/licenses", blank=True)
     client_address = models.TextField()
 
     def __str__(self):
@@ -277,28 +270,17 @@ class LesseeData(models.Model):
 class Inspection(models.Model):
     lease = models.ForeignKey(Contract, on_delete=models.CASCADE)
     inspection_date = models.DateField(default=timezone.now)
-    main_tires_choices = (
-        (4, '4'),
-        (6, '6'),
-        (8, '8')
-    )
+    main_tires_choices = ((4, "4"), (6, "6"), (8, "8"))
     number_of_main_tires = models.IntegerField(choices=main_tires_choices)
     number_of_spare_tires = models.IntegerField()
     winche = models.BooleanField(default=False)
     megaramp = models.BooleanField(default=False)
-    ramp_choices = (
-        (None, 'None'),
-        (6, '6\''),
-        (8, '8\''),
-        (10, '10\'')
-    )
+    ramp_choices = ((None, "None"), (6, "6'"), (8, "8'"), (10, "10'"))
     ramp = models.IntegerField(choices=ramp_choices, null=True, blank=True)
-    ramp_material_choices = (
-        ('aluminum', 'Aluminum'),
-        ('steel', 'Steel')
-    )
+    ramp_material_choices = (("aluminum", "Aluminum"), ("steel", "Steel"))
     ramp_material = models.CharField(
-        choices=ramp_material_choices, max_length=10, default='steel')
+        choices=ramp_material_choices, max_length=10, default="steel"
+    )
     note = models.TextField(null=True, blank=True)
     ancillary_battery = models.IntegerField(default=0)
     strap_4inch = models.IntegerField(default=0)
@@ -307,8 +289,7 @@ class Inspection(models.Model):
         if self.megaramp and self.ramp is not None:
             raise ValidationError("Megaramp and Ramp cannot both be selected.")
         if self.ramp is not None and self.megaramp:
-            raise ValidationError(
-                "If Ramp is selected, Megaramp must be False.")
+            raise ValidationError("If Ramp is selected, Megaramp must be False.")
 
     def __str__(self) -> str:
         return f"{self.lease} ({self.id})"
@@ -318,26 +299,26 @@ class Tire(models.Model):
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
     position = models.IntegerField()
     type_choices = (
-        ('spare', 'Spare'),
-        ('main', 'Main'),
+        ("spare", "Spare"),
+        ("main", "Main"),
     )
     type = models.CharField(choices=type_choices, max_length=10)
     remaining_life_choices = (
-        (50, '50%'),
-        (60, '60%'),
-        (70, '70%'),
-        (80, '80%'),
-        (90, '90%'),
-        (100, '100%')
+        (50, "50%"),
+        (60, "60%"),
+        (70, "70%"),
+        (80, "80%"),
+        (90, "90%"),
+        (100, "100%"),
     )
-    remaining_life = models.IntegerField(choices=remaining_life_choices,
-                                         default=100)
+    remaining_life = models.IntegerField(choices=remaining_life_choices, default=100)
 
 
 class Payment(models.Model):
-    '''
+    """
     This model store the actual payments made by rental clients
-    '''
+    """
+
     date_of_payment = models.DateField()
     sender_name = models.CharField(max_length=150, blank=True)
     amount = models.FloatField()
@@ -355,16 +336,17 @@ class Payment(models.Model):
 
 
 class Due(models.Model):
-    '''
-    This model store the due payments taken from the amount of money 
-    of a Payment instance by considering the amount and periodicity stated 
+    """
+    This model store the due payments taken from the amount of money
+    of a Payment instance by considering the amount and periodicity stated
     in the contract terms
-    '''
+    """
+
     date = models.DateTimeField(auto_now_add=True)
     due_date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     client = models.ForeignKey(Associated, on_delete=models.CASCADE)
-    lease = models.ForeignKey(Lease, null=True,  on_delete=models.SET_NULL)
+    lease = models.ForeignKey(Lease, null=True, on_delete=models.SET_NULL)
     note = models.TextField(blank=True)
 
     def __str__(self):
