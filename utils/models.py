@@ -61,6 +61,7 @@ class Category(models.Model):
 
 class Order(models.Model):
     # There can be several products in a single order.
+    POSITION_CHOICES = [(str(i), str(i)) for i in range(1, 9)] + [('storage', 'storage')]
     STATUS_CHOICE = (
         ("pending", _("Pending")),
         ("decline", _("Decline")),
@@ -77,10 +78,12 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICE, default="pending")
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
-    position = models.IntegerField(
+
+    position = models.CharField(
+        max_length=10,
+        choices=POSITION_CHOICES,
         blank=True,
         null=True,
-        validators=[MinValueValidator(0), MaxValueValidator(8)],
     )
     invoice_data = models.TextField(blank=True)
     # external = models.BooleanField(default=False)
@@ -121,6 +124,13 @@ class Order(models.Model):
         qs = self.model._default_manager.get_queryset()
         order = ["pending", "processing", "approved", "complete", "decline"]
         return sorted(qs, key=lambda x: order.index(x.status))
+    def save(self, *args, **kwargs):
+        if self.status == "complete":
+            self.position = None
+        elif self.position is None:
+            self.position = "storage"
+        super(Order, self).save(*args, **kwargs)
+    
 
     @property
     def external(self):

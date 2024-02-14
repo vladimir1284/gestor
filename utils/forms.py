@@ -87,7 +87,6 @@ class CategoryCreateForm(BaseForm):
 
 
 class OrderCreateForm(BaseForm):
-
     class Meta:
         model = Order
         fields = (
@@ -102,6 +101,8 @@ class OrderCreateForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        used_positions = Order.objects.values_list('position', flat=True)
+        self.fields['position'].choices = [choice for choice in Order.POSITION_CHOICES if choice[0] not in used_positions]
         self.helper.layout = Layout(
             Div(
                 Div(
