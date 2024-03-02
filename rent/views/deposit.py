@@ -40,7 +40,6 @@ def create_trailer_reservation(request, trailer_id, lessee_id):
         form = TrailerDepositForm(request.POST)
         if form.is_valid():
             deposit: TrailerDeposit = form.save(commit=False)
-            deposit.active = True
             deposit.client = get_object_or_404(Associated, id=lessee_id)
             deposit.trailer = get_object_or_404(Trailer, id=trailer_id)
             deposit.save()
@@ -58,7 +57,7 @@ def create_trailer_reservation(request, trailer_id, lessee_id):
 @login_required
 def trailer_deposit_cancel(request, id):
     deposit: TrailerDeposit = get_object_or_404(TrailerDeposit, id=id)
-    deposit.active = False
+    deposit.cancelled = True
     deposit.save()
 
     return redirect("trailer-deposit-details", id)

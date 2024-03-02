@@ -19,12 +19,17 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="float-end">
-                            {% if deposit.active %}
+                            {% now "Y-m-d" as fecha_actual %}
+                            {% if deposit.cancelled %}
+                                <div class="text-danger">Cancelled</div>
+                            {% elif deposit.done %}
+                                <div class="text-success">Done</div>
+                            {% elif deposit.date|date:"Y-m-d" <= fecha_actual %}
+                                <div class="text-danger">Expirated</div>
+                            {% else %}
                                 <a href="{% url 'trailer-deposit-cancel' deposit.id %}">
                                     <button class="btn btn-outline-danger">Cancel</button>
                                 </a>
-                            {% else %}
-                                <div class="text-danger">Cancelled</div>
                             {% endif %}
                         </div>
                         <h2 class="mb-0">Deposit</h2>
