@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.utils.timezone import datetime
 from django.utils.translation import gettext_lazy as _
 
 from .tracker import Tracker
@@ -13,7 +12,7 @@ from rent.forms.vehicle import TrailerDocumentForm
 from rent.forms.vehicle import TrailerDocumentUpdateForm
 from rent.forms.vehicle import TrailerPictureForm
 from rent.models.lease import Contract
-from rent.models.trailer_deposit import TrailerDeposit
+from rent.models.trailer_deposit import get_current_trailer_deposit
 from rent.models.vehicle import Manufacturer
 from rent.models.vehicle import Trailer
 from rent.models.vehicle import TrailerDocument
@@ -40,10 +39,7 @@ def list_equipment(request):
             trailer.current_contract = contracts.last()
             _, trailer.paid = trailer.current_contract.paid()
 
-        now = datetime.now()
-        trailer_deposits = TrailerDeposit.objects.filter(
-            trailer=trailer, active=True, date__gte=now
-        ).last()
+        trailer_deposits = get_current_trailer_deposit(trailer)
         if trailer_deposits:
             trailer.reservation = trailer_deposits
 
@@ -249,10 +245,7 @@ def detail_trailer(request, id):
     if contracts:
         trailer.current_contract = contracts.last()
 
-    now = datetime.now()
-    trailer_deposits = TrailerDeposit.objects.filter(
-        trailer=trailer, active=True, date__gte=now
-    ).last()
+    trailer_deposits = get_current_trailer_deposit(trailer)
     if trailer_deposits:
         trailer.reservation = trailer_deposits
 
