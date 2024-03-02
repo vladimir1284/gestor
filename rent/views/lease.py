@@ -539,7 +539,7 @@ def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
             if deposit_id is not None:
                 deposit: TrailerDeposit = get_object_or_404(
                     TrailerDeposit, pk=deposit_id)
-                deposit.active = False
+                deposit.done = True
                 deposit.save()
             lease = form.save(commit=False)
             lease.stage = "missing"

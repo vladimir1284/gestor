@@ -24,7 +24,7 @@
                                 <div class="text-danger">Cancelled</div>
                             {% elif deposit.done %}
                                 <div class="text-success">Done</div>
-                            {% elif deposit.date|date:"Y-m-d" <= fecha_actual %}
+                            {% elif deposit.date|date:"Y-m-d" < fecha_actual %}
                                 <div class="text-danger">Expirated</div>
                             {% else %}
                                 <a href="{% url 'trailer-deposit-cancel' deposit.id %}">
@@ -48,10 +48,12 @@
                                    href="{% url 'trailer-deposit-conditions-pdf' deposit.id %}">
                                     <i class='bx bxs-file-pdf'></i>
                                 </a>
+                                {%if not deposit.done and not deposit.cancelled and deposit.date|date:"Y-m-d" >= fecha_actual %}
                                 <a class="btn btn-outline-primary"
                                    href="{% url 'update-lessee' equipment.id deposit.client.id deposit.id %}">
                                     <i class='bx bxs-edit'></i>
                                 </a>
+                                {%endif%}
                             </div>
                         </div>
                         <div class="col text-center p-0 m-0 pe-3 mb-3" id="qrcode">{{ qr_url | safe }}</div>
