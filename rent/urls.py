@@ -1,19 +1,27 @@
 from django.urls import path
-from .views import vehicle, tracker, lease, calendar, client, invoice
+
 from .permissions import staff_required_view
-from .views.cost import (
-    # ---- Category -------
-    CategoryListView,
-    delete_category,
-    CategoryUpdateView,
-    CategoryCreateView,
-    # ---- Costs ----------
-    create_cost,
-    update_cost,
-    list_cost,
-    delete_cost,
-    detail_cost,
-)
+from .views import calendar
+from .views import client
+from .views import invoice
+from .views import lease
+from .views import tracker
+from .views import vehicle
+from .views.cost import CategoryCreateView
+from .views.cost import CategoryListView
+from .views.cost import CategoryUpdateView
+from .views.cost import create_cost
+from .views.cost import delete_category
+from .views.cost import delete_cost
+from .views.cost import detail_cost
+from .views.cost import list_cost
+from .views.cost import update_cost
+from rent.views.deposit import create_trailer_reservation
+from rent.views.deposit import reserve_trailer
+from rent.views.deposit import trailer_deposit_cancel
+from rent.views.deposit import trailer_deposit_conditions
+from rent.views.deposit import trailer_deposit_details
+from rent.views.deposit import trailer_deposit_pdf
 
 urlpatterns = [
     # -------------------- Category ----------------------------
@@ -30,7 +38,8 @@ urlpatterns = [
     path(
         "list-category/", CategoryListView.as_view(), name="list-costs-rental-category"
     ),
-    path("delete-category/<id>", delete_category, name="delete-costs-rental-category"),
+    path("delete-category/<id>", delete_category,
+         name="delete-costs-rental-category"),
     # -------------------- Costs ----------------------------
     path("create-cost/", create_cost, name="create-cost-rental"),
     path("update-cost/<id>", update_cost, name="update-cost-rental"),
@@ -46,13 +55,44 @@ urlpatterns = [
     path("delete-trailer/<id>", vehicle.delete_trailer, name="delete-trailer"),
     path("detail-trailer/<id>", vehicle.detail_trailer, name="detail-trailer"),
     path("select-towit", vehicle.select_towit, name="select-towit"),
+    path(
+        "reserve-trailer/<trailer_id>",
+        reserve_trailer,
+        name="reserve-trailer",
+    ),
+    path(
+        "create-trailer-reservation/<trailer_id>/<lessee_id>",
+        create_trailer_reservation,
+        name="create-trailer-reservation",
+    ),
+    path(
+        "trailer-deposit-details/<id>",
+        trailer_deposit_details,
+        name="trailer-deposit-details",
+    ),
+    path(
+        "trailer-deposit-cancel/<id>",
+        trailer_deposit_cancel,
+        name="trailer-deposit-cancel",
+    ),
+    path(
+        "trailer-deposit-conditions/<token>",
+        trailer_deposit_conditions,
+        name="trailer-deposit-conditions",
+    ),
+    path(
+        "trailer-deposit-conditions-pdf/<id>",
+        trailer_deposit_pdf,
+        name="trailer-deposit-conditions-pdf",
+    ),
     # -------------------- Tracker ----------------------------
     path(
         "create-tracker/<int:trailer_id>",
         tracker.TrackerCreateView.as_view(),
         name="create-trailer-tracker",
     ),
-    path("create-tracker/", tracker.TrackerCreateView.as_view(), name="create-tracker"),
+    path("create-tracker/", tracker.TrackerCreateView.as_view(),
+         name="create-tracker"),
     path(
         "update-tracker/<slug:pk>",
         tracker.TrackerUpdateView.as_view(),
@@ -117,8 +157,14 @@ urlpatterns = [
         lease.contract_create_view,
         name="create-contract",
     ),
+    path(
+        "create_contract/<int:lessee_id>/<int:trailer_id>/<int:deposit_id>",
+        lease.contract_create_view,
+        name="create-contract",
+    ),
     path("contract/<int:id>", lease.contract_detail, name="detail-contract"),
-    path("contract_signing/<int:id>", lease.contract_signing, name="contract-signing"),
+    path("contract_signing/<int:id>",
+         lease.contract_signing, name="contract-signing"),
     path("contract_pdf/<int:id>", lease.contract_pdf, name="contract-signed"),
     path("contracts/", lease.contracts, name="contracts"),
     path(
@@ -153,15 +199,27 @@ urlpatterns = [
         name="delete-document-on-ended-contract",
     ),
     # -------------------- Lessee ----------------------------
-    path("select_lessee/<int:trailer_id>/", lease.select_lessee, name="select-lessee"),
+    path("select_lessee/<int:trailer_id>/",
+         lease.select_lessee, name="select-lessee"),
     path(
         "update_lesee/<int:trailer_id>/<int:lessee_id>/",
         lease.update_lessee,
         name="update-lessee",
     ),
-    path("create_lesee/<int:trailer_id>/", lease.update_lessee, name="create-lessee"),
+    path(
+        "update_lesee/<int:trailer_id>/<int:lessee_id>/<int:deposit_id>",
+        lease.update_lessee,
+        name="update-lessee",
+    ),
+    path("create_lesee/<int:trailer_id>/",
+         lease.update_lessee, name="create-lessee"),
     path(
         "create_lessee_data/<int:trailer_id>/<int:lessee_id>/",
+        lease.create_lessee_data,
+        name="update-lessee-data",
+    ),
+    path(
+        "create_lessee_data/<int:trailer_id>/<int:lessee_id>/<int:deposit_id>",
         lease.create_lessee_data,
         name="update-lessee-data",
     ),
@@ -201,8 +259,10 @@ urlpatterns = [
         lease.create_inspection,
         name="create-inspection",
     ),
-    path("update_inspection/<id>/", lease.update_inspection, name="update-inspection"),
-    path("update_tires/<inspection_id>/", lease.update_tires, name="update-tires"),
+    path("update_inspection/<id>/",
+         lease.update_inspection, name="update-inspection"),
+    path("update_tires/<inspection_id>/",
+         lease.update_tires, name="update-tires"),
     # -------------------- Calendar ----------------------------
     path("api_occurrences/", calendar.api_occurrences, name="api-occurrences"),
     path("calendar/", calendar.calendar_week, name="calendar"),
@@ -255,7 +315,8 @@ urlpatterns = [
     # -------------------- Lease ----------------------------
     path("update_lease/<id>", lease.update_lease, name="update-lease"),
     # -------------------- Due ----------------------------
-    path("create_due/<int:lease_id>/<str:date>", lease.create_due, name="create-due"),
+    path("create_due/<int:lease_id>/<str:date>",
+         lease.create_due, name="create-due"),
     path("update_due/<id>", lease.update_due, name="update-due"),
     # -------------------- Permissions ----------------------------
     path("staff_required/", staff_required_view, name="staff_required"),

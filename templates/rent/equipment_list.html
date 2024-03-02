@@ -29,11 +29,24 @@
             <td>
                 {% if equipment.current_contract %}
                     {% include "rent/contract_icon.html" with contract=equipment.current_contract equipment=equipment %}
+                {% elif equipment.reservation %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type
+                       None="button"
+                       href="{% url 'trailer-deposit-details' equipment.reservation.id %}">
+                        <span class="tf-icons bx bx-calendar-check"></span>
+                    </a>
                 {% else %}
                     <a class="btn btn-icon btn-outline-primary"
                        type="button"
                        href="{% url 'select-lessee' equipment.id %}">
                         <span class="tf-icons bx bx-key" style="font-size:1.5em"></span>
+                    </a>
+                    <a class="btn btn-icon btn-outline-primary"
+                       type
+                       None="button"
+                       href="{% url 'reserve-trailer' equipment.id %}">
+                        <i class='bx bx-calendar'></i>
                     </a>
                 {% endif %}
             </td>

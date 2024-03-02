@@ -1,61 +1,64 @@
-from datetime import timedelta, datetime
-from django.shortcuts import render, get_object_or_404
-from django.urls import reverse, reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import UpdateView
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from django.db import transaction
-from django.utils.translation import gettext_lazy as _
+import base64
+import re
 import tempfile
 from collections import defaultdict
-from django.conf import settings
-from django.utils import timezone
-import re
-import base64
-from django.core.mail import EmailMessage, get_connection
-from django.contrib import messages
+from datetime import datetime
+from datetime import timedelta
+from math import ceil
+
+import jwt
 import qrcode
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import EmailMessage
+from django.core.mail import get_connection
+from django.db import transaction
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.urls import reverse_lazy
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import UpdateView
+
+from rent.forms.trailer_deposit import TrailerDeposit
+
+from ..forms.lease import AssociatedCreateForm
+from ..forms.lease import ContractForm
+from ..forms.lease import DueForm
+from ..forms.lease import InspectionForm
+from ..forms.lease import LeaseDepositForm
+from ..forms.lease import LeaseDocumentForm
+from ..forms.lease import LeaseUpdateForm
+from ..forms.lease import LesseeDataForm
+from ..forms.lease import SecurityDepositDevolutionForm
+from ..forms.lease import TireFormSet
+from ..models.lease import Contract
+from ..models.lease import Due
+from ..models.lease import HandWriting
+from ..models.lease import Inspection
+from ..models.lease import Lease
+from ..models.lease import LeaseDeposit
+from ..models.lease import LeaseDocument
+from ..models.lease import LesseeData
+from ..models.lease import Payment
+from ..models.lease import SecurityDepositDevolution
+from ..models.lease import Tire
+from ..models.vehicle import Trailer
+from .vehicle import FILES_ICONS
 from rent.forms.hand_writing import HandWritingForm
 from rent.forms.lessee_contact import LesseeContactForm
+from rent.permissions import staff_required
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
-from math import ceil
-from rent.permissions import staff_required
-import jwt
-
-from ..models.lease import (
-    HandWriting,
-    Contract,
-    Inspection,
-    Tire,
-    LesseeData,
-    Lease,
-    LeaseDocument,
-    LeaseDeposit,
-    Due,
-    Payment,
-    SecurityDepositDevolution,
-)
-from ..forms.lease import (
-    ContractForm,
-    InspectionForm,
-    TireFormSet,
-    AssociatedCreateForm,
-    LesseeDataForm,
-    LeaseDocumentForm,
-    LeaseDepositForm,
-    LeaseUpdateForm,
-    DueForm,
-    SecurityDepositDevolutionForm,
-)
-from users.views import addStateCity
-from ..models.vehicle import Trailer
 from users.models import Associated
-from .vehicle import FILES_ICONS
+from users.views import addStateCity
 
 
 def create_handwriting(request, lease_id, position, external=False):
@@ -120,7 +123,8 @@ def get_contract(id):
         contract.contract_end_date = contract.effective_date + timedelta(
             days=contract.contract_term * 30
         )
-    contract.lessee.data = LesseeData.objects.filter(associated=contract.lessee).last()
+    contract.lessee.data = LesseeData.objects.filter(
+        associated=contract.lessee).last()
     return contract
 
 
@@ -147,12 +151,12 @@ def prepare_contract_view(id):
 def contract_detail(request, id):
     context = prepare_contract_view(id)
 
-    phone = context['contract'].lessee.phone_number
+    phone = context["contract"].lessee.phone_number
 
     url_base = "{}://{}".format(request.scheme, request.get_host())
     url = url_base + reverse("contract-signing", args=[id])
     context["url"] = url
-    context['phone'] = phone
+    context["phone"] = phone
 
     sendSMSLesseeContactURL(phone, url)
 
@@ -200,7 +204,8 @@ def contracts(request):
 def adjust_end_deposit(request, id):
     closing = request.GET.get("closing", False)
     contract = get_object_or_404(Contract, id=id)
-    deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=contract)
+    deposit, c = SecurityDepositDevolution.objects.get_or_create(
+        contract=contract)
 
     if c:
         total_amount = sum(
@@ -368,12 +373,13 @@ def update_contract_stage(request, id, stage):
         # Compute the final debt
         leases = Lease.objects.filter(contract=contract)
         lease = leases.last()
-        if contract.contract_type == "lto":
-            paid, _ = contract.paid()
-            contract.final_debt = contract.total_amount - paid
-        else:
-            contract.final_debt, _, _ = compute_client_debt(lease)
-            contract.final_debt -= lease.remaining
+        if lease is not None:
+            if contract.contract_type == "lto":
+                paid, _ = contract.paid()
+                contract.final_debt = contract.total_amount - paid
+            else:
+                contract.final_debt, _, _ = compute_client_debt(lease)
+                contract.final_debt -= lease.remaining
         # Remove lease
         for lease in leases:
             lease.delete()
@@ -517,24 +523,37 @@ class LeseeDataUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "rent/contract/lessee_data_create.html"
 
     def get_success_url(self):
-        contract = Contract.objects.filter(lessee=self.object.associated).last()
+        contract = Contract.objects.filter(
+            lessee=self.object.associated).last()
         return reverse_lazy("detail-contract", kwargs={"id": contract.id})
 
 
 @staff_required
-def contract_create_view(request, lessee_id, trailer_id):
+def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
     lessee = get_object_or_404(Associated, pk=lessee_id)
     trailer = get_object_or_404(Trailer, pk=trailer_id)
 
     if request.method == "POST":
         form = ContractForm(request.POST)
         if form.is_valid():
+            if deposit_id is not None:
+                deposit: TrailerDeposit = get_object_or_404(
+                    TrailerDeposit, pk=deposit_id)
+                deposit.active = False
+                deposit.save()
             lease = form.save(commit=False)
             lease.stage = "missing"
             lease.lessee = lessee
             lease.trailer = trailer
             lease.save()
             return redirect("create-inspection", lease_id=lease.id)
+    elif deposit_id is not None:
+        deposit: TrailerDeposit = get_object_or_404(
+            TrailerDeposit, pk=deposit_id)
+        form = ContractForm(initial={
+            'effective_date': deposit.date,
+            "security_deposit": deposit.amount,
+        })
     else:
         form = ContractForm()
 
@@ -563,20 +582,23 @@ def select_lessee(request, trailer_id):
 
 @login_required
 @staff_required
-def update_lessee(request, trailer_id, lessee_id=None):
+def update_lessee(request, trailer_id, lessee_id=None, deposit_id=None):
     if lessee_id is not None:
         # fetch the object related to passed id
         lessee = get_object_or_404(Associated, id=lessee_id)
 
         if request.method == "POST":
             # pass the object as instance in form
-            form = AssociatedCreateForm(request.POST, request.FILES, instance=lessee)
+            form = AssociatedCreateForm(
+                request.POST, request.FILES, instance=lessee)
 
             # save the data from the form and
             # redirect to update lessee data view
             if form.is_valid():
                 form.save()
-                return redirect("update-lessee-data", trailer_id, lessee.id)
+                if deposit_id is None:
+                    return redirect("update-lessee-data", trailer_id, lessee.id)
+                return redirect("update-lessee-data", trailer_id, lessee.id, deposit_id)
 
         # pass the object as instance in form
         form = AssociatedCreateForm(instance=lessee)
@@ -625,10 +647,9 @@ def create_lessee_contact(request, trailer_id):
     return render(request, "users/lessee_contact_create.html", context)
 
 
-
 @login_required
 @staff_required
-def create_lessee_data(request, trailer_id, lessee_id):
+def create_lessee_data(request, trailer_id, lessee_id, deposit_id=None):
     lessee = get_object_or_404(Associated, id=lessee_id)
     try:
         lessee_data = LesseeData.objects.get(associated__id=lessee_id)
@@ -646,7 +667,9 @@ def create_lessee_data(request, trailer_id, lessee_id):
             data = form.save(commit=False)
             data.associated = lessee
             data.save()
-            return redirect("create-contract", lessee_id, trailer_id)
+            if deposit_id is None:
+                return redirect("create-contract", lessee_id, trailer_id)
+            return redirect("create-contract", lessee_id, trailer_id, deposit_id)
 
     # add form dictionary to context
 
@@ -697,23 +720,24 @@ def lessee_form(request, token):
         lessee_id = info["lessee_id"]
     except jwt.ExpiredSignatureError:
         context = {
-                "title": "Error",
-                "msg": "Expirated token",
-                "err": True,
-                }
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
         return render(request, "rent/client/lessee_form_err.html", context)
     except jwt.InvalidTokenError:
         context = {
-                "title": "Error",
-                "msg": "Invalid token",
-                "err": True,
-                }
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
         return render(request, "rent/client/lessee_form_err.html", context)
 
     lessee = get_object_or_404(Associated, id=lessee_id)
 
     if request.method == "POST":
-        form = AssociatedCreateForm(request.POST, request.FILES, instance=lessee)
+        form = AssociatedCreateForm(
+            request.POST, request.FILES, instance=lessee)
         if form.is_valid():
             form.save()
             return redirect("client-create-lessee-data", token)
@@ -735,17 +759,17 @@ def client_create_lessee_data(request, token):
         lessee_id = info["lessee_id"]
     except jwt.ExpiredSignatureError:
         context = {
-                "title": "Error",
-                "msg": "Expirated token",
-                "err": True,
-                }
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
         return render(request, "rent/client/lessee_form_err.html", context)
     except jwt.InvalidTokenError:
         context = {
-                "title": "Error",
-                "msg": "Invalid token",
-                "err": True,
-                }
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
         return render(request, "rent/client/lessee_form_err.html", context)
 
     lessee = get_object_or_404(Associated, id=lessee_id)
@@ -780,12 +804,12 @@ def client_create_lessee_data(request, token):
 
 
 def lessee_form_ok(request):
-        context = {
-                "title": "Form saved",
-                "msg": "All data was saved",
-                "err": False,
-                }
-        return render(request, "rent/client/lessee_form_inf.html", context)
+    context = {
+        "title": "Form saved",
+        "msg": "All data was saved",
+        "err": False,
+    }
+    return render(request, "rent/client/lessee_form_inf.html", context)
 
 
 # -------------------- Inspection ----------------------------

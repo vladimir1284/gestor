@@ -1,0 +1,153 @@
+{% load static %}
+{% load nbsp %}
+<head>
+    <meta charset="utf-8" />
+    <!-- Core CSS -->
+    <link rel="stylesheet"
+          href="{% static 'assets/vendor/css/core.css' %}"
+          class="template-customizer-core-css" />
+    <link rel="stylesheet"
+          href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+    <style>
+        @page {
+            size: A3;
+            margin: 20mm;
+        }
+        body{
+            background-color: white;
+        }
+        h6 {
+            font-size: 2rem;
+        }
+        .invoice-descrpition{
+            width: 100%;
+        }
+        td {
+            padding-right: 0.3cm;
+            padding-bottom: 0.3cm;
+        }
+        #qrcode svg {
+            width: 5cm;
+            height: 5cm;
+            display
+        }
+        #qrcode {
+            max-width: 5.5cm;
+            width: 5.5cm !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col">
+                <div class="card">
+                    <div class="row">
+                        <div class="col text-center p-3 m-0 mb-3" id="qrcode">{{ qr_url | safe }}</div>
+                        <div class="col">
+                            <div class="card-header">
+                                <h2 class="mb-0">Deposit</h2>
+                            </div>
+                            <table class='ms-4'>
+                                <tbody>
+                                    <tr>
+                                        <td>Amount:</td>
+                                        <td>{{ deposit.amount }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date:</td>
+                                        <td>{{ deposit.date }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Note:</td>
+                                        <td>{{ deposit.note }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col m-3">
+                            <h4>Condiciones:</h4>
+                            Mis condiciones...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="card" style='height:100%'>
+                    <div class="card-header lessee">
+                        <h2>
+                            Lessee: <b> {{ deposit.client.name }}</b>
+                        </h2>
+                    </div>
+                    <div class="mt-4 ms-4">
+                        <table>
+                            <tbody>
+                                {% if deposit.client.phone_number %}
+                                    <tr>
+                                        <td>Phone number:</td>
+                                        <td>{{ deposit.client.phone_number }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if deposit.client.email %}
+                                    <tr>
+                                        <td>Email:</td>
+                                        <td>{{ deposit.client.email }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if deposit.client.state %}
+                                    <tr>
+                                        <td>State:</td>
+                                        <td>{{ deposit.client.state }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if deposit.client.other_state %}
+                                    <tr>
+                                        <td>Other state:</td>
+                                        <td>{{ deposit.client.other_state }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if deposit.client.city %}
+                                    <tr>
+                                        <td>City:</td>
+                                        <td>{{ deposit.client.city }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if deposit.client.other_city %}
+                                    <tr>
+                                        <td>Other city:</td>
+                                        <td>{{ deposit.client.other_city }}</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card" style='height:100%'>
+                    <div class="card-header">
+                        <h2 class='mb-0'>Trailer</h2>
+                    </div>
+                    <div class="text-center mb-4">
+                        <div class="mb-2 associated-pic">
+                            <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'assets/img/icons/trailer.png' %}" {% endif %}
+                                 alt="image"
+                                 height="100px"
+                                 width="100px"
+                                 class="w-px-100 h-px-100 rounded-circle card-img-top" />
+                        </div>
+                        <h5 class="card-title">
+                            {{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}
+                        </h5>
+                        <div class="card-subtitle text-muted mb-3">{{ equipment.vin }}</div>
+                        <p class="card-text">{{ equipment.note }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
