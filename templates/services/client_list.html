@@ -9,7 +9,11 @@
         <!--    type="button" -->
         <!--    class="btn btn-outline-primary float-end">Skip</a> -->
     {% endif %}
-    {% if create %}
+    {% if create == 'order' %}
+        <a href="{% url 'create-service-order-contact' %}"
+           type="button"
+           class="btn btn-outline-primary float-end">New client</a>
+    {% elif create %}
         <a href="{% url 'create-lessee-contact' trailer_id %}"
            type="button"
            class="btn btn-outline-primary float-end">New client</a>

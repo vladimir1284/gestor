@@ -12,11 +12,15 @@
     <div class="card">
         <div class="card-header d-flex align-items-center justify-content-between">
             <h5 class="mb-0">Cliente: {{ name }}</h5>
-            <div>
-                <a href="{% url 'generate-lessee-url' trailer_id lessee_id %}"
-                   class="btn btn-outline-primary">Refresh</a>
-                <a href="{% url 'update-lessee' trailer_id lessee_id %}"
-                   class="btn btn-outline-primary">Next</a>
+            <div class="d-flex">
+                <form method="GET">
+                    <input type='submit' class="btn btn-outline-primary" value='Refresh' />
+                </form>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type='submit' class="btn btn-outline-primary" value='NEXT' />
+                </form>
+                <!-- <a href="#" class="btn btn-outline-primary">Next</a> -->
             </div>
         </div>
         <div class="card-body">

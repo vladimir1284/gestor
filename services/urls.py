@@ -109,6 +109,31 @@ urlpatterns = [
         order.select_unrented_trailer,
         name="select-service-unrented-trailer",
     ),
+    path(
+        "create-order-contact/",
+        order.create_order_contact,
+        name="create-service-order-contact",
+    ),
+    path(
+        "generate-order-contact-url/<id>",
+        order.generate_url,
+        name="generate-service-order-contact-url",
+    ),
+    path(
+        "contact-form/<token>",
+        order.lessee_form,
+        name="service-order-contact-form",
+    ),
+    path(
+        "contact-view-conditions/<token>",
+        order.contact_view_conditions,
+        name="contact-view-conditions",
+    ),
+    path(
+        "contact-client-signature/<token>",
+        order.contact_create_handwriting,
+        name="contact-client-service-order-signature",
+    ),
     path("create-order/", order.create_order, name="create-service-order"),
     path("update-order/<id>", order.update_order, name="update-service-order"),
     path(
