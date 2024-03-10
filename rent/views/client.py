@@ -1,19 +1,30 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
-from rent.models.lease import LesseeData, Contract, Lease, Payment, Due
-from rent.tools.client import compute_client_debt
-from users.models import Associated
-from rent.forms.lease import PaymentForm
-from django.db import transaction
-from datetime import timedelta, datetime
-from django.utils import timezone
+from datetime import datetime
+from datetime import timedelta
+
 import pytz
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.utils import timezone
+
 from .invoice import mail_send_invoice
 from .vehicle import FILES_ICONS
-from rent.models.lease import LeaseDocument, LeaseDeposit
-from django.db.models import Sum
+from killbill.tools.payments import make_payment
+from rent.forms.lease import PaymentForm
+from rent.models.lease import Contract
+from rent.models.lease import Due
+from rent.models.lease import Lease
+from rent.models.lease import LeaseDeposit
+from rent.models.lease import LeaseDocument
+from rent.models.lease import LesseeData
+from rent.models.lease import Payment
 from rent.permissions import staff_required
+from rent.tools.client import compute_client_debt
+from users.models import Associated
 
 
 @login_required
@@ -77,13 +88,15 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
                     event=None,
                 )
             client.lease = lease
-            client.debt, last_payment, client.unpaid_dues = compute_client_debt(lease)
+            client.debt, last_payment, client.unpaid_dues = compute_client_debt(
+                lease)
             if client.debt > 0:
                 # Discount remaining from debt
                 client.debt -= lease.remaining
                 client.last_payment = client.unpaid_dues[0].start
                 rental_debt += client.debt
-                client.overdue_days = (timezone.now() - client.last_payment).days
+                client.overdue_days = (
+                    timezone.now() - client.last_payment).days
             else:
                 client.last_payment = timezone.now()
             payment_dates[client.id] = client.last_payment
@@ -94,7 +107,8 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
     sorted_clients = clients
     # Sorted by most overdue first
     if order_by == "date":
-        sorted_clients = sorted(clients, key=lambda client: payment_dates[client.id])
+        sorted_clients = sorted(
+            clients, key=lambda client: payment_dates[client.id])
     # Sorted by most debt amount first
     if order_by == "amount":
         sorted_clients = sorted(
@@ -141,7 +155,8 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 lease=lease,
             )
             # Send invoice by email
-            mail_send_invoice(request, lease.id, due_date.strftime("%m%d%Y"), "true")
+            mail_send_invoice(request, lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
     # Pay dues in the future
     if amount >= lease.payment_amount:
         start_time = timezone.now()
@@ -161,7 +176,8 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 lease=lease,
             )
             # Send invoice by email
-            mail_send_invoice(request, lease.id, due_date.strftime("%m%d%Y"), "true")
+            mail_send_invoice(request, lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
             if amount < lease.payment_amount:
                 break
 
@@ -176,7 +192,8 @@ def client_detail(request, id):
     client = get_object_or_404(Associated, id=id)
     client.contract = Contract.objects.filter(stage="active").last()
     client.data = LesseeData.objects.filter(associated=client).last()
-    leases = Lease.objects.filter(contract__lessee=client, contract__stage="active")
+    leases = Lease.objects.filter(
+        contract__lessee=client, contract__stage="active")
 
     dues = None
     for lease in leases:
@@ -184,8 +201,10 @@ def client_detail(request, id):
         base_process_payment(request, lease)
         lease.debt, last_date, lease.unpaid_dues = compute_client_debt(lease)
         # Payments for thi lease
-        payments = Payment.objects.filter(lease=lease).order_by("-date_of_payment")
-        lease.total_payment = payments.aggregate(sum_amount=Sum("amount"))["sum_amount"]
+        payments = Payment.objects.filter(
+            lease=lease).order_by("-date_of_payment")
+        lease.total_payment = payments.aggregate(
+            sum_amount=Sum("amount"))["sum_amount"]
         for i, payment in enumerate(reversed(payments)):
             # Dues paid by this lease
             dues = Due.objects.filter(
@@ -203,7 +222,8 @@ def client_detail(request, id):
             lease.paid, done = lease.contract.paid()
             lease.debt = lease.contract.total_amount - lease.paid
         else:
-            lease.paid_dues = Due.objects.filter(lease=lease).order_by("-due_date")
+            lease.paid_dues = Due.objects.filter(
+                lease=lease).order_by("-due_date")
             lease.paid = lease.paid_dues.aggregate(sum_amount=Sum("amount"))[
                 "sum_amount"
             ]
@@ -212,7 +232,8 @@ def client_detail(request, id):
         lease.documents = LeaseDocument.objects.filter(lease=lease)
         # Check for document expiration
         for document in lease.documents:
-            document.icon = "assets/img/icons/" + FILES_ICONS[document.document_type]
+            document.icon = "assets/img/icons/" + \
+                FILES_ICONS[document.document_type]
 
         # Deposits
         lease.total_deposit = 0
@@ -241,6 +262,7 @@ def client_detail(request, id):
 
 def process_payment(request, payment: Payment):
     # Retrieve the remaining
+    make_payment(payment)
     base_process_payment(request, payment.lease, payment.amount)
 
 

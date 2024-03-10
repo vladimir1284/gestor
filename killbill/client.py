@@ -3,11 +3,9 @@ from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from killbill.tools.generate_catalog import get_leases
 from killbill.tools.generate_catalog import sync_catalog
 from killbill.tools.subscriptions import subscribe_associated
 from killbill.tools.subscriptions import unsubscribe_associated
-from killbill.tools.sync_accounts import sync_account
 from killbill.tools.sync_accounts import sync_lessee
 from openapi_client import *
 from rent.models.lease import Lease
@@ -34,31 +32,32 @@ def get_client():
 
 
 def execute_sync():
-    client = get_client()
-
-    # catalog_api = CatalogApi(client)
-    # sync_catalog(catalog_api)
-
-    account_api = AccountApi(client)
-    sync_account(account_api)
-
-    sub_api = SubscriptionApi(client)
-
-    leases = get_leases()
-    for lease in leases:
-        if lease.contract is None or lease.contract.lessee is None:
-            continue
-
-        associated = lease.contract.lessee
-        try:
-            subscribe_associated(
-                account_api=account_api,
-                sub_api=sub_api,
-                associated=associated,
-                lease=lease,
-            )
-        except Exception as e:
-            print(e)
+    # client = get_client()
+    #
+    # # catalog_api = CatalogApi(client)
+    # # sync_catalog(catalog_api)
+    #
+    # account_api = AccountApi(client)
+    # sync_account(account_api)
+    #
+    # sub_api = SubscriptionApi(client)
+    #
+    # leases = get_leases()
+    # for lease in leases:
+    #     if lease.contract is None or lease.contract.lessee is None:
+    #         continue
+    #
+    #     associated = lease.contract.lessee
+    #     try:
+    #         subscribe_associated(
+    #             account_api=account_api,
+    #             sub_api=sub_api,
+    #             associated=associated,
+    #             lease=lease,
+    #         )
+    #     except Exception as e:
+    #         print(e)
+    pass
 
 
 def update_catalog(client):

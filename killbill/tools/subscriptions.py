@@ -1,7 +1,10 @@
 from killbill.tools.generate_catalog import get_period
-from openapi_client import AccountApi, Subscription, SubscriptionApi
+from openapi_client import AccountApi
+from openapi_client import Subscription
+from openapi_client import SubscriptionApi
 from openapi_client.exceptions import NotFoundException
-from rent.models.lease import Associated, Lease
+from rent.models.lease import Associated
+from rent.models.lease import Lease
 
 
 def subscribe(
