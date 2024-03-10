@@ -1,10 +1,15 @@
 from django.conf import settings
-from killbill.tools.generate_catalog import get_leases, sync_catalog
-from killbill.tools.subscriptions import subscribe_associated, unsubscribe_associated
-from killbill.tools.sync_accounts import sync_account, sync_lessee
-from openapi_client import *
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from killbill.tools.generate_catalog import get_leases
+from killbill.tools.generate_catalog import sync_catalog
+from killbill.tools.subscriptions import subscribe_associated
+from killbill.tools.subscriptions import unsubscribe_associated
+from killbill.tools.sync_accounts import sync_account
+from killbill.tools.sync_accounts import sync_lessee
+from openapi_client import *
 from rent.models.lease import Lease
 
 
@@ -17,8 +22,10 @@ def get_client():
 
     config = Configuration(
         host=baseURL,
-        api_key={"Killbill_Api_Key": api_key,
-                 "Killbill_Api_Secret": api_secret},
+        api_key={
+            "Killbill_Api_Key": api_key,
+            "Killbill_Api_Secret": api_secret,
+        },
         username=username,
         password=password,
     )
