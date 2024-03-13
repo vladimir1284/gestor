@@ -210,7 +210,11 @@ def dashboard(request):
     last_time = datetime.combine(
         timezone.now().date(), time.max) - timedelta(days=1)
     for lease in leases:
-        occurrences = lease.event.get_occurrences(first_time, last_time)
+        occurrences = (
+            []
+            if lease.event is None
+            else lease.event.get_occurrences(first_time, last_time)
+        )
         for occurrence in occurrences:
             paid_dues = Due.objects.filter(due_date=occurrence.start.date())
             if len(paid_dues) == 0:

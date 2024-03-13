@@ -1,8 +1,12 @@
-from rent.models.lease import Lease, Due
-from django.utils import timezone
-from datetime import timedelta, datetime
-from django.conf import settings
+from datetime import datetime
+from datetime import timedelta
+
 import pytz
+from django.conf import settings
+from django.utils import timezone
+
+from rent.models.lease import Due
+from rent.models.lease import Lease
 
 
 def get_start_paying_date(lease: Lease):
@@ -23,10 +27,15 @@ def get_start_paying_date(lease: Lease):
 
 def compute_client_debt(lease: Lease):
     interval_start = get_start_paying_date(lease)
-    occurrences = lease.event.get_occurrences(interval_start, timezone.now())
+    occurrences = (
+        lease.event.get_occurrences(interval_start, timezone.now())
+        if lease.event is not None
+        else []
+    )
     unpaid_dues = []
     for occurrence in occurrences:
-        paid_due = Due.objects.filter(due_date=occurrence.start.date(), lease=lease)
+        paid_due = Due.objects.filter(
+            due_date=occurrence.start.date(), lease=lease)
         if len(paid_due) == 0:
             unpaid_dues.append(occurrence)
     n_unpaid = len(unpaid_dues)
