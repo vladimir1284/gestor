@@ -1,12 +1,15 @@
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
-from PIL import Image
 from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
-from users.models import User, Associated, Company
 from equipment.models import Vehicle
 from rent.models.vehicle import Trailer
-from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator, MaxValueValidator
+from users.models import Associated
+from users.models import Company
+from users.models import User
 
 
 def thumbnailField(image_field: models.ImageField, icon_size: int):
@@ -46,7 +49,8 @@ class Category(models.Model):
         ("#03c3ec", "blue"),
         ("#233446", "black"),
     )
-    chartColor = models.CharField(max_length=7, default="#8592a3", choices=COLOR_CHOICE)
+    chartColor = models.CharField(
+        max_length=7, default="#8592a3", choices=COLOR_CHOICE)
 
     ICON_SIZE = 64
     icon = models.ImageField(upload_to="images/icons", blank=True)
@@ -73,8 +77,16 @@ class Order(models.Model):
         ("sell", _("Sell")),
         ("purchase", _("Purchase")),
     )
-    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default="purchase")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default="pending")
+    STORAGE_REASON = [
+        ("capacity", "Falta de capacidad en el taller"),
+        ("approval", "Pendiente por aprobación del cliente"),
+        ("ready", "Listo para recoger"),
+        ("storage_service", "Servicio de storage"),
+    ]
+    type = models.CharField(
+        max_length=20, choices=TYPE_CHOICE, default="purchase")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICE, default="pending")
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
@@ -113,6 +125,13 @@ class Order(models.Model):
     quotation = models.BooleanField(default=False)
     invoice_sended = models.BooleanField(default=False)
     is_initial = False
+    storage_reason = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=STORAGE_REASON,
+        default="storage_service",
+    )
 
     def __str__(self):
         return f"{self.concept}  ({self.type}) {self.created_date}"
@@ -141,16 +160,28 @@ def on_field_change(sender, instance, **kwargs):
     if old_order.position != instance.position:
         if instance.position == 0:
             trace = OrderTrace(
-                order=instance, trace="storage_in", status=instance.status
+                order=instance,
+                trace="storage_in",
+                status=instance.status,
+                reason=instance.storage_reason,
             )
         else:
             trace = OrderTrace(
-                order=instance, trace="storage_out", status=instance.status
+                order=instance,
+                trace="storage_out",
+                status=instance.status,
+                reason=instance.storage_reason,
             )
         trace.save()
-    if old_order.status != instance.status and instance.position == 0:
+    if instance.position == 0 and (
+        old_order.status != instance.status
+        or old_order.storage_reason != instance.storage_reason
+    ):
         trace = OrderTrace(
-            order=instance, trace="storage_stage", status=instance.status
+            order=instance,
+            trace="storage_stage",
+            status=instance.status,
+            reason=instance.storage_reason,
         )
         trace.save()
 
@@ -248,7 +279,16 @@ class OrderTrace(models.Model):
         ("storage_out", "Storage out"),
         ("storage_stage", "Storage stage change"),
     ]
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name="storage_traces"
+    )
     date = models.DateTimeField(auto_now_add=True)
     trace = models.CharField(max_length=50, choices=TRACE_TYPE)
     status = models.CharField(max_length=50)
+    reason = models.CharField(max_length=20, null=True, blank=True)
+
+    def get_reason(self):
+        for r in Order.STORAGE_REASON:
+            if r[0] == self.reason:
+                return r[1]
+        return "UNKNOWN"

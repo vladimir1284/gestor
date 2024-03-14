@@ -9,6 +9,7 @@ from .views import order
 from .views import payment
 from .views import service
 from .views import sms
+from .views import storage
 from .views import transaction
 
 
@@ -170,6 +171,11 @@ urlpatterns = [
         order.order_end_update_position,
         name="update-order-position",
     ),
+    path(
+        "order-position-change/<id>",
+        order.order_change_position,
+        name="order-position-change",
+    ),
     path("send-sms/<order_id>", sms.sendSMS, name="send-sms"),
     # -------------------- Invoice ----------------------------
     path("service-invoice/<id>", invoice.view_invoice, name="service-invoice"),
@@ -237,4 +243,5 @@ urlpatterns = [
         payment.update_debt_status,
         name="update-debt-status",
     ),
+    path("storage", storage.storage, name="storage-view"),
 ]
