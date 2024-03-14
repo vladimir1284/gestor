@@ -115,6 +115,10 @@
                     {% else %}
                         {{ order.position }}
                     {% endif %}
+
+                    <a class="btn btn-outline-primary" href="{%url 'order-position-change' order.id%}">
+                        <i class='bx bx-refresh'></i>
+                    </a>
                 </p>
                 {% if order.quotation %}
                     <span class="float-end px-3 me-1 badge rounded-pill bg-warning">

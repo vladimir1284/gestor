@@ -1,0 +1,20 @@
+{% load static %}
+<div class="avatar flex-shrink-0 me-3">
+    <a>
+        <span class="avatar-initial rounded-circle bg-label-primary">
+            <img src="{% static 'assets/img/icons/trailer.png' %}"
+                 alt="image"
+                 height="100px"
+                 width="100px"
+                 class="w-px-40 rounded-circle" />
+        </span>
+    </a>
+</div>
+<div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+    <div class="me-2">
+        <h6 class="mb-0">Client's Trailer</h6>
+        {% if order.vin %}<small class="text-muted">{{ order.vin }}</small>{% endif %}
+        {% if order.vin and order.plate %}<small class="text-muted">-</small>{% endif %}
+        {% if order.plate %}<small class="text-muted">{{ order.plate }}</small>{% endif %}
+    </div>
+</div>

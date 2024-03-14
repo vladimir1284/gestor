@@ -1,43 +1,34 @@
+from crispy_forms.bootstrap import AppendedText
+from crispy_forms.bootstrap import PrependedText
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import ButtonHolder
+from crispy_forms.layout import Div
+from crispy_forms.layout import Field
+from crispy_forms.layout import Fieldset
+from crispy_forms.layout import HTML
+from crispy_forms.layout import Layout
+from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils.safestring import mark_safe
 from django.forms import ModelForm
-from django import forms
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+
+from .models import Expense
+from .models import OrderSignature
+from .models import Payment
+from .models import PaymentCategory
+from .models import PendingPayment
+from .models import Service
+from .models import ServiceCategory
+from .models import ServicePicture
+from .models import ServiceTransaction
 from services.tools.available_positions import get_available_positions
+from utils.forms import BaseForm
+from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
 from utils.models import (
     Order,
 )
-from .models import (
-    OrderSignature,
-    Service,
-    ServiceTransaction,
-    ServiceCategory,
-    Expense,
-    ServicePicture,
-    PaymentCategory,
-    Payment,
-    PendingPayment,
-)
-from utils.forms import (
-    BaseForm,
-    CategoryCreateForm as BaseCategoryCreateForm,
-)
-
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Layout,
-    Fieldset,
-    ButtonHolder,
-    Submit,
-    Div,
-    HTML,
-    Field,
-)
-from crispy_forms.bootstrap import (
-    PrependedText,
-    AppendedText,
-)
-from django.utils.translation import gettext_lazy as _
 
 
 class OrderCreateForm(BaseForm):
@@ -49,6 +40,7 @@ class OrderCreateForm(BaseForm):
             "concept",
             "note",
             "position",
+            "storage_reason",
             "quotation",
             "vin",
             "plate",
@@ -59,11 +51,13 @@ class OrderCreateForm(BaseForm):
         super().__init__(*args, **kwargs)
         self.getPlate = get_plate
 
-        position = kwargs["instance"].position if "instance" in kwargs.keys() else None
+        position = kwargs["instance"].position if "instance" in kwargs.keys(
+        ) else None
 
         availables_positions = get_available_positions(current_pos=position)
 
-        self.fields["position"].widget = forms.Select(choices=availables_positions)
+        self.fields["position"].widget = forms.Select(
+            choices=availables_positions)
 
         self.fields["invoice_data"].widget.attrs[
             "placeholder"
@@ -79,9 +73,11 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("vin")), css_class="mb-3"),
                 Div(Div(Field("plate")), css_class="mb-3"),
                 Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("storage_reason")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
-                ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
             )
         else:
             self.helper.layout = Layout(
@@ -89,9 +85,11 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("concept")), css_class="mb-3"),
                 Div(Div(Field("vin")), css_class="mb-3"),
                 Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("storage_reason")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
-                ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
             )
 
     def clean(self):
@@ -130,7 +128,8 @@ class PendingPaymentCreateForm(BaseForm):
 
 
 class PaymentCreateForm(BaseForm):
-    weeks = forms.IntegerField(required=False, initial=0)  # Add the "weeks" field
+    weeks = forms.IntegerField(
+        required=False, initial=0)  # Add the "weeks" field
 
     class Meta:
         model = Payment
@@ -177,7 +176,8 @@ class PaymentCategoryCreateForm(BaseForm):
                 """
             ),
             Div(Div(Field("icon", css_class="form-select")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -185,7 +185,8 @@ class CommonTransactionLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
             Div(
-                Div(Field(PrependedText("price", "$")), css_class="col-md-4 mb-3"),
+                Div(Field(PrependedText("price", "$")),
+                    css_class="col-md-4 mb-3"),
                 Div(Div(AppendedText("tax", "%")), css_class="col-md-4 mb-3"),
                 Div(Field("quantity"), css_class="col-md-4 mb-3"),
                 css_class="row",
@@ -322,7 +323,8 @@ class ServiceCreateForm(forms.ModelForm):
                             css_class="row mb-3",
                         ),
                         ButtonHolder(
-                            Submit("submit", "Enviar", css_class="btn btn-success")
+                            Submit("submit", "Enviar",
+                                   css_class="btn btn-success")
                         ),
                         css_class="card-body",
                     ),
@@ -472,7 +474,8 @@ class ExpenseCreateForm(BaseForm):
             Div(Div(Field("concept")), css_class="mb-3"),
             Div(Div(Field("description", rows="2")), css_class="mb-3"),
             Div(Div(Field(PrependedText("cost", "$"))), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -530,20 +533,33 @@ class OrderSignatureForm(ModelForm):
 
 
 class OrderEndUpdatePositionForm(forms.Form):
-    def __init__(self, *args, order: Order, **kwargs):
+    def __init__(self, *args, order: Order, status: str = "", **kwargs):
         position = order.position
         super().__init__(*args, **kwargs)
+
+        if status == "":
+            status = str(order.status)
+
+        reason = order.storage_reason
+        if status in ["complete", "decline"]:
+            reason = "ready"
+        elif status == "pendding":
+            reason = "approval"
+        elif reason == "" or reason is None:
+            reason = "storage_service"
 
         if order.quotation:
             positions = [(None, "Null")]
             position = None
             readonly = True
         else:
-            positions = get_available_positions(
+            positions, availables = get_available_positions(
                 current_pos=position,
-                null=order.status in ["complete", "decline"],
+                null=status in ["complete", "decline"],
+                availables=True,
             )
-            print(order.status)
+            if not availables:
+                reason = "capacity"
             readonly = False
 
         self.fields["position"] = forms.ChoiceField(
@@ -552,3 +568,8 @@ class OrderEndUpdatePositionForm(forms.Form):
             initial=position,
         )
         self.fields["position"].widget.attrs["readonly"] = readonly
+
+        self.fields["reason"] = forms.ChoiceField(
+            choices=Order.STORAGE_REASON,
+            initial=reason,
+        )

@@ -26,6 +26,7 @@ from services.tools.conditios_to_pdf import (
 from services.tools.order import getRepairDebt, getOrderContext, computeOrderAmount
 from django.http import HttpRequest, HttpResponse
 from services.tools.order_history import order_history
+from services.tools.order_position import order_update_position
 
 from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
 from services.views.invoice import get_invoice_context, sendMail
@@ -236,38 +237,18 @@ def update_order_status(request, id, status):
 
 
 @login_required
+def order_change_position(request, id):
+    return order_update_position(
+        request=request,
+        id=id,
+        next='detail-service-order',
+        args=[id],
+    )
+
+
+@login_required
 def order_end_update_position(request, id, status):
-    order = get_object_or_404(Order, id=id)
-    if status == "decline":
-        order.position = None
-        order.save()
-        return redirect("list-service-order")
-
-    if status == "complete" and order.position is None:
-        return redirect("process-payment", id)
-
-    old_status = order.status
-    order.status = status
-    if request.method == "POST":
-        form = OrderEndUpdatePositionForm(request.POST, order=order)
-        if form.is_valid():
-            order.status = old_status
-            pos = form.cleaned_data["position"]
-            if pos == "":
-                pos = None
-            order.position = pos
-            order.save()
-            if status == "complete":
-                return redirect("process-payment", id)
-            return redirect("list-service-order")
-    else:
-        form = OrderEndUpdatePositionForm(order=order)
-
-    context = {
-        "form": form,
-        "title": "Select position",
-    }
-    return render(request, "services/order_end_update_position.html", context)
+    return order_update_position(request=request, id=id, status=status)
 
 
 STATUS_ORDER = ["pending", "processing", "approved", "complete", "decline"]
