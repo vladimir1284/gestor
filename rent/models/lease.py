@@ -167,6 +167,25 @@ class Lease(models.Model):
         return self.event.title
 
 
+class Note(models.Model):
+    contract = models.ForeignKey(Contract,
+                                 on_delete=models.CASCADE)
+    has_reminder = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    reminder_date = models.DateTimeField(blank=True, null=True)
+    file = models.FileField(
+        upload_to='documents/notes', blank=True, null=True)
+    text = models.TextField(blank=True)
+    document_type = models.CharField(
+        max_length=3, choices=DOCUMENT_TYPES, default='BIN')
+
+    def save(self, *args, **kwargs):
+        if self.file:
+            self.document_type = classify_file(self.file.name)
+        super().save(*args, **kwargs)
+
+
 @receiver(pre_save, sender=Contract)
 def update_effective_date(sender, instance, **kwargs):
     ''' 
@@ -201,6 +220,7 @@ class LeaseDocument(models.Model):
         self.document_type = classify_file(self.file.name)
         super().save(*args, **kwargs)
 
+
 class SecurityDepositDevolution(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
 
@@ -208,6 +228,7 @@ class SecurityDepositDevolution(models.Model):
     total_deposited_amount = models.FloatField(default=0)
     returned = models.BooleanField(default=False)
     returned_date = models.DateField(null=True)
+
 
 class LeaseDeposit(models.Model):
     lease = models.ForeignKey(Lease,
@@ -288,7 +309,7 @@ class Inspection(models.Model):
         if self.ramp is not None and self.megaramp:
             raise ValidationError(
                 "If Ramp is selected, Megaramp must be False.")
-        
+
     def __str__(self) -> str:
         return f"{self.lease} ({self.id})"
 

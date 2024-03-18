@@ -2,7 +2,7 @@ from django.urls import path
 from .views import vehicle, tracker, lease, calendar, client, invoice
 from django.views.generic import TemplateView
 from .permissions import staff_required_view
-from .views.cost  import (
+from .views.cost import (
     # ---- Category -------
     CategoryListView,
     delete_category,
@@ -21,8 +21,10 @@ urlpatterns = [
          name='create-costs-rental-category'),
     path('update-category/<pk>', CategoryUpdateView.as_view(),
          name='update-costs-rental-category'),
-    path('list-category/', CategoryListView.as_view(), name='list-costs-rental-category'),
-    path('delete-category/<id>', delete_category, name='delete-costs-rental-category'),
+    path('list-category/', CategoryListView.as_view(),
+         name='list-costs-rental-category'),
+    path('delete-category/<id>', delete_category,
+         name='delete-costs-rental-category'),
     # -------------------- Costs ----------------------------
     path('create-cost/', create_cost, name='create-cost-rental'),
     path('update-cost/<id>', update_cost, name='update-cost-rental'),
@@ -92,7 +94,7 @@ urlpatterns = [
          lease.create_handwriting, name='capture-signature'),
     path('adjust_deposit/<id>/', lease.adjust_end_deposit, name='adjust-deposit'),
     path('create_document_on_ended_contract/<id>/', lease.create_document_on_ended_contract,
-          name='create-document-on-ended-contract'),
+         name='create-document-on-ended-contract'),
     path('delete_document_on_ended_contract/<id>/', lease.delete_document_on_ended_contract,
          name='delete-document-on-ended-contract'),
     # -------------------- Lessee ----------------------------
@@ -153,5 +155,11 @@ urlpatterns = [
          lease.update_due, name='update-due'),
     # -------------------- Permissions ----------------------------
     path('staff_required/', staff_required_view, name='staff_required'),
-     # -------------------- Cost ----------------------------
+    # -------------------- Note ----------------------------
+    path('create_note/<int:contract_id>',
+         client.create_note, name='create-note'),
+    path('delete_note/<id>',
+         client.delete_note, name='delete-note'),
+    path('deactivate_reminder/<id>',
+         client.deactivate_reminder, name='deactivate-reminder'),
 ]

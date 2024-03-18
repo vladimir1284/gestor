@@ -1,0 +1,44 @@
+{% extends 'base/base_form.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block img_id %}
+    const img_id = "id_image";
+{% endblock img_id %}
+{% block content %}
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        let check, date_picker;
+
+        function has_reminder(){
+            if (check.checked != true)
+            {
+                date_picker.style.setProperty("display","none")
+            } 
+            else {
+                date_picker.style.setProperty("display","")
+            }
+        }
+
+        window.addEventListener("load", (event) => {
+            check = document.getElementById("id_has_reminder");
+            date_picker = document.getElementById("div_id_reminder_date");
+            check.onchange=has_reminder
+            has_reminder()
+          });
+        
+    </script>
+{% endblock content %}

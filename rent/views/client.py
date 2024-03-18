@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from rent.models.lease import LesseeData, Contract, Lease, Payment, Due
 from rent.tools.client import compute_client_debt
 from users.models import Associated
-from rent.forms.lease import PaymentForm
+from rent.forms.lease import PaymentForm, NoteForm
 from django.db import transaction
 from datetime import timedelta, datetime
 from django.utils import timezone
@@ -11,7 +11,7 @@ import pytz
 from django.conf import settings
 from .invoice import mail_send_invoice
 from .vehicle import FILES_ICONS
-from rent.models.lease import LeaseDocument, LeaseDeposit
+from rent.models.lease import LeaseDocument, LeaseDeposit, Note
 from django.db.models import Sum
 from rent.permissions import staff_required
 
@@ -77,13 +77,15 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
                     event=None,
                 )
             client.lease = lease
-            client.debt, last_payment, client.unpaid_dues = compute_client_debt(lease)
+            client.debt, last_payment, client.unpaid_dues = compute_client_debt(
+                lease)
             if client.debt > 0:
                 # Discount remaining from debt
                 client.debt -= lease.remaining
                 client.last_payment = client.unpaid_dues[0].start
                 rental_debt += client.debt
-                client.overdue_days = (timezone.now() - client.last_payment).days
+                client.overdue_days = (
+                    timezone.now() - client.last_payment).days
             else:
                 client.last_payment = timezone.now()
             payment_dates[client.id] = client.last_payment
@@ -94,7 +96,8 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
     sorted_clients = clients
     # Sorted by most overdue first
     if order_by == "date":
-        sorted_clients = sorted(clients, key=lambda client: payment_dates[client.id])
+        sorted_clients = sorted(
+            clients, key=lambda client: payment_dates[client.id])
     # Sorted by most debt amount first
     if order_by == "amount":
         sorted_clients = sorted(
@@ -141,7 +144,8 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 lease=lease,
             )
             # Send invoice by email
-            mail_send_invoice(request, lease.id, due_date.strftime("%m%d%Y"), "true")
+            mail_send_invoice(request, lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
     # Pay dues in the future
     if amount >= lease.payment_amount:
         start_time = timezone.now()
@@ -161,7 +165,8 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 lease=lease,
             )
             # Send invoice by email
-            mail_send_invoice(request, lease.id, due_date.strftime("%m%d%Y"), "true")
+            mail_send_invoice(request, lease.id,
+                              due_date.strftime("%m%d%Y"), "true")
             if amount < lease.payment_amount:
                 break
 
@@ -171,12 +176,50 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
 
 
 @login_required
+def deactivate_reminder(request, id):
+    note = get_object_or_404(Note, id=id)
+    note.has_reminder = False
+    note.save()
+    return redirect("client-detail", note.contract.lessee.id)
+
+
+@login_required
+def delete_note(request, id):
+    note = get_object_or_404(Note, id=id)
+    note.delete()
+    return redirect("client-detail", note.contract.lessee.id)
+
+
+@login_required
+def create_note(request, contract_id):
+    contract = get_object_or_404(Contract, id=contract_id)
+    if request.method == "POST":
+        form = NoteForm(request.POST, request.FILES)
+        if form.is_valid():
+            note = form.save(commit=False)
+            note.contract = contract
+            note.created_by = request.user
+            note.save()
+            # Redirect to a success page
+            return redirect("client-detail", contract.lessee.id)
+    else:
+        form = NoteForm()
+    context = {
+        "contract": contract,
+        "title": "Add a note",
+        "form": form
+    }
+    return render(request, "rent/client/create_note.html", context=context)
+
+
+@login_required
 def client_detail(request, id):
     # Create leases if needed
     client = get_object_or_404(Associated, id=id)
     client.contract = Contract.objects.filter(stage="active").last()
     client.data = LesseeData.objects.filter(associated=client).last()
-    leases = Lease.objects.filter(contract__lessee=client, contract__stage="active")
+    leases = Lease.objects.filter(
+        contract__lessee=client, contract__stage="active")
 
     dues = None
     for lease in leases:
@@ -184,8 +227,10 @@ def client_detail(request, id):
         base_process_payment(request, lease)
         lease.debt, last_date, lease.unpaid_dues = compute_client_debt(lease)
         # Payments for thi lease
-        payments = Payment.objects.filter(lease=lease).order_by("-date_of_payment")
-        lease.total_payment = payments.aggregate(sum_amount=Sum("amount"))["sum_amount"]
+        payments = Payment.objects.filter(
+            lease=lease).order_by("-date_of_payment")
+        lease.total_payment = payments.aggregate(
+            sum_amount=Sum("amount"))["sum_amount"]
         for i, payment in enumerate(reversed(payments)):
             # Dues paid by this lease
             dues = Due.objects.filter(
@@ -203,16 +248,27 @@ def client_detail(request, id):
             lease.paid, done = lease.contract.paid()
             lease.debt = lease.contract.total_amount - lease.paid
         else:
-            lease.paid_dues = Due.objects.filter(lease=lease).order_by("-due_date")
+            lease.paid_dues = Due.objects.filter(
+                lease=lease).order_by("-due_date")
             lease.paid = lease.paid_dues.aggregate(sum_amount=Sum("amount"))[
                 "sum_amount"
             ]
+
+        # Notes
+        lease.notes = Note.objects.filter(
+            contract=lease.contract).order_by("-created_at")
+
+        for note in lease.notes:
+            if note.file:
+                note.icon = "assets/img/icons/" + \
+                    FILES_ICONS[note.document_type]
 
         # Documents
         lease.documents = LeaseDocument.objects.filter(lease=lease)
         # Check for document expiration
         for document in lease.documents:
-            document.icon = "assets/img/icons/" + FILES_ICONS[document.document_type]
+            document.icon = "assets/img/icons/" + \
+                FILES_ICONS[document.document_type]
 
         # Deposits
         lease.total_deposit = 0
@@ -233,7 +289,7 @@ def client_detail(request, id):
     context = {
         "client": client,
         "leases": leases,
-        "dues": dues,
+        "dues": dues
     }
 
     return render(request, "rent/client/client_detail.html", context=context)
