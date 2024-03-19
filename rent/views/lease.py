@@ -27,6 +27,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import UpdateView
 
+from rent.forms.trailer_deposit import TrailerDeposit
+
 from ..forms.lease import AssociatedCreateForm
 from ..forms.lease import ContractForm
 from ..forms.lease import DueForm
