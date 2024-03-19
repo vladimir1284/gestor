@@ -101,7 +101,8 @@ class Contract(models.Model):
 
 class Lease(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.SET_NULL)
+    event = models.ForeignKey(
+        Event, null=True, blank=True, on_delete=models.SET_NULL)
     notify = models.BooleanField(default=False)
     PERIODICITY_CHOICES = [
         ("weekly", "Weekly"),
@@ -132,7 +133,8 @@ class Lease(models.Model):
             )
 
     def save(self, *args, **kwargs):
-        STATUS_COLOR = {"weekly": "green", "biweekly": "brown", "monthly": "blue"}
+        STATUS_COLOR = {"weekly": "green",
+                        "biweekly": "brown", "monthly": "blue"}
         RULES_DICT = {
             "weekly": "Weekly",
             "biweekly": "Biweekly",
@@ -145,7 +147,8 @@ class Lease(models.Model):
             self.event.delete()
 
         start = timezone.make_aware(
-            datetime.combine(start_date, datetime.min.time()) + timedelta(hours=12),
+            datetime.combine(start_date, datetime.min.time()
+                             ) + timedelta(hours=12),
             pytz.timezone(settings.TIME_ZONE),
         )
 
@@ -168,6 +171,24 @@ class Lease(models.Model):
 
     def __str__(self):
         return self.event.title
+
+
+class Note(models.Model):
+    contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    has_reminder = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    reminder_date = models.DateTimeField(blank=True, null=True)
+    file = models.FileField(upload_to="documents/notes", blank=True, null=True)
+    text = models.TextField(blank=True)
+    document_type = models.CharField(
+        max_length=3, choices=DOCUMENT_TYPES, default="BIN"
+    )
+
+    def save(self, *args, **kwargs):
+        if self.file:
+            self.document_type = classify_file(self.file.name)
+        super().save(*args, **kwargs)
 
 
 @receiver(pre_save, sender=Contract)
@@ -246,7 +267,8 @@ class LesseeData(models.Model):
     contact_name = models.CharField(max_length=100)
     contact_phone = PhoneNumberField()
     insurance_number = models.CharField(max_length=150, blank=True)
-    insurance_file = models.FileField(upload_to="rental/insurances", blank=True)
+    insurance_file = models.FileField(
+        upload_to="rental/insurances", blank=True)
     license_number = models.CharField(max_length=150)
     license_file = models.FileField(upload_to="rental/licenses", blank=True)
     client_address = models.TextField()
@@ -277,7 +299,8 @@ class Inspection(models.Model):
         if self.megaramp and self.ramp is not None:
             raise ValidationError("Megaramp and Ramp cannot both be selected.")
         if self.ramp is not None and self.megaramp:
-            raise ValidationError("If Ramp is selected, Megaramp must be False.")
+            raise ValidationError(
+                "If Ramp is selected, Megaramp must be False.")
 
     def __str__(self) -> str:
         return f"{self.lease} ({self.id})"
@@ -299,7 +322,8 @@ class Tire(models.Model):
         (90, "90%"),
         (100, "100%"),
     )
-    remaining_life = models.IntegerField(choices=remaining_life_choices, default=100)
+    remaining_life = models.IntegerField(
+        choices=remaining_life_choices, default=100)
 
 
 class Payment(models.Model):

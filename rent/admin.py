@@ -22,6 +22,7 @@ from .models.lease import (
     LeaseDocument,
     LeaseDeposit,
     SecurityDepositDevolution,
+    Note,
 )
 
 admin.site.register(Trailer)
@@ -42,3 +43,4 @@ admin.site.register(LeaseDocument)
 admin.site.register(LeaseDeposit)
 admin.site.register(TrailerPlates)
 admin.site.register(SecurityDepositDevolution)
+admin.site.register(Note)

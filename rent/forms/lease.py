@@ -1,5 +1,6 @@
 from django.forms import ModelForm
 from django import forms
+from django.utils import timezone
 from ..models.lease import (
     Contract,
     Inspection,
@@ -11,6 +12,7 @@ from ..models.lease import (
     LeaseDeposit,
     Due,
     SecurityDepositDevolution,
+    Note,
 )
 from django.forms import modelformset_factory
 from crispy_forms.helper import FormHelper
@@ -56,7 +58,8 @@ class ContractForm(ModelForm):
             Field("contract_type"),
             PrependedText("total_amount", "$"),
             ButtonHolder(
-                Submit("submit", "Create contract", css_class="btn btn-success")
+                Submit("submit", "Create contract",
+                       css_class="btn btn-success")
             ),
         )
 
@@ -104,7 +107,8 @@ class InspectionForm(forms.ModelForm):
         )
 
 
-TireFormSet = modelformset_factory(Tire, fields=("remaining_life",), edit_only=True)
+TireFormSet = modelformset_factory(
+    Tire, fields=("remaining_life",), edit_only=True)
 
 
 class LesseeDataForm(forms.ModelForm):
@@ -134,7 +138,8 @@ class LesseeDataForm(forms.ModelForm):
                 "insurance_file",
             ),
             Fieldset("Emergency Contact", "contact_name", "contact_phone"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -156,7 +161,8 @@ class SecurityDepositDevolutionForm(forms.ModelForm):
         self.helper.layout = Layout(
             PrependedText("amount", "$"),
             Field("returned", style="margin-bottom: 1rem !important;"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -176,7 +182,8 @@ class AssociatedCreateForm(BaseContactForm):
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field("type"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -215,7 +222,8 @@ class PaymentForm(forms.ModelForm):
             Field("sender_name"),
             Field("date_of_payment"),
             Field("amount"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -237,8 +245,51 @@ class LeaseUpdateForm(forms.ModelForm):
         self.helper.layout = Layout(
             PrependedText("payment_amount", "$"),
             Field("payment_frequency"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
+
+
+class NoteForm(forms.ModelForm):
+    class Meta:
+        model = Note
+        fields = ("text", "has_reminder", "reminder_date", "file")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["reminder_date"] = forms.DateTimeField(
+            widget=forms.DateInput(
+                attrs={"type": "date"}
+            ),
+            required=False
+        )
+
+        self.helper = FormHelper()
+        self.helper.field_class = "mb-3"
+        self.helper.form_method = "post"
+        self.helper.layout = Layout(
+            Field("text", placeholder="Note...", rows="2"),
+            Field("file", placeholder="Attachment"),
+            Field("has_reminder", css_class="mb-3"),
+            Field("reminder_date"),
+            ButtonHolder(Submit("submit", "Add",
+                         css_class="btn btn-success")),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        reminder_date = cleaned_data.get('reminder_date')
+        has_reminder = cleaned_data.get('has_reminder')
+        if has_reminder:
+            if reminder_date:
+                if reminder_date < timezone.now():
+                    raise forms.ValidationError(
+                        'Reminder date cannot be in the past!')
+            else:
+                raise forms.ValidationError(
+                    'If the reminder checkbox is selected you must provide a remidner date!')
+        return cleaned_data
 
 
 class LeaseDocumentForm(forms.ModelForm):
@@ -255,7 +306,8 @@ class LeaseDocumentForm(forms.ModelForm):
             Field("name", placeholder="Name"),
             Field("file", placeholder="Name"),
             Field("note", placeholder="Note", rows="2"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -272,7 +324,8 @@ class DueForm(forms.ModelForm):
         self.helper.layout = Layout(
             PrependedText("amount", "$"),
             Field("note", placeholder="Note", rows="2"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -295,5 +348,6 @@ class LeaseDepositForm(forms.ModelForm):
             PrependedText("amount", "$"),
             Field("date"),
             Field("note", placeholder="Note", rows="2"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )

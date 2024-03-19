@@ -22,6 +22,7 @@ from rent.views.deposit import trailer_deposit_cancel
 from rent.views.deposit import trailer_deposit_conditions
 from rent.views.deposit import trailer_deposit_details
 from rent.views.deposit import trailer_deposit_pdf
+<< << << < HEAD
 
 urlpatterns = [
     # -------------------- Category ----------------------------
@@ -40,6 +41,31 @@ urlpatterns = [
     ),
     path("delete-category/<id>", delete_category,
          name="delete-costs-rental-category"),
+== == == =
+from .views.cost import (
+    # ---- Category -------
+    CategoryListView,
+    delete_category,
+    CategoryUpdateView,
+    CategoryCreateView,
+    # ---- Costs ----------
+    create_cost,
+    update_cost,
+    list_cost,
+    delete_cost,
+    detail_cost
+)
+urlpatterns= [
+    # -------------------- Category ----------------------------
+    path('create-category/', CategoryCreateView.as_view(),
+         name='create-costs-rental-category'),
+    path('update-category/<pk>', CategoryUpdateView.as_view(),
+         name='update-costs-rental-category'),
+    path('list-category/', CategoryListView.as_view(),
+         name='list-costs-rental-category'),
+    path('delete-category/<id>', delete_category,
+         name='delete-costs-rental-category'),
+>>>>>> > a31f498(Add notes to a contract)
     # -------------------- Costs ----------------------------
     path("create-cost/", create_cost, name="create-cost-rental"),
     path("update-cost/<id>", update_cost, name="update-cost-rental"),
@@ -321,4 +347,11 @@ urlpatterns = [
     # -------------------- Permissions ----------------------------
     path("staff_required/", staff_required_view, name="staff_required"),
     # -------------------- Cost ----------------------------
+    # -------------------- Note ----------------------------
+    path('create_note/<int:contract_id>',
+         client.create_note, name='create-note'),
+    path('delete_note/<id>',
+         client.delete_note, name='delete-note'),
+    path('deactivate_reminder/<id>',
+         client.deactivate_reminder, name='deactivate-reminder'),
 ]
