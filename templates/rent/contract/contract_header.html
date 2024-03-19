@@ -35,16 +35,18 @@
                class="btn btn-outline-primary">
                 <span class="tf-icons bx bx-edit"></span>&nbsp; Terms
             </a>
-            <a href="{% url 'update-inspection' contract.inspection.id %}"
-               type="button"
-               class="btn btn-outline-primary">
-                <span class="tf-icons bx bx-edit"></span>&nbsp; Inspection
-            </a>
-            <a href="{% url 'update-tires' contract.inspection.id %}"
-               type="button"
-               class="btn btn-outline-primary">
-                <span class="tf-icons bx bx-edit"></span>&nbsp; Tires
-            </a>
+            {% if contract.inspection %}
+                <a href="{% url 'update-inspection' contract.inspection.id %}"
+                type="button"
+                class="btn btn-outline-primary">
+                    <span class="tf-icons bx bx-edit"></span>&nbsp; Inspection
+                </a>
+                <a href="{% url 'update-tires' contract.inspection.id %}"
+                type="button"
+                class="btn btn-outline-primary">
+                    <span class="tf-icons bx bx-edit"></span>&nbsp; Tires
+                </a>
+            {% endif %}
             <a href="{% url 'contract-signing' contract.id %}"
                type="button"
                class="btn btn-icon btn-outline-primary">
