@@ -11,7 +11,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">{{ title }}</h5>
-                {% if form.instance.id %}
+                {% if form.instance.id and perms.costs.delete_cost %}
                     <a onclick="deleteCost('{% url 'delete-cost' form.instance.id %}', '')"
                        type="button"
                        class="btn btn-icon btn-outline-danger float-end">

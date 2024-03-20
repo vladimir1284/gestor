@@ -1,19 +1,31 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
-from rent.models.lease import LesseeData, Contract, Lease, Payment, Due
-from rent.tools.client import compute_client_debt
-from users.models import Associated
-from rent.forms.lease import PaymentForm, NoteForm
-from django.db import transaction
-from datetime import timedelta, datetime
-from django.utils import timezone
+from datetime import datetime
+from datetime import timedelta
+
 import pytz
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.utils import timezone
+
 from .invoice import mail_send_invoice
 from .vehicle import FILES_ICONS
-from rent.models.lease import LeaseDocument, LeaseDeposit, Note
-from django.db.models import Sum
+from rent.forms.lease import NoteForm
+from rent.forms.lease import PaymentForm
+from rent.models.lease import Contract
+from rent.models.lease import Due
+from rent.models.lease import Lease
+from rent.models.lease import LeaseDeposit
+from rent.models.lease import LeaseDocument
+from rent.models.lease import LesseeData
+from rent.models.lease import Note
+from rent.models.lease import Payment
 from rent.permissions import staff_required
+from rent.tools.client import compute_client_debt
+from users.models import Associated
 
 
 @login_required
@@ -154,7 +166,10 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 datetime.combine(due.due_date, datetime.min.time()),
                 pytz.timezone(settings.TIME_ZONE),
             ) + timedelta(days=1)
-        occurrences = lease.event.occurrences_after(start_time)
+        occurrences = (
+            [] if lease.event is None else lease.event.occurrences_after(
+                start_time)
+        )
         for occurrence in occurrences:
             amount -= lease.payment_amount
             due_date = occurrence.start.date()
@@ -204,11 +219,7 @@ def create_note(request, contract_id):
             return redirect("client-detail", contract.lessee.id)
     else:
         form = NoteForm()
-    context = {
-        "contract": contract,
-        "title": "Add a note",
-        "form": form
-    }
+    context = {"contract": contract, "title": "Add a note", "form": form}
     return render(request, "rent/client/create_note.html", context=context)
 
 
@@ -255,8 +266,9 @@ def client_detail(request, id):
             ]
 
         # Notes
-        lease.notes = Note.objects.filter(
-            contract=lease.contract).order_by("-created_at")
+        lease.notes = Note.objects.filter(contract=lease.contract).order_by(
+            "-created_at"
+        )
 
         for note in lease.notes:
             if note.file:
@@ -286,11 +298,7 @@ def client_detail(request, id):
             else:
                 lease.contract.toll_totalunpaid += toll.amount
 
-    context = {
-        "client": client,
-        "leases": leases,
-        "dues": dues
-    }
+    context = {"client": client, "leases": leases, "dues": dues}
 
     return render(request, "rent/client/client_detail.html", context=context)
 

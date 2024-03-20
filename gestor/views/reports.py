@@ -1,40 +1,38 @@
-from datetime import datetime, timedelta, date
-from django.conf import settings
-from typing import List
+from datetime import datetime
+from datetime import timedelta
 from itertools import chain
-from django.shortcuts import (
-    render,
-    get_object_or_404,
-)
+from typing import List
+
+import pytz
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.contrib.auth.decorators import permission_required
 from django.db.models import Min
-from inventory.models import ProductTransaction
-from services.models import (
-    Expense,
-    PendingPayment,
-    Payment,
-    PaymentCategory,
-)
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
+from django.utils import timezone
+
 from costs.models import Cost
-from utils.models import Order
+from gestor.views.utils import getMonthYear
+from gestor.views.utils import getWeek
+from inventory.models import ProductTransaction
+from rent.models.cost import (
+    RentalCost,
+)
+from rent.models.lease import Due
+from rent.models.lease import Lease
+from rent.models.lease import Payment as RentalPayment
+from rent.tools.client import get_start_paying_date
+from services.models import Expense
+from services.models import Payment
+from services.models import PaymentCategory
+from services.models import PendingPayment
 from services.views.order import (
     computeOrderAmount,
 )
-from gestor.views.utils import getWeek, getMonthYear
-from rent.models.lease import (
-    Due,
-    Payment as RentalPayment,
-    Lease,
-)
-from rent.models.cost import(
-  RentalCost,
-)
-from rent.tools.client import get_start_paying_date
-from datetime import datetime
-from django.utils import timezone
-import pytz
-from dateutil.relativedelta import relativedelta
+from utils.models import Order
 
 
 class UnknownCategory:
@@ -54,19 +52,18 @@ class UnknownCategory:
 unknownCategory = UnknownCategory()
 
 STYLE_COLOR = {
-    '#696cff': 'primary',
-    '#8592a3': 'secondary',
-    '#71dd37': 'success',
-    '#ff3e1d': 'danger',
-    '#ffab00': 'warning',
-    '#03c3ec': 'info',
-    '#233446': 'dark',
+    "#696cff": "primary",
+    "#8592a3": "secondary",
+    "#71dd37": "success",
+    "#ff3e1d": "danger",
+    "#ffab00": "warning",
+    "#03c3ec": "info",
+    "#233446": "dark",
 }
 
 
-
 def getOrderBalance(order: Order, products: dict):
-    """ 
+    """
     This function calculates the balance of an order by computing the
     transactions, services, and expenses associated with it. It then computes
     the labor income, consumables and parts, and third party expenses. The
@@ -85,31 +82,35 @@ def getOrderBalance(order: Order, products: dict):
 
     # Consumables and parts
     transactions: List[ProductTransaction] = ProductTransaction.objects.filter(
-        order=order)
+        order=order
+    )
     parts_cost = 0
     consumable_expenses = 0
     for trans in transactions:
         product = trans.product
         if product in products.keys():
-            products[product]['quantity'] += trans.quantity
-            products[product]['cost'] += trans.cost
-            products[product]['price'] += trans.getAmount()
-            products[product]['profit'] += computeTransactionProfit(
-                trans,
-                procedure="profit")
+            products[product]["quantity"] += trans.quantity
+            products[product]["cost"] += trans.cost
+            products[product]["price"] += trans.getAmount()
+            products[product]["profit"] += computeTransactionProfit(
+                trans, procedure="profit"
+            )
         else:
-            products.setdefault(product, {
-                'type': product.type,
-                'name': product.name,
-                'unit': product.unit,
-                'quantity': trans.quantity,
-                'price': trans.getAmount(),
-                'cost': trans.cost,
-                'profit': computeTransactionProfit(trans, procedure="profit")
-            })
-        if product.type == 'part':
+            products.setdefault(
+                product,
+                {
+                    "type": product.type,
+                    "name": product.name,
+                    "unit": product.unit,
+                    "quantity": trans.quantity,
+                    "price": trans.getAmount(),
+                    "cost": trans.cost,
+                    "profit": computeTransactionProfit(trans, procedure="profit"),
+                },
+            )
+        if product.type == "part":
             parts_cost += trans.cost
-        if product.type == 'consumable':
+        if product.type == "consumable":
             consumable_expenses += trans.cost
     # Third party expenses
     tpe = Expense.objects.filter(order=order)
@@ -122,15 +123,12 @@ def getOrderBalance(order: Order, products: dict):
     order.consumable = consumable_expenses
     order.third_party = third_party_expenses
     order.amount -= order.discount
-    order.net = (order.amount
-                 - order.parts
-                 - order.consumable
-                 - order.third_party
-                 )
+    order.net = order.amount - order.parts - order.consumable - order.third_party
     order.amount += order.tax
 
 
 @login_required
+@permission_required("costs.view_cost")
 def monthly_report(request, year=None, month=None):
     """
     The function takes optional parameters for the year and month, allowing
@@ -162,71 +160,85 @@ def monthly_report(request, year=None, month=None):
     """
 
     # Prepare dashboard from last close
-    ((previousMonth, previousYear),
+    (
+        (previousMonth, previousYear),
         (currentMonth, currentYear),
-        (nextMonth, nextYear)) = getMonthYear(month, year)
+        (nextMonth, nextYear),
+    ) = getMonthYear(month, year)
 
-    orders = Order.objects.filter(
-        status='complete',
-        type='sell',
-        terminated_date__year=currentYear,
-        terminated_date__month=currentMonth).order_by(
-        '-terminated_date').exclude(
-        associated__membership=True).exclude(
-        company__membership=True, associated=None)
+    orders = (
+        Order.objects.filter(
+            status="complete",
+            type="sell",
+            terminated_date__year=currentYear,
+            terminated_date__month=currentMonth,
+        )
+        .order_by("-terminated_date")
+        .exclude(associated__membership=True)
+        .exclude(company__membership=True, associated=None)
+    )
 
-    costs = Cost.objects.filter(date__year=currentYear,
-                                date__month=currentMonth).order_by("-date")
+    costs = Cost.objects.filter(
+        date__year=currentYear, date__month=currentMonth
+    ).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
-        created_date__year=currentYear,
-        created_date__month=currentMonth).order_by("-created_date")
-    
+        created_date__year=currentYear, created_date__month=currentMonth
+    ).order_by("-created_date")
+
     context = computeReport(orders, costs, pending_payments)
-    context.setdefault('previousMonth', previousMonth)
-    context.setdefault('currentMonth', currentMonth)
-    context.setdefault('nextMonth', nextMonth)
-    context.setdefault('thisMonth', datetime.now().month)
-    context.setdefault('previousYear', previousYear)
-    context.setdefault('currentYear', currentYear)
-    context.setdefault('nextYear', nextYear)
-    context.setdefault('thisYear', datetime.now().year)
-    context.setdefault('interval', 'monthly')
+    context.setdefault("previousMonth", previousMonth)
+    context.setdefault("currentMonth", currentMonth)
+    context.setdefault("nextMonth", nextMonth)
+    context.setdefault("thisMonth", datetime.now().month)
+    context.setdefault("previousYear", previousYear)
+    context.setdefault("currentYear", currentYear)
+    context.setdefault("nextYear", nextYear)
+    context.setdefault("thisYear", datetime.now().year)
+    context.setdefault("interval", "monthly")
 
-    context.setdefault('membership', getMonthlyMembership(
-        currentYear, currentMonth, all=True)['total']['gross'])
+    context.setdefault(
+        "membership",
+        getMonthlyMembership(currentYear, currentMonth, all=True)[
+            "total"]["gross"],
+    )
 
-    return render(request, 'monthly.html', context)
+    return render(request, "monthly.html", context)
 
 
 def getRentalReport(currentYear, currentMonth):
     paid_dues = Due.objects.filter(
-        due_date__year=currentYear,
-        due_date__month=currentMonth)
-    invoice_income = paid_dues.aggregate(total=Sum('amount'))['total']
+        due_date__year=currentYear, due_date__month=currentMonth
+    )
+    invoice_income = paid_dues.aggregate(total=Sum("amount"))["total"]
     total_income = RentalPayment.objects.filter(
-        date_of_payment__year=currentYear,
-        date_of_payment__month=currentMonth).aggregate(total=Sum('amount'))['total']
+        date_of_payment__year=currentYear, date_of_payment__month=currentMonth
+    ).aggregate(total=Sum("amount"))["total"]
     # Unpaid dues
     leases = Lease.objects.filter(contract__stage="active")
     unpaid_amount = 0
     unpaid_leases = []
     for lease in leases:
         interval_start = get_start_paying_date(lease)
-        first_day_of_this_month = timezone.make_aware(timezone.datetime(
-            currentYear, currentMonth, 1), pytz.timezone(settings.TIME_ZONE))
+        first_day_of_this_month = timezone.make_aware(
+            timezone.datetime(currentYear, currentMonth, 1),
+            pytz.timezone(settings.TIME_ZONE),
+        )
         first_day_of_next_month = first_day_of_this_month + \
             relativedelta(months=1)
 
         interval_start = max(first_day_of_this_month, interval_start)
         interval_end = min(first_day_of_next_month, timezone.now())
-        occurrences = lease.event.get_occurrences(interval_start,
-                                                  interval_end)
+        occurrences = (
+            []
+            if lease.event is None
+            else lease.event.get_occurrences(interval_start, interval_end)
+        )
         lease.unpaid_dues = []
         unpaid_lease = False
         for occurrence in occurrences:
-            paid_due = Due.objects.filter(due_date=occurrence.start.date(),
-                                          lease=lease)
+            paid_due = Due.objects.filter(
+                due_date=occurrence.start.date(), lease=lease)
             if len(paid_due) == 0:
                 unpaid_amount += lease.payment_amount
                 lease.unpaid_dues.append(occurrence)
@@ -234,18 +246,18 @@ def getRentalReport(currentYear, currentMonth):
         if unpaid_lease:
             unpaid_leases.append(lease)
     try:
-        pending_payments = total_income-float(invoice_income)
+        pending_payments = total_income - float(invoice_income)
     except:
         pending_payments = 0
 
     rental = {
-        'paid_dues': paid_dues,
-        'total_income': total_income or 0,
-        'invoice_income': invoice_income,
-        'unpaid_amount': unpaid_amount,
-        'planned_income': unpaid_amount+invoice_income,
-        'unpaid_leases': unpaid_leases,
-        'pending_payments': pending_payments,
+        "paid_dues": paid_dues,
+        "total_income": total_income or 0,
+        "invoice_income": invoice_income,
+        "unpaid_amount": unpaid_amount,
+        "planned_income": unpaid_amount + invoice_income,
+        "unpaid_leases": unpaid_leases,
+        "pending_payments": pending_payments,
     }
     return rental
 
@@ -255,41 +267,47 @@ def monthly_payments(request, category_id, year, month):
     category = get_object_or_404(PaymentCategory, id=category_id)
 
     # Prepare dashboard from last close
-    ((previousMonth, previousYear),
+    (
+        (previousMonth, previousYear),
         (currentMonth, currentYear),
-        (nextMonth, nextYear)) = getMonthYear(month, year)
+        (nextMonth, nextYear),
+    ) = getMonthYear(month, year)
 
-    orders = Order.objects.filter(
-        status='complete',
-        type='sell',
-        terminated_date__year=currentYear,
-        terminated_date__month=currentMonth).order_by(
-        '-terminated_date').exclude(
-        associated__membership=True).exclude(
-        company__membership=True, associated=None)
+    orders = (
+        Order.objects.filter(
+            status="complete",
+            type="sell",
+            terminated_date__year=currentYear,
+            terminated_date__month=currentMonth,
+        )
+        .order_by("-terminated_date")
+        .exclude(associated__membership=True)
+        .exclude(company__membership=True, associated=None)
+    )
 
     pending_payments = PendingPayment.objects.filter(
         category=category,
         created_date__year=currentYear,
-        created_date__month=currentMonth).order_by("-created_date")
+        created_date__month=currentMonth,
+    ).order_by("-created_date")
 
     context = getPaymentContext(orders, category, pending_payments)
 
-    return render(request, 'payments.html', context)
+    return render(request, "payments.html", context)
 
 
 @login_required
+@permission_required("costs.view_cost")
 def weekly_membership_report(request, date=None):
-
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
 
     context = getWeekMembership(start_date, end_date)
 
-    context.setdefault('start_date', start_date)
-    context.setdefault('end_date', end_date - timedelta(days=1))
-    context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
-    context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
-    return render(request, 'weekly_membership.html', context)
+    context.setdefault("start_date", start_date)
+    context.setdefault("end_date", end_date - timedelta(days=1))
+    context.setdefault("previousWeek", previousWeek.strftime("%m%d%Y"))
+    context.setdefault("nextWeek", nextWeek.strftime("%m%d%Y"))
+    return render(request, "weekly_membership.html", context)
 
 
 def getWeekMembership(start_date, end_date):
@@ -308,114 +326,133 @@ def getWeekMembership(start_date, end_date):
      Finally, the function calls another function named "computeReport" and
     passes the retrieved orders, costs, and pending payments as arguments.
     The result of the "computeReport" function is returned as the output of
-    the "getWeekMembership" function. 
+    the "getWeekMembership" function.
     """
 
-    orders = Order.objects.filter(
-        status='complete',
-        type='sell',
-        terminated_date__gt=start_date,
-        terminated_date__lte=end_date).order_by(
-        '-terminated_date').exclude(
-        company__membership=False).exclude(
-        company=None)
+    orders = (
+        Order.objects.filter(
+            status="complete",
+            type="sell",
+            terminated_date__gt=start_date,
+            terminated_date__lte=end_date,
+        )
+        .order_by("-terminated_date")
+        .exclude(company__membership=False)
+        .exclude(company=None)
+    )
 
     costs = Cost.objects.filter(date__range=(
         start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
-        created_date__gt=start_date,
-        created_date__lte=end_date).order_by("-created_date")
+        created_date__gt=start_date, created_date__lte=end_date
+    ).order_by("-created_date")
 
     return computeReport(orders, costs, pending_payments)
 
 
 @login_required
+@permission_required("costs.view_cost")
 def monthly_membership_report(request, year=None, month=None):
     # Prepare dashboard from last close
-    ((previousMonth, previousYear),
+    (
+        (previousMonth, previousYear),
         (currentMonth, currentYear),
-        (nextMonth, nextYear)) = getMonthYear(month, year)
+        (nextMonth, nextYear),
+    ) = getMonthYear(month, year)
 
     context = getMonthlyMembership(currentYear, currentMonth)
 
-    context.setdefault('previousMonth', previousMonth)
-    context.setdefault('currentMonth', currentMonth)
-    context.setdefault('nextMonth', nextMonth)
-    context.setdefault('thisMonth', datetime.now().month)
-    context.setdefault('previousYear', previousYear)
-    context.setdefault('currentYear', currentYear)
-    context.setdefault('nextYear', nextYear)
-    context.setdefault('thisYear', datetime.now().year)
-    context.setdefault('rental', getRentalReport(currentYear, currentMonth))
-    context["profit"] =  context["rental"]["total_income"] - context["total"]["gross"] - context["costs"].total
-    return render(request, 'monthly_membership.html', context)
+    context.setdefault("previousMonth", previousMonth)
+    context.setdefault("currentMonth", currentMonth)
+    context.setdefault("nextMonth", nextMonth)
+    context.setdefault("thisMonth", datetime.now().month)
+    context.setdefault("previousYear", previousYear)
+    context.setdefault("currentYear", currentYear)
+    context.setdefault("nextYear", nextYear)
+    context.setdefault("thisYear", datetime.now().year)
+    context.setdefault("rental", getRentalReport(currentYear, currentMonth))
+    context["profit"] = (
+        context["rental"]["total_income"]
+        - context["total"]["gross"]
+        - context["costs"].total
+    )
+    return render(request, "monthly_membership.html", context)
 
 
 def getMonthlyMembership(currentYear, currentMonth, all=False):
-    orders = Order.objects.filter(
-        status='complete',
-        type='sell',
-        terminated_date__year=currentYear,
-        terminated_date__month=currentMonth).order_by(
-        '-terminated_date').exclude(
-        company__membership=False).exclude(
-        company=None).exclude(
-        associated__isnull=False)
+    orders = (
+        Order.objects.filter(
+            status="complete",
+            type="sell",
+            terminated_date__year=currentYear,
+            terminated_date__month=currentMonth,
+        )
+        .order_by("-terminated_date")
+        .exclude(company__membership=False)
+        .exclude(company=None)
+        .exclude(associated__isnull=False)
+    )
     # Separate initial orders only for Rental Report
     if not all:
         orders.has_initial = False
         for order in orders:
             first_terminated_date = Order.objects.filter(
-                trailer=order.trailer).aggregate(oldest=Min('terminated_date'))['oldest']
-            order.is_initial = (order.terminated_date == first_terminated_date)
+                trailer=order.trailer
+            ).aggregate(oldest=Min("terminated_date"))["oldest"]
+            order.is_initial = order.terminated_date == first_terminated_date
             if order.is_initial:
                 orders.has_initial = True
 
-    costs = RentalCost.objects.filter(date__year=currentYear,
-                                date__month=currentMonth).order_by("-date")
+    costs = RentalCost.objects.filter(
+        date__year=currentYear, date__month=currentMonth
+    ).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
-        created_date__year=currentYear,
-        created_date__month=currentMonth).order_by("-created_date")
-    
-    return  computeReport(orders, costs, pending_payments)
+        created_date__year=currentYear, created_date__month=currentMonth
+    ).order_by("-created_date")
+
+    return computeReport(orders, costs, pending_payments)
 
 
 @login_required
+@permission_required("costs.view_cost")
 def weekly_report(request, date=None):
-
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
 
-    orders = Order.objects.filter(
-        status='complete',
-        type='sell',
-        terminated_date__gt=start_date,
-        terminated_date__lte=end_date).order_by(
-        '-terminated_date').exclude(
-        associated__membership=True).exclude(
-        company__membership=True, associated=None)
+    orders = (
+        Order.objects.filter(
+            status="complete",
+            type="sell",
+            terminated_date__gt=start_date,
+            terminated_date__lte=end_date,
+        )
+        .order_by("-terminated_date")
+        .exclude(associated__membership=True)
+        .exclude(company__membership=True, associated=None)
+    )
 
     costs = Cost.objects.filter(date__range=(
         start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
-        created_date__gt=start_date,
-        created_date__lte=end_date).order_by("-created_date")
+        created_date__gt=start_date, created_date__lte=end_date
+    ).order_by("-created_date")
 
     context = computeReport(orders, costs, pending_payments)
-    context.setdefault('now', datetime.now())
-    context.setdefault('start_date', start_date)
-    context.setdefault('end_date', end_date - timedelta(days=1))
-    context.setdefault('currentDate', start_date.strftime("%m%d%Y"))
-    context.setdefault('previousWeek', previousWeek.strftime("%m%d%Y"))
-    context.setdefault('nextWeek', nextWeek.strftime("%m%d%Y"))
-    context.setdefault('interval', 'weekly')
+    context.setdefault("now", datetime.now())
+    context.setdefault("start_date", start_date)
+    context.setdefault("end_date", end_date - timedelta(days=1))
+    context.setdefault("currentDate", start_date.strftime("%m%d%Y"))
+    context.setdefault("previousWeek", previousWeek.strftime("%m%d%Y"))
+    context.setdefault("nextWeek", nextWeek.strftime("%m%d%Y"))
+    context.setdefault("interval", "weekly")
 
-    context.setdefault('membership', getWeekMembership(
-        start_date, end_date)['total']['gross'])
+    context.setdefault(
+        "membership", getWeekMembership(start_date, end_date)["total"]["gross"]
+    )
 
-    return render(request, 'weekly.html', context)
+    return render(request, "weekly.html", context)
 
 
 @login_required
@@ -424,42 +461,43 @@ def weekly_payments(request, category_id, date):
 
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
 
-    orders = Order.objects.filter(
-        status='complete',
-        type='sell',
-        terminated_date__gt=start_date,
-        terminated_date__lte=end_date).order_by(
-        '-terminated_date').exclude(
-        associated__membership=True).exclude(
-        company__membership=True, associated=None)
+    orders = (
+        Order.objects.filter(
+            status="complete",
+            type="sell",
+            terminated_date__gt=start_date,
+            terminated_date__lte=end_date,
+        )
+        .order_by("-terminated_date")
+        .exclude(associated__membership=True)
+        .exclude(company__membership=True, associated=None)
+    )
 
     pending_payments = PendingPayment.objects.filter(
-        category=category,
-        created_date__gt=start_date,
-        created_date__lte=end_date).order_by("-created_date")
+        category=category, created_date__gt=start_date, created_date__lte=end_date
+    ).order_by("-created_date")
 
     context = getPaymentContext(orders, category, pending_payments)
 
-    return render(request, 'payments.html', context)
+    return render(request, "payments.html", context)
 
 
 def getPaymentContext(orders, category, pending_payments):
-    """ 
-    Overall, this function is useful for obtaining the payment context for a 
-    specific category and set of orders, including both completed payments and 
+    """
+    Overall, this function is useful for obtaining the payment context for a
+    specific category and set of orders, including both completed payments and
     pending payments.
-    This function retrieves the payment context for a given set of orders, a 
-    specified category, and a list of pending payments. It first filters the 
-    Payment objects based on the provided orders and category. Then, it 
-    calculates the total amount by iterating over the retrieved payments and 
-    adding up their amounts. Next, it adds the amounts of the pending payments 
-    to the total. The function returns a dictionary containing the retrieved 
-    payments, the total amount, the number of transactions (which is the sum of 
-    the retrieved payments and the pending payments), the list of pending 
-    payments, and the specified category. 
-   """
-    payments = Payment.objects.filter(order__in=orders,
-                                      category=category)
+    This function retrieves the payment context for a given set of orders, a
+    specified category, and a list of pending payments. It first filters the
+    Payment objects based on the provided orders and category. Then, it
+    calculates the total amount by iterating over the retrieved payments and
+    adding up their amounts. Next, it adds the amounts of the pending payments
+    to the total. The function returns a dictionary containing the retrieved
+    payments, the total amount, the number of transactions (which is the sum of
+    the retrieved payments and the pending payments), the list of pending
+    payments, and the specified category.
+    """
+    payments = Payment.objects.filter(order__in=orders, category=category)
     total = 0
     for payment in payments:
         total += payment.amount
@@ -467,37 +505,39 @@ def getPaymentContext(orders, category, pending_payments):
     for payment in pending_payments:
         total += payment.amount
 
-    return {'payments': payments,
-            'total': total,
-            'transactions': len(payments) + len(pending_payments),
-            'pending_payments': pending_payments,
-            'category': category}
+    return {
+        "payments": payments,
+        "total": total,
+        "transactions": len(payments) + len(pending_payments),
+        "pending_payments": pending_payments,
+        "category": category,
+    }
 
 
 def computeReport(orders, costs, pending_payments):
-    """ 
-    The function  `computeReport`  is designed to generate a report based on 
-    several parameters: orders, costs, and pending payments. 
-    The function first initializes a number of variables to track various 
-    aspects of the orders, such as the number of parts and consumables, the 
-    gross and net amounts, taxes, discounts, and third-party costs. It also 
-    creates a dictionary to store product information. 
-    Next, the function iterates over each order. For each order, it updates the 
-    respective variables and calculates the order balance. It also fetches all 
+    """
+    The function  `computeReport`  is designed to generate a report based on
+    several parameters: orders, costs, and pending payments.
+    The function first initializes a number of variables to track various
+    aspects of the orders, such as the number of parts and consumables, the
+    gross and net amounts, taxes, discounts, and third-party costs. It also
+    creates a dictionary to store product information.
+    Next, the function iterates over each order. For each order, it updates the
+    respective variables and calculates the order balance. It also fetches all
     payments associated with the order.
-    Then, the function calculates the total costs and categorizes them. It sorts 
-    the categories based on the amount and prepares them for chart representation. 
-    If there are more than 4 categories, it groups the remaining ones under 
+    Then, the function calculates the total costs and categorizes them. It sorts
+    the categories based on the amount and prepares them for chart representation.
+    If there are more than 4 categories, it groups the remaining ones under
     "Others".
-    The function then calculates the profit for each product type (parts and 
-    consumables) and sorts the products based on profit. It also calculates the 
+    The function then calculates the profit for each product type (parts and
+    consumables) and sorts the products based on profit. It also calculates the
     efficiency of each product.
-    Next, it handles the payments. It fetches all payments associated with the 
-    orders and includes any pending payments. It calculates the total payment 
-    amount and the amount of debt paid. It categorizes the payments and sorts them 
-    based on the amount. It also prepares the payment categories for chart 
+    Next, it handles the payments. It fetches all payments associated with the
+    orders and includes any pending payments. It calculates the total payment
+    amount and the amount of debt paid. It categorizes the payments and sorts them
+    based on the amount. It also prepares the payment categories for chart
     representation, grouping any extra categories under "Others".
-    Finally, the function returns a dictionary containing all the calculated and 
+    Finally, the function returns a dictionary containing all the calculated and
     sorted data, which can be used to generate a detailed report.
     """
     parts = 0
@@ -545,26 +585,26 @@ def computeReport(orders, costs, pending_payments):
         order.payments = Payment.objects.filter(order=order)
 
     total = {
-        'parts': parts,
-        'consumable': consumable,
-        'gross': gross,
-        'third_party': third_party,
-        'net': net,
-        'labor': labor,
-        'discount': discount,
-        'tax': tax,
+        "parts": parts,
+        "consumable": consumable,
+        "gross": gross,
+        "third_party": third_party,
+        "net": net,
+        "labor": labor,
+        "discount": discount,
+        "tax": tax,
     }
     total_initial = {
-        'parts': parts_initial,
-        'consumable': consumable_initial,
-        'gross': gross_initial,
-        'third_party': third_party_initial,
-        'net': net_initial,
-        'labor': labor_initial,
-        'discount': discount_initial,
-        'tax': tax_initial,
+        "parts": parts_initial,
+        "consumable": consumable_initial,
+        "gross": gross_initial,
+        "third_party": third_party_initial,
+        "net": net_initial,
+        "labor": labor_initial,
+        "discount": discount_initial,
+        "tax": tax_initial,
     }
-    
+
     # Costs
     costs.total = 0
     cats = {}
@@ -577,10 +617,9 @@ def computeReport(orders, costs, pending_payments):
             cats[category][1] += 1
         costs.total += cost.amount
     # Sort by amount
-    sorted_cats = sorted(
-        cats, key=lambda cat: cats[cat][0], reverse=True)
+    sorted_cats = sorted(cats, key=lambda cat: cats[cat][0], reverse=True)
 
-    otherCosts = UnknownCategory("Others", '#8592a3')
+    otherCosts = UnknownCategory("Others", "#8592a3")
     chart_costs = []
 
     for i, cat in enumerate(sorted_cats):
@@ -603,31 +642,33 @@ def computeReport(orders, costs, pending_payments):
     consumables_profit = 0
     for product in products.keys():
         if product.type == "part":
-            parts_profit += products[product]['profit']
-            parts_price += products[product]['price']
-            parts_cost += products[product]['cost']
+            parts_profit += products[product]["profit"]
+            parts_price += products[product]["price"]
+            parts_cost += products[product]["cost"]
         if product.type == "consumable":
-            consumables_profit += products[product]['profit']
+            consumables_profit += products[product]["profit"]
 
     parts_utility = 0
-    if (parts_cost != 0):
-        parts_utility = 100*parts_profit/parts_cost
+    if parts_cost != 0:
+        parts_utility = 100 * parts_profit / parts_cost
 
     # Sort by profit
     sorted_products = sorted(
-        products, key=lambda product: products[product]['profit'], reverse=True)
+        products, key=lambda product: products[product]["profit"], reverse=True
+    )
 
     for product in sorted_products:
-        product.profit = products[product]['profit']
-        product.quantity = products[product]['quantity']
-        product.cost = products[product]['cost']
-        product.price = products[product]['price']
+        product.profit = products[product]["profit"]
+        product.quantity = products[product]["quantity"]
+        product.cost = products[product]["cost"]
+        product.price = products[product]["price"]
         if product.quantity > 0:
-            product.average_price = product.price/product.quantity
-            product.average_cost = product.cost/product.quantity
-        if products[product]['cost'] != 0:
+            product.average_price = product.price / product.quantity
+            product.average_cost = product.cost / product.quantity
+        if products[product]["cost"] != 0:
             product.efficiency = int(
-                100*products[product]['profit']/products[product]['cost'])
+                100 * products[product]["profit"] / products[product]["cost"]
+            )
         else:
             product.efficiency = None
 
@@ -661,11 +702,12 @@ def computeReport(orders, costs, pending_payments):
 
     # Sort by amount
     sorted_payment_cats = sorted(
-        payment_cats, key=lambda cat: payment_cats[cat][0], reverse=True)
+        payment_cats, key=lambda cat: payment_cats[cat][0], reverse=True
+    )
 
     extra_charge = 0
     chart_payments = []
-    othersCategory = UnknownCategory("Others", '#8592a3')
+    othersCategory = UnknownCategory("Others", "#8592a3")
 
     for i, cat in enumerate(sorted_payment_cats):
         cat.style = STYLE_COLOR[cat.chartColor]
@@ -673,7 +715,7 @@ def computeReport(orders, costs, pending_payments):
         cat.amount_payment = payment_cats[cat][1]
         cat.amount_service = payment_cats[cat][2]
         if cat.extra_charge > 0:
-            cat.extra_charge = cat.amount*cat.extra_charge/100
+            cat.extra_charge = cat.amount * cat.extra_charge / 100
             # cat.amount += cat.extra_charge
             extra_charge += cat.extra_charge
 
@@ -690,24 +732,24 @@ def computeReport(orders, costs, pending_payments):
         chart_payments.append(othersCategory)
 
     return {
-        'orders': orders,
-        'total': total,
-        'total_initial': total_initial,
-        'costs': costs,
-        'cost_cats': sorted_cats,
-        'chart_costs': chart_costs,
-        'payment_cats': sorted_payment_cats,
-        'payment_total': payment_total,
-        'chart_payments': chart_payments,
-        'debt_paid': debt_paid,
-        'payment_transactions': len(payments),
-        'profit': total['net'] - costs.total,
-        'products': sorted_products,
-        'parts_profit': parts_profit,
-        'parts_cost': parts_cost,
-        'parts_utility': parts_utility,
-        'parts_price': parts_price,
-        'consumables_profit': consumables_profit,
+        "orders": orders,
+        "total": total,
+        "total_initial": total_initial,
+        "costs": costs,
+        "cost_cats": sorted_cats,
+        "chart_costs": chart_costs,
+        "payment_cats": sorted_payment_cats,
+        "payment_total": payment_total,
+        "chart_payments": chart_payments,
+        "debt_paid": debt_paid,
+        "payment_transactions": len(payments),
+        "profit": total["net"] - costs.total,
+        "products": sorted_products,
+        "parts_profit": parts_profit,
+        "parts_cost": parts_cost,
+        "parts_utility": parts_utility,
+        "parts_price": parts_price,
+        "consumables_profit": consumables_profit,
     }
 
 
@@ -718,8 +760,6 @@ def computeTransactionProfit(transaction: ProductTransaction, procedure="min"):
     profit - Compute total profit
     """
     if procedure == "min":
-        return (transaction.getAmount()
-                - transaction.getMinCost())
+        return transaction.getAmount() - transaction.getMinCost()
     if procedure == "profit":
-        return (transaction.getAmount()
-                - transaction.cost)
+        return transaction.getAmount() - transaction.cost

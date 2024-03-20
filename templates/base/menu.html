@@ -32,6 +32,7 @@
                 <div data-i18n="Sells">Plates</div>
             </a>
         </li> {% endcomment %}
+        {%if perms.costs.view_cost%}
         <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-stats"></i>
@@ -74,6 +75,7 @@
                 </li>
             </ul>
         </li>
+        {%endif%}
         <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-user-circle"></i>
@@ -134,7 +136,7 @@
                 {% endif %}
             </ul>
         </li>
-        {% if perms.can_add_user %}
+        {% if perms.costs.view_cost %}
             <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons bx bx-credit-card"></i>
@@ -146,11 +148,13 @@
                             <div data-i18n="Sells">Gastos</div>
                         </a>
                     </li>
+                    {% if perms.costs.add_cost and perms.costs.change_cost %}
                     <li class="menu-item">
                         <a href="{% url 'list-costs-category' %}" class="menu-link">
                             <div data-i18n="Clientes">Categorías</div>
                         </a>
                     </li>
+                    {% endif %}
                 </ul>
             </li>
         {% endif %}
@@ -170,13 +174,14 @@
                 <div data-i18n="Sells">Trailers</div>
             </a>
         </li>
-        {% if perms.can_add_user %}
+        {% if perms.can_add_user or perms.costs.view_cost %}
             <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons bx bx-cog"></i>
                     <div data-i18n="Account Settings">Configuración</div>
                 </a>
                 <ul class="menu-sub">
+                    {% if perms.can_add_user %}
                     <li class="menu-item">
                         <a href="{% url 'list-toll' %}" class="menu-link">
                             <i class="menu-icon tf-icons bx bx-traffic-cone"></i>
@@ -189,6 +194,8 @@
                             <div data-i18n="Trackers">Trackers</div>
                         </a>
                     </li>
+                    {%endif%}
+                    {% if perms.costs.view_cost %}
                     <li class="menu-item">
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon tf-icons bx bx-credit-card"></i>
@@ -200,13 +207,16 @@
                                     <div data-i18n="Sells">Gastos</div>
                                 </a>
                             </li>
+                            {% if perms.costs.add_cost and perms.costs.change_cost %}
                             <li class="menu-item">
                                 <a href="{% url 'list-costs-rental-category' %}" class="menu-link">
                                     <div data-i18n="Clientes">Categorías</div>
                                 </a>
                             </li>
+                            {%endif%}
                         </ul>
                     </li>
+                    {%endif%}
                 </ul>
             </li>
         {% endif %}

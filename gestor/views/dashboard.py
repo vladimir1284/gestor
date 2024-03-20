@@ -1,34 +1,38 @@
-from datetime import datetime, timedelta
+import calendar
+from datetime import datetime
+from datetime import time
+from datetime import timedelta
 from typing import List
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404,
-)
+
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
-from inventory.models import ProductTransaction, Product
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.utils import timezone
+
+from costs.models import Cost
+from gestor.views.reports import computeReport
+from gestor.views.utils import getMonthYear
+from gestor.views.utils import getWeek
+from inventory.models import Product
+from inventory.models import ProductTransaction
+from rent.models.lease import Contract
+from rent.models.lease import Due
+from rent.models.lease import Lease
+from rent.models.lease import LeaseDeposit
+from rent.models.lease import SecurityDepositDevolution
+from rent.models.vehicle import Trailer
+from rent.views.client import compute_client_debt
+from rent.views.client import get_sorted_clients
 from services.models import (
     PendingPayment,
 )
-from costs.models import Cost
 from services.tools.order import computeOrderAmount
-from utils.models import Order, Statistics, MonthlyStatistics
 from users.views import get_debtor
-import calendar
-from rent.views.client import get_sorted_clients, compute_client_debt
-from gestor.views.reports import computeReport
-from gestor.views.utils import getWeek, getMonthYear
-from rent.models.lease import (
-    Due,
-    Lease,
-    Contract,
-    SecurityDepositDevolution,
-    LeaseDeposit,
-)
-from rent.models.vehicle import Trailer
-from datetime import datetime, time
-from django.utils import timezone
+from utils.models import MonthlyStatistics
+from utils.models import Order
+from utils.models import Statistics
 
 
 @login_required
@@ -41,15 +45,18 @@ def dashboard(request):
     previous_profit = stats_list[1].profit_before_costs - stats_list[1].costs
     profit_increment = 0
     if current_profit > 0:
-        profit_increment = 100 * (current_profit - previous_profit) / current_profit
+        profit_increment = 100 * \
+            (current_profit - previous_profit) / current_profit
 
     # Parts
     current_parts_profit = stats_list[0].parts_price - stats_list[0].parts_cost
-    previous_parts_profit = stats_list[1].parts_price - stats_list[1].parts_cost
+    previous_parts_profit = stats_list[1].parts_price - \
+        stats_list[1].parts_cost
     parts_profit_increment = 0
     if current_parts_profit > 0:
         parts_profit_increment = (
-            100 * (current_parts_profit - previous_parts_profit) / current_parts_profit
+            100 * (current_parts_profit - previous_parts_profit) /
+            current_parts_profit
         )
 
     # Costs
@@ -57,15 +64,18 @@ def dashboard(request):
     previous_costs = stats_list[1].costs
     costs_increment = 0
     if current_costs > 0:
-        costs_increment = 100 * (current_costs - previous_costs) / current_costs
+        costs_increment = 100 * \
+            (current_costs - previous_costs) / current_costs
 
     # Debt balance
     current_debt_balance = stats_list[0].debt_created - stats_list[0].debt_paid
-    previous_debt_balance = stats_list[1].debt_created - stats_list[1].debt_paid
+    previous_debt_balance = stats_list[1].debt_created - \
+        stats_list[1].debt_paid
     debt_increment = 0
     if current_debt_balance > 0:
         debt_increment = (
-            100 * (current_debt_balance - previous_debt_balance) / current_debt_balance
+            100 * (current_debt_balance - previous_debt_balance) /
+            current_debt_balance
         )
     # Stock costs
     current_stock_cost = Product.objects.filter(active=True).aggregate(
@@ -100,7 +110,8 @@ def dashboard(request):
     membership_increment = 0
     if current_membership > 0:
         membership_increment = (
-            100 * (current_membership - previous_membership) / current_membership
+            100 * (current_membership - previous_membership) /
+            current_membership
         )
 
     # Time series
@@ -192,11 +203,17 @@ def dashboard(request):
     leases = Lease.objects.filter(contract__stage="active")
 
     # Get the first time of today
-    first_time = datetime.combine(timezone.now().date(), time.min) - timedelta(days=1)
+    first_time = datetime.combine(
+        timezone.now().date(), time.min) - timedelta(days=1)
     # Get the last time of today
-    last_time = datetime.combine(timezone.now().date(), time.max) - timedelta(days=1)
+    last_time = datetime.combine(
+        timezone.now().date(), time.max) - timedelta(days=1)
     for lease in leases:
-        occurrences = lease.event.get_occurrences(first_time, last_time)
+        occurrences = (
+            []
+            if lease.event is None
+            else lease.event.get_occurrences(first_time, last_time)
+        )
         for occurrence in occurrences:
             paid_dues = Due.objects.filter(due_date=occurrence.start.date())
             if len(paid_dues) == 0:
@@ -361,7 +378,8 @@ def calculate_stats(stats, start_date, end_date):
         .exclude(company__membership=True, associated=None)
     )
 
-    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(
+        start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
