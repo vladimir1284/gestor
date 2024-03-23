@@ -26,7 +26,7 @@
 
         function updateReason() {
             const value = position.value
-            reason.style.display = value == 0? 'block': 'none'
+            reason.style.display = value != '' && value == 0? 'block': 'none'
         }
 
         position.addEventListener('change', updateReason)

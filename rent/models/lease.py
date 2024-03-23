@@ -265,7 +265,8 @@ class HandWriting(models.Model):
 class LesseeData(models.Model):
     associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
     contact_name = models.CharField(max_length=100)
-    contact_phone = PhoneNumberField()
+    contact_phone = PhoneNumberField(
+        region=settings.PHONE_NUMBER_DEFAULT_REGION)
     insurance_number = models.CharField(max_length=150, blank=True)
     insurance_file = models.FileField(
         upload_to="rental/insurances", blank=True)

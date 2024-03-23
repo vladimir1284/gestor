@@ -15,7 +15,11 @@ def sendSMSLesseeContactURL(to: str, url: str, lang: str = "spanish"):
 def sendSMS(to: str, body: str):
     if settings.ENVIRONMENT == "production":
         sms_client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
-        message = sms_client.messages.create(body=body, from_="+13203563490", to=to)
+        message = sms_client.messages.create(
+            body=body,
+            from_="+13203563490",
+            to=str(to),
+        )
         print(message.sid)
     else:
         print(body)
