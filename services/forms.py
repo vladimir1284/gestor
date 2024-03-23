@@ -14,6 +14,8 @@ from django.forms import ModelForm
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from services.tools.storage_reazon import getStorageReazons
+
 from .models import Expense
 from .models import OrderSignature
 from .models import Payment
@@ -541,13 +543,8 @@ class OrderEndUpdatePositionForm(forms.Form):
             status = str(order.status)
 
         reason = order.storage_reason
-        if status in ["complete", "decline"]:
-            reason = "ready"
-        elif status == "pendding":
-            reason = "approval"
-        elif reason == "" or reason is None:
-            reason = "storage_service"
 
+        end = status in ['complete', 'decline']
         if order.quotation:
             positions = [(None, "Null")]
             position = None
@@ -555,12 +552,25 @@ class OrderEndUpdatePositionForm(forms.Form):
         else:
             positions, availables = get_available_positions(
                 current_pos=position,
-                null=status in ["complete", "decline"],
+                null=end,
                 availables=True,
+                just_current_pos=end,
+                invert_order=end,
             )
-            if not availables:
+            if (reason == "" or reason is None) and not availables:
                 reason = "capacity"
             readonly = False
+
+        if reason is None or reason == "":
+            if status in ["complete", "decline"]:
+                reason = "ready"
+            elif status == "pendding":
+                reason = "approval"
+            else:
+                reason = "storage_service"
+
+        if end and reason in ['approval', 'capacity']:
+            reason = 'ready'
 
         self.fields["position"] = forms.ChoiceField(
             required=False,
@@ -570,6 +580,6 @@ class OrderEndUpdatePositionForm(forms.Form):
         self.fields["position"].widget.attrs["readonly"] = readonly
 
         self.fields["reason"] = forms.ChoiceField(
-            choices=Order.STORAGE_REASON,
+            choices=getStorageReazons(end),
             initial=reason,
         )

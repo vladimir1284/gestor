@@ -7,6 +7,7 @@ from PIL import Image
 
 from equipment.models import Vehicle
 from rent.models.vehicle import Trailer
+from services.tools.storage_reazon import getStorageReazons
 from users.models import Associated
 from users.models import Company
 from users.models import User
@@ -49,8 +50,7 @@ class Category(models.Model):
         ("#03c3ec", "blue"),
         ("#233446", "black"),
     )
-    chartColor = models.CharField(
-        max_length=7, default="#8592a3", choices=COLOR_CHOICE)
+    chartColor = models.CharField(max_length=7, default="#8592a3", choices=COLOR_CHOICE)
 
     ICON_SIZE = 64
     icon = models.ImageField(upload_to="images/icons", blank=True)
@@ -77,16 +77,8 @@ class Order(models.Model):
         ("sell", _("Sell")),
         ("purchase", _("Purchase")),
     )
-    STORAGE_REASON = [
-        ("capacity", "Falta de capacidad en el taller"),
-        ("approval", "Pendiente por aprobación del cliente"),
-        ("ready", "Listo para recoger"),
-        ("storage_service", "Servicio de storage"),
-    ]
-    type = models.CharField(
-        max_length=20, choices=TYPE_CHOICE, default="purchase")
-    status = models.CharField(
-        max_length=20, choices=STATUS_CHOICE, default="pending")
+    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default="purchase")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default="pending")
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
@@ -129,7 +121,7 @@ class Order(models.Model):
         max_length=20,
         blank=True,
         null=True,
-        choices=STORAGE_REASON,
+        choices=getStorageReazons(),
         default="storage_service",
     )
 
