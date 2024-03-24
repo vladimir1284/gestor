@@ -22,6 +22,7 @@ def order_history(
     services_filter: str = "",
     parts_number: int = 1,
     services_number: int = 1,
+    get_all: bool = False,
 ):
     parts = defaultdict(list[ProductTransaction])
     services = defaultdict(list[ServiceTransaction])
@@ -48,11 +49,11 @@ def order_history(
                 services[s.service.name].append(s)
 
     for k in parts.keys():
-        # parts[k].sort(key=lambda x: x.order.created_date, reverse=True)
-        parts[k].sort(key=lambda x: x.price, reverse=True)
+        parts[k].sort(key=lambda x: x.order.created_date, reverse=True)
+        # parts[k].sort(key=lambda x: x.price, reverse=True)
     for k in services.keys():
-        # services[k].sort(key=lambda x: x.order.created_date, reverse=True)
-        services[k].sort(key=lambda x: x.price, reverse=True)
+        services[k].sort(key=lambda x: x.order.created_date, reverse=True)
+        # services[k].sort(key=lambda x: x.price, reverse=True)
 
     partsList = sorted(
         parts.items(),
@@ -61,8 +62,11 @@ def order_history(
         reverse=True,
     )
     partsTotal = len(partsList)
-    partsNumber = min(parts_number, partsTotal)
-    partsList = partsList[:partsNumber]
+    if get_all:
+        partsNumber = partsTotal
+    else:
+        partsNumber = min(parts_number, partsTotal)
+        partsList = partsList[:partsNumber]
     parts = dict(partsList)
 
     servicesList = sorted(
@@ -72,8 +76,11 @@ def order_history(
         reverse=True,
     )
     servicesTotal = len(servicesList)
-    servicesNumber = min(services_number, servicesTotal)
-    servicesList = servicesList[:servicesNumber]
+    if get_all:
+        servicesNumber = servicesTotal
+    else:
+        servicesNumber = min(services_number, servicesTotal)
+        servicesList = servicesList[:servicesNumber]
     services = dict(servicesList)
 
     return parts, partsNumber, partsTotal, services, servicesNumber, servicesTotal
