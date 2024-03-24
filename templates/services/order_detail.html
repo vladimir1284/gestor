@@ -216,7 +216,7 @@
                 </a>
                 {%endif%}
 
-                {% if order.status != 'decline' and order.status != 'complete' %}
+                {% if order.status != 'decline' and order.status != 'complete' and order.status != 'payment_pending' %}
                     <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')"
                        type="button"
                        class="btn btn-icon btn-outline-danger float-end">
