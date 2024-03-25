@@ -27,9 +27,8 @@ from services.tools.available_positions import get_available_positions
 from services.tools.storage_reazon import getStorageReazons
 from utils.forms import BaseForm
 from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
-from utils.models import (
-    Order,
-)
+from utils.models import Order
+from utils.models import OrderDeclineReazon
 
 
 class OrderCreateForm(BaseForm):
@@ -586,3 +585,9 @@ class OrderEndUpdatePositionForm(forms.Form):
             choices=getStorageReazons(end),
             initial=reason,
         )
+
+
+class OrderDeclineReazonForm(forms.ModelForm):
+    class Meta:
+        model = OrderDeclineReazon
+        fields = ["decline_reazon", "note"]

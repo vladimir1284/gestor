@@ -55,6 +55,7 @@ from services.models import (
 from services.forms import (
     DiscountForm,
     OrderCreateForm,
+    OrderDeclineReazon,
     OrderEndUpdatePositionForm,
     OrderSignatureForm,
     OrderVinPlateForm,
@@ -397,6 +398,9 @@ def detail_order(request, id, msg=None):
     context.setdefault("images", images)
 
     order = context["order"]
+    order.decline_reazon = OrderDeclineReazon.objects.filter(
+        order=order,).last()
+
     client = order.associated
     if client is not None:
         orders = Order.objects.filter(

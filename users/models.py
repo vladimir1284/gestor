@@ -11,7 +11,8 @@ class Contact(models.Model):
         abstract = True
 
     name = models.CharField(max_length=120)
-    alias = models.CharField(_("Local alias"), max_length=120, null=True, blank=True)
+    alias = models.CharField(
+        _("Local alias"), max_length=120, null=True, blank=True)
     LANG_CHOICE = (
         ("spanish", "Spanish"),
         ("english", "English"),
@@ -26,7 +27,8 @@ class Contact(models.Model):
         ("texas", "Texas"),
         ("other", "Other"),
     )
-    state = models.CharField(max_length=20, choices=STATE_CHOICE, default="texas")
+    state = models.CharField(
+        max_length=20, choices=STATE_CHOICE, default="texas")
     other_state = models.CharField(_("State"), max_length=20, blank=True)
     CITY_CHOICE = (
         ("houston", "Houston"),
@@ -39,7 +41,8 @@ class Contact(models.Model):
         ("jacksonville", "Jacksonville"),
         ("other", "Other"),
     )
-    city = models.CharField(max_length=20, choices=CITY_CHOICE, default="houston")
+    city = models.CharField(
+        max_length=20, choices=CITY_CHOICE, default="houston")
     other_city = models.CharField(_("City"), max_length=20, blank=True)
     note = models.TextField(blank=True)
     email = models.EmailField(blank=True)
@@ -48,6 +51,7 @@ class Contact(models.Model):
     avatar = models.ImageField(upload_to="images/avatars/", blank=True)
     phone_number = PhoneNumberField(
         blank=True,
+        null=True,
         unique=True,
         region=settings.PHONE_NUMBER_DEFAULT_REGION,
     )
@@ -88,7 +92,8 @@ class Associated(Contact):
         ("client", _("Client")),
         ("provider", _("provider")),
     )
-    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default="client")
+    type = models.CharField(
+        max_length=20, choices=TYPE_CHOICE, default="client")
     license = models.CharField(max_length=50, blank=True, null=True)
     # Provides third party expense
     outsource = models.BooleanField(_("Outsource"), default=False)

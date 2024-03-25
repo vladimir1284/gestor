@@ -11,6 +11,7 @@ from .views import service
 from .views import sms
 from .views import storage
 from .views import transaction
+from services.views.order_decline_reazon import order_decline_reazon
 
 
 urlpatterns = [
@@ -160,6 +161,11 @@ urlpatterns = [
         "list-terminated-order/<year>/<month>",
         order.list_terminated_order,
         name="list-service-order-terminated",
+    ),
+    path(
+        "order-decline-reazon/<id>",
+        order_decline_reazon,
+        name="order-decline-reazon",
     ),
     path(
         "update-order-status/<id>/<status>",
