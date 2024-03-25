@@ -71,7 +71,8 @@ urlpatterns = [
     ),
     path("delete-service/<id>", service.delete_service, name="delete-service"),
     # -------------------- Order ----------------------------
-    path("order-flow/", order.select_order_flow, name="select-service-order-flow"),
+    path("order-flow/", order.select_order_flow,
+         name="select-service-order-flow"),
     path("fast_order_create/", order.fast_order_create, name="fast-order-create"),
     path("parts-sale/", order.parts_sale, name="parts-sale"),
     path("quotation_order/", order.order_quotation, name="quotation-order"),
@@ -142,7 +143,8 @@ urlpatterns = [
         {"msg": ""},
         name="detail-service-order",
     ),
-    path("detail-order/<id>/<msg>/", order.detail_order, name="detail-service-order"),
+    path("detail-order/<id>/<msg>/", order.detail_order,
+         name="detail-service-order"),
     path(
         "order-send-invoice/<id>",
         order.send_invoice_email,
@@ -174,6 +176,11 @@ urlpatterns = [
         order.order_change_position,
         name="order-position-change",
     ),
+    path(
+        "order-position-change-storage/<id>",
+        order.order_change_position_from_storage,
+        name="order-position-change-storage",
+    ),
     path("send-sms/<order_id>", sms.sendSMS, name="send-sms"),
     # -------------------- Invoice ----------------------------
     path("service-invoice/<id>", invoice.view_invoice, name="service-invoice"),
@@ -184,7 +191,8 @@ urlpatterns = [
     path("pdf-labor/<id>", labor.generate_labor, name="pdf-labor"),
     path("html-labor/<id>", labor.html_labor, name="html-labor"),
     # -------------------- Expense ----------------------------
-    path("create-expense/<order_id>", expense.create_expense, name="create-expense"),
+    path("create-expense/<order_id>",
+         expense.create_expense, name="create-expense"),
     path("update-expense/<id>", expense.update_expense, name="update-expense"),
     path("delete-expense/<id>", expense.delete_expense, name="delete-expense"),
     # ----------------- Service Picture -----------------------

@@ -247,6 +247,15 @@ def order_change_position(request, id):
 
 
 @login_required
+def order_change_position_from_storage(request, id):
+    return order_update_position(
+        request=request,
+        id=id,
+        next='storage-view',
+    )
+
+
+@login_required
 def order_end_update_position(request, id, status):
     return order_update_position(request=request, id=id, status=status)
 

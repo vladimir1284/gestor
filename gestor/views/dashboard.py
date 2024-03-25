@@ -256,6 +256,10 @@ def dashboard(request):
             trailer.plate = o.plate
             trailer.type = "Client's trailer"
             o.trailer = trailer
+        o.trace = o.storage_traces.order_by("-date").first()
+        if o.trace:
+            o.trace.time = (timezone.make_aware(
+                datetime.now()) - o.trace.date).days
 
     context = {
         "indicators": indicators,

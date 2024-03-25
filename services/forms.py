@@ -14,8 +14,6 @@ from django.forms import ModelForm
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from services.tools.storage_reazon import getStorageReazons
-
 from .models import Expense
 from .models import OrderSignature
 from .models import Payment
@@ -26,6 +24,7 @@ from .models import ServiceCategory
 from .models import ServicePicture
 from .models import ServiceTransaction
 from services.tools.available_positions import get_available_positions
+from services.tools.storage_reazon import getStorageReazons
 from utils.forms import BaseForm
 from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
 from utils.models import (
@@ -544,15 +543,19 @@ class OrderEndUpdatePositionForm(forms.Form):
 
         reason = order.storage_reason
 
-        end = status in ['complete', 'decline']
+        end = status in ["complete", "decline"]
         if order.quotation:
             positions = [(None, "Null")]
             position = None
             readonly = True
         else:
+            if order.trailer is not None and order.associated is None:
+                null = False
+            else:
+                null = True
             positions, availables = get_available_positions(
                 current_pos=position,
-                null=end,
+                null=end and null,
                 availables=True,
                 just_current_pos=end,
                 invert_order=end,
@@ -569,8 +572,8 @@ class OrderEndUpdatePositionForm(forms.Form):
             else:
                 reason = "storage_service"
 
-        if end and reason in ['approval', 'capacity']:
-            reason = 'ready'
+        if end and reason in ["approval", "capacity"]:
+            reason = "ready"
 
         self.fields["position"] = forms.ChoiceField(
             required=False,

@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load static %}
 {% block title %}
 {% endblock title %}
 {% block page %}
@@ -100,102 +101,5 @@
     {% endblock addButton %}
 {% endblock content %}
 {% block scripts %}
-    <script>
-    let tables = document.getElementsByTagName("tbody");
-    window.onload = function(){  
-            add = document.getElementsByClassName("add")[0];  
-            if (add.style.visibility != "hidden"){
-                $(add).tooltip('show'); 
-            }  
-    }
-    function filterTag(tagName) {
-        let i, j;
-
-        let title_tag = document.getElementById("filter_tag");
-        if(tagName == 'all'){
-            title_tag.innerHTML = "";
-                search = document.getElementById("search");
-                search.value="";
-        } else {
-            title_tag.innerHTML = "("+tagName+")";
-        }
-        let tables = document.getElementsByTagName("tbody");
-        for (j = 0; j < tables.length; j++) {
-            tr = tables[j].getElementsByTagName("tr");
-            for (i = 0; i < tr.length; i++) {
-                if (tr[i].dataset['tag'] == tagName || tagName == 'all') {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }                    
-            }
-        }
-    }
-    let grids = document.getElementsByTagName("table");
-    for (j = 0; j < tables.length; j++) {
-        grids[j].onclick = function(e) {
-            if (e.target.tagName != 'TH') return;
-    
-            let th = e.target;
-            // if TH, then sort
-            // cellIndex is the number of th:
-            //   0 for the first column
-            //   1 for the second column, etc
-            const tableElement = th.closest('table');
-
-            // Get the tbody element associated with the table
-            const tbodyElement = tableElement.querySelector('tbody');
-
-            sortGrid(tbodyElement, th.cellIndex, th.dataset.type);
-        };
-    }
-  
-      function sortGrid(tbody, colNum, type) {
-  
-        let rowsArray = Array.from(tbody.rows);
-  
-        // compare(a, b) compares two rows, need for sorting
-        let compare;
-
-        let reversed = false;
-  
-        switch (type) {
-          case 'amount':
-            reversed = true;
-            compare = function(rowA, rowB) {
-              return rowA.cells[colNum].innerHTML.replace("$", "") - rowB.cells[colNum].innerHTML.replace("$", "");
-            };
-            break;
-          case 'days':
-              reversed = true;
-              compare = function(rowA, rowB) {
-                return rowA.cells[colNum].dataset.days - rowB.cells[colNum].dataset.days;
-              };
-            break;
-          case 'number':
-              compare = function(rowA, rowB) {
-                return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
-              };
-              break;
-          case 'string':
-            compare = function(rowA, rowB) {
-              return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML ? 1 : -1;
-            };
-            break;
-          default:
-            return;
-        }
-  
-        // sort
-        rowsArray.sort(compare);
-        if (reversed === true){
-            console.log("reversed")
-            reversedArray = rowsArray.reverse();
-            tbody.append(...reversedArray);
-        }else{
-            console.log("normal")
-            tbody.append(...rowsArray);
-        }
-      }
-    </script>
+    <script src="{%static 'assets/js/base-list.js'%}"></script>
 {% endblock scripts %}
