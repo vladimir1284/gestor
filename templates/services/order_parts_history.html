@@ -1,22 +1,70 @@
-<table class="table">
-    <thead>
-        <th>Part</th>
-        <th>Date</th>
-        <th>Price</th>
-    </thead>
-    <tbody>
-        {% for name, parts in parts_history.items %} {% for part in parts %}
-        <tr>
-            {% if forloop.counter0 == 0 %}
-            <td rowspan="{{ parts|length }}">{{ name }}</td>
-            {% endif %}
-            <td>
-                <a href="{% url 'detail-service-order' part.order.id %}">
-                    {{ part.order.created_date|date:"b. d, Y"|capfirst }}
-                </a>
-            </td>
-            <td>${{ part.price }}</td>
-        </tr>
-        {% endfor %} {% endfor %}
-    </tbody>
-</table>
+{% load static %}
+<div class="card mb-3">
+    <div class="list-head">
+        <h5 class="card-header d-flex justify-content-between">
+            <div>
+                Historial de partes: <strong>{{ parts_total }}</strong>
+            </div>
+            <div>
+                <div class="input-group mb-3">
+                    <div class="input-group-text" id="basic-addon1">
+                        <i class="bx bx-search"></i>
+                    </div>
+                    <input class="form-control"
+                           type='text'
+                           placeholder="Search"
+                           name='parts_filter'
+                           onkeyup='partFilter(this)'>
+                </div>
+            </div>
+        </h5>
+    </div>
+    <div class="card-body pt-0 table-box mb-3">
+        <table class="table" id="partTable">
+            <thead>
+                <th>Part</th>
+                <th>Date</th>
+                <th>Price</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="{%static 'assets/js/order-history.js'%}"></script>
+<script>
+    const partsHistory = {
+        {% for name, parts in parts_history.items %}
+            "{{name}}": [
+                {% for part in parts %}
+                    {
+                        order: {{part.order.id}},
+                        date: '{{ part.order.created_date | date:"b. d, Y" | capfirst }}',
+                        price: {{part.price}},
+                        url: "{% url 'detail-service-order' part.order.id %}",
+                    },
+                {%endfor%}
+            ],
+        {%endfor%}
+    }
+
+    let showPartNumber = 1
+
+    function partFilter(e) {
+        const filt = e.value
+        const map = filter(partsHistory, 0, filt)
+        renderTable(map, 'partTable', filt != '')
+    }
+
+    renderTable(partsHistory, 'partTable', false)
+</script>
+<style>
+.pointer {
+    cursor: pointer;
+}
+.table-box {
+    overflow-y: auto;
+    height: 7cm;
+    width: 100%;
+}
+</style>
