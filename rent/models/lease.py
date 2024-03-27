@@ -1,19 +1,26 @@
+from datetime import datetime
+from datetime import timedelta
+
+import pytz
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
-from django.forms import ValidationError
-from .vehicle import Trailer
-from users.models import Associated
-from django.urls import reverse
-from phonenumber_field.modelfields import PhoneNumberField
-from django.utils import timezone
+from django.db.models import Max
+from django.db.models import Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from datetime import timedelta, datetime
-import pytz
-from django.contrib.auth.models import User
-from schedule.models import Event, Rule, Calendar
-from django.conf import settings
-from .vehicle import DOCUMENT_TYPES, classify_file
-from django.db.models import Max, Sum
+from django.forms import ValidationError
+from django.urls import reverse
+from django.utils import timezone
+from phonenumber_field.modelfields import PhoneNumberField
+from schedule.models import Calendar
+from schedule.models import Event
+from schedule.models import Rule
+
+from .vehicle import classify_file
+from .vehicle import DOCUMENT_TYPES
+from .vehicle import Trailer
+from users.models import Associated
 
 
 class Contract(models.Model):
