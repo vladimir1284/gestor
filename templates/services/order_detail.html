@@ -216,7 +216,8 @@
                 </a>
                 {%endif%}
 
-                {% if order.status != 'decline' and order.status != 'complete' %}
+
+                {% if order.status != 'decline' and order.status != 'complete' and order.status != 'payment_pending' %}
                     <!-- <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')" -->
                     <a onclick="updateStatus('{% url 'order-decline-reazon' order.id %}', 'decline')"
                        type="button"
@@ -499,90 +500,92 @@
             </div>
         {% endif %}
     </div>
-            <div class="card mb-3">
-                <div class="list-head">
-                    <h5 class="card-header d-flex justify-content-between">
-                        <div>
-                            Historial de partes: <strong>{{ parts_number }} / {{parts_total}}</strong>
-                        </div>
-                        <form method="GET">
-                            {% csrf_token %}
-                            {% for key, value in request.GET.items %}
-                                {%if key != 'csrfmiddlewaretoken'%}
-                                    <input type="hidden" name="{{key}}" value="{{value}}">
-                                {%endif%}
-                            {%endfor%}
-                            <div class="input-group mb-3">
-                                <input class="form-control" type='text' placeholder="Search" name='parts_filter' {%if 'parts_filter' in request.GET%} value="{{request.GET.parts_filter}}" {%endif%}>
-                                <button type="submit" class="input-group-text" id="basic-addon1">
-                                    <i class="bx bx-search"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </h5>
-                </div>
-                <div class="card-body pt-0">
                     {% include "services/order_parts_history.html" %}
-                    {%if parts_number < parts_total%}
-                        <form method="GET">
-                            {% csrf_token %}
-                            {% for key, value in request.GET.items %}
-                                {%if key != 'csrfmiddlewaretoken'%}
-                                    <input type="hidden" name="{{key}}" value="{{value}}">
-                                {%endif%}
-                            {%endfor%}
-                            <input type='hidden' name='parts_number' value="{{parts_next}}">
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn mt-2">
-                                    Load more
-                                </button>
-                            </div>
-                        </form>
-                    {%endif%}
-                </div>
-            </div>
-            <div class="card mb-3">
-                <div class="list-head">
-                    <h5 class="card-header d-flex justify-content-between">
-                        <div>
-                            Historial de servicios: <strong>{{ services_number }} / {{services_total}}</strong>
-                        </div>
-                        <form method="GET">
-                            {% csrf_token %}
-                            {% for key, value in request.GET.items %}
-                                {%if key != 'csrfmiddlewaretoken'%}
-                                    <input type="hidden" name="{{key}}" value="{{value}}">
-                                {%endif%}
-                            {%endfor%}
-                            <div class="input-group mb-3">
-                                <input class="form-control" type='text' placeholder="Search" name='services_filter' {%if 'services_filter' in request.GET%} value="{{request.GET.services_filter}}" {%endif%}>
-                                <button type="submit" class="input-group-text" id="basic-addon1">
-                                    <i class="bx bx-search"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </h5>
-                </div>
-                <div class="card-body pt-0">
+            <!-- <div class="card mb-3"> -->
+            <!--     <div class="list-head"> -->
+            <!--         <h5 class="card-header d-flex justify-content-between"> -->
+            <!--             <div> -->
+            <!--                 Historial de partes: <strong>{{ parts_number }} / {{parts_total}}</strong> -->
+            <!--             </div> -->
+            <!--             <form method="GET"> -->
+            <!--                 {% csrf_token %} -->
+            <!--                 {% for key, value in request.GET.items %} -->
+            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
+            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
+            <!--                     {%endif%} -->
+            <!--                 {%endfor%} -->
+            <!--                 <div class="input-group mb-3"> -->
+            <!--                     <input class="form-control" type='text' placeholder="Search" name='parts_filter' {%if 'parts_filter' in request.GET%} value="{{request.GET.parts_filter}}" {%endif%}> -->
+            <!--                     <button type="submit" class="input-group-text" id="basic-addon1"> -->
+            <!--                         <i class="bx bx-search"></i> -->
+            <!--                     </button> -->
+            <!--                 </div> -->
+            <!--             </form> -->
+            <!--         </h5> -->
+            <!--     </div> -->
+            <!--     <div class="card-body pt-0"> -->
+            <!--         {% include "services/order_parts_history.html" %} -->
+            <!--         {%if parts_number < parts_total%} -->
+            <!--             <form method="GET"> -->
+            <!--                 {% csrf_token %} -->
+            <!--                 {% for key, value in request.GET.items %} -->
+            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
+            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
+            <!--                     {%endif%} -->
+            <!--                 {%endfor%} -->
+            <!--                 <input type='hidden' name='parts_number' value="{{parts_next}}"> -->
+            <!--                 <div class="d-grid gap-2"> -->
+            <!--                     <button type="submit" class="btn mt-2"> -->
+            <!--                         Load more -->
+            <!--                     </button> -->
+            <!--                 </div> -->
+            <!--             </form> -->
+            <!--         {%endif%} -->
+            <!--     </div> -->
+            <!-- </div> -->
                     {% include "services/order_services_history.html" %}
-                    {%if services_number < parts_total%}
-                        <form method="GET">
-                            {% csrf_token %}
-                            {% for key, value in request.GET.items %}
-                                {%if key != 'csrfmiddlewaretoken'%}
-                                    <input type="hidden" name="{{key}}" value="{{value}}">
-                                {%endif%}
-                            {%endfor%}
-                            <input type='hidden' name='services_number' value="{{services_next}}">
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn mt-2">
-                                    Load more
-                                </button>
-                            </div>
-                        </form>
-                    {%endif%}
-                </div>
-            </div>
+            <!-- <div class="card mb-3"> -->
+            <!--     <div class="list-head"> -->
+            <!--         <h5 class="card-header d-flex justify-content-between"> -->
+            <!--             <div> -->
+            <!--                 Historial de servicios: <strong>{{ services_number }} / {{services_total}}</strong> -->
+            <!--             </div> -->
+            <!--             <form method="GET"> -->
+            <!--                 {% csrf_token %} -->
+            <!--                 {% for key, value in request.GET.items %} -->
+            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
+            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
+            <!--                     {%endif%} -->
+            <!--                 {%endfor%} -->
+            <!--                 <div class="input-group mb-3"> -->
+            <!--                     <input class="form-control" type='text' placeholder="Search" name='services_filter' {%if 'services_filter' in request.GET%} value="{{request.GET.services_filter}}" {%endif%}> -->
+            <!--                     <button type="submit" class="input-group-text" id="basic-addon1"> -->
+            <!--                         <i class="bx bx-search"></i> -->
+            <!--                     </button> -->
+            <!--                 </div> -->
+            <!--             </form> -->
+            <!--         </h5> -->
+            <!--     </div> -->
+            <!--     <div class="card-body pt-0"> -->
+            <!--         {% include "services/order_services_history.html" %} -->
+            <!--         {%if services_number < parts_total%} -->
+            <!--             <form method="GET"> -->
+            <!--                 {% csrf_token %} -->
+            <!--                 {% for key, value in request.GET.items %} -->
+            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
+            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
+            <!--                     {%endif%} -->
+            <!--                 {%endfor%} -->
+            <!--                 <input type='hidden' name='services_number' value="{{services_next}}"> -->
+            <!--                 <div class="d-grid gap-2"> -->
+            <!--                     <button type="submit" class="btn mt-2"> -->
+            <!--                         Load more -->
+            <!--                     </button> -->
+            <!--                 </div> -->
+            <!--             </form> -->
+            <!--         {%endif%} -->
+            <!--     </div> -->
+            <!-- </div> -->
     <a href="{% url 'select-service' 'create-service-transaction' order.id %}">
         <button type="button"
                 style="visibility: {% if terminated %}hidden{% endif %}"
