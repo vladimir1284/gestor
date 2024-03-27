@@ -26,15 +26,17 @@ function filter(from, showNum, filter) {
     return map;
 }
 
-function expand(e, tableId) {
-    const data = CSS.escape(e.getAttribute("data"));
-    const rowspan = e.getAttribute("data-rowspan");
-    const hidden = e.getAttribute("rowspan") == 1;
+function expand(tdcount, tdname, tableId) {
+    const data = CSS.escape(tdcount.getAttribute("data"));
+    const rowspan = tdcount.getAttribute("data-rowspan");
+    const hidden = tdcount.getAttribute("rowspan") == 1;
 
     if (hidden) {
-        e.setAttribute("rowspan", rowspan);
+        tdcount.setAttribute("rowspan", rowspan);
+        tdname.setAttribute("rowspan", rowspan);
     } else {
-        e.setAttribute("rowspan", 1);
+        tdcount.setAttribute("rowspan", 1);
+        tdname.setAttribute("rowspan", 1);
     }
 
     const trs = document.querySelectorAll(`#${tableId} tr[data="${data}"]`);
@@ -60,24 +62,34 @@ function renderTable(from, tableId, expanded) {
                 tr.setAttribute("data", name);
                 if (!expanded) tr.style.display = "none";
             } else {
+                const countTD = document.createElement("td");
                 const nameTD = document.createElement("td");
+
+                tr.appendChild(countTD);
                 tr.appendChild(nameTD);
-                nameTD.classList.add("pointer");
-                nameTD.setAttribute("data", name);
-                nameTD.setAttribute("data-rowspan", elements.length);
 
-                if (expanded) nameTD.setAttribute("rowspan", elements.length);
-                else nameTD.setAttribute("rowspan", 1);
-
-                nameTD.onclick = () => {
-                    expand(nameTD, tableId);
+                countTD.innerHTML = `${elements.length}`;
+                countTD.onclick = () => {
+                    expand(countTD, nameTD, tableId);
                 };
 
-                if (elements.length > 1) {
-                    nameTD.innerHTML = `${name} <span class="float-end">[${elements.length}]</span>`;
+                countTD.className = "pointer w-3 text-blue-500 text-center";
+                countTD.setAttribute("data", name);
+                countTD.setAttribute("data-rowspan", elements.length);
+
+                if (expanded) {
+                    countTD.setAttribute("rowspan", elements.length);
+                    nameTD.setAttribute("rowspan", elements.length);
                 } else {
-                    nameTD.innerHTML = name;
+                    countTD.setAttribute("rowspan", 1);
+                    nameTD.setAttribute("rowspan", 1);
                 }
+
+                // nameTD.onclick = () => {
+                //     expand(nameTD, tableId);
+                // };
+
+                nameTD.innerHTML = name;
             }
 
             const date = document.createElement("td");

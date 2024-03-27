@@ -4,6 +4,9 @@
 {% block title %}
     {{ order.concept }}
 {% endblock title %}
+{% block containerFull %}
+<div class="px-4">
+{% endblock containerFull %}
 {% block content %}
     <style>
     .add {
@@ -71,335 +74,186 @@
             right: 5%;
         }
     </style>
-    {% if mensaje %}
-    
-        <div class="alert alert-danger" role="alert">
-            {{ mensaje }}
-        </div>
-    
-    {% endif %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">
-                <b>{{ order.concept }}</b>
-                <p class="pt-2 d-flex">
-                    <span class="pt-2">
-                        <b>${{ order.total|floatformat:"-2" }}</b>
-                        {% if order.tax > 0 or order.discount > 0 %}
-                            = ${{ order.amount|floatformat:"-2" }}+${{ order.tax|floatformat:"-2" }}
-                        {% endif %}
-                        - &nbsp;
-                    </span>
-                    <button type="button"
-                            class="btn btn-outline-primary"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#discountCollapse"
-                            aria-expanded="true"
-                            aria-controls="discountCollapse">${{ order.discount|floatformat:"-2" }} discount</button>
-                    <div class="collapse mt-2" id="discountCollapse">
-                        <form enctype="multipart/form-data"
-                              method="post"
-                              id="update-form"
-                              class="border p-3">
-                            {% csrf_token %}
-                            {% crispy form %}
-                        </form>
-                    </div>
-                </p>
-                <p>
-                    <strong>Position:</strong>
-                    {% if order.position == 0 %}
-                        Storage
-                    {% elif order.position is None %}
-                        Null
-                    {% else %}
-                        {{ order.position }}
-                    {% endif %}
-
-                    <a class="btn btn-outline-primary" href="{%url 'order-position-change' order.id%}">
-                        <i class='bx bx-refresh'></i>
-                    </a>
-                </p>
-                {% if order.quotation %}
-                    <span class="float-end px-3 me-1 badge rounded-pill bg-warning">
-                        <i class='bx bx-error 'style="font-size:1.5em"></i>
-                        quotation
-                    </span>
-                {% elif terminated or empty or order.status == 'payment_pending' %}
-                    <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' or order.status == 'payment_pending' %}danger{% endif %}">
-                        {{ order.get_status_display }}
-                    </span>
-                {% else %}
-                    <button type="button"
-                            class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'payment_pending' %}danger{% endif %} dropdown-toggle"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">{{ order.get_status_display }}</button>
-                    <ul class="dropdown-menu">
-                        {% if order.status != 'pending' %}
-                            <li>
-                                <button class="dropdown-item badge bg-warning"
-                                        onclick="updateStatus('{% url 'update-service-order-status' order.id 'pending' %}', 'pending')">
-                                    Pending
-                                </button>
-                            </li>
-                        {% endif %}
-                        {% if order.status != 'processing' %}
-                            <li>
-                                <button class="dropdown-item badge bg-primary"
-                                        onclick="updateStatus('{% url 'update-service-order-status' order.id 'processing' %}', 'processing')">
-                                    Processing
-                                </button>
-                            </li>
-                        {% endif %}
-                        {% if order.status != 'complete' and order.status != 'pending' and order.status != 'payment_pending' and satisfied %}
-                            <li>
-                                <a class="dropdown-item badge bg-success"
-                                   href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                {% endif %}
-            </h5>
-            {% include "services/order_header.html" %}
-            <div class="demo-inline-spacing">
-                <ul class="p-0 m-0">
-                    {% for payment in payments %}
-                        <li class="d-flex mb-4 pb-1">
-                            <div class="avatar flex-shrink-0 me-3">
-                                {% if payment.category.icon %}<img src="{{ payment.category.icon.url }}" alt="" class="w-px-40" />{% endif %}
-                            </div>
-                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                <div class="me-2">
-                                    <small class="text-muted d-block mb-1">{{ payment.category }}</small>
-                                    <h6 class="mb-0">${{ payment.amount|floatformat:"2" }}</h6>
-                                </div>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
+    <div class="xl:flex">
+    <div class="xl:flex-1 xl:mr-2">
+        {% if mensaje %}
+        
+            <div class="alert alert-danger" role="alert">
+                {{ mensaje }}
             </div>
-            <p class="card-text">{{ order.note }}</p>
-            <div class="demo-inline-spacing">
-                <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'list-service-order' %}">
-                    <span class="tf-icons bx bx-arrow-back"></span>
-                </a>
-                <!-- <a class="btn btn-icon btn-outline-primary" -->
-                <!--    type="button" -->
-                <!--    href="{% url 'service-invoice' order.id %}"> -->
-                <!--     <span class="tf-icons bx bx-credit-card"></span> -->
-                <!-- </a> -->
-
-                <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'pdf-invoice' order.id %}">
-                    <span class="tf-icons bx bx-printer"></span>
-                </a>
-
-                <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'service-labor' order.id %}">
-                    <span class="tf-icons bx bx-wrench"></span>
-                </a>
-
-                <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'trailer-identification-pdf' order.id %}">
-                    <span class="tf-icons bx bx-purchase-tag"></span>
-                </a>
-                {%if not order.invoice_sended%}
-                <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'service-order-send-invoice' order.id %}">
-                    <span class="tf-icons bx bx-mail-send"></span>
-                </a>
-                {%endif%}
-
-                {% if order.status != 'decline' and order.status != 'complete' %}
-                    <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')"
-                       type="button"
-                       class="btn btn-icon btn-outline-danger float-end">
-                        <span class="tf-icons bx bx-trash"></span>
-                    </a>
-                {% endif %}
-                {% if not terminated %}
-                    <a class="btn btn-icon btn-outline-primary float-end"
-                       type="button"
-                       href="{% url 'update-service-order' order.id %}">
-                        <span class="tf-icons bx bx-edit"></span>
-                    </a>
-                {% endif %}
-                {% if order.status == 'payment_pending' %}
-                    <a href="{% url 'process-payment' order.id %}"
-                       type="button"
-                       class="btn btn-icon btn-outline-success float-end">
-                        <span class="tf-icons bx bx-money"></span>
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    {% if parts_amount %}
+        
+        {% endif %}
         <div class="card mb-3">
-            <h5 class="card-header">
-                Parts
-                {% if parts_amount %}
-                    <b>${{ parts_total|floatformat:"-2" }}</b>
-                    {% if parts_tax > 0 %}= ${{ parts_amount|floatformat:"-2" }}+${{ parts_tax|floatformat:"-2" }}{% endif %}
-                {% endif %}
-            </h5>
-            <div class="table-responsive text-nowrap">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>
-                                <i class="bx bx-cog"></i>
-                            </th>
-                            <th>Product</th>
-                            <th>Qty</th>
-                            <th>Unit</th>
-                            <th>Price</th>
-                            <th>Amount</th>
-                            <th>Tax</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        {% for trans in transactions %}
-                            {% if trans.product.type == 'part' %}
-                                <tr data-tag="{{ trans.product.name }}">
-                                    <td>
-                                        <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
-                                    </td>
-                                    <td {% if  not trans.satisfied %}class="text-danger"{% endif %}>{{ trans.quantity|floatformat:"-2" }}</td>
-                                    <td>{{ trans.unit }}</td>
-                                    <td>${{ trans.price|floatformat:"2" }}</td>
-                                    <td>${{ trans.amount|floatformat:"2" }}</td>
-                                    <td>${{ trans.total_tax|floatformat:"2" }}</td>
-                                </tr>
+            <div class="card-body">
+                <h5 class="card-title">
+                    <b>{{ order.concept }}</b>
+                    <p class="pt-2 d-flex">
+                        <span class="pt-2">
+                            <b>${{ order.total|floatformat:"-2" }}</b>
+                            {% if order.tax > 0 or order.discount > 0 %}
+                                = ${{ order.amount|floatformat:"-2" }}+${{ order.tax|floatformat:"-2" }}
                             {% endif %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% endif %}
-    {% if services %}
-        <div class="card mb-3">
-            <h5 class="card-header">
-                Services
-                {% if service_amount %}
-                    <b>${{ service_total|floatformat:"-2" }}</b>
-                    {% if service_tax > 0 %}= ${{ service_amount|floatformat:"-2" }}+${{ service_tax|floatformat:"-2" }}{% endif %}
-                {% endif %}
-            </h5>
-            <div class="table-responsive text-nowrap">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>
-                                <i class="bx bx-cog"></i>
-                            </th>
-                            <th>Service</th>
-                            <th>Qty</th>
-                            <th>Price</th>
-                            <th>Amount</th>
-                            <th>Tax</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        {% for service in services %}
-                            <tr data-tag="{{ service.product.name }}">
-                                <td>
-                                    <a href="{% if terminated %} {% url 'detail-service-transaction' service.id %} {% else %} {% url 'update-service-transaction' service.id %} {% endif %}">${{ service.amount|floatformat:"0" }}</a>
-                                </td>
-                                <td>
-                                    <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
-                                </td>
-                                <td>{{ service.quantity|floatformat:"-2" }}</td>
-                                <td>${{ service.price|floatformat:"2" }}</td>
-                                <td>${{ service.amount|floatformat:"2" }}</td>
-                                <td>${{ service.total_tax|floatformat:"2" }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% endif %}
-    {% if consumables %}
-        <div class="card mb-3">
-            <h5 class="card-header">
-                Consumables
-                {% if consumable_amount %}
-                    <b>${{ consumable_total|floatformat:"-2" }}</b>
-                    {% if consumable_tax > 0 %}
-                        = ${{ consumable_amount|floatformat:"-2" }}+${{ consumable_tax|floatformat:"-2" }}
-                    {% endif %}
-                {% endif %}
-            </h5>
-            <div class="table-responsive text-nowrap">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>
-                                <i class="bx bx-cog"></i>
-                            </th>
-                            <th>Product</th>
-                            <th>Qty</th>
-                            <th>Unit</th>
-                            <th>Price</th>
-                            <th>Amount</th>
-                            <th>Tax</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        {% for trans in transactions %}
-                            {% if trans.product.type == 'consumable' %}
-                                <tr data-tag="{{ trans.product.name }}">
-                                    <td>
-                                        <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
-                                    </td>
-                                    <td>{{ trans.quantity|floatformat:"-2" }}</td>
-                                    <td>{{ trans.unit }}</td>
-                                    <td>${{ trans.price|floatformat:"2" }}</td>
-                                    <td>${{ trans.amount|floatformat:"2" }}</td>
-                                    <td>${{ trans.total_tax|floatformat:"2" }}</td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% endif %}
-    {% if not terminated or expenses %}
-        <div class="card mb-3">
-            <h5 class="card-header">
-                Third Party Expenses
-                {% if expenses_amount %}<b>${{ expenses_amount|floatformat:"-2" }}</b>{% endif %}
-                {% if not terminated %}
-                    <a href="{% url 'create-expense' order.id %}">
+                            - &nbsp;
+                        </span>
                         <button type="button"
-                                class="btn rounded-pill btn-icon btn-primary"
-                                data-bs-toggle="tooltip"
-                                data-bs-offset="0,4"
-                                data-bs-placement="top"
-                                data-bs-html="true"
-                                title=""
-                                data-bs-original-title="Add third party expense">
-                            <span class="tf-icons bx bx-plus"></span>
-                        </button>
+                                class="btn btn-outline-primary"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#discountCollapse"
+                                aria-expanded="true"
+                                aria-controls="discountCollapse">${{ order.discount|floatformat:"-2" }} discount</button>
+                        <div class="collapse mt-2" id="discountCollapse">
+                            <form enctype="multipart/form-data"
+                                  method="post"
+                                  id="update-form"
+                                  class="border p-3">
+                                {% csrf_token %}
+                                {% crispy form %}
+                            </form>
+                        </div>
+                    </p>
+                    <p>
+                        <strong>Position:</strong>
+                        {% if order.position == 0 %}
+                            Storage
+                        {% elif order.position is None %}
+                            Null
+                        {% else %}
+                            {{ order.position }}
+                        {% endif %}
+
+                        <a class="btn btn-outline-primary" href="{%url 'order-position-change' order.id%}">
+                            <i class='bx bx-refresh'></i>
+                        </a>
+                    </p>
+                    {% if order.quotation %}
+                        <span class="float-end px-3 me-1 badge rounded-pill bg-warning">
+                            <i class='bx bx-error 'style="font-size:1.5em"></i>
+                            quotation
+                        </span>
+                    {% elif terminated or empty or order.status == 'payment_pending' %}
+                        <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' or order.status == 'payment_pending' %}danger{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    {% else %}
+                        <button type="button"
+                                class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'payment_pending' %}danger{% endif %} dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">{{ order.get_status_display }}</button>
+                        <ul class="dropdown-menu">
+                            {% if order.status != 'pending' %}
+                                <li>
+                                    <button class="dropdown-item badge bg-warning"
+                                            onclick="updateStatus('{% url 'update-service-order-status' order.id 'pending' %}', 'pending')">
+                                        Pending
+                                    </button>
+                                </li>
+                            {% endif %}
+                            {% if order.status != 'processing' %}
+                                <li>
+                                    <button class="dropdown-item badge bg-primary"
+                                            onclick="updateStatus('{% url 'update-service-order-status' order.id 'processing' %}', 'processing')">
+                                        Processing
+                                    </button>
+                                </li>
+                            {% endif %}
+                            {% if order.status != 'complete' and order.status != 'pending' and order.status != 'payment_pending' and satisfied %}
+                                <li>
+                                    <a class="dropdown-item badge bg-success"
+                                       href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                </h5>
+                {% include "services/order_header.html" %}
+                <div class="demo-inline-spacing">
+                    <ul class="p-0 m-0">
+                        {% for payment in payments %}
+                            <li class="d-flex mb-4 pb-1">
+                                <div class="avatar flex-shrink-0 me-3">
+                                    {% if payment.category.icon %}<img src="{{ payment.category.icon.url }}" alt="" class="w-px-40" />{% endif %}
+                                </div>
+                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="me-2">
+                                        <small class="text-muted d-block mb-1">{{ payment.category }}</small>
+                                        <h6 class="mb-0">${{ payment.amount|floatformat:"2" }}</h6>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <p class="card-text">{{ order.note }}</p>
+                <div class="demo-inline-spacing">
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'list-service-order' %}">
+                        <span class="tf-icons bx bx-arrow-back"></span>
                     </a>
-                {% endif %}
-            </h5>
-            {% if expenses %}
+                    <!-- <a class="btn btn-icon btn-outline-primary" -->
+                    <!--    type="button" -->
+                    <!--    href="{% url 'service-invoice' order.id %}"> -->
+                    <!--     <span class="tf-icons bx bx-credit-card"></span> -->
+                    <!-- </a> -->
+
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'pdf-invoice' order.id %}">
+                        <span class="tf-icons bx bx-printer"></span>
+                    </a>
+
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'service-labor' order.id %}">
+                        <span class="tf-icons bx bx-wrench"></span>
+                    </a>
+
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'trailer-identification-pdf' order.id %}">
+                        <span class="tf-icons bx bx-purchase-tag"></span>
+                    </a>
+                    {%if not order.invoice_sended%}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'service-order-send-invoice' order.id %}">
+                        <span class="tf-icons bx bx-mail-send"></span>
+                    </a>
+                    {%endif%}
+
+                    {% if order.status != 'decline' and order.status != 'complete' %}
+                        <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')"
+                           type="button"
+                           class="btn btn-icon btn-outline-danger float-end">
+                            <span class="tf-icons bx bx-trash"></span>
+                        </a>
+                    {% endif %}
+                    {% if not terminated %}
+                        <a class="btn btn-icon btn-outline-primary float-end"
+                           type="button"
+                           href="{% url 'update-service-order' order.id %}">
+                            <span class="tf-icons bx bx-edit"></span>
+                        </a>
+                    {% endif %}
+                    {% if order.status == 'payment_pending' %}
+                        <a href="{% url 'process-payment' order.id %}"
+                           type="button"
+                           class="btn btn-icon btn-outline-success float-end">
+                            <span class="tf-icons bx bx-money"></span>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% if parts_amount %}
+            <div class="card mb-3">
+                <h5 class="card-header">
+                    Parts
+                    {% if parts_amount %}
+                        <b>${{ parts_total|floatformat:"-2" }}</b>
+                        {% if parts_tax > 0 %}= ${{ parts_amount|floatformat:"-2" }}+${{ parts_tax|floatformat:"-2" }}{% endif %}
+                    {% endif %}
+                </h5>
                 <div class="table-responsive text-nowrap">
                     <table class="table table-sm">
                         <thead>
@@ -407,163 +261,234 @@
                                 <th>
                                     <i class="bx bx-cog"></i>
                                 </th>
-                                <th>Concept</th>
-                                <th>Provider</th>
-                                <th>Cost</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Unit</th>
+                                <th>Price</th>
+                                <th>Amount</th>
+                                <th>Tax</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            {% for expense in expenses %}
-                                <tr data-tag="{{ expense.concept }}">
+                            {% for trans in transactions %}
+                                {% if trans.product.type == 'part' %}
+                                    <tr data-tag="{{ trans.product.name }}">
+                                        <td>
+                                            <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
+                                        </td>
+                                        <td {% if  not trans.satisfied %}class="text-danger"{% endif %}>{{ trans.quantity|floatformat:"-2" }}</td>
+                                        <td>{{ trans.unit }}</td>
+                                        <td>${{ trans.price|floatformat:"2" }}</td>
+                                        <td>${{ trans.amount|floatformat:"2" }}</td>
+                                        <td>${{ trans.total_tax|floatformat:"2" }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+        {% if services %}
+            <div class="card mb-3">
+                <h5 class="card-header">
+                    Services
+                    {% if service_amount %}
+                        <b>${{ service_total|floatformat:"-2" }}</b>
+                        {% if service_tax > 0 %}= ${{ service_amount|floatformat:"-2" }}+${{ service_tax|floatformat:"-2" }}{% endif %}
+                    {% endif %}
+                </h5>
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <i class="bx bx-cog"></i>
+                                </th>
+                                <th>Service</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Amount</th>
+                                <th>Tax</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            {% for service in services %}
+                                <tr data-tag="{{ service.product.name }}">
                                     <td>
-                                        <a href="{% url 'update-expense' expense.id %}">${{ expense.cost|floatformat:"0" }}</a>
+                                        <a href="{% if terminated %} {% url 'detail-service-transaction' service.id %} {% else %} {% url 'update-service-transaction' service.id %} {% endif %}">${{ service.amount|floatformat:"0" }}</a>
                                     </td>
                                     <td>
-                                        <strong>{{ expense.concept }}</strong>
-                                        {% if expense.image %}
-                                            <a href="{{ expense.image.url }}" target="blank" class="float-end"><span class="tf-icons bx bx-image"></span></a>
-                                        {% endif %}
+                                        <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
                                     </td>
-                                    <td>
-                                        {% if expense.associated %}
-                                            <a href={% url 'detail-associated' expense.associated.id %}>{{ expense.associated }}</a>
-                                        {% endif %}
-                                    </td>
-                                    <td>${{ expense.cost|floatformat:"2" }}</td>
+                                    <td>{{ service.quantity|floatformat:"-2" }}</td>
+                                    <td>${{ service.price|floatformat:"2" }}</td>
+                                    <td>${{ service.amount|floatformat:"2" }}</td>
+                                    <td>${{ service.total_tax|floatformat:"2" }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-            {% endif %}
-        </div>
-    {% endif %}
-    <!-- Images -->
-    <div class="card mb-3">
-        <!-- Gallery -->
-        <h5 id="gallery" class="mt-3 card-header">
-            Gallery
-            <div class="demo-inline-spacing">
-                <a onclick="shareImages()"
-                   class="btn btn-icon btn-outline-primary"
-                   type="button">
-                    <span class="tf-icons bx bx-share-alt"></span>
-                </a>
-                <a class="btn btn-icon btn-outline-primary"
-                   type="button"
-                   href="{% url 'create-service-pictures' order.id %}">
-                    <span class="tf-icons bx bx-plus"></span>
-                </a>
-                {% if images %}
-                    <a onclick="deletePictures()"
-                       type="button"
-                       class="btn btn-icon btn-outline-danger float-end">
-                        <span class="tf-icons bx bx-trash"></span>
-                    </a>
-                {% endif %}
-            </div>
-        </h5>
-        <hr class="mt-0 mb-4" />
-        {% if images %}
-            <div class="row col-12">
-                {% for img in images %}
-                    <div class="col-6 col-md-4 text-center">
-                        <input value={{ img.id }} id="trigger-{{ img.id }}" type="checkbox" style="display: none;" class="img-cb">
-                        <label for="trigger-{{ img.id }}" class="img-border">
-                            <img class="checker" src="{{ img.image.url }}" alt="Service picture">
-                        </label>
-                    </div>
-                {% endfor %}
             </div>
         {% endif %}
+        {% if consumables %}
+            <div class="card mb-3">
+                <h5 class="card-header">
+                    Consumables
+                    {% if consumable_amount %}
+                        <b>${{ consumable_total|floatformat:"-2" }}</b>
+                        {% if consumable_tax > 0 %}
+                            = ${{ consumable_amount|floatformat:"-2" }}+${{ consumable_tax|floatformat:"-2" }}
+                        {% endif %}
+                    {% endif %}
+                </h5>
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <i class="bx bx-cog"></i>
+                                </th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Unit</th>
+                                <th>Price</th>
+                                <th>Amount</th>
+                                <th>Tax</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            {% for trans in transactions %}
+                                {% if trans.product.type == 'consumable' %}
+                                    <tr data-tag="{{ trans.product.name }}">
+                                        <td>
+                                            <a href="{% if terminated %} {% url 'detail-transaction' trans.id %} {% else %} {% url 'update-transaction' trans.id %} {% endif %}">${{ trans.amount|floatformat:"0" }}</a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'detail-product' trans.product.id %}"><strong>{{ trans.product.name }}</strong></a>
+                                        </td>
+                                        <td>{{ trans.quantity|floatformat:"-2" }}</td>
+                                        <td>{{ trans.unit }}</td>
+                                        <td>${{ trans.price|floatformat:"2" }}</td>
+                                        <td>${{ trans.amount|floatformat:"2" }}</td>
+                                        <td>${{ trans.total_tax|floatformat:"2" }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+        {% if not terminated or expenses %}
+            <div class="card mb-3">
+                <h5 class="card-header">
+                    Third Party Expenses
+                    {% if expenses_amount %}<b>${{ expenses_amount|floatformat:"-2" }}</b>{% endif %}
+                    {% if not terminated %}
+                        <a href="{% url 'create-expense' order.id %}">
+                            <button type="button"
+                                    class="btn rounded-pill btn-icon btn-primary"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-offset="0,4"
+                                    data-bs-placement="top"
+                                    data-bs-html="true"
+                                    title=""
+                                    data-bs-original-title="Add third party expense">
+                                <span class="tf-icons bx bx-plus"></span>
+                            </button>
+                        </a>
+                    {% endif %}
+                </h5>
+                {% if expenses %}
+                    <div class="table-responsive text-nowrap">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <i class="bx bx-cog"></i>
+                                    </th>
+                                    <th>Concept</th>
+                                    <th>Provider</th>
+                                    <th>Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                                {% for expense in expenses %}
+                                    <tr data-tag="{{ expense.concept }}">
+                                        <td>
+                                            <a href="{% url 'update-expense' expense.id %}">${{ expense.cost|floatformat:"0" }}</a>
+                                        </td>
+                                        <td>
+                                            <strong>{{ expense.concept }}</strong>
+                                            {% if expense.image %}
+                                                <a href="{{ expense.image.url }}" target="blank" class="float-end"><span class="tf-icons bx bx-image"></span></a>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if expense.associated %}
+                                                <a href={% url 'detail-associated' expense.associated.id %}>{{ expense.associated }}</a>
+                                            {% endif %}
+                                        </td>
+                                        <td>${{ expense.cost|floatformat:"2" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        <!-- Images -->
+        <div class="card mb-3">
+            <!-- Gallery -->
+            <h5 id="gallery" class="mt-3 card-header">
+                Gallery
+                <div class="demo-inline-spacing">
+                    <a onclick="shareImages()"
+                       class="btn btn-icon btn-outline-primary"
+                       type="button">
+                        <span class="tf-icons bx bx-share-alt"></span>
+                    </a>
+                    <a class="btn btn-icon btn-outline-primary"
+                       type="button"
+                       href="{% url 'create-service-pictures' order.id %}">
+                        <span class="tf-icons bx bx-plus"></span>
+                    </a>
+                    {% if images %}
+                        <a onclick="deletePictures()"
+                           type="button"
+                           class="btn btn-icon btn-outline-danger float-end">
+                            <span class="tf-icons bx bx-trash"></span>
+                        </a>
+                    {% endif %}
+                </div>
+            </h5>
+            <hr class="mt-0 mb-4" />
+            {% if images %}
+                <div class="row col-12">
+                    {% for img in images %}
+                        <div class="col-6 col-md-4 text-center">
+                            <input value={{ img.id }} id="trigger-{{ img.id }}" type="checkbox" style="display: none;" class="img-cb">
+                            <label for="trigger-{{ img.id }}" class="img-border">
+                                <img class="checker" src="{{ img.image.url }}" alt="Service picture">
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
     </div>
+    <div class="xl:w-1/3">
                     {% include "services/order_parts_history.html" %}
-            <!-- <div class="card mb-3"> -->
-            <!--     <div class="list-head"> -->
-            <!--         <h5 class="card-header d-flex justify-content-between"> -->
-            <!--             <div> -->
-            <!--                 Historial de partes: <strong>{{ parts_number }} / {{parts_total}}</strong> -->
-            <!--             </div> -->
-            <!--             <form method="GET"> -->
-            <!--                 {% csrf_token %} -->
-            <!--                 {% for key, value in request.GET.items %} -->
-            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
-            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
-            <!--                     {%endif%} -->
-            <!--                 {%endfor%} -->
-            <!--                 <div class="input-group mb-3"> -->
-            <!--                     <input class="form-control" type='text' placeholder="Search" name='parts_filter' {%if 'parts_filter' in request.GET%} value="{{request.GET.parts_filter}}" {%endif%}> -->
-            <!--                     <button type="submit" class="input-group-text" id="basic-addon1"> -->
-            <!--                         <i class="bx bx-search"></i> -->
-            <!--                     </button> -->
-            <!--                 </div> -->
-            <!--             </form> -->
-            <!--         </h5> -->
-            <!--     </div> -->
-            <!--     <div class="card-body pt-0"> -->
-            <!--         {% include "services/order_parts_history.html" %} -->
-            <!--         {%if parts_number < parts_total%} -->
-            <!--             <form method="GET"> -->
-            <!--                 {% csrf_token %} -->
-            <!--                 {% for key, value in request.GET.items %} -->
-            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
-            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
-            <!--                     {%endif%} -->
-            <!--                 {%endfor%} -->
-            <!--                 <input type='hidden' name='parts_number' value="{{parts_next}}"> -->
-            <!--                 <div class="d-grid gap-2"> -->
-            <!--                     <button type="submit" class="btn mt-2"> -->
-            <!--                         Load more -->
-            <!--                     </button> -->
-            <!--                 </div> -->
-            <!--             </form> -->
-            <!--         {%endif%} -->
-            <!--     </div> -->
-            <!-- </div> -->
                     {% include "services/order_services_history.html" %}
-            <!-- <div class="card mb-3"> -->
-            <!--     <div class="list-head"> -->
-            <!--         <h5 class="card-header d-flex justify-content-between"> -->
-            <!--             <div> -->
-            <!--                 Historial de servicios: <strong>{{ services_number }} / {{services_total}}</strong> -->
-            <!--             </div> -->
-            <!--             <form method="GET"> -->
-            <!--                 {% csrf_token %} -->
-            <!--                 {% for key, value in request.GET.items %} -->
-            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
-            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
-            <!--                     {%endif%} -->
-            <!--                 {%endfor%} -->
-            <!--                 <div class="input-group mb-3"> -->
-            <!--                     <input class="form-control" type='text' placeholder="Search" name='services_filter' {%if 'services_filter' in request.GET%} value="{{request.GET.services_filter}}" {%endif%}> -->
-            <!--                     <button type="submit" class="input-group-text" id="basic-addon1"> -->
-            <!--                         <i class="bx bx-search"></i> -->
-            <!--                     </button> -->
-            <!--                 </div> -->
-            <!--             </form> -->
-            <!--         </h5> -->
-            <!--     </div> -->
-            <!--     <div class="card-body pt-0"> -->
-            <!--         {% include "services/order_services_history.html" %} -->
-            <!--         {%if services_number < parts_total%} -->
-            <!--             <form method="GET"> -->
-            <!--                 {% csrf_token %} -->
-            <!--                 {% for key, value in request.GET.items %} -->
-            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
-            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
-            <!--                     {%endif%} -->
-            <!--                 {%endfor%} -->
-            <!--                 <input type='hidden' name='services_number' value="{{services_next}}"> -->
-            <!--                 <div class="d-grid gap-2"> -->
-            <!--                     <button type="submit" class="btn mt-2"> -->
-            <!--                         Load more -->
-            <!--                     </button> -->
-            <!--                 </div> -->
-            <!--             </form> -->
-            <!--         {%endif%} -->
-            <!--     </div> -->
-            <!-- </div> -->
-    <a href="{% url 'select-service' 'create-service-transaction' order.id %}">
+    </div>
+    </div>
+    <a href="{% url 'select-service' 'create-service-transaction' order.id %}" class="z-50">
         <button type="button"
                 style="visibility: {% if terminated %}hidden{% endif %}"
                 class="btn rounded-pill btn-primary btn-icon add"
