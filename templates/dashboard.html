@@ -13,6 +13,10 @@
             height: 380px;
             overflow-y: auto;
         }
+        .trailers-storage {
+            height: 380px;
+            overflow-y: auto;
+        }
 
         .chapilla{
             position: relative;
@@ -380,38 +384,24 @@
             <div class="card">
                 <div class="list-head">
                     <h5 class="card-header">
-                        Trailers on storage: <strong>{{ trailers_storage|length }}</strong>
+                        Trailers on storage: <strong>{{ orders_storage|length }}</strong>
                     </h5>
                 </div>
                 <div class="card-body pt-0">
-                    <div class="table-responsive text-nowrap">
-                        <table class="table">
+                    <div class="table-responsive text-nowrap trailers-storage">
+                        <table class="table w-100">
                             <thead>
                                 <th>
                                     <i class="bx bx-cog"></i>
                                 </th>
-                                <th>VEHICLE</th>
+                                <th>VEHICLE/CLIENT</th>
                                 <th>
-                                    ORDER
+                                    DATE/REAZON
                                 </th>
                             </thead>
                             <tbody>
                             {% for order in orders_storage %}
-                                <tr data-search="{{ order.trailer.vin }}{{ order.trailer.year }}{{ order.trailer.model }}{{ order.trailer.manufacturer }}">
-                                    <td>
-                                        {%if order.trailer.id is not None%}
-                                        <a href={% url 'detail-trailer' order.trailer.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
-                                        {%endif%}
-                                    </td>
-                                    <td>
-                                        <div class="d-flex">
-                                            {% include "rent/equipment_line.html" with equipment=order.trailer equipment_type="trailer" pinned_image=order.trailer.pinned_image %}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <a href={% url 'detail-service-order' order.id %}><i class="bx bx-wrench"></i></a>
-                                    </td>
-                                </tr>
+                                {% include "services/storage/dashboard_storage_order.html" %}
                             {% endfor %}
                             </tbody>
                         </table>

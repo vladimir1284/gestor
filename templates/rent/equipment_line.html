@@ -1,6 +1,7 @@
 {% load static %}
 <div class="avatar flex-shrink-0 me-3">
-    <a {% if equipment_type == 'trailer' %} href="{% url 'detail-trailer' equipment.id %}" {% else %} href="{% url 'detail-vehicle' equipment.id %}" {% endif %}>
+    <a {% if equipment and equipment.id %}{% if equipment_type == 'trailer' %} href="{% url 'detail-trailer' equipment.id %}" {% else %} href="{% url 'detail-vehicle' equipment.id %}" {% endif %}
+       {% endif %}>
         <span class="avatar-initial rounded-circle bg-label-primary">
             <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'assets/img/icons/trailer.png' %}" {% endif %}
                  alt="image"

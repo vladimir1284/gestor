@@ -55,6 +55,7 @@ from services.models import (
 from services.forms import (
     DiscountForm,
     OrderCreateForm,
+    OrderDeclineReazon,
     OrderEndUpdatePositionForm,
     OrderSignatureForm,
     OrderVinPlateForm,
@@ -247,6 +248,15 @@ def order_change_position(request, id):
 
 
 @login_required
+def order_change_position_from_storage(request, id):
+    return order_update_position(
+        request=request,
+        id=id,
+        next='storage-view',
+    )
+
+
+@login_required
 def order_end_update_position(request, id, status):
     return order_update_position(request=request, id=id, status=status)
 
@@ -388,6 +398,9 @@ def detail_order(request, id, msg=None):
     context.setdefault("images", images)
 
     order = context["order"]
+    order.decline_reazon = OrderDeclineReazon.objects.filter(
+        order=order,).last()
+
     client = order.associated
     if client is not None:
         orders = Order.objects.filter(

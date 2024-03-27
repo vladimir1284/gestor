@@ -145,6 +145,34 @@ class Order(models.Model):
         )
 
 
+class OrderDeclineReazon(models.Model):
+    DECLINE_REAZON = [
+        ("no_money", "No tiene dinero"),
+        ("price", "No está de acuerdo con el precio"),
+        ("later", "Lo va a hacer más adelante"),
+        ("wait", "No puede esperar"),
+        ("conditions", "No está de acuerdo con los terminos"),
+        ("data_error", "Error en los datos"),
+    ]
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    decline_reazon = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=DECLINE_REAZON,
+    )
+    note = models.TextField(
+        blank=True,
+        null=True,
+    )
+
+    def get_decline_reazon(self) -> str:
+        for r in self.DECLINE_REAZON:
+            if r[0] == self.decline_reazon:
+                return r[1]
+        return "UNKNOWN"
+
+
 @receiver(models.signals.pre_save, sender=Order)
 def on_field_change(sender, instance, **kwargs):
     try:
