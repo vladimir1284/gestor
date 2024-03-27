@@ -9,7 +9,11 @@
         {% for service in services %}
         <tr>
             {% if forloop.counter0 == 0 %}<td rowspan="{{ services|length }}">{{ name }}</td>{% endif %}
-            <td>{{ service.order.created_date }}</td>
+            <td>
+                <a href="{% url 'detail-service-order' service.order.id %}">
+                    {{ service.order.created_date | date:"b. d, Y" | capfirst }}
+                </a>
+            </td>
             <td>${{ service.price }}</td>
         </tr>
         {% endfor %}

@@ -118,7 +118,7 @@ def update_user(request, id):
 
 @permission_required("auth.user.can_add_user")
 def list_user(request):
-    profiles = UserProfile.objects.exclude(id=request.user.profile_user.id)
+    profiles = UserProfile.objects.exclude(user__id=request.user.id)
     print(profiles)
     return render(request, "users/user_list.html", {"profiles": profiles})
 

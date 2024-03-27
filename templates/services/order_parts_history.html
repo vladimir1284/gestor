@@ -5,14 +5,18 @@
         <th>Price</th>
     </thead>
     <tbody>
-        {% for name, parts in parts_history.items %}
-        {% for part in parts %}
+        {% for name, parts in parts_history.items %} {% for part in parts %}
         <tr>
-            {% if forloop.counter0 == 0 %}<td rowspan="{{ parts|length }}">{{ name }}</td>{% endif %}
-            <td>{{ part.order.created_date }}</td>
+            {% if forloop.counter0 == 0 %}
+            <td rowspan="{{ parts|length }}">{{ name }}</td>
+            {% endif %}
+            <td>
+                <a href="{% url 'detail-service-order' part.order.id %}">
+                    {{ part.order.created_date|date:"b. d, Y"|capfirst }}
+                </a>
+            </td>
             <td>${{ part.price }}</td>
         </tr>
-        {% endfor %}
-        {% endfor %}
+        {% endfor %} {% endfor %}
     </tbody>
 </table>

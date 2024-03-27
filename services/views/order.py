@@ -423,9 +423,29 @@ def detail_order(request, id, msg=None):
         context.setdefault(
             "payments", Payment.objects.filter(order=context["order"]))
 
-    parts, services = order_history(order)
+    partsFilter = request.GET['parts_filter'] if 'parts_filter' in request.GET else ''
+    servicesFilter = request.GET['services_filter'] if 'services_filter' in request.GET else ''
+    partsNumber = int(request.GET['parts_number']
+                      if 'parts_number' in request.GET else 1)
+    servicesNumber = int(
+        request.GET['services_number'] if 'services_number' in request.GET else 1)
+
+    parts, pNum, pTotal, services, sNum, sTotal = order_history(
+        order,
+        parts_filter=partsFilter,
+        services_filter=servicesFilter,
+        parts_number=partsNumber,
+        services_number=servicesNumber,
+    )
+
     context["parts_history"] = parts
+    context["parts_next"] = pNum + 5
+    context["parts_number"] = pNum
+    context["parts_total"] = pTotal
     context["services_history"] = services
+    context["services_next"] = sNum + 5
+    context["services_number"] = sNum
+    context["services_total"] = sTotal
 
     return render(request, "services/order_detail.html", context)
 
