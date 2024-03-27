@@ -32,3 +32,42 @@ def get_active_trailers_deposit(trailer: Trailer):
 
 def get_current_trailer_deposit(trailer: Trailer):
     return get_active_trailers_deposit(trailer).last()
+
+
+def get_expirated_trailer_deposits(year: int, month: int):
+    now = datetime.now()
+    deposits = TrailerDeposit.objects.filter(
+        cancelled=False,
+        done=False,
+        date__lt=now,
+        date__year=year,
+        date__month=month,
+    )
+    sum = 0.0
+    for d in deposits:
+        sum += d.amount
+    return deposits, sum
+
+
+def get_cancelled_trailer_deposits(year: int, month: int):
+    deposits = TrailerDeposit.objects.filter(
+        cancelled=True,
+        date__year=year,
+        date__month=month,
+    )
+    sum = 0.0
+    for d in deposits:
+        sum += d.amount
+    return deposits, sum
+
+
+def get_done_trailer_deposits(year: int, month: int):
+    deposits = TrailerDeposit.objects.filter(
+        done=True,
+        date__year=year,
+        date__month=month,
+    )
+    sum = 0.0
+    for d in deposits:
+        sum += d.amount
+    return deposits, sum
