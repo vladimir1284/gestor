@@ -1,5 +1,6 @@
 from django import forms
-from rent.views.client import Associated
+
+from services.models import Associated
 
 
 class LesseeContactForm(forms.ModelForm):

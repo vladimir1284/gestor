@@ -3,15 +3,22 @@ from django.shortcuts import (
     render,
     redirect,
     get_object_or_404,
+    reverse,
 )
+from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+import jwt
 import pytz
 import re
 import base64
 import tempfile
+
+import qrcode
+from rent.forms.lessee_contact import LesseeContactForm
 from rent.models.lease import Contract, Lease
 from rent.tools.client import compute_client_debt
+from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from services.tools.conditios_to_pdf import (
     conditions_to_pdf,
     send_pdf_conditions_to_email,
@@ -22,6 +29,8 @@ from services.tools.order_history import order_history
 
 from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
 from services.views.invoice import get_invoice_context, sendMail
+from users.forms import AssociatedCreateForm
+from users.views import addStateCity
 
 
 from .sms import twilioSendSMS
@@ -487,7 +496,11 @@ def select_client(request):
     associates = Associated.objects.filter(type="client", active=True).order_by(
         "name", "alias"
     )
-    context = {"associates": associates, "skip": True}
+    context = {
+        "associates": associates,
+        "skip": True,
+        'create': 'order',
+    }
     order_id = request.session.get("order_detail")
     if order_id is not None:
         context["skip"] = False
@@ -772,3 +785,204 @@ def send_invoice_email(request, id):
     order.save()
 
     return redirect("detail-service-order", id)
+
+
+@login_required
+def create_order_contact(request):
+    if request.method == "POST":
+        form = LesseeContactForm(request.POST, request.FILES)
+        if form.is_valid():
+            associated = form.save()
+            return redirect("generate-service-order-contact-url", associated.id)
+    else:
+        form = LesseeContactForm()
+
+    title = _("Create client")
+
+    context = {
+        "form": form,
+        "title": title,
+    }
+    addStateCity(context)
+    return render(request, "users/lessee_contact_create.html", context)
+
+
+@login_required
+def generate_url(request, id):
+    if request.session['next'] is None:
+        request.session["next"] = "view-conditions"
+    request.session["using_signature"] = True
+    request.session["plate"] = True
+
+    associated = get_object_or_404(Associated, id=id)
+    if request.method == "POST":
+        request.session["client_id"] = associated.id
+        # Redirect acording to the  corresponding flow
+        if request.session.get("creating_order") is not None:
+            return redirect(request.session['next'])
+        else:
+            order_id = request.session.get("order_detail")
+            if order_id is not None:
+                order = get_object_or_404(Order, id=order_id)
+                order.associated = associated
+                order.save()
+                return redirect("detail-service-order", id=order_id)
+
+    exp = datetime.utcnow() + timedelta(minutes=30)
+    context = {
+        "lessee_id": associated.id,
+        "name": associated.name,
+        "phone": str(associated.phone_number),
+        "exp": exp,
+    }
+
+    token = jwt.encode(context, settings.SECRET_KEY, algorithm="HS256")
+
+    url_base = "{}://{}".format(request.scheme, request.get_host())
+    url = url_base + reverse("service-order-contact-form", args=[token])
+    context["url"] = url
+
+    sendSMSLesseeContactURL(associated.phone_number, url)
+
+    factory = qrcode.image.svg.SvgPathImage
+    factory.QR_PATH_STYLE["fill"] = "#455565"
+    img = qrcode.make(
+        url,
+        image_factory=factory,
+        box_size=20,
+    )
+    context["qr_url"] = img.to_string(encoding="unicode")
+
+    return render(request, "rent/client/lessee_url.html", context)
+
+
+def lessee_form(request, token):
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        lessee_id = info["lessee_id"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+
+    lessee = get_object_or_404(Associated, id=lessee_id)
+
+    if request.method == "POST":
+        form = AssociatedCreateForm(
+            request.POST, request.FILES, instance=lessee)
+        if form.is_valid():
+            form.save()
+            return redirect("contact-view-conditions", token)
+
+    form = AssociatedCreateForm(instance=lessee)
+    title = _("Complete form")
+
+    context = {
+        "form": form,
+        "title": title,
+    }
+    addStateCity(context)
+    return render(request, "users/lessee_form.html", context)
+
+
+def contact_view_conditions(request, token):
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        lessee_id = info["lessee_id"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+
+    if "signature" in request.session and request.session["signature"] is not None:
+        signature = OrderSignature.objects.get(id=request.session["signature"])
+    else:
+        signature = OrderSignature()
+
+    client = get_object_or_404(Associated, id=lessee_id)
+
+    HasOrders = False
+    if client is not None:
+        orders = Order.objects.filter(associated=client)
+        HasOrders = len(orders) > 0
+
+    context = {
+        "signature": signature,
+        "client": client,
+        "hasOrder": HasOrders,
+        "token": token,
+    }
+    return render(request, "services/contact_view_conditions.html", context)
+
+
+def contact_create_handwriting(request, token):
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        client_id = info["lessee_id"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+
+    if request.method == "POST":
+        form = OrderSignatureForm(request.POST, request.FILES)
+        if form.is_valid():
+            associated = get_object_or_404(Associated, id=client_id)
+            handwriting: OrderSignature = form.save(commit=False)
+            handwriting.associated = associated
+            handwriting.position = "signature_order_client"
+
+            # Save image
+            datauri = str(form.instance.img)
+            image_data = re.sub("^data:image/png;base64,", "", datauri)
+            image_data = base64.b64decode(image_data)
+            with tempfile.NamedTemporaryFile(
+                suffix=".png", delete=False, prefix="firma_"
+            ) as output:
+                output.write(image_data)
+                output.flush()
+                name = output.name.split("/")[-1]
+                with open(output.name, "rb") as temp_file:
+                    form.instance.img.save(name, temp_file, True)
+
+            handwriting.save()
+            request.session["signature"] = handwriting.id
+            return redirect("contact-view-conditions", token)
+    else:
+        form = OrderSignatureForm()
+
+    context = {
+        "position": "signature",
+        "form": form,
+    }
+    return render(request, "services/signature.html", context)

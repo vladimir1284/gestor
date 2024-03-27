@@ -686,6 +686,9 @@ def create_lessee_data(request, trailer_id, lessee_id, deposit_id=None):
 
 @login_required
 def generate_url(request, trailer_id, associated_id):
+    if request.method == 'POST':
+        return redirect('update-lessee', trailer_id, associated_id)
+
     associated = Associated.objects.get(id=associated_id)
 
     exp = datetime.utcnow() + timedelta(minutes=30)

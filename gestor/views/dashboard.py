@@ -25,6 +25,7 @@ from rent.models.lease import SecurityDepositDevolution
 from rent.models.vehicle import Trailer
 from rent.views.client import compute_client_debt
 from rent.views.client import get_sorted_clients
+from rent.views.vehicle import get_current_trailer_deposit
 from services.models import (
     PendingPayment,
 )
@@ -231,7 +232,13 @@ def dashboard(request):
     rented_ids = []
     for contract in active_contracts:
         rented_ids.append(contract.trailer.id)
-    available = Trailer.objects.filter(active=True).exclude(id__in=rented_ids)
+
+    active_trailers = Trailer.objects.filter(
+        active=True).exclude(id__in=rented_ids)
+    available = []
+    for t in active_trailers:
+        if get_current_trailer_deposit(t) is None:
+            available.append(t)
 
     orders_payment_pending = Order.objects.filter(
         type="sell", status="payment_pending"
