@@ -17,7 +17,7 @@ from services.tools.conditios_to_pdf import (
     send_pdf_conditions_to_email,
 )
 from services.tools.order import getRepairDebt, getOrderContext, computeOrderAmount
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from services.tools.order_history import order_history
 
 from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
@@ -70,7 +70,7 @@ def create_order(request):
         if len(orders) == 0:
             return redirect("view-conditions")
 
-    initial = {"concept": "Maintenance to trailer"}
+    initial = {"concept": request.session['concept']}
     creating_order = request.session.get("creating_order")
     request.session["all_selected"] = True
     order = Order()
@@ -127,7 +127,8 @@ def create_order(request):
                 "signature" in request.session
                 and request.session["signature"] is not None
             ):
-                signature = OrderSignature.objects.get(id=request.session["signature"])
+                signature = OrderSignature.objects.get(
+                    id=request.session["signature"])
                 signature.order = order
                 signature.save()
             cleanSession(request)
@@ -160,6 +161,8 @@ def cleanSession(request):
     request.session["signature"] = None
     request.session["using_signature"] = False
     request.session["next"] = None
+    request.session["concept"] = "Maintenance to trailer"
+    request.session['quotation'] = False
 
 
 @login_required
@@ -171,7 +174,8 @@ def update_order(request, id):
 
     if request.method == "POST":
         # pass the object as instance in form
-        form = OrderCreateForm(request.POST, instance=order, get_plate=order.external)
+        form = OrderCreateForm(
+            request.POST, instance=order, get_plate=order.external)
 
         # save the data from the form and
         # redirect to detail_view
@@ -180,7 +184,8 @@ def update_order(request, id):
             return redirect("detail-service-order", id)
 
     # add form dictionary to context
-    context = {"form": form, "order": order, "title": _("Update service order")}
+    context = {"form": form, "order": order,
+               "title": _("Update service order")}
 
     return render(request, "services/order_create.html", context)
 
@@ -281,7 +286,8 @@ def list_terminated_order(request, year=None, month=None):
     ) = getMonthYear(month, year)
 
     context = preparePaginatedListOrder(
-        request, ("complete", "decline", "payment_pending"), currentYear, currentMonth
+        request, ("complete", "decline",
+                  "payment_pending"), currentYear, currentMonth
     )
     context.setdefault("stage", "Active")
     context.setdefault("alternative_view", "list-service-order")
@@ -321,7 +327,8 @@ def prepareListOrder(
         position__in=positions,
     ).order_by("-created_date")
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
-    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
+    orders = sorted(orders, key=lambda x: 0 if x.status ==
+                    "payment_pending" else 1)
 
     statuses = set()
     for order in orders:
@@ -344,7 +351,8 @@ def preparePaginatedListOrder(request, status_list, currentYear, currentMonth):
         created_date__month=currentMonth,
     ).order_by("-created_date")
 
-    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
+    orders = sorted(orders, key=lambda x: 0 if x.status ==
+                    "payment_pending" else 1)
 
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
@@ -403,7 +411,8 @@ def detail_order(request, id, msg=None):
 
     if context["terminated"]:
         # Payments
-        context.setdefault("payments", Payment.objects.filter(order=context["order"]))
+        context.setdefault(
+            "payments", Payment.objects.filter(order=context["order"]))
 
     parts, services = order_history(order)
     context["parts_history"] = parts
@@ -420,10 +429,44 @@ def select_order_flow(request):
     return render(request, "services/order_flow.html")
 
 
+@login_required
+def fast_order_create(request):
+    order = Order(
+        concept=request.session['concept'],
+        quotation=request.session.get('quotation'),
+        created_by=request.user,
+    )
+
+    client_id = request.session.get("client_id")
+    if client_id:
+        client = Associated.objects.get(id=client_id)
+        order.associated = client
+
+    order.save()
+    return redirect("detail-service-order", id=order.id)
+
+
+# Flow: parts sell
+@login_required
+def parts_sale(request):
+    request.session['next'] = "fast-order-create"
+    request.session['concept'] = 'Parts\' sale.'
+    return redirect("select-service-client")
+
+
+# Flow: quotation order
+@login_required
+def order_quotation(request):
+    request.session['quotation'] = True
+    request.session['concept'] = 'Quotation'
+    return redirect("fast-order-create")
+
+
 # Flow: client owns trailer
 @login_required
 def select_client(request):
-    request.session["next"] = "view-conditions"
+    if request.session['next'] is None:
+        request.session["next"] = "view-conditions"
     request.session["using_signature"] = True
     request.session["plate"] = True
     if request.method == "POST":
@@ -431,7 +474,7 @@ def select_client(request):
         request.session["client_id"] = client.id
         # Redirect acording to the  corresponding flow
         if request.session.get("creating_order") is not None:
-            return redirect("view-conditions")
+            return redirect(request.session['next'])
         else:
             order_id = request.session.get("order_detail")
             if order_id is not None:
@@ -600,10 +643,12 @@ def view_contract_details(request, id):
         rental_debt = debs
         rental_last_payment = unpaid[0].start
 
-    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(contract.lessee)
+    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(
+        contract.lessee)
 
     last_order = (
-        Order.objects.filter(trailer=contract.trailer).order_by("created_date").last()
+        Order.objects.filter(trailer=contract.trailer).order_by(
+            "created_date").last()
     )
     if last_order is not None:
         effective_time = (
@@ -661,7 +706,8 @@ def select_unrented_trailer(request):
     for trailer in trailers:
         # Contracts
         has_contract = (
-            Contract.objects.filter(trailer=trailer).exclude(stage="ended").exists()
+            Contract.objects.filter(trailer=trailer).exclude(
+                stage="ended").exists()
         )
         if not has_contract:
             unrented_trailers.append(trailer)

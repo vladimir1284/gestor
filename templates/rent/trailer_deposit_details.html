@@ -1,0 +1,134 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block page %}
+    <style>
+    #qrcode svg {
+        width: 5cm;
+        height: 5cm;
+        display
+    }
+    #qrcode {
+        max-width: 5.5cm;
+    }
+    </style>
+{% endblock page %}
+{% block content %}
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="float-end">
+                            {% if deposit.active %}
+                                <a href="{% url 'trailer-deposit-cancel' deposit.id %}">
+                                    <button class="btn btn-outline-danger">Cancel</button>
+                                </a>
+                            {% else %}
+                                <div class="text-danger">Cancelled</div>
+                            {% endif %}
+                        </div>
+                        <h2 class="mb-0">Deposit</h2>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Amount:    {{ deposit.amount }}</li>
+                                <li class="list-group-item">Date:    {{ deposit.date }}</li>
+                                <li class="list-group-item">Note:    {{ deposit.note }}</li>
+                            </ul>
+                            <div class="m-3">
+                                <a class="btn btn-outline-primary" href="{{ url }}">
+                                    <i class='bx bxs-file'></i></a>
+                                <a class="btn btn-outline-primary"
+                                   href="{% url 'trailer-deposit-conditions-pdf' deposit.id %}">
+                                    <i class='bx bxs-file-pdf'></i>
+                                </a>
+                                <a class="btn btn-outline-primary"
+                                   href="{% url 'update-lessee' equipment.id deposit.client.id deposit.id %}">
+                                    <i class='bx bxs-edit'></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col text-center p-0 m-0 pe-3 mb-3" id="qrcode">{{ qr_url | safe }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="card" style='height:100%'>
+                    <div class="card-header">
+                        <a href={% url 'detail-associated' deposit.client.id %}>
+                            <h2>
+                                Lessee: <b> {{ deposit.client.name }}</b>
+                            </h2>
+                        </a>
+                        <div>
+                            {% if deposit.client.phone_number %}
+                                <a href="tel:{{ deposit.client.phone_number }}">
+                                    <button class="btn btn-success data-toggle="
+                                            tooltip
+                                            "
+                                            data-placement="left"
+                                            title="Call contact"
+                                            ">
+                                        <i class='bx bxs-phone'></i>
+                                    </button>
+                                </a>
+                            {% endif %}
+                            {% if deposit.client.email %}
+                                <a href="sendto:{{ deposit.client.email }}">
+                                    <button class="btn btn-success data-toggle="
+                                            tooltip
+                                            "
+                                            data-placement="left"
+                                            title="send email to contact"
+                                            ">
+                                        <i class='bx bxs-envelope'></i>
+                                    </button>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% if deposit.client.phone_number %}
+                            <li class="list-group-item">Phone number:    {{ deposit.client.phone_number }}</li>
+                        {% endif %}
+                        {% if deposit.client.email %}<li class="list-group-item">Email:    {{ deposit.client.email }}</li>{% endif %}
+                        {% if deposit.client.state %}<li class="list-group-item">State:    {{ deposit.client.state }}</li>{% endif %}
+                        {% if deposit.client.other_state %}
+                            <li class="list-group-item">Other state:    {{ deposit.client.other_state }}</li>
+                        {% endif %}
+                        {% if deposit.client.city %}<li class="list-group-item">City:    {{ deposit.client.city }}</li>{% endif %}
+                        {% if deposit.client.other_city %}
+                            <li class="list-group-item">Other city:    {{ deposit.client.other_city }}</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card" style='height:100%'>
+                    <div class="card-header">
+                        <h2 class='mb-0'>Trailer</h2>
+                    </div>
+                    <a href="{% url 'detail-trailer' equipment.id %}" class="mb-4">
+                        <div class="text-center">
+                            <div class="mb-2 associated-pic">
+                                <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'assets/img/icons/trailer.png' %}" {% endif %}
+                                     alt="image"
+                                     height="100px"
+                                     width="100px"
+                                     class="w-px-100 h-px-100 rounded-circle card-img-top" />
+                            </div>
+                            <h5 class="card-title">
+                                {{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}
+                            </h5>
+                            <div class="card-subtitle text-muted mb-3">{{ equipment.vin }}</div>
+                            <p class="card-text">{{ equipment.note }}</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
