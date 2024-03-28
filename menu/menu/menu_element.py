@@ -2,6 +2,8 @@ from django.http import HttpRequest
 from django.template import loader
 from django.urls import reverse
 
+from rbac.tools.permission_param import PermissionParam
+
 
 class MenuItem:
     def __init__(
@@ -13,7 +15,8 @@ class MenuItem:
         i18n: str | None = None,
         dj_perms: list[str] | None = None,
         exact_match: bool = False,
-        exctra_match: list[str] | None = None,
+        extra_match: list[str] | None = None,
+        self_perm: PermissionParam | None = None,
     ):
         self.name: str = name
         self.icon: str | None = icon
@@ -22,7 +25,13 @@ class MenuItem:
         self.i18n: str = i18n if i18n is not None else name
         self.dj_perms: list[str] | None = dj_perms
         self.exact_match: bool = exact_match
-        self.matchs = self.getMatchs(url, exctra_match)
+        self.extra_match = extra_match
+        self.matchs = None
+
+        if self_perm is not None and self_perm.app == "":
+            self_perm.app = "menu"
+
+        self.self_perm = self_perm
 
     @property
     def header(self):
@@ -53,6 +62,9 @@ class MenuItem:
         return matchs
 
     def match(self, url: str) -> bool:
+        if self.matchs is None:
+            self.matchs = self.getMatchs(self.url, self.extra_match)
+
         if self.exact_match:
             for u in self.matchs:
                 if url == u:
@@ -64,10 +76,9 @@ class MenuItem:
         return False
 
     def is_active(self, request: HttpRequest, recursive: bool = False) -> bool:
-        if len(self.matchs) > 0:
-            path = request.get_full_path()
-            if self.match(path):
-                return True
+        path = request.get_full_path()
+        if self.match(path):
+            return True
 
         if recursive and self.children is not None:
             for c in self.children:
@@ -77,13 +88,20 @@ class MenuItem:
         return False
 
     def has_perms(self, request) -> bool:
-        if self.dj_perms is None or len(self.dj_perms) == 0:
+        if self.self_perm is None and (
+            self.dj_perms is None or len(self.dj_perms) == 0
+        ):
             return True
 
         user = request.user
-        for p in self.dj_perms:
-            if user.has_perm(p):
-                return True
+
+        if self.self_perm is not None and user.has_perm(self.self_perm.get_perm):
+            return True
+
+        if self.dj_perms is not None:
+            for p in self.dj_perms:
+                if user.has_perm(p):
+                    return True
 
         return False
 
@@ -113,3 +131,15 @@ class MenuItem:
             request,
         )
         return content
+
+    def get_permission_list(self) -> list[PermissionParam]:
+        perms: list[PermissionParam] = []
+        if self.self_perm is not None:
+            perms.append(self.self_perm)
+
+        if self.children is not None:
+            for c in self.children:
+                cps = c.get_permission_list()
+                perms += cps
+
+        return perms
