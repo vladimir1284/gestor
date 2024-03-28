@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "schedule",
     "tolls.apps.TollsConfig",
     "menu",
+    "rbac",
 ]
 
 MIDDLEWARE = [
