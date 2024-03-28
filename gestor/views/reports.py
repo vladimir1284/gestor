@@ -230,7 +230,11 @@ def getRentalReport(currentYear, currentMonth):
 
         interval_start = max(first_day_of_this_month, interval_start)
         interval_end = min(first_day_of_next_month, timezone.now())
-        occurrences = lease.event.get_occurrences(interval_start, interval_end)
+        occurrences = (
+            []
+            if lease.event is None
+            else lease.event.get_occurrences(interval_start, interval_end)
+        )
         lease.unpaid_dues = []
         unpaid_lease = False
         for occurrence in occurrences:
