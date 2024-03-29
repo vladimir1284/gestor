@@ -1,2 +1,22 @@
 {% extends 'base/base_list.html' %}
 {% load static %}
+{% block Ttitle %}
+    <h5 class="card-header">Roles</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th style='width:2rem;'>
+        <i class="bx bx-cog"></i>
+    </th>
+    <th>Name</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for role in roles %}
+        {% include "rbac/role_item.html" %}
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'rbac-role-form' %}
+{% endblock createUrl %}
+{% block help %}
+    New role
+{% endblock help %}

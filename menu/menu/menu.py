@@ -89,6 +89,7 @@ MENU = [
                 name="Roles",
                 url="rbac-list-roles",
                 dj_perms=["auth.add_user"],
+                extra_match=["rbac-role-form"],
             ),
         ],
     ),
