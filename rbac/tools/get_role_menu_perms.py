@@ -1,8 +1,7 @@
-from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
 
 
-def set_role_menu_perms(role: Group, data: dict):
+def get_role_menu_perms(data: dict) -> list[Permission]:
     menu = Permission.objects.filter(
         content_type__model="rbac", content_type__app_label="menu"
     )
@@ -12,4 +11,5 @@ def set_role_menu_perms(role: Group, data: dict):
         name = f"{mp.content_type.app_label}.{mp.codename}"
         if data[name]:
             perms.append(mp)
-    role.permissions.set(perms)
+
+    return perms

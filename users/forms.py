@@ -1,14 +1,21 @@
-from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-from crispy_forms.bootstrap import PrependedText, PrependedAppendedText
-from crispy_forms.layout import Layout, ButtonHolder, Submit, Div, HTML, Field
+from crispy_forms.bootstrap import PrependedAppendedText
+from crispy_forms.bootstrap import PrependedText
 from crispy_forms.helper import FormHelper
-from .models import *
-from django.forms import HiddenInput
+from crispy_forms.layout import ButtonHolder
+from crispy_forms.layout import Div
+from crispy_forms.layout import Field
+from crispy_forms.layout import HTML
+from crispy_forms.layout import Layout
+from crispy_forms.layout import Submit
 from django import forms
-from phonenumber_field.widgets import RegionalPhoneNumberWidget
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.forms import HiddenInput
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+from phonenumber_field.widgets import RegionalPhoneNumberWidget
+
+from .models import *
 
 
 class CommonUserLayout(Layout):
@@ -45,6 +52,15 @@ class CommonUserLayout(Layout):
                         mark_safe('<i class="bx bx-envelope"></i>'),
                         "@ejemplo.com",
                     )
+                ),
+                css_class="row mb-3",
+            ),
+            Div(
+                Field(
+                    PrependedAppendedText(
+                        "groups",
+                        mark_safe('<i class="bx bx-cog"></i>'),
+                    ),
                 ),
                 css_class="row mb-3",
             ),
@@ -130,10 +146,11 @@ class PictureLayout(Layout):
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "username", "email")
+        fields = ("first_name", "last_name", "username", "email", "groups")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["groups"].widget.label = "System roles"
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
         self.helper.disable_csrf = True  # Don't render CSRF token
@@ -156,6 +173,7 @@ class UserCreateForm(UserCreationForm):
             "first_name",
             "last_name",
             "email",
+            "groups",
         )
 
     def __init__(self, *args, **kwargs):
@@ -173,6 +191,7 @@ class UserCreateForm(UserCreationForm):
             {"placeholder": _("john.doe")})
         self.fields["username"].widget.attrs.update(
             {"placeholder": _("john.doe")})
+        self.fields["groups"].widget.label = "System roles"
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
         self.helper.disable_csrf = True  # Don't render CSRF token

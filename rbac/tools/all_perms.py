@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from menu.menu.menu import getMenuPermissions
 from menu.menu.menu import PermissionParam
+from rbac.tools.get_urls import get_urls_perms
 
 
 PERMS: list[PermissionParam] = []
@@ -12,9 +13,11 @@ PERMS_MAP: dict[str, list[PermissionParam]
 def init_permissions():
     global PERMS, PERMS_MAP
 
-    perms = getMenuPermissions()
+    menu_perms = getMenuPermissions()
+    urls_perms = get_urls_perms()
 
-    PERMS += perms
+    PERMS += menu_perms
+    PERMS += urls_perms
 
     for p in PERMS:
         if p.app == "":
