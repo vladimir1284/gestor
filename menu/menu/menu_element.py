@@ -95,15 +95,16 @@ class MenuItem:
 
         user = request.user
 
-        if self.self_perm is not None and user.has_perm(self.self_perm.get_perm):
-            return True
+        sp = self.self_perm is None or user.has_perm(self.self_perm.get_perm)
 
+        dp = self.dj_perms is None or len(self.dj_perms) == 0
         if self.dj_perms is not None:
             for p in self.dj_perms:
                 if user.has_perm(p):
-                    return True
+                    dp = True
+                    break
 
-        return False
+        return sp and dp
 
     def should_render(self, request) -> bool:
         if self.dj_perms is not None and len(self.dj_perms) > 0:

@@ -8,9 +8,11 @@ from rbac.tools.all_perms import PERMS_MAP
 
 
 def update_groups(p: Permission):
-    groups: list[Group] = Group.objects.select_related("permissions").all()
+    groups: list[Group] = Group.objects.all()
     for g in groups:
-        g.permissions.append(p)
+        if g.permissions.filter(id=p.id).exists():
+            continue
+        g.permissions.add(p)
         g.save()
 
 

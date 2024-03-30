@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "schedule",
     "tolls.apps.TollsConfig",
     "menu",
+    # Must be the last one
     "rbac",
 ]
 
@@ -76,6 +77,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    "rbac.middleware.urls_permissions.UrlsPermissions",
 ]
 
 ROOT_URLCONF = "gestor.urls"

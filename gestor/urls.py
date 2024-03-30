@@ -22,6 +22,7 @@ from django.urls import path
 from .views import cost
 from .views import dashboard
 from .views import reports
+from rbac.init_permissions import init_permissions
 
 
 def trigger_error(request):
@@ -55,7 +56,8 @@ urlpatterns = [
         dashboard.week_stats_recalculate,
         name="week-stats-recalculate",
     ),
-    path("erp/weekly-costs/<category_id>/<date>", cost.weekly_cost, name="weekly-cost"),
+    path("erp/weekly-costs/<category_id>/<date>",
+         cost.weekly_cost, name="weekly-cost"),
     # Monthly reports
     path("erp/monthly/", reports.monthly_report, name="monthly-report"),
     path(
@@ -95,3 +97,6 @@ urlpatterns = [
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+init_permissions()
