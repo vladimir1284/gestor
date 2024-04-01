@@ -1,0 +1,28 @@
+{% load static %}
+<div class="col-md-6 col-lg-6 mb-4">
+    <div class="card">
+        <div class="list-head">
+            <h5 class="card-header">
+                Trailers on storage: <strong>{{ orders_storage|length }}</strong>
+            </h5>
+        </div>
+        <div class="card-body pt-0">
+            <div class="table-responsive text-nowrap trailers-storage">
+                <table class="table w-100">
+                    <thead>
+                        <th>
+                            <i class="bx bx-cog"></i>
+                        </th>
+                        <th>VEHICLE/CLIENT</th>
+                        <th>DATE/REAZON</th>
+                    </thead>
+                    <tbody>
+                        {% for order in orders_storage %}
+                            {% include "services/storage/dashboard_storage_order.html" %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

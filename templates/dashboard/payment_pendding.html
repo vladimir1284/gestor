@@ -1,0 +1,32 @@
+{% load static %}
+<div class="col-md-6 col-lg-6 mb-4">
+    <div class="card">
+        <div class="list-head">
+            <h5 class="card-header">
+                Ordenes pendientes por cobrar: <strong>{{ payment_pending|length }}</strong>
+                <a href="{% url 'list-service-order' %}"
+                   class="btn btn-sm btn-outline-primary float-end">All</a>
+            </h5>
+        </div>
+        <div class="card-body pt-0">
+            <div class="table-responsive text-nowrap">
+                <table class="table">
+                    <thead>
+                        <th>
+                            <i class="bx bx-cog"></i>
+                        </th>
+                        <th>Client</th>
+                        <th>Concept</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                    </thead>
+                    <tbody>
+                        {% for order in payment_pending %}
+                            {% include "services/order_item.html" with order=order %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
