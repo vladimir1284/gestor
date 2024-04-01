@@ -8,6 +8,7 @@ from dashboard.tools.monthly_stats_array import monthly_stats_array
 from dashboard.tools.weekly_stats_array import weekly_stats_array
 from inventory.models import Product
 from inventory.models import ProductTransaction
+from rbac.tools.permission_param import PermissionParam
 from utils.models import Order
 
 
@@ -52,6 +53,8 @@ def _resolver():
 
 def BusinessInsightsCard():
     return DashboardCard(
+        name="Business Insights",
         template="dashboard/business_insights.html",
         resolver=_resolver,
+        self_perm=PermissionParam(""),
     )

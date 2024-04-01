@@ -2,7 +2,7 @@
 <div class="col-md-6 col-lg-6 mb-4">
     <div class="card h-100">
         <div class="card-header">
-            <h5>Monthly history</h5>
+            <h5>{{ title }}</h5>
             <ul class="nav nav-pills" role="tablist">
                 {% for indicator in indicators %}
                     {% if indicator.series %}
@@ -41,3 +41,137 @@
         </div>
     </div>
 </div>
+<script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
+<script>
+        let cardColor, headingColor, axisColor, shadeColor, borderColor;
+
+        cardColor = config.colors.white;
+        headingColor = config.colors.headingColor;
+        axisColor = config.colors.axisColor;
+        borderColor = config.colors.borderColor;
+        (function () {
+
+        let selector, time_labels, profit_data
+
+        time_labels = [{% for label in time_labels %}'{{label}}',{% endfor %}];
+        {% for indicator in indicators %}
+            {% if indicator.series %}
+                data = [{% for value in indicator.series %}{{value}},{% endfor %}];
+                plotChart('#{{indicator.name}}Chart', time_labels, data, "{{indicator.name}}");
+            {% endif %}
+        {% endfor %}
+        })();
+
+        // Area chart
+        // --------------------------------------------------------------------
+        function plotChart(selector, time_labels, data, indicator){
+            const chartEl = document.querySelector(selector),
+            chartConfig = {
+            series: [
+                {
+                data: data,
+                name: indicator
+                }
+            ],
+            chart: {
+                height: 215,
+                parentHeightOffset: 0,
+                parentWidthOffset: 0,
+                toolbar: {
+                show: false
+                },
+                type: 'area'
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return '$' + parseInt(val);
+                      }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                width: 2,
+                curve: 'smooth'
+            },
+            legend: {
+                show: false
+            },
+            markers: {
+                size: 6,
+                colors: 'transparent',
+                strokeColors: 'transparent',
+                strokeWidth: 4,
+                discrete: [
+                {
+                    fillColor: config.colors.white,
+                    seriesIndex: 0,
+                    dataPointIndex: data.length-1,
+                    strokeColor: config.colors.primary,
+                    strokeWidth: 2,
+                    size: 6,
+                    radius: 8
+                }
+                ],
+                hover: {
+                size: 7
+                }
+            },
+            colors: [config.colors.primary],
+            fill: {
+                type: 'gradient',
+                gradient: {
+                shade: shadeColor,
+                shadeIntensity: 0.6,
+                opacityFrom: 0.5,
+                opacityTo: 0.25,
+                stops: [0, 95, 100]
+                }
+            },
+            grid: {
+                borderColor: borderColor,
+                strokeDashArray: 3,
+                padding: {
+                top: -20,
+                bottom: -8,
+                left: 5,
+                right: 8
+                }
+            },
+            xaxis: {
+                categories: time_labels,
+                axisBorder: {
+                show: false
+                },
+                axisTicks: {
+                show: false
+                },
+                labels: {
+                show: true,
+                style: {
+                    fontSize: '13px',
+                    colors: axisColor
+                }
+                }
+            },
+            yaxis: {
+                labels: {
+                    show: true,
+                    formatter: function (val) {
+                        if (val === 0){
+                            return '';
+                        }
+                        return '$' + (val/1000).toFixed(1) + 'k';
+                    }
+                },
+                tickAmount: 4
+            }
+            };
+        if (typeof chartEl !== undefined && chartEl !== null) {
+            const chart = new ApexCharts(chartEl, chartConfig);
+            chart.render();
+        }
+        }
+</script>

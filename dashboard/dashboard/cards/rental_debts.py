@@ -5,6 +5,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 from dashboard.dashboard.dashboard_card import DashboardCard
+from rbac.tools.permission_param import PermissionParam
 from rent.models.lease import Due
 from rent.models.lease import Lease
 from rent.views.client import compute_client_debt
@@ -62,6 +63,8 @@ def _resolver():
 
 def RentalDebtsCard():
     return DashboardCard(
+        name="Rental debt",
         template="dashboard/rental_debts.html",
         resolver=_resolver,
+        self_perm=PermissionParam(""),
     )

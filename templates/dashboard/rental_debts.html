@@ -3,7 +3,7 @@
             <div class="card">
                 <div class="list-head">
                     <h5 class="card-header">
-                        Rental debt: <strong>${{ rental_debt|floatformat:"0" }}</strong>
+                        {{title}}: <strong>${{ rental_debt|floatformat:"0" }}</strong>
                         <a href="{% url 'client-list' %}"
                            class="btn btn-sm btn-outline-primary float-end">Details</a>
                     </h5>
