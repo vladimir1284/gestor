@@ -25,41 +25,63 @@ class RoleForm(forms.Form):
             label="",
         )
 
-        menu = Permission.objects.filter(
+        perms = Permission.objects.filter(
             content_type__model="rbac", content_type__app_label="menu"
         ).order_by("name")
         menuDiv = Div()
-        for mp in menu:
-            name = f"{mp.content_type.app_label}.{mp.codename}"
+        for perm in perms:
+            name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(id=mp.id).exists()
+                self.initial[name] = role.permissions.filter(
+                    id=perm.id).exists()
             else:
                 self.initial[name] = True
 
             self.fields[name] = forms.BooleanField(
                 required=False,
-                label=mp.name,
+                label=perm.name,
             )
             menuDiv.fields.append(Div(Field(name), css_class="mb-2"))
 
-        urls = Permission.objects.filter(
+        perms = Permission.objects.filter(
             content_type__model="rbac", content_type__app_label="urls"
         ).order_by("name")
         urlsDiv = Div()
-        for up in urls:
-            name = f"{up.content_type.app_label}.{up.codename}"
+        for perm in perms:
+            name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(id=up.id).exists()
+                self.initial[name] = role.permissions.filter(
+                    id=perm.id).exists()
             else:
                 self.initial[name] = True
 
             self.fields[name] = forms.BooleanField(
                 required=False,
-                label=up.name,
+                label=perm.name,
             )
             urlsDiv.fields.append(Div(Field(name), css_class="mb-2"))
+
+        perms = Permission.objects.filter(
+            content_type__model="rbac",
+            content_type__app_label="dashboard_card",
+        ).order_by("name")
+        dashCardDiv = Div()
+        for perm in perms:
+            name = f"{perm.content_type.app_label}.{perm.codename}"
+
+            if role is not None:
+                self.initial[name] = role.permissions.filter(
+                    id=perm.id).exists()
+            else:
+                self.initial[name] = True
+
+            self.fields[name] = forms.BooleanField(
+                required=False,
+                label=perm.name,
+            )
+            dashCardDiv.fields.append(Div(Field(name), css_class="mb-2"))
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
@@ -136,6 +158,30 @@ class RoleForm(forms.Form):
                             css_class="accordion-body",
                         ),
                         css_id="urls_perms",
+                        css_class="accordion-collapse collapse",
+                    ),
+                    css_class="accordion-item border-bottom",
+                ),
+                Div(
+                    HTML(
+                        """
+                            <h2 class="accordion-header">
+                            <button
+                            data-bs-target="#dashboard_card_perms"
+                            class="accordion-button collapsed text-primary"
+                            type="button"
+                            data-bs-toggle="collapse">
+                                Dashboard cards permissions
+                            </button>
+                            </h2>
+                        """
+                    ),
+                    Div(
+                        Div(
+                            dashCardDiv,
+                            css_class="accordion-body",
+                        ),
+                        css_id="dashboard_card_perms",
                         css_class="accordion-collapse collapse",
                     ),
                     css_class="accordion-item",

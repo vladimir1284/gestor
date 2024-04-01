@@ -3,7 +3,7 @@
     <div class="card">
         <div class="list-head">
             <h5 class="card-header">
-                Trailers available: <strong>{{ available|length }}</strong>
+                {{ title }}: <strong>{{ available|length }}</strong>
                 <a href="{% url 'list-trailer' %}"
                    class="btn btn-sm btn-outline-primary float-end">All</a>
             </h5>

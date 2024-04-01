@@ -3,7 +3,7 @@
     <div class="card">
         <div class="list-head">
             <h5 class="card-header">
-                Ordenes pendientes por cobrar: <strong>{{ payment_pending|length }}</strong>
+                {{ title }}: <strong>{{ payment_pending|length }}</strong>
                 <a href="{% url 'list-service-order' %}"
                    class="btn btn-sm btn-outline-primary float-end">All</a>
             </h5>

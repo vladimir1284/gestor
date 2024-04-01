@@ -1,4 +1,5 @@
 from dashboard.dashboard.dashboard_card import DashboardCard
+from rbac.tools.permission_param import PermissionParam
 from services.tools.order import computeOrderAmount
 from utils.models import Order
 
@@ -18,6 +19,8 @@ def _resolver():
 
 def PaymentPenddingCard():
     return DashboardCard(
+        name="Ordenes pendientes por cobrar",
         template="dashboard/payment_pendding.html",
         resolver=_resolver,
+        self_perm=PermissionParam(""),
     )

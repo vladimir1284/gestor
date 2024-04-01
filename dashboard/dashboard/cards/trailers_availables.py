@@ -1,4 +1,5 @@
 from dashboard.dashboard.dashboard_card import DashboardCard
+from rbac.tools.permission_param import PermissionParam
 from rent.models.lease import Contract
 from rent.models.trailer_deposit import get_current_trailer_deposit
 from rent.models.vehicle import Trailer
@@ -23,6 +24,8 @@ def _resolver():
 
 def TrailersAvailableCard():
     return DashboardCard(
+        name="Trailers available",
         template="dashboard/trailers_availables.html",
         resolver=_resolver,
+        self_perm=PermissionParam(""),
     )
