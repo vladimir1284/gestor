@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "schedule",
     "tolls.apps.TollsConfig",
     "menu",
+    "dashboard",
     # Must be the last one
     "rbac",
 ]
