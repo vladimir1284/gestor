@@ -1,7 +1,7 @@
 {% load static %}
 <tr data-tag="{{ role.name }}" data-search="{{ role.name }}">
     <td class="chapilla text-center">{{ role.users_count }}</td>
-    <td>
+    <td data-custom='{{ role.name }}'>
         <a href="{% url 'rbac-role-form' role.id %}">{{ role.name }}</a>
     </td>
 </tr>

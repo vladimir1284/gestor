@@ -10,7 +10,7 @@ from rbac.tools.get_role_perms import get_role_perms
 
 @login_required
 def role_form(request: HttpRequest, id=None):
-    group = Group.objects.filter(id=id).first()
+    group = Group.objects.filter(id=id).first() if id is not None else None
 
     if request.method == "POST":
         form = RoleForm(request.POST, role=group)
