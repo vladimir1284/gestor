@@ -79,7 +79,7 @@ MENU = [
                 name="Operarios",
                 i18n="Usuarios",
                 url="list-user",
-                dj_perms=["auth.add_user"],
+                # dj_perms=["auth.add_user"],
                 self_perm=PermissionParam(
                     code="associated_operators",
                     name="Operadores asociados",
@@ -88,7 +88,7 @@ MENU = [
             MenuItem(
                 name="Roles",
                 url="rbac-list-roles",
-                dj_perms=["auth.add_user"],
+                # dj_perms=["auth.add_user"],
                 extra_match=["rbac-role-form"],
             ),
         ],
@@ -118,7 +118,7 @@ MENU = [
         name="Configuración",
         i18n="Account Settings",
         icon="bx-cog",
-        dj_perms=["auth.add_user"],
+        # dj_perms=["auth.add_user"],
         children=[
             MenuItem(
                 name="Servicios",
@@ -153,7 +153,7 @@ MENU = [
         name="Gastos",
         i18n="Account Settings",
         icon="bx-credit-card",
-        dj_perms=["auth.add_user"],
+        # dj_perms=["auth.add_user"],
         children=[
             MenuItem(
                 name="Gastos",
@@ -201,7 +201,7 @@ MENU = [
         name="Configuración",
         i18n="Account Settings",
         icon="bx-cog",
-        dj_perms=["auth.add_user"],
+        # dj_perms=["auth.add_user"],
         children=[
             MenuItem(
                 name="Tolls",
@@ -249,13 +249,16 @@ MENU = [
         ],
     ),
     # Inventary menu
-    MenuItem("INVENTARIO", dj_perms=["auth.add_user"]),
+    MenuItem(
+        "INVENTARIO",
+        # dj_perms=["auth.add_user"],
+    ),
     MenuItem(
         name="Productos",
         i18n="Inventario",
         icon="bx-collection",
         url="list-product",
-        dj_perms=["auth.add_user"],
+        # dj_perms=["auth.add_user"],
         self_perm=PermissionParam(
             code="inventory_products",
             name="Productos en el inventario",
@@ -265,7 +268,7 @@ MENU = [
         name="Configuración",
         i18n="Account Settings",
         icon="bx-cog",
-        dj_perms=["auth.add_user"],
+        # dj_perms=["auth.add_user"],
         children=[
             MenuItem(
                 name="Kits",

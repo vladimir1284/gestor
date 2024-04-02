@@ -31,11 +31,15 @@ def sync_permission(ct: ContentType, p: PermissionParam):
 
 def sync_permissiions_of_ct(ct: ContentType, perms: list[PermissionParam]):
     for p in perms:
-        if not Permission.objects.filter(
+        perm = Permission.objects.filter(
             codename=p.code,
             content_type=ct,
-        ).exists():
+        ).first()
+        if perm is None:
             sync_permission(ct, p)
+        else:
+            perm.name = p.name
+            perm.save()
 
 
 def sync_permissions():

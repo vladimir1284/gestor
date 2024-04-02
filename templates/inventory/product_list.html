@@ -1,26 +1,30 @@
 {% extends "./product/base_product_list.html" %}
 {% block buttons %}
     <a class="btn btn-icon btn-outline-primary"
-    type="button"
-    href="{% url 'export-inventory' %}">
-     <span class="tf-icons bx bx-share-alt"></span>
-    </a>                
+       type="button"
+       href="{% url 'export-inventory' %}">
+        <span class="tf-icons bx bx-share-alt"></span>
+    </a>
     <button class="btn btn-icon btn-outline-danger"
             type="button"
             onClick="filterLowStock()">
         <span class="tf-icons bx bx-box"></span>
     </button>
-    {% if active %}
-        <button onclick="window.location.href = '{% url 'deactivated-product-list' %}';" type="button" class="btn btn-outline-primary float-end">
-            <span>Deactivated Products</span>
-        </button>
-    
-    {% else %}
-        <button onclick="window.location.href = '{% url 'list-product' %}';" type="button" class="btn btn-outline-primary float-end">
-            <span>Active Products</span>
-        </button>
+    {% if perms.extra_perm.disabled_products %}
+        {% if active %}
+            <button onclick="window.location.href = '{% url 'deactivated-product-list' %}';"
+                    type="button"
+                    class="btn btn-outline-primary float-end">
+                <span>Deactivated Products</span>
+            </button>
+        {% else %}
+            <button onclick="window.location.href = '{% url 'list-product' %}';"
+                    type="button"
+                    class="btn btn-outline-primary float-end">
+                <span>Active Products</span>
+            </button>
+        {% endif %}
     {% endif %}
-    
 {% endblock buttons %}
 {% block tableParts %}
     {% include "./product/list_table.html" with type="part" %}

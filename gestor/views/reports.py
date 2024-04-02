@@ -200,8 +200,7 @@ def monthly_report(request, year=None, month=None):
 
     context.setdefault(
         "membership",
-        getMonthlyMembership(currentYear, currentMonth, all=True)[
-            "total"]["gross"],
+        getMonthlyMembership(currentYear, currentMonth, all=True)["total"]["gross"],
     )
 
     return render(request, "monthly.html", context)
@@ -225,8 +224,7 @@ def getRentalReport(currentYear, currentMonth):
             timezone.datetime(currentYear, currentMonth, 1),
             pytz.timezone(settings.TIME_ZONE),
         )
-        first_day_of_next_month = first_day_of_this_month + \
-            relativedelta(months=1)
+        first_day_of_next_month = first_day_of_this_month + relativedelta(months=1)
 
         interval_start = max(first_day_of_this_month, interval_start)
         interval_end = min(first_day_of_next_month, timezone.now())
@@ -238,8 +236,7 @@ def getRentalReport(currentYear, currentMonth):
         lease.unpaid_dues = []
         unpaid_lease = False
         for occurrence in occurrences:
-            paid_due = Due.objects.filter(
-                due_date=occurrence.start.date(), lease=lease)
+            paid_due = Due.objects.filter(due_date=occurrence.start.date(), lease=lease)
             if len(paid_due) == 0:
                 unpaid_amount += lease.payment_amount
                 lease.unpaid_dues.append(occurrence)
@@ -250,6 +247,9 @@ def getRentalReport(currentYear, currentMonth):
         pending_payments = total_income - float(invoice_income)
     except:
         pending_payments = 0
+
+    if invoice_income is None:
+        invoice_income = 0
 
     rental = {
         "paid_dues": paid_dues,
@@ -341,8 +341,7 @@ def getWeekMembership(start_date, end_date):
         .exclude(company=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -362,8 +361,7 @@ def monthly_membership_report(request, year=None, month=None):
 
     context = getMonthlyMembership(currentYear, currentMonth)
 
-    done_deposits, done_amount = get_done_trailer_deposits(
-        currentYear, currentMonth)
+    done_deposits, done_amount = get_done_trailer_deposits(currentYear, currentMonth)
     cancelled_deposits, cancelled_amount = get_cancelled_trailer_deposits(
         currentYear, currentMonth
     )
@@ -376,8 +374,7 @@ def monthly_membership_report(request, year=None, month=None):
     context.setdefault("done_deposits_amount", done_amount)
     context.setdefault("cancelled_deposits_amount", cancelled_amount)
     context.setdefault("expirated_deposits_amount", expirated_amount)
-    context.setdefault("total_deposits_amount",
-                       expirated_amount + cancelled_amount)
+    context.setdefault("total_deposits_amount", expirated_amount + cancelled_amount)
 
     context.setdefault("previousMonth", previousMonth)
     context.setdefault("currentMonth", currentMonth)
@@ -447,8 +444,7 @@ def weekly_report(request, date=None):
         .exclude(company__membership=True, associated=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date

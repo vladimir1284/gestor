@@ -107,9 +107,8 @@ class MenuItem:
         return sp and dp
 
     def should_render(self, request) -> bool:
-        if self.dj_perms is not None and len(self.dj_perms) > 0:
-            if not self.has_perms(request):
-                return False
+        if not self.has_perms(request):
+            return False
 
         if self.children is None or len(self.children) == 0:
             return True
