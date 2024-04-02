@@ -90,10 +90,24 @@ MENU = [
                 ],
             ),
             MenuItem(
+                name="Users",
+                url="rbac-list-users",
+                # dj_perms=["auth.add_user"],
+                extra_match=["rbac-role-form"],
+                self_perm=PermissionParam(
+                    code="user_admin",
+                    name="Administrador de usuarios",
+                ),
+            ),
+            MenuItem(
                 name="Roles",
                 url="rbac-list-roles",
                 # dj_perms=["auth.add_user"],
                 extra_match=["rbac-role-form"],
+                self_perm=PermissionParam(
+                    code="role_admin",
+                    name="Administrador de roles",
+                ),
             ),
         ],
     ),
