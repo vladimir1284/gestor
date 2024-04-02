@@ -28,6 +28,7 @@ def role_form(request: HttpRequest, id=None):
             perms += get_role_perms(data, "menu")
             perms += get_role_perms(data, "urls")
             perms += get_role_perms(data, "dashboard_card")
+            perms += get_role_perms(data, "extra_perm")
 
             group.permissions.set(perms)
 

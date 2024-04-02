@@ -12,8 +12,10 @@
                 Providers
             {% endif %}
         </p>
-        <a class="btn btn-outline-primary"
-           href="{% url 'export-contact' type -1 %}">Export</a>
+        {% if perms.extra_perm.export_clients %}
+            <a class="btn btn-outline-primary"
+               href="{% url 'export-contact' type -1 %}">Export</a>
+        {% endif %}
     </h5>
 {% endblock Ttitle %}
 {% block Theader %}

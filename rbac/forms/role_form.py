@@ -33,8 +33,7 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(
-                    id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -52,8 +51,7 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(
-                    id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -72,8 +70,7 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(
-                    id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -82,6 +79,25 @@ class RoleForm(forms.Form):
                 label=perm.name,
             )
             dashCardDiv.fields.append(Div(Field(name), css_class="mb-2"))
+
+        perms = Permission.objects.filter(
+            content_type__model="rbac",
+            content_type__app_label="extra_perm",
+        ).order_by("name")
+        extraPermDiv = Div()
+        for perm in perms:
+            name = f"{perm.content_type.app_label}.{perm.codename}"
+
+            if role is not None:
+                self.initial[name] = role.permissions.filter(id=perm.id).exists()
+            else:
+                self.initial[name] = True
+
+            self.fields[name] = forms.BooleanField(
+                required=False,
+                label=perm.name,
+            )
+            extraPermDiv.fields.append(Div(Field(name), css_class="mb-2"))
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
@@ -182,6 +198,30 @@ class RoleForm(forms.Form):
                             css_class="accordion-body",
                         ),
                         css_id="dashboard_card_perms",
+                        css_class="accordion-collapse collapse",
+                    ),
+                    css_class="accordion-item border-bottom",
+                ),
+                Div(
+                    HTML(
+                        """
+                            <h2 class="accordion-header">
+                            <button
+                            data-bs-target="#extra_perms"
+                            class="accordion-button collapsed text-primary"
+                            type="button"
+                            data-bs-toggle="collapse">
+                                Other permissions
+                            </button>
+                            </h2>
+                        """
+                    ),
+                    Div(
+                        Div(
+                            extraPermDiv,
+                            css_class="accordion-body",
+                        ),
+                        css_id="extra_perms",
                         css_class="accordion-collapse collapse",
                     ),
                     css_class="accordion-item",
