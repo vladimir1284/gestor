@@ -84,6 +84,10 @@ MENU = [
                     code="associated_operators",
                     name="Operadores asociados",
                 ),
+                extra_match=[
+                    "update-user",
+                    "create-user",
+                ],
             ),
             MenuItem(
                 name="Roles",

@@ -1,8 +1,12 @@
 from django.http import HttpRequest
 from django.template import loader
-from django.urls import reverse
+from django.urls import get_resolver
 
 from rbac.tools.permission_param import PermissionParam
+from rbac.tools.urls_match import url_match_internal
+
+
+resolver = get_resolver()
 
 
 class MenuItem:
@@ -53,11 +57,13 @@ class MenuItem:
         matchs = []
 
         if url is not None:
-            matchs.append(reverse(url))
+            # matchs.append(reverse(url))
+            matchs.append(resolver.reverse_dict.get(url)[0][0][0])
 
         if exctra_match is not None:
             for u in exctra_match:
-                matchs.append(reverse(u))
+                matchs.append(resolver.reverse_dict.get(u)[0][0][0])
+                # matchs.append(reverse(u))
 
         return matchs
 
@@ -65,14 +71,9 @@ class MenuItem:
         if self.matchs is None:
             self.matchs = self.getMatchs(self.url, self.extra_match)
 
-        if self.exact_match:
-            for u in self.matchs:
-                if url == u:
-                    return True
-        else:
-            for u in self.matchs:
-                if url.startswith(u):
-                    return True
+        for u in self.matchs:
+            if url_match_internal(url, u, not self.extra_match):
+                return True
         return False
 
     def is_active(self, request: HttpRequest, recursive: bool = False) -> bool:
