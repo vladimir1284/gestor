@@ -42,13 +42,9 @@ def url_match_internal(url: str, pattern: str, start: bool = False) -> bool:
     url_components = url.split("/")
     pat_components = pattern.split("/")
 
-    print("############################################")
-    print(url, pattern)
-    print("============================================")
-
     # Components match
     if start:
-        if len(url_components) > len(pat_components):
+        if len(url_components) < len(pat_components):
             return False
     else:
         if len(url_components) != len(pat_components):
