@@ -1,6 +1,6 @@
 {% load static %}
 <tr>
-    <td class="chapilla">
+    <td class="chapilla" rowspan="2">
         <a href={% url 'detail-service-order' order.id %}>
             <img {% if order.status == 'processing' %} src="{% static 'assets/img/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'assets/img/icons/tag-success.png' %}" {% elif order.status == 'pending' %} src="{% static 'assets/img/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'assets/img/icons/tag-info.png' %}" {% elif order.status == 'payment_pending' %} src="{% static 'assets/img/icons/tag-danger.png' %}" {% elif order.status == 'decline' %} src="{% static 'assets/img/icons/cancel.png' %}" {% endif %}
                  alt="{{ order.position }}"
@@ -10,7 +10,7 @@
         </a>
     </td>
     <td>
-        <div class="d-flex border-bottom mb-1">
+        <div class="d-flex">
             {% if order.trailer %}
                 {% include "equipment/equipment_line.html" with equipment=order.trailer equipment_type="trailer" %}
             {% elif order.vehicle %}
@@ -19,6 +19,27 @@
                 {% include "services/order_clients_trailer.html" %}
             {% endif %}
         </div>
+    </td>
+    <td>
+        <div>
+            {% if order.trace %}
+                <div>{{ order.trace.date | date:'b. d, Y' | capfirst }}</div>
+                <small>
+                    {{ order.trace.time }}
+                    {% if order.trace.time == 1 %}
+                        Day
+                    {% else %}
+                        Days
+                    {% endif %}
+                </small>
+            {% else %}
+                UNKNOWN
+            {% endif %}
+        </div>
+    </td>
+</tr>
+<tr>
+    <td>
         {% if order.associated %}
             {% include "users/associated_line.html" with associated=order.associated %}
         {% elif order.company %}
@@ -45,21 +66,6 @@
         {% endif %}
     </td>
     <td>
-        <div class="border-bottom mb-2">
-            {% if order.trace %}
-                <div>{{ order.trace.date | date:'b. d, Y' | capfirst }}</div>
-                <small>
-                    {{ order.trace.time }}
-                    {% if order.trace.time == 1 %}
-                        Day
-                    {% else %}
-                        Days
-                    {% endif %}
-                </small>
-            {% else %}
-                UNKNOWN
-            {% endif %}
-        </div>
         <div class='text-wrap'>
             {% if order.trace %}
                 {{ order.trace.get_reason }}

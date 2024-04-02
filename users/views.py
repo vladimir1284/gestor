@@ -39,8 +39,7 @@ def compute_client_debt(lease: Lease):
     occurrences = lease.event.get_occurrences(interval_start, timezone.now())
     unpaid_dues = []
     for occurrence in occurrences:
-        paid_due = Due.objects.filter(
-            due_date=occurrence.start.date(), lease=lease)
+        paid_due = Due.objects.filter(due_date=occurrence.start.date(), lease=lease)
         if len(paid_due) == 0:
             unpaid_dues.append(occurrence)
     n_unpaid = len(unpaid_dues)
@@ -95,13 +94,14 @@ def update_user(request, id):
     if request.method == "POST":
         userCform = UserUpdateForm(request.POST, instance=profile.user)
         if userCform.is_valid():
-            form = UserProfileForm(
-                request.POST, request.FILES, instance=profile)
+            form = UserProfileForm(request.POST, request.FILES, instance=profile)
             # save the data from the form and
             # redirect to detail_view
             if form.is_valid():
-                profile.user.save()
-                profile.save()
+                # profile.user.save()
+                # profile.save()
+                form.save()
+                userCform.save()
                 if request.user.has_perm("auth.user.can_add_user"):
                     return redirect("list-user")
                 return redirect("/")
@@ -194,8 +194,7 @@ def create_associated(request, type):
                 order_id = request.session.get("order_detail")
                 return redirect("create-expense", order_id)
             return redirect(next)
-    title = {"client": _("Create client"),
-             "provider": _("Create Provider")}[type]
+    title = {"client": _("Create client"), "provider": _("Create Provider")}[type]
     context = {"form": form, "title": title}
     addStateCity(context)
     return render(request, "users/contact_create.html", context)
@@ -210,8 +209,7 @@ def update_associated(request, id):
     associated = get_object_or_404(Associated, id=id)
 
     last_order = (
-        Order.objects.filter(associated=associated).order_by(
-            "-created_date").first()
+        Order.objects.filter(associated=associated).order_by("-created_date").first()
     )
     if not last_order:
         associated.delete_url = "delete-associated"
@@ -226,8 +224,7 @@ def update_associated(request, id):
 
     if request.method == "POST":
         # pass the object as instance in form
-        form = FORMS[associated.type](
-            request.POST, request.FILES, instance=associated)
+        form = FORMS[associated.type](request.POST, request.FILES, instance=associated)
 
         # save the data from the form and
         # redirect to detail_view
@@ -319,15 +316,13 @@ def get_debtor(request):
                 if debt_status.weeks > 0:
                     client.weekly_payment = debt_status.amount_due_per_week
                     client.overdue = debt_status.last_modified_date < (
-                        datetime.now(pytz.timezone("UTC")
-                                     ).date() - timedelta(days=7)
+                        datetime.now(pytz.timezone("UTC")).date() - timedelta(days=7)
                     )
             except Exception as err:
                 print(err)
 
     # Sort by last debt date
-    debtors_list.sort(
-        key=lambda x: x.oldest_debt.terminated_date, reverse=True)
+    debtors_list.sort(key=lambda x: x.oldest_debt.terminated_date, reverse=True)
 
     return {"associates": debtors_list, "total": total}
 
@@ -406,8 +401,7 @@ def list_associated(request, type):
             .first()
         )
     return render(
-        request, "users/associated_list.html", {
-            "associates": associates, "type": type}
+        request, "users/associated_list.html", {"associates": associates, "type": type}
     )
 
 
@@ -422,8 +416,7 @@ def list_deactivated_associated(request, type):
             .first()
         )
     return render(
-        request, "users/associated_list.html", {
-            "associates": associates, "type": type}
+        request, "users/associated_list.html", {"associates": associates, "type": type}
     )
 
 
@@ -529,8 +522,7 @@ def list_company(request):
     companies = Company.objects.filter(active=True).order_by("name", "alias")
     for company in companies:
         last_order = (
-            Order.objects.filter(company=company).order_by(
-                "-created_date").first()
+            Order.objects.filter(company=company).order_by("-created_date").first()
         )
         if last_order:
             company.last_order = last_order
@@ -541,8 +533,7 @@ def list_company(request):
 def detail_company(request, id):
     # fetch the object related to passed id
     company = get_object_or_404(Company, id=id)
-    orders = Order.objects.filter(
-        company=company).order_by("-created_date", "-id")
+    orders = Order.objects.filter(company=company).order_by("-created_date", "-id")
     processOrders(orders)
     context = {
         "contact": company,
@@ -621,7 +612,6 @@ def export_contact(request, type, id):
         )
 
     response = HttpResponse(vcard_data, content_type="text/vcard")
-    response["Content-Disposition"] = 'attachment; filename="' + \
-        filename + '.vcf"'
+    response["Content-Disposition"] = 'attachment; filename="' + filename + '.vcf"'
 
     return response
