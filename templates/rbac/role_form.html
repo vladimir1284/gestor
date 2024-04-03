@@ -9,6 +9,21 @@
 #id_users {
     height: 10rem;
 }
+
+.accordion-header {
+    padding-left: 1.2rem;
+    align-items: center;
+}
+.accordion-header button {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+.accordion-header input {
+    margin-right: 1rem;
+    margin-top: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+}
     </style>
 {% endblock page %}
 {% block content %}
@@ -35,4 +50,5 @@
             </form>
         </div>
     </div>
+    <script src='{%static 'assets/js/role-form.js'%}'></script>
 {% endblock content %}
