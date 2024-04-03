@@ -33,7 +33,8 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(
+                    id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -51,7 +52,8 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(
+                    id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -70,7 +72,8 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(
+                    id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -89,7 +92,8 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(
+                    id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -128,12 +132,14 @@ class RoleForm(forms.Form):
                         css_id="users",
                         css_class="accordion-collapse collapse",
                     ),
+                    css_id="users-accordion",
                     css_class="accordion-item border-bottom",
                 ),
                 Div(
                     HTML(
                         """
-                            <h2 class="accordion-header">
+                            <h2 class="accordion-header d-flex">
+                            <input type="checkbox" class="mark-all checkboxinput">
                             <button
                             data-bs-target="#menu_perms"
                             class="accordion-button collapsed text-primary"
@@ -152,12 +158,14 @@ class RoleForm(forms.Form):
                         css_id="menu_perms",
                         css_class="accordion-collapse collapse",
                     ),
+                    css_id="menu-accordion",
                     css_class="accordion-item border-bottom",
                 ),
                 Div(
                     HTML(
                         """
-                            <h2 class="accordion-header">
+                            <h2 class="accordion-header d-flex">
+                            <input type="checkbox" class="mark-all checkboxinput">
                             <button
                             data-bs-target="#urls_perms"
                             class="accordion-button collapsed text-primary"
@@ -176,12 +184,14 @@ class RoleForm(forms.Form):
                         css_id="urls_perms",
                         css_class="accordion-collapse collapse",
                     ),
+                    css_id="urls-accordion",
                     css_class="accordion-item border-bottom",
                 ),
                 Div(
                     HTML(
                         """
-                            <h2 class="accordion-header">
+                            <h2 class="accordion-header d-flex">
+                            <input type="checkbox" class="mark-all checkboxinput">
                             <button
                             data-bs-target="#dashboard_card_perms"
                             class="accordion-button collapsed text-primary"
@@ -200,12 +210,14 @@ class RoleForm(forms.Form):
                         css_id="dashboard_card_perms",
                         css_class="accordion-collapse collapse",
                     ),
+                    css_id="dashcards-accordion",
                     css_class="accordion-item border-bottom",
                 ),
                 Div(
                     HTML(
                         """
-                            <h2 class="accordion-header">
+                            <h2 class="accordion-header d-flex">
+                            <input type="checkbox" class="mark-all checkboxinput">
                             <button
                             data-bs-target="#extra_perms"
                             class="accordion-button collapsed text-primary"
@@ -226,6 +238,7 @@ class RoleForm(forms.Form):
                     ),
                     css_class="accordion-item",
                 ),
+                css_id="others-accordion",
                 css_class="accordion mb-4 border rounded",
             ),
             ButtonHolder(
