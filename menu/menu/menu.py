@@ -105,15 +105,15 @@ MENU = [
             name="Ordenes de servicio",
         ),
     ),
-    MenuItem(
-        name="Storage",
-        icon="bxs-car-garage",
-        url="storage-view",
-        self_perm=PermissionParam(
-            code="service_order_storage",
-            name="Ordenes de servicio en storage",
-        ),
-    ),
+    # MenuItem(
+    #     name="Storage",
+    #     icon="bxs-car-garage",
+    #     url="storage-view",
+    #     self_perm=PermissionParam(
+    #         code="service_order_storage",
+    #         name="Ordenes de servicio en storage",
+    #     ),
+    # ),
     MenuItem(
         name="Configuración",
         i18n="Account Settings",
