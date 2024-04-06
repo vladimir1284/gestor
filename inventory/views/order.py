@@ -1,32 +1,24 @@
-from django.utils import timezone
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404,
-)
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
+from .transaction import getTransactionAmount
+from .transaction import handle_transaction
+from inventory.forms import (
+    OrderCreateForm,
+)
+from inventory.models import convertUnit
+from inventory.models import Product
+from inventory.models import ProductTransaction
+from inventory.models import Stock
 from users.models import (
     Associated,
 )
 from utils.models import (
     Order,
-)
-
-from inventory.models import (
-    Product,
-    ProductTransaction,
-    Stock,
-    convertUnit,
-)
-from inventory.forms import (
-    OrderCreateForm,
-)
-from django.utils.translation import gettext_lazy as _
-
-from .transaction import (
-    handle_transaction,
-    getTransactionAmount,
 )
 
 
@@ -151,6 +143,7 @@ def update_order_status(request, id, status):
         for transaction in transactions:
             handle_transaction(transaction)
         order.terminated_date = timezone.now()
+        order.terminated_user = request.user
     elif order.status == "complete":
         if status == "decline":
             # Reverse stock
