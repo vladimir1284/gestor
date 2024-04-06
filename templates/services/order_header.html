@@ -5,45 +5,81 @@
             <table>
                 <tbody>
                     <tr>
-                        <td>Created:</td>
-                        <td>
-                            <strong class="m-2">{{ order.created_date|date:"m/d/Y" }}</strong>
+                        <td class="text-center">Created:</td>
+                        <td class="text-center">Processing:</td>
+                        <td class="text-center">Terminated:</td>
+                    </tr>
+                    <tr>
+                        <td class="ps-2 pe-2">
+                            <div class="d-flex justify-content-center">
+                            <strong>{{ order.created_date|date:"m/d/Y" }}</strong>
+                            </div>
                         </td>
+                        <td class="ps-2 pe-2">
+                            <div class="d-flex justify-content-center">
+                            <strong>{{ order.processing_date|date:"m/d/Y" }}</strong>
+                            </div>
+                        </td>
+                        <td class="ps-2 pe-2">
+                            <div class="d-flex justify-content-center">
+                            <strong>{{ order.terminated_date|date:"m/d/Y" }}</strong>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>
+                            <div class="d-flex justify-content-center">
                             {% if order.created_by %}
-                                By:
-                                {{ order.created_by.first_name }}
-                                {{ order.created_by.last_name }}
-                                <strong>({{ order.created_by.username }})</strong>
+                                <div class="avatar avatar-online">
+                                    {% if order.created_by.profile_user.avatar %}
+                                        <img src="{{ order.created_by.profile_user.avatar.url }}"
+                                             alt=""
+                                             class="w-px-40 rounded-circle" />
+                                    {% else %}
+                                        <span style="font-size:1.5em"
+                                              class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                            {{ order.created_by.first_name|first }}
+                                        </span>
+                                    {% endif %}
+                                </div>
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Processing:</td>
-                        <td>
-                            <strong class="m-2">{{ order.processing_date|date:"m/d/Y" }}</strong>
+                            </div>
                         </td>
                         <td>
+                            <div class="d-flex justify-content-center">
                             {% if order.processing_user %}
-                                By:
-                                {{ order.processing_user.first_name }}
-                                {{ order.processing_user.last_name }}
-                                <strong>({{ order.processing_user.username }})</strong>
+                                <div class="avatar avatar-online">
+                                    {% if order.processing_user.profile_user.avatar %}
+                                        <img src="{{ order.processing_user.profile_user.avatar.url }}"
+                                             alt=""
+                                             class="w-px-40 rounded-circle" />
+                                    {% else %}
+                                        <span style="font-size:1.5em"
+                                              class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                            {{ order.processing_user.first_name|first }}
+                                        </span>
+                                    {% endif %}
+                                </div>
                             {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Terminated:</td>
-                        <td>
-                            <strong class="m-2">{{ order.terminated_date|date:"m/d/Y" }}</strong>
+                            </div>
                         </td>
                         <td>
-                            {% if order.terminated_user %}
-                                By:
-                                {{ order.terminated_user.first_name }}
-                                {{ order.terminated_user.last_name }}
-                                <strong>({{ order.terminated_user.username }})</strong>
-                            {% endif %}
+                            <div class="d-flex justify-content-center">
+                                {% if order.terminated_user %}
+                                    <div class="avatar avatar-online">
+                                        {% if order.terminated_user.profile_user.avatar %}
+                                            <img src="{{ order.terminated_user.profile_user.avatar.url }}"
+                                                 alt=""
+                                                 class="w-px-40 rounded-circle" />
+                                        {% else %}
+                                            <span style="font-size:1.5em"
+                                                  class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                                {{ order.terminated_user.first_name|first }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                 </tbody>
