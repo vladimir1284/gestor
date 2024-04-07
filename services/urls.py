@@ -1,16 +1,18 @@
 from django.urls import path
-from .views import (
-    category,
-    expense,
-    image,
-    invoice,
-    order,
-    payment,
-    service,
-    sms,
-    transaction,
-    labor,
-)
+
+from .views import category
+from .views import expense
+from .views import image
+from .views import invoice
+from .views import labor
+from .views import order
+from .views import payment
+from .views import service
+from .views import sms
+from .views import transaction
+from services.views.picture_capture import capture_service_picture
+from services.views.picture_capture import create_expense_capture_picture
+from services.views.picture_capture import update_expense_capture_picture
 
 
 urlpatterns = [
@@ -71,7 +73,8 @@ urlpatterns = [
     ),
     path("delete-service/<id>", service.delete_service, name="delete-service"),
     # -------------------- Order ----------------------------
-    path("order-flow/", order.select_order_flow, name="select-service-order-flow"),
+    path("order-flow/", order.select_order_flow,
+         name="select-service-order-flow"),
     path("select-client/", order.select_client, name="select-service-client"),
     path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
     path("view-conditions/", order.view_conditions, name="view-conditions"),
@@ -114,7 +117,8 @@ urlpatterns = [
         {"msg": ""},
         name="detail-service-order",
     ),
-    path("detail-order/<id>/<msg>/", order.detail_order, name="detail-service-order"),
+    path("detail-order/<id>/<msg>/", order.detail_order,
+         name="detail-service-order"),
     path(
         "order-send-invoice/<id>",
         order.send_invoice_email,
@@ -151,9 +155,26 @@ urlpatterns = [
     path("pdf-labor/<id>", labor.generate_labor, name="pdf-labor"),
     path("html-labor/<id>", labor.html_labor, name="html-labor"),
     # -------------------- Expense ----------------------------
-    path("create-expense/<order_id>", expense.create_expense, name="create-expense"),
+    path("create-expense/<order_id>",
+         expense.create_expense, name="create-expense"),
     path("update-expense/<id>", expense.update_expense, name="update-expense"),
     path("delete-expense/<id>", expense.delete_expense, name="delete-expense"),
+    # -------------------- Picture ----------------------------
+    path(
+        "capture-service-picture/<order_id>",
+        capture_service_picture,
+        name="capture-service-picture",
+    ),
+    path(
+        "update-expense-capture-picture/<expense_id>",
+        update_expense_capture_picture,
+        name="update-expense-capture-picture",
+    ),
+    path(
+        "create-expense-capture-picture/<order_id>",
+        create_expense_capture_picture,
+        name="create-expense-capture-picture",
+    ),
     # ----------------- Service Picture -----------------------
     path(
         "new_picture/<int:order_id>",
