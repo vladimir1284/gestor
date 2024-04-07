@@ -156,12 +156,25 @@
                              alt="contract icon"
                              class="h-px-20 w-auto" />
                     </a>
+                {% elif equipment.reservation %}
+                    <a class="btn btn-icon btn-outline-primary"
+                       type
+                       None="button"
+                       href="{% url 'trailer-deposit-details' equipment.reservation.id %}">
+                        <span class="tf-icons bx bx-calendar-check"></span>
+                    </a>
                 {% else %}
                     <a class="btn btn-icon btn-outline-primary"
                        type
                        None="button"
                        href="{% url 'select-lessee' equipment.id %}">
                         <span class="tf-icons bx bx-key"></span>
+                    </a>
+                    <a class="btn btn-icon btn-outline-primary"
+                       type
+                       None="button"
+                       href="{% url 'reserve-trailer' equipment.id %}">
+                            <i class='bx bx-calendar' ></i>
                     </a>
                 {% endif %}
                 {% if tracker %}

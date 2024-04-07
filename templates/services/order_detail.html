@@ -90,6 +90,7 @@
                         {% endif %}
                         - &nbsp;
                     </span>
+                    {%if perms.extra_perm.order_discount%}
                     <button type="button"
                             class="btn btn-outline-primary"
                             data-bs-toggle="collapse"
@@ -105,6 +106,7 @@
                             {% crispy form %}
                         </form>
                     </div>
+                    {%endif%}
                 </p>
                 <p>
                     <strong>Position:</strong>
@@ -115,6 +117,10 @@
                     {% else %}
                         {{ order.position }}
                     {% endif %}
+
+                    <a class="btn btn-outline-primary" href="{%url 'order-position-change' order.id%}">
+                        <i class='bx bx-refresh'></i>
+                    </a>
                 </p>
                 {% if order.quotation %}
                     <span class="float-end px-3 me-1 badge rounded-pill bg-warning">
@@ -122,7 +128,7 @@
                         quotation
                     </span>
                 {% elif terminated or empty or order.status == 'payment_pending' %}
-                    <span class="float-end me-1 badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' or order.status == 'payment_pending' %}danger{% endif %}">
+                    <span class="float-end me-1 d-flex align-items-center badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' or order.status == 'payment_pending' %}danger{% endif %}">
                         {{ order.get_status_display }}
                     </span>
                 {% else %}
@@ -212,8 +218,10 @@
                 </a>
                 {%endif%}
 
-                {% if order.status != 'decline' %}
-                    <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')"
+
+                {% if order.status != 'decline' and order.status != 'complete' and order.status != 'payment_pending' %}
+                    <!-- <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')" -->
+                    <a onclick="updateStatus('{% url 'order-decline-reazon' order.id %}', 'decline')"
                        type="button"
                        class="btn btn-icon btn-outline-danger float-end">
                         <span class="tf-icons bx bx-trash"></span>
@@ -236,6 +244,27 @@
             </div>
         </div>
     </div>
+    {%if order.status == 'decline' and order.decline_reazon%}
+        <div class="card mb-3">
+            <h5 class="card-header text-danger">
+                DECLINE
+            </h5>
+            <div class="card-body">
+                <table class="table">
+                    <tbody class="table-border-bottom-0">
+                        <tr>
+                            <td>REAZON:</td>
+                            <td>{{order.decline_reazon.get_decline_reazon}}</td>
+                        </tr>
+                        <tr>
+                            <td>NOTE:</td>
+                            <td>{{order.decline_reazon.note}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
     {% if parts_amount %}
         <div class="card mb-3">
             <h5 class="card-header">
@@ -473,33 +502,92 @@
             </div>
         {% endif %}
     </div>
-            <div class="card">
-                <div class="list-head">
-                    <h5 class="card-header">
-                        Historial del cliente: <strong>{{ history|length }}</strong>
-                    </h5>
-                </div>
-                <div class="card-body pt-0">
-                    <table class='table'>
-                        <thead>
-                            <th>
-                                <i class="bx bx-cog"></i>
-                            </th>
-                            <th>Client</th>
-                            <th>Concept</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th>Parts</th>
-                            <th>Services</th>
-                        </thead>
-                        <tbody>
-                        {% for order in history %}
-                            {% include "services/order_item.html" with order=order extra_amounts="True" %}
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                    {% include "services/order_parts_history.html" %}
+            <!-- <div class="card mb-3"> -->
+            <!--     <div class="list-head"> -->
+            <!--         <h5 class="card-header d-flex justify-content-between"> -->
+            <!--             <div> -->
+            <!--                 Historial de partes: <strong>{{ parts_number }} / {{parts_total}}</strong> -->
+            <!--             </div> -->
+            <!--             <form method="GET"> -->
+            <!--                 {% csrf_token %} -->
+            <!--                 {% for key, value in request.GET.items %} -->
+            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
+            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
+            <!--                     {%endif%} -->
+            <!--                 {%endfor%} -->
+            <!--                 <div class="input-group mb-3"> -->
+            <!--                     <input class="form-control" type='text' placeholder="Search" name='parts_filter' {%if 'parts_filter' in request.GET%} value="{{request.GET.parts_filter}}" {%endif%}> -->
+            <!--                     <button type="submit" class="input-group-text" id="basic-addon1"> -->
+            <!--                         <i class="bx bx-search"></i> -->
+            <!--                     </button> -->
+            <!--                 </div> -->
+            <!--             </form> -->
+            <!--         </h5> -->
+            <!--     </div> -->
+            <!--     <div class="card-body pt-0"> -->
+            <!--         {% include "services/order_parts_history.html" %} -->
+            <!--         {%if parts_number < parts_total%} -->
+            <!--             <form method="GET"> -->
+            <!--                 {% csrf_token %} -->
+            <!--                 {% for key, value in request.GET.items %} -->
+            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
+            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
+            <!--                     {%endif%} -->
+            <!--                 {%endfor%} -->
+            <!--                 <input type='hidden' name='parts_number' value="{{parts_next}}"> -->
+            <!--                 <div class="d-grid gap-2"> -->
+            <!--                     <button type="submit" class="btn mt-2"> -->
+            <!--                         Load more -->
+            <!--                     </button> -->
+            <!--                 </div> -->
+            <!--             </form> -->
+            <!--         {%endif%} -->
+            <!--     </div> -->
+            <!-- </div> -->
+                    {% include "services/order_services_history.html" %}
+            <!-- <div class="card mb-3"> -->
+            <!--     <div class="list-head"> -->
+            <!--         <h5 class="card-header d-flex justify-content-between"> -->
+            <!--             <div> -->
+            <!--                 Historial de servicios: <strong>{{ services_number }} / {{services_total}}</strong> -->
+            <!--             </div> -->
+            <!--             <form method="GET"> -->
+            <!--                 {% csrf_token %} -->
+            <!--                 {% for key, value in request.GET.items %} -->
+            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
+            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
+            <!--                     {%endif%} -->
+            <!--                 {%endfor%} -->
+            <!--                 <div class="input-group mb-3"> -->
+            <!--                     <input class="form-control" type='text' placeholder="Search" name='services_filter' {%if 'services_filter' in request.GET%} value="{{request.GET.services_filter}}" {%endif%}> -->
+            <!--                     <button type="submit" class="input-group-text" id="basic-addon1"> -->
+            <!--                         <i class="bx bx-search"></i> -->
+            <!--                     </button> -->
+            <!--                 </div> -->
+            <!--             </form> -->
+            <!--         </h5> -->
+            <!--     </div> -->
+            <!--     <div class="card-body pt-0"> -->
+            <!--         {% include "services/order_services_history.html" %} -->
+            <!--         {%if services_number < parts_total%} -->
+            <!--             <form method="GET"> -->
+            <!--                 {% csrf_token %} -->
+            <!--                 {% for key, value in request.GET.items %} -->
+            <!--                     {%if key != 'csrfmiddlewaretoken'%} -->
+            <!--                         <input type="hidden" name="{{key}}" value="{{value}}"> -->
+            <!--                     {%endif%} -->
+            <!--                 {%endfor%} -->
+            <!--                 <input type='hidden' name='services_number' value="{{services_next}}"> -->
+            <!--                 <div class="d-grid gap-2"> -->
+            <!--                     <button type="submit" class="btn mt-2"> -->
+            <!--                         Load more -->
+            <!--                     </button> -->
+            <!--                 </div> -->
+            <!--             </form> -->
+            <!--         {%endif%} -->
+            <!--     </div> -->
+            <!-- </div> -->
     <a href="{% url 'select-service' 'create-service-transaction' order.id %}">
         <button type="button"
                 style="visibility: {% if terminated %}hidden{% endif %}"

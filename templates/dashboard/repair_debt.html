@@ -1,0 +1,45 @@
+{% load static %}
+<div class="col-md-6 col-lg-6 mb-4">
+    <div class="card">
+        <div class="list-head">
+            <h5 class="card-header">
+                {{ title }}: <strong>${{ total|floatformat:"0" }}</strong>
+                <a href="{% url 'list-debtor' %}"
+                   class="btn btn-sm btn-outline-primary float-end">Details</a>
+            </h5>
+        </div>
+        <div class="table-responsive text-nowrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Debt</th>
+                        <th>Since</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for associated in associates reversed %}
+                        <tr data-search="{{ associated.name }}{{ associated.phone_number }}">
+                            <td>{% include "users/associated_line.html" %}</td>
+                            <td>
+                                <a href="{% url 'pay-debt' associated.id %}">${{ associated.debt|floatformat:"2" }}</a>
+                            </td>
+                            <td>
+                                <a {% if associated.overdue %}class="bg-label-danger p-1 rounded"{% endif %}
+                                   href="{% url 'detail-service-order' associated.oldest_debt.id %}">
+                                    {{ associated.oldest_debt.terminated_date|timesince }}
+                                </a>
+                                {% if associated.weekly_payment %}
+                                    <br>
+                                    <span {% if associated.late %}class="text-danger"{% endif %}>
+                                        ${{ associated.weekly_payment|floatformat:"0" }}/week
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

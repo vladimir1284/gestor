@@ -9,10 +9,9 @@ from .views import order
 from .views import payment
 from .views import service
 from .views import sms
+from .views import storage
 from .views import transaction
-from services.views.picture_capture import capture_service_picture
-from services.views.picture_capture import create_expense_capture_picture
-from services.views.picture_capture import update_expense_capture_picture
+from services.views.order_decline_reazon import order_decline_reazon
 
 
 urlpatterns = [
@@ -75,6 +74,9 @@ urlpatterns = [
     # -------------------- Order ----------------------------
     path("order-flow/", order.select_order_flow,
          name="select-service-order-flow"),
+    path("fast_order_create/", order.fast_order_create, name="fast-order-create"),
+    path("parts-sale/", order.parts_sale, name="parts-sale"),
+    path("quotation_order/", order.order_quotation, name="quotation-order"),
     path("select-client/", order.select_client, name="select-service-client"),
     path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
     path("view-conditions/", order.view_conditions, name="view-conditions"),
@@ -109,6 +111,31 @@ urlpatterns = [
         order.select_unrented_trailer,
         name="select-service-unrented-trailer",
     ),
+    path(
+        "create-order-contact/",
+        order.create_order_contact,
+        name="create-service-order-contact",
+    ),
+    path(
+        "generate-order-contact-url/<id>",
+        order.generate_url,
+        name="generate-service-order-contact-url",
+    ),
+    path(
+        "contact-form/<token>",
+        order.lessee_form,
+        name="service-order-contact-form",
+    ),
+    path(
+        "contact-view-conditions/<token>",
+        order.contact_view_conditions,
+        name="contact-view-conditions",
+    ),
+    path(
+        "contact-client-signature/<token>",
+        order.contact_create_handwriting,
+        name="contact-client-service-order-signature",
+    ),
     path("create-order/", order.create_order, name="create-service-order"),
     path("update-order/<id>", order.update_order, name="update-service-order"),
     path(
@@ -136,6 +163,11 @@ urlpatterns = [
         name="list-service-order-terminated",
     ),
     path(
+        "order-decline-reazon/<id>",
+        order_decline_reazon,
+        name="order-decline-reazon",
+    ),
+    path(
         "update-order-status/<id>/<status>",
         order.update_order_status,
         name="update-service-order-status",
@@ -144,6 +176,16 @@ urlpatterns = [
         "update-order-position/<id>/<status>",
         order.order_end_update_position,
         name="update-order-position",
+    ),
+    path(
+        "order-position-change/<id>",
+        order.order_change_position,
+        name="order-position-change",
+    ),
+    path(
+        "order-position-change-storage/<id>",
+        order.order_change_position_from_storage,
+        name="order-position-change-storage",
     ),
     path("send-sms/<order_id>", sms.sendSMS, name="send-sms"),
     # -------------------- Invoice ----------------------------
@@ -228,4 +270,5 @@ urlpatterns = [
         payment.update_debt_status,
         name="update-debt-status",
     ),
+    path("storage", storage.storage, name="storage-view"),
 ]

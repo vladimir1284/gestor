@@ -1,0 +1,59 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block page %}
+    <style>
+    svg {
+        width: 100%;
+        height: auto;
+    }
+    </style>
+{% endblock page %}
+{% block content %}
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Cliente: {{ name }}</h5>
+            <div class="d-flex">
+                <form method="GET">
+                    <input type='submit' class="btn btn-outline-primary" value='Refresh' />
+                </form>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type='submit' class="btn btn-outline-primary" value='NEXT' />
+                </form>
+                <!-- <a href="#" class="btn btn-outline-primary">Next</a> -->
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col d-flex justify-content-center">
+                        <div>
+                            <strong>SMS sended to:</strong> {{ phone }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col d-flex justify-content-center">
+                        <div>
+                            <strong>Expiration:</strong> {{ exp }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col d-flex justify-content-center">
+                        <div style="max-width: 10cm">{{ qr_url|safe }}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col d-flex justify-content-center">
+                        <div style="max-width: 10cm">
+                            <a href="{{ url }}">
+                                <strong>URL:</strong> {{ url }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

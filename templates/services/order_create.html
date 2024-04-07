@@ -21,6 +21,7 @@
     <script>
         const quotation = document.querySelector('#id_quotation')
         const position = document.querySelector('#id_position')
+        const reason = document.querySelector('#div_id_storage_reason')
         var oldValue = 0
 
         function updatePosition() {
@@ -34,12 +35,23 @@
                 position.add(nullOption);
                 oldValue = position.value
                 position.value = ''
+                reason.style.display = 'none'
             } else {
                 nullOption = position.querySelector('option[value=""]')
                 position.removeChild(nullOption)
                 position.value = oldValue
+                updateReason()
             }
         }
+
+        function updateReason() {
+            const value = position.value
+            console.log(value)
+            reason.style.display = value != '' && value == 0? 'block': 'none'
+        }
+
+        position.addEventListener('change', updateReason)
+        updateReason()
 
         quotation.addEventListener('change', updatePosition)
         updatePosition()

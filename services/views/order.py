@@ -3,24 +3,35 @@ from django.shortcuts import (
     render,
     redirect,
     get_object_or_404,
+    reverse,
 )
+from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+import jwt
 import pytz
 import re
 import base64
 import tempfile
+
+import qrcode
+from rent.forms.lessee_contact import LesseeContactForm
 from rent.models.lease import Contract, Lease
 from rent.tools.client import compute_client_debt
+from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from services.tools.conditios_to_pdf import (
     conditions_to_pdf,
     send_pdf_conditions_to_email,
 )
 from services.tools.order import getRepairDebt, getOrderContext, computeOrderAmount
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
+from services.tools.order_history import order_history
+from services.tools.order_position import order_update_position
 
 from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
 from services.views.invoice import get_invoice_context, sendMail
+from users.forms import AssociatedCreateForm
+from users.views import addStateCity
 
 
 from .sms import twilioSendSMS
@@ -44,6 +55,7 @@ from services.models import (
 from services.forms import (
     DiscountForm,
     OrderCreateForm,
+    OrderDeclineReazon,
     OrderEndUpdatePositionForm,
     OrderSignatureForm,
     OrderVinPlateForm,
@@ -52,6 +64,7 @@ from rent.models.vehicle import Trailer, TrailerPicture
 from django.utils.translation import gettext_lazy as _
 from gestor.views.utils import getMonthYear
 from datetime import datetime, timedelta
+
 
 # -------------------- Order ----------------------------
 
@@ -68,7 +81,7 @@ def create_order(request):
         if len(orders) == 0:
             return redirect("view-conditions")
 
-    initial = {"concept": "Maintenance to trailer"}
+    initial = {"concept": request.session['concept']}
     creating_order = request.session.get("creating_order")
     request.session["all_selected"] = True
     order = Order()
@@ -125,7 +138,8 @@ def create_order(request):
                 "signature" in request.session
                 and request.session["signature"] is not None
             ):
-                signature = OrderSignature.objects.get(id=request.session["signature"])
+                signature = OrderSignature.objects.get(
+                    id=request.session["signature"])
                 signature.order = order
                 signature.save()
             cleanSession(request)
@@ -158,6 +172,8 @@ def cleanSession(request):
     request.session["signature"] = None
     request.session["using_signature"] = False
     request.session["next"] = None
+    request.session["concept"] = "Maintenance to trailer"
+    request.session['quotation'] = False
 
 
 @login_required
@@ -169,7 +185,8 @@ def update_order(request, id):
 
     if request.method == "POST":
         # pass the object as instance in form
-        form = OrderCreateForm(request.POST, instance=order, get_plate=order.external)
+        form = OrderCreateForm(
+            request.POST, instance=order, get_plate=order.external)
 
         # save the data from the form and
         # redirect to detail_view
@@ -178,7 +195,8 @@ def update_order(request, id):
             return redirect("detail-service-order", id)
 
     # add form dictionary to context
-    context = {"form": form, "order": order, "title": _("Update service order")}
+    context = {"form": form, "order": order,
+               "title": _("Update service order")}
 
     return render(request, "services/order_create.html", context)
 
@@ -220,38 +238,27 @@ def update_order_status(request, id, status):
 
 
 @login_required
+def order_change_position(request, id):
+    return order_update_position(
+        request=request,
+        id=id,
+        next='detail-service-order',
+        args=[id],
+    )
+
+
+@login_required
+def order_change_position_from_storage(request, id):
+    return order_update_position(
+        request=request,
+        id=id,
+        next='storage-view',
+    )
+
+
+@login_required
 def order_end_update_position(request, id, status):
-    order = get_object_or_404(Order, id=id)
-    if status == "decline":
-        order.position = None
-        order.save()
-        return redirect("list-service-order")
-
-    if status == "complete" and order.position is None:
-        return redirect("process-payment", id)
-
-    old_status = order.status
-    order.status = status
-    if request.method == "POST":
-        form = OrderEndUpdatePositionForm(request.POST, order=order)
-        if form.is_valid():
-            order.status = old_status
-            pos = form.cleaned_data["position"]
-            if pos == "":
-                pos = None
-            order.position = pos
-            order.save()
-            if status == "complete":
-                return redirect("process-payment", id)
-            return redirect("list-service-order")
-    else:
-        form = OrderEndUpdatePositionForm(order=order)
-
-    context = {
-        "form": form,
-        "title": "Select position",
-    }
-    return render(request, "services/order_end_update_position.html", context)
+    return order_update_position(request=request, id=id, status=status)
 
 
 STATUS_ORDER = ["pending", "processing", "approved", "complete", "decline"]
@@ -259,7 +266,12 @@ STATUS_ORDER = ["pending", "processing", "approved", "complete", "decline"]
 
 @login_required
 def list_order(request):
-    context = prepareListOrder(request, ("processing", "pending"))
+    context = prepareListOrder(
+        request,
+        ("processing", "pending"),
+        pos_null=False,
+        pos_storate=False,
+    )
     context.setdefault("stage", "Terminated")
     context.setdefault("alternative_view", "list-service-order-terminated")
     return render(request, "services/order_list.html", context)
@@ -274,7 +286,8 @@ def list_terminated_order(request, year=None, month=None):
     ) = getMonthYear(month, year)
 
     context = preparePaginatedListOrder(
-        request, ("complete", "decline", "payment_pending"), currentYear, currentMonth
+        request, ("complete", "decline",
+                  "payment_pending"), currentYear, currentMonth
     )
     context.setdefault("stage", "Active")
     context.setdefault("alternative_view", "list-service-order")
@@ -291,17 +304,31 @@ def list_terminated_order(request, year=None, month=None):
     return render(request, "services/order_list.html", context)
 
 
-def prepareListOrder(request, status_list):
+def prepareListOrder(
+    request, status_list, pos_18=True, pos_storate=True, pos_null=True
+):
     # Prepare the flow for creating order
     cleanSession(request)
     request.session["creating_order"] = True
 
+    positions = []
+    if pos_18:
+        for i in range(1, 9):
+            positions.append(i)
+    if pos_storate:
+        positions.append(0)
+    if pos_null:
+        positions.append(None)
+
     # List orders
-    orders = Order.objects.filter(type="sell", status__in=status_list).order_by(
-        "-created_date"
-    )
+    orders = Order.objects.filter(
+        type="sell",
+        status__in=status_list,
+        position__in=positions,
+    ).order_by("-created_date")
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
-    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
+    orders = sorted(orders, key=lambda x: 0 if x.status ==
+                    "payment_pending" else 1)
 
     statuses = set()
     for order in orders:
@@ -324,7 +351,8 @@ def preparePaginatedListOrder(request, status_list, currentYear, currentMonth):
         created_date__month=currentMonth,
     ).order_by("-created_date")
 
-    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
+    orders = sorted(orders, key=lambda x: 0 if x.status ==
+                    "payment_pending" else 1)
 
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
@@ -370,10 +398,13 @@ def detail_order(request, id, msg=None):
     context.setdefault("images", images)
 
     order = context["order"]
+    order.decline_reazon = OrderDeclineReazon.objects.filter(
+        order=order,).last()
+
     client = order.associated
     if client is not None:
         orders = Order.objects.filter(
-            ~Q(id=1),
+            ~Q(id=order.id),
             associated=client,
             created_date__lt=order.created_date,
         ).order_by("-created_date")
@@ -383,7 +414,33 @@ def detail_order(request, id, msg=None):
 
     if context["terminated"]:
         # Payments
-        context.setdefault("payments", Payment.objects.filter(order=context["order"]))
+        context.setdefault(
+            "payments", Payment.objects.filter(order=context["order"]))
+
+    # partsFilter = request.GET['parts_filter'] if 'parts_filter' in request.GET else ''
+    # servicesFilter = request.GET['services_filter'] if 'services_filter' in request.GET else ''
+    # partsNumber = int(request.GET['parts_number']
+    #                   if 'parts_number' in request.GET else 1)
+    # servicesNumber = int(
+    #     request.GET['services_number'] if 'services_number' in request.GET else 1)
+
+    parts, pNum, pTotal, services, sNum, sTotal = order_history(
+        order,
+        # parts_filter=partsFilter,
+        # services_filter=servicesFilter,
+        # parts_number=partsNumber,
+        # services_number=servicesNumber,
+        get_all=True,
+    )
+
+    context["parts_history"] = parts
+    context["parts_next"] = pNum + 5
+    context["parts_number"] = pNum
+    context["parts_total"] = pTotal
+    context["services_history"] = services
+    context["services_next"] = sNum + 5
+    context["services_number"] = sNum
+    context["services_total"] = sTotal
 
     return render(request, "services/order_detail.html", context)
 
@@ -396,10 +453,44 @@ def select_order_flow(request):
     return render(request, "services/order_flow.html")
 
 
+@login_required
+def fast_order_create(request):
+    order = Order(
+        concept=request.session['concept'],
+        quotation=request.session.get('quotation'),
+        created_by=request.user,
+    )
+
+    client_id = request.session.get("client_id")
+    if client_id:
+        client = Associated.objects.get(id=client_id)
+        order.associated = client
+
+    order.save()
+    return redirect("detail-service-order", id=order.id)
+
+
+# Flow: parts sell
+@login_required
+def parts_sale(request):
+    request.session['next'] = "fast-order-create"
+    request.session['concept'] = 'Parts\' sale.'
+    return redirect("select-service-client")
+
+
+# Flow: quotation order
+@login_required
+def order_quotation(request):
+    request.session['quotation'] = True
+    request.session['concept'] = 'Quotation'
+    return redirect("fast-order-create")
+
+
 # Flow: client owns trailer
 @login_required
 def select_client(request):
-    request.session["next"] = "view-conditions"
+    if request.session['next'] is None:
+        request.session["next"] = "view-conditions"
     request.session["using_signature"] = True
     request.session["plate"] = True
     if request.method == "POST":
@@ -407,7 +498,7 @@ def select_client(request):
         request.session["client_id"] = client.id
         # Redirect acording to the  corresponding flow
         if request.session.get("creating_order") is not None:
-            return redirect("view-conditions")
+            return redirect(request.session['next'])
         else:
             order_id = request.session.get("order_detail")
             if order_id is not None:
@@ -420,7 +511,11 @@ def select_client(request):
     associates = Associated.objects.filter(type="client", active=True).order_by(
         "name", "alias"
     )
-    context = {"associates": associates, "skip": True}
+    context = {
+        "associates": associates,
+        "skip": True,
+        'create': 'order',
+    }
     order_id = request.session.get("order_detail")
     if order_id is not None:
         context["skip"] = False
@@ -576,10 +671,12 @@ def view_contract_details(request, id):
         rental_debt = debs
         rental_last_payment = unpaid[0].start
 
-    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(contract.lessee)
+    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(
+        contract.lessee)
 
     last_order = (
-        Order.objects.filter(trailer=contract.trailer).order_by("created_date").last()
+        Order.objects.filter(trailer=contract.trailer).order_by(
+            "created_date").last()
     )
     if last_order is not None:
         effective_time = (
@@ -637,7 +734,8 @@ def select_unrented_trailer(request):
     for trailer in trailers:
         # Contracts
         has_contract = (
-            Contract.objects.filter(trailer=trailer).exclude(stage="ended").exists()
+            Contract.objects.filter(trailer=trailer).exclude(
+                stage="ended").exists()
         )
         if not has_contract:
             unrented_trailers.append(trailer)
@@ -702,3 +800,204 @@ def send_invoice_email(request, id):
     order.save()
 
     return redirect("detail-service-order", id)
+
+
+@login_required
+def create_order_contact(request):
+    if request.method == "POST":
+        form = LesseeContactForm(request.POST, request.FILES)
+        if form.is_valid():
+            associated = form.save()
+            return redirect("generate-service-order-contact-url", associated.id)
+    else:
+        form = LesseeContactForm()
+
+    title = _("Create client")
+
+    context = {
+        "form": form,
+        "title": title,
+    }
+    addStateCity(context)
+    return render(request, "users/lessee_contact_create.html", context)
+
+
+@login_required
+def generate_url(request, id):
+    if request.session['next'] is None:
+        request.session["next"] = "view-conditions"
+    request.session["using_signature"] = True
+    request.session["plate"] = True
+
+    associated = get_object_or_404(Associated, id=id)
+    if request.method == "POST":
+        request.session["client_id"] = associated.id
+        # Redirect acording to the  corresponding flow
+        if request.session.get("creating_order") is not None:
+            return redirect(request.session['next'])
+        else:
+            order_id = request.session.get("order_detail")
+            if order_id is not None:
+                order = get_object_or_404(Order, id=order_id)
+                order.associated = associated
+                order.save()
+                return redirect("detail-service-order", id=order_id)
+
+    exp = datetime.utcnow() + timedelta(minutes=30)
+    context = {
+        "lessee_id": associated.id,
+        "name": associated.name,
+        "phone": str(associated.phone_number),
+        "exp": exp,
+    }
+
+    token = jwt.encode(context, settings.SECRET_KEY, algorithm="HS256")
+
+    url_base = "{}://{}".format(request.scheme, request.get_host())
+    url = url_base + reverse("service-order-contact-form", args=[token])
+    context["url"] = url
+
+    sendSMSLesseeContactURL(associated.phone_number, url)
+
+    factory = qrcode.image.svg.SvgPathImage
+    factory.QR_PATH_STYLE["fill"] = "#455565"
+    img = qrcode.make(
+        url,
+        image_factory=factory,
+        box_size=20,
+    )
+    context["qr_url"] = img.to_string(encoding="unicode")
+
+    return render(request, "rent/client/lessee_url.html", context)
+
+
+def lessee_form(request, token):
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        lessee_id = info["lessee_id"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+
+    lessee = get_object_or_404(Associated, id=lessee_id)
+
+    if request.method == "POST":
+        form = AssociatedCreateForm(
+            request.POST, request.FILES, instance=lessee)
+        if form.is_valid():
+            form.save()
+            return redirect("contact-view-conditions", token)
+
+    form = AssociatedCreateForm(instance=lessee)
+    title = _("Complete form")
+
+    context = {
+        "form": form,
+        "title": title,
+    }
+    addStateCity(context)
+    return render(request, "users/lessee_form.html", context)
+
+
+def contact_view_conditions(request, token):
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        lessee_id = info["lessee_id"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+
+    if "signature" in request.session and request.session["signature"] is not None:
+        signature = OrderSignature.objects.get(id=request.session["signature"])
+    else:
+        signature = OrderSignature()
+
+    client = get_object_or_404(Associated, id=lessee_id)
+
+    HasOrders = False
+    if client is not None:
+        orders = Order.objects.filter(associated=client)
+        HasOrders = len(orders) > 0
+
+    context = {
+        "signature": signature,
+        "client": client,
+        "hasOrder": HasOrders,
+        "token": token,
+    }
+    return render(request, "services/contact_view_conditions.html", context)
+
+
+def contact_create_handwriting(request, token):
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        client_id = info["lessee_id"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+
+    if request.method == "POST":
+        form = OrderSignatureForm(request.POST, request.FILES)
+        if form.is_valid():
+            associated = get_object_or_404(Associated, id=client_id)
+            handwriting: OrderSignature = form.save(commit=False)
+            handwriting.associated = associated
+            handwriting.position = "signature_order_client"
+
+            # Save image
+            datauri = str(form.instance.img)
+            image_data = re.sub("^data:image/png;base64,", "", datauri)
+            image_data = base64.b64decode(image_data)
+            with tempfile.NamedTemporaryFile(
+                suffix=".png", delete=False, prefix="firma_"
+            ) as output:
+                output.write(image_data)
+                output.flush()
+                name = output.name.split("/")[-1]
+                with open(output.name, "rb") as temp_file:
+                    form.instance.img.save(name, temp_file, True)
+
+            handwriting.save()
+            request.session["signature"] = handwriting.id
+            return redirect("contact-view-conditions", token)
+    else:
+        form = OrderSignatureForm()
+
+    context = {
+        "position": "signature",
+        "form": form,
+    }
+    return render(request, "services/signature.html", context)

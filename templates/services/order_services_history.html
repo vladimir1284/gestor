@@ -1,0 +1,71 @@
+{% load static %}
+<div class="card mb-3">
+    <div class="list-head">
+        <h5 class="card-header d-flex justify-content-between">
+            <div>
+                Historial de servicios:
+                <strong>{{ services_total }}</strong>
+            </div>
+            <div>
+                <div class="input-group mb-3">
+                    <div class="input-group-text" id="basic-addon1">
+                        <i class="bx bx-search"></i>
+                    </div>
+                    <input class="form-control"
+                           type='text'
+                           placeholder="Search"
+                           name='services_filter'
+                           onkeyup="serviceFilter(this)">
+                </div>
+            </div>
+        </h5>
+    </div>
+    <div class="card-body pt-0 table-box mb-3">
+        <table class="table" id="serviceTable">
+            <thead>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Price</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="{%static 'assets/js/order-history.js'%}"></script>
+<script>
+    const servicesHistory = {
+        {% for name, services in services_history.items %}
+            "{{name}}": [
+                {% for service in services %}
+                    {
+                        order: {{service.order.id}},
+                        date: '{{ service.order.created_date | date:"b. d, Y" | capfirst }}',
+                        price: {{service.price}},
+                        url: "{% url 'detail-service-order' service.order.id %}",
+                    },
+                {%endfor%}
+            ],
+        {%endfor%}
+    }
+
+    let showServicesNumber = 1
+
+    function serviceFilter(e) {
+        const filt = e.value
+        const map = filter(servicesHistory, 0, filt)
+        renderTable(map, 'serviceTable', filt != '')
+    }
+
+    renderTable(servicesHistory, 'serviceTable', false)
+</script>
+<style>
+.pointer {
+    cursor: pointer;
+}
+.table-box {
+    overflow-y: auto;
+    height: 7cm;
+    width: 100%;
+}
+</style>

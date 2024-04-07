@@ -11,9 +11,7 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
-from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 
 from .models import Expense
@@ -26,11 +24,11 @@ from .models import ServiceCategory
 from .models import ServicePicture
 from .models import ServiceTransaction
 from services.tools.available_positions import get_available_positions
+from services.tools.storage_reazon import getStorageReazons
 from utils.forms import BaseForm
 from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
-from utils.models import (
-    Order,
-)
+from utils.models import Order
+from utils.models import OrderDeclineReazon
 
 
 class OrderCreateForm(BaseForm):
@@ -42,6 +40,7 @@ class OrderCreateForm(BaseForm):
             "concept",
             "note",
             "position",
+            "storage_reason",
             "quotation",
             "vin",
             "plate",
@@ -74,6 +73,7 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("vin")), css_class="mb-3"),
                 Div(Div(Field("plate")), css_class="mb-3"),
                 Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("storage_reason")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
                 ButtonHolder(Submit("submit", "Enviar",
@@ -85,6 +85,7 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("concept")), css_class="mb-3"),
                 Div(Div(Field("vin")), css_class="mb-3"),
                 Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("storage_reason")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
                 ButtonHolder(Submit("submit", "Enviar",
@@ -574,21 +575,46 @@ class OrderSignatureForm(ModelForm):
 
 
 class OrderEndUpdatePositionForm(forms.Form):
-    def __init__(self, *args, order: Order, **kwargs):
+    def __init__(self, *args, order: Order, status: str = "", **kwargs):
         position = order.position
         super().__init__(*args, **kwargs)
 
+        if status == "":
+            status = str(order.status)
+
+        reason = order.storage_reason
+
+        end = status in ["complete", "decline"]
         if order.quotation:
             positions = [(None, "Null")]
             position = None
             readonly = True
         else:
-            positions = get_available_positions(
+            if order.trailer is not None and order.associated is None:
+                null = False
+            else:
+                null = True
+            positions, availables = get_available_positions(
                 current_pos=position,
-                null=order.status in ["complete", "decline"],
+                null=end and null,
+                availables=True,
+                just_current_pos=end,
+                invert_order=end,
             )
-            print(order.status)
+            if (reason == "" or reason is None) and not availables:
+                reason = "capacity"
             readonly = False
+
+        if reason is None or reason == "":
+            if status in ["complete", "decline"]:
+                reason = "ready"
+            elif status == "pendding":
+                reason = "approval"
+            else:
+                reason = "storage_service"
+
+        if end and reason in ["approval", "capacity"]:
+            reason = "ready"
 
         self.fields["position"] = forms.ChoiceField(
             required=False,
@@ -596,3 +622,14 @@ class OrderEndUpdatePositionForm(forms.Form):
             initial=position,
         )
         self.fields["position"].widget.attrs["readonly"] = readonly
+
+        self.fields["reason"] = forms.ChoiceField(
+            choices=getStorageReazons(end),
+            initial=reason,
+        )
+
+
+class OrderDeclineReazonForm(forms.ModelForm):
+    class Meta:
+        model = OrderDeclineReazon
+        fields = ["decline_reazon", "note"]
