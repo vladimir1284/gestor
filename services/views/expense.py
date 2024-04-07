@@ -32,7 +32,10 @@ def create_expense(request, order_id):
         if form.is_valid():
             expense = form.save(commit=False)
             expense.order = get_object_or_404(Order, id=order_id)
-            if request.session["expenseCaptureImgBase64"]:
+            if (
+                "expenseCaptureImgBase64" in request.session
+                and request.session["expenseCaptureImgBase64"]
+            ):
                 data, name, ext = save_img(
                     request.session["expenseCaptureImgBase64"])
                 expense.image.save(name, data, save=True)
@@ -72,7 +75,10 @@ def update_expense(request, id):
         # redirect to detail_view
         if form.is_valid():
             exp = form.save()
-            if request.session["expenseCaptureImgBase64"]:
+            if (
+                "expenseCaptureImgBase64" in request.session
+                and request.session["expenseCaptureImgBase64"]
+            ):
                 data, name, ext = save_img(
                     request.session["expenseCaptureImgBase64"])
                 exp.image.save(name, data, save=True)
