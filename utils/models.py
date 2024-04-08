@@ -113,8 +113,24 @@ class Order(models.Model):
     company = models.ForeignKey(
         Company, blank=True, null=True, on_delete=models.SET_NULL
     )
+
     terminated_date = models.DateTimeField(blank=True, null=True)
+    terminated_user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="terminated_orders",
+    )
     processing_date = models.DateTimeField(blank=True, null=True)
+    processing_user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="processing_orders",
+    )
+
     discount = models.FloatField(default=0)
     quotation = models.BooleanField(default=False)
     invoice_sended = models.BooleanField(default=False)

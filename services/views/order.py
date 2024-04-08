@@ -205,6 +205,7 @@ def update_order_status(request, id, status):
         if status == "processing":
             # Send SMS
             order.processing_date = timezone.localtime(timezone.now())
+            order.processing_user = request.user
             twilioSendSMS(order, status)
 
         order.status = status
