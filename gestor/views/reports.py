@@ -253,6 +253,9 @@ def getRentalReport(currentYear, currentMonth):
     except:
         pending_payments = 0
 
+    if invoice_income is None:
+        invoice_income = 0
+
     rental = {
         "paid_dues": paid_dues,
         "total_income": total_income or 0,

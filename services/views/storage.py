@@ -12,8 +12,8 @@ def storage(request):
         Order.objects.filter(
             position=0,
         )
-        .exclude(status="complete")
-        .exclude(status="decline")
+        # .exclude(status="complete")
+        # .exclude(status="decline")
     )
 
     clientOwnsTriler = orders.filter(

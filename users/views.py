@@ -104,8 +104,10 @@ def update_user(request, id):
             # save the data from the form and
             # redirect to detail_view
             if form.is_valid():
-                profile.user.save()
-                profile.save()
+                # profile.user.save()
+                # profile.save()
+                form.save()
+                userCform.save()
                 if request.user.has_perm("auth.user.can_add_user"):
                     return redirect("list-user")
                 return redirect("/")
