@@ -56,17 +56,20 @@ function init() {
     const items = document.querySelectorAll(".accordion-item");
     for (let i = 0; i < items.length; i++) {
         const input = items[i].querySelector(
-            '.accordion-header>input[type="checkbox"]'
+            '.accordion-header>input[type="checkbox"]',
         );
         if (input) {
             const elements = items[i].querySelectorAll(
-                '.accordion-body .controls .checkbox input[type="checkbox"]'
+                '.accordion-body .controls .checkbox input[type="checkbox"]',
             );
             setState(input, elements);
             setOnUpdate(input, elements);
             setOnMark(input, elements);
         }
     }
+
+    const chbox = document.querySelectorAll('.checkbox input[type="checkbox"]');
+    chbox.forEach((e) => e.classList.add("checkboxinput"));
 }
 
 window.addEventListener("load", init);
