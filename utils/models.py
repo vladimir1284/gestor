@@ -134,6 +134,7 @@ class Order(models.Model):
     discount = models.FloatField(default=0)
     quotation = models.BooleanField(default=False)
     invoice_sended = models.BooleanField(default=False)
+    labor_viewed = models.BooleanField(default=False)
     is_initial = False
 
     def __str__(self):

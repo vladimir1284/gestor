@@ -210,6 +210,8 @@ def update_order_status(request, id, status):
 
         order.status = status
         order.save()
+        if order.status == "processing" and not order.labor_viewed:
+            return redirect("service-labor", id)
     except NotEnoughStockError as error:
         print(error)
 
