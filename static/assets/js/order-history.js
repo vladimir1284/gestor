@@ -73,7 +73,7 @@ function renderTable(from, tableId, expanded) {
                     expand(countTD, nameTD, tableId);
                 };
 
-                countTD.className = "pointer w-3 text-blue-500 text-center";
+                countTD.className = "pointer w-3 text-primary text-center";
                 countTD.setAttribute("data", name);
                 countTD.setAttribute("data-rowspan", elements.length);
 
