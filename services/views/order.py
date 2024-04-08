@@ -1,57 +1,52 @@
-from django.db.models import Q
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404,
-)
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-import pytz
-import re
 import base64
+import re
 import tempfile
-from rent.models.lease import Contract, Lease
-from rent.tools.client import compute_client_debt
-from services.tools.conditios_to_pdf import (
-    conditions_to_pdf,
-    send_pdf_conditions_to_email,
-)
-from services.tools.order import getRepairDebt, getOrderContext, computeOrderAmount
+from datetime import datetime
+from datetime import timedelta
+
+import pytz
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import HttpResponse
-
-from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
-from services.views.invoice import get_invoice_context, sendMail
-
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from .sms import twilioSendSMS
 from .transaction import reverse_transaction
-from users.models import (
-    Associated,
-    Company,
-)
+from gestor.views.utils import getMonthYear
 from inventory.models import (
     ProductTransaction,
 )
 from inventory.views.transaction import (
     NotEnoughStockError,
 )
-from services.models import (
-    OrderSignature,
-    Order,
-    ServicePicture,
-    Payment,
-)
-from services.forms import (
-    DiscountForm,
-    OrderCreateForm,
-    OrderEndUpdatePositionForm,
-    OrderSignatureForm,
-    OrderVinPlateForm,
-)
-from rent.models.vehicle import Trailer, TrailerPicture
-from django.utils.translation import gettext_lazy as _
-from gestor.views.utils import getMonthYear
-from datetime import datetime, timedelta
+from rent.models.lease import Contract
+from rent.models.lease import Lease
+from rent.models.vehicle import Trailer
+from rent.models.vehicle import TrailerPicture
+from rent.tools.client import compute_client_debt
+from services.forms import DiscountForm
+from services.forms import OrderCreateForm
+from services.forms import OrderEndUpdatePositionForm
+from services.forms import OrderSignatureForm
+from services.forms import OrderVinPlateForm
+from services.models import Order
+from services.models import OrderSignature
+from services.models import Payment
+from services.models import ServicePicture
+from services.tools.conditios_to_pdf import conditions_to_pdf
+from services.tools.conditios_to_pdf import send_pdf_conditions_to_email
+from services.tools.order import computeOrderAmount
+from services.tools.order import getOrderContext
+from services.tools.order import getRepairDebt
+from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
+from services.views.invoice import get_invoice_context
+from services.views.invoice import sendMail
+from users.models import Associated
+from users.models import Company
 
 # -------------------- Order ----------------------------
 
@@ -125,7 +120,8 @@ def create_order(request):
                 "signature" in request.session
                 and request.session["signature"] is not None
             ):
-                signature = OrderSignature.objects.get(id=request.session["signature"])
+                signature = OrderSignature.objects.get(
+                    id=request.session["signature"])
                 signature.order = order
                 signature.save()
             cleanSession(request)
@@ -169,7 +165,8 @@ def update_order(request, id):
 
     if request.method == "POST":
         # pass the object as instance in form
-        form = OrderCreateForm(request.POST, instance=order, get_plate=order.external)
+        form = OrderCreateForm(
+            request.POST, instance=order, get_plate=order.external)
 
         # save the data from the form and
         # redirect to detail_view
@@ -178,7 +175,8 @@ def update_order(request, id):
             return redirect("detail-service-order", id)
 
     # add form dictionary to context
-    context = {"form": form, "order": order, "title": _("Update service order")}
+    context = {"form": form, "order": order,
+               "title": _("Update service order")}
 
     return render(request, "services/order_create.html", context)
 
@@ -211,6 +209,8 @@ def update_order_status(request, id, status):
 
         order.status = status
         order.save()
+        if order.status == "processing" and not order.labor_viewed:
+            return redirect("service-labor", id)
     except NotEnoughStockError as error:
         print(error)
 
@@ -274,7 +274,8 @@ def list_terminated_order(request, year=None, month=None):
     ) = getMonthYear(month, year)
 
     context = preparePaginatedListOrder(
-        request, ("complete", "decline", "payment_pending"), currentYear, currentMonth
+        request, ("complete", "decline",
+                  "payment_pending"), currentYear, currentMonth
     )
     context.setdefault("stage", "Active")
     context.setdefault("alternative_view", "list-service-order")
@@ -301,7 +302,8 @@ def prepareListOrder(request, status_list):
         "-created_date"
     )
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
-    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
+    orders = sorted(orders, key=lambda x: 0 if x.status ==
+                    "payment_pending" else 1)
 
     statuses = set()
     for order in orders:
@@ -324,7 +326,8 @@ def preparePaginatedListOrder(request, status_list, currentYear, currentMonth):
         created_date__month=currentMonth,
     ).order_by("-created_date")
 
-    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
+    orders = sorted(orders, key=lambda x: 0 if x.status ==
+                    "payment_pending" else 1)
 
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
@@ -383,7 +386,8 @@ def detail_order(request, id, msg=None):
 
     if context["terminated"]:
         # Payments
-        context.setdefault("payments", Payment.objects.filter(order=context["order"]))
+        context.setdefault(
+            "payments", Payment.objects.filter(order=context["order"]))
 
     return render(request, "services/order_detail.html", context)
 
@@ -576,10 +580,12 @@ def view_contract_details(request, id):
         rental_debt = debs
         rental_last_payment = unpaid[0].start
 
-    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(contract.lessee)
+    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(
+        contract.lessee)
 
     last_order = (
-        Order.objects.filter(trailer=contract.trailer).order_by("created_date").last()
+        Order.objects.filter(trailer=contract.trailer).order_by(
+            "created_date").last()
     )
     if last_order is not None:
         effective_time = (
@@ -637,7 +643,8 @@ def select_unrented_trailer(request):
     for trailer in trailers:
         # Contracts
         has_contract = (
-            Contract.objects.filter(trailer=trailer).exclude(stage="ended").exists()
+            Contract.objects.filter(trailer=trailer).exclude(
+                stage="ended").exists()
         )
         if not has_contract:
             unrented_trailers.append(trailer)
