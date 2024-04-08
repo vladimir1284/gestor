@@ -21,6 +21,7 @@ class RoleForm(forms.Form):
         self.initial["users"] = [] if role is None else role.user_set.all()
         self.fields["users"] = forms.ModelMultipleChoiceField(
             queryset=User.objects.all(),
+            widget=forms.CheckboxSelectMultiple,
             required=False,
             label="",
         )
@@ -33,8 +34,7 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(
-                    id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -52,8 +52,7 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(
-                    id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -72,8 +71,7 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(
-                    id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(id=perm.id).exists()
             else:
                 self.initial[name] = True
 
@@ -92,8 +90,7 @@ class RoleForm(forms.Form):
             name = f"{perm.content_type.app_label}.{perm.codename}"
 
             if role is not None:
-                self.initial[name] = role.permissions.filter(
-                    id=perm.id).exists()
+                self.initial[name] = role.permissions.filter(id=perm.id).exists()
             else:
                 self.initial[name] = True
 
