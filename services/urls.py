@@ -84,6 +84,11 @@ urlpatterns = [
     path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
     path("view-conditions/", order.view_conditions, name="view-conditions"),
     path(
+        "view-preorder-state/<preorder_id>",
+        order.preorder_state,
+        name="view-preorder-state",
+    ),
+    path(
         "view-conditions-pdf/<id>",
         order.show_conditions_as_pdf,
         name="view-conditions-pdf",
@@ -97,6 +102,11 @@ urlpatterns = [
         "client-signature/",
         order.create_handwriting,
         name="client-service-order-signature",
+    ),
+    path(
+        "process-ended-page/",
+        order.process_ended_page,
+        name="process-ended-page",
     ),
     path("select-lessee/", order.select_lessee, name="select-service-lessee"),
     path(

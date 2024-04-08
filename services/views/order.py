@@ -19,12 +19,13 @@ from rent.forms.lessee_contact import LesseeContactForm
 from rent.models.lease import Contract, Lease
 from rent.tools.client import compute_client_debt
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
+from services.models.preorder_data import PreorderData
 from services.tools.conditios_to_pdf import (
     conditions_to_pdf,
     send_pdf_conditions_to_email,
 )
 from services.tools.order import getRepairDebt, getOrderContext, computeOrderAmount
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from services.tools.order_history import order_history
 from services.tools.order_position import order_update_position
 
@@ -47,11 +48,11 @@ from inventory.views.transaction import (
     NotEnoughStockError,
 )
 from services.models import (
-    OrderSignature,
     Order,
     ServicePicture,
     Payment,
 )
+from services.models.order_signature import OrderSignature
 from services.forms import (
     DiscountForm,
     OrderCreateForm,
@@ -112,9 +113,13 @@ def create_order(request):
 
             # Link the client to order
             client_id = request.session.get("client_id")
+            preorder = PreorderData.objects
+            filter_preorder = False
             if client_id:
                 client = Associated.objects.get(id=client_id)
                 order.associated = client
+                preorder = preorder.filter(associated=client)
+                filter_preorder = True
 
             # Set the equipment type in the order
             equipment_type = request.session.get("equipment_type")
@@ -142,6 +147,15 @@ def create_order(request):
                     id=request.session["signature"])
                 signature.order = order
                 signature.save()
+                preorder = preorder.filter(signature=signature)
+                filter_preorder = True
+
+            if filter_preorder:
+                preorder = preorder.last()
+                if preorder is not None:
+                    preorder.orders.add(order)
+                    preorder.save()
+
             cleanSession(request)
 
             if order.associated is not None and order.associated.email is not None:
@@ -162,6 +176,7 @@ def create_order(request):
 def cleanSession(request):
     request.session["creating_order"] = None
     request.session["client_id"] = None
+    request.session["preorder_id"] = None
     request.session["vehicle_id"] = None
     request.session["trailer_id"] = None
     request.session["company_id"] = None
@@ -495,7 +510,10 @@ def select_client(request):
     request.session["plate"] = True
     if request.method == "POST":
         client = get_object_or_404(Associated, id=request.POST.get("id"))
+        preorder, _ = PreorderData.objects.get_or_create(associated=client)
         request.session["client_id"] = client.id
+        request.session["preorder_id"] = preorder.id
+        request.session['signature'] = preorder.signature.id if preorder.signature is not None else None
         # Redirect acording to the  corresponding flow
         if request.session.get("creating_order") is not None:
             return redirect(request.session['next'])
@@ -548,10 +566,16 @@ def get_vin_plate(request):
 
 @login_required
 def view_conditions(request):
-    if "signature" in request.session and request.session["signature"] is not None:
-        signature = OrderSignature.objects.get(id=request.session["signature"])
-    else:
-        signature = OrderSignature()
+    if request.method == 'POST' or (
+            'signature' in request.session and
+            request.session['signature'] is not None
+    ):
+        return redirect('create-service-order')
+
+    # if "signature" in request.session and request.session["signature"] is not None:
+    #     signature = OrderSignature.objects.get(id=request.session["signature"])
+    # else:
+    signature = OrderSignature()
 
     client = None
     if request.session["client_id"]:
@@ -575,8 +599,9 @@ def create_handwriting(request):
     if request.method == "POST":
         form = OrderSignatureForm(request.POST, request.FILES)
         if form.is_valid():
-            client_id = request.session["client_id"]
-            associated = get_object_or_404(Associated, id=client_id)
+            preorder = get_object_or_404(
+                PreorderData, id=request.session['preorder_id'])
+            associated = preorder.associated
             handwriting: OrderSignature = form.save(commit=False)
             handwriting.associated = associated
             handwriting.position = "signature_order_client"
@@ -595,6 +620,8 @@ def create_handwriting(request):
                     form.instance.img.save(name, temp_file, True)
 
             handwriting.save()
+            preorder.signature = handwriting
+            preorder.save()
             request.session["signature"] = handwriting.id
             return redirect("view-conditions")
     else:
@@ -691,6 +718,10 @@ def view_contract_details(request, id):
         name="Towithouston", defaults={"name": "Towithouston"}
     )
     request.session["client_id"] = contract.lessee.id
+    preorder, _ = PreorderData.objects.get_or_create(
+        associated=contract.lessee)
+    request.session["preorder_id"] = preorder.id
+    request.session["signature"] = preorder.signature.id if preorder.signature is not None else None
     request.session["trailer_id"] = contract.trailer.id
     request.session["company_id"] = towit.id
 
@@ -808,7 +839,9 @@ def create_order_contact(request):
         form = LesseeContactForm(request.POST, request.FILES)
         if form.is_valid():
             associated = form.save()
-            return redirect("generate-service-order-contact-url", associated.id)
+            preorder = PreorderData(associated=associated)
+            preorder.save()
+            return redirect("generate-service-order-contact-url", preorder.id)
     else:
         form = LesseeContactForm()
 
@@ -824,16 +857,20 @@ def create_order_contact(request):
 
 @login_required
 def generate_url(request, id):
-    if request.session['next'] is None:
-        request.session["next"] = "view-conditions"
+    preorder = get_object_or_404(PreorderData, id=id)
+
     request.session["using_signature"] = True
     request.session["plate"] = True
 
-    associated = get_object_or_404(Associated, id=id)
     if request.method == "POST":
-        request.session["client_id"] = associated.id
+        request.session["preorder_id"] = preorder.id
+        request.session["signature"] = preorder.signature.id if preorder.signature is not None else None
         # Redirect acording to the  corresponding flow
         if request.session.get("creating_order") is not None:
+            # if preorder.signature is not None:
+            #     return redirect("create-service-order")
+            if request.session['next'] is None:
+                return redirect("view-conditions")
             return redirect(request.session['next'])
         else:
             order_id = request.session.get("order_detail")
@@ -845,9 +882,10 @@ def generate_url(request, id):
 
     exp = datetime.utcnow() + timedelta(minutes=30)
     context = {
-        "lessee_id": associated.id,
-        "name": associated.name,
-        "phone": str(associated.phone_number),
+        "preorder_id": preorder.id,
+        "lessee_id": preorder.associated.id,
+        "name": preorder.associated.name,
+        "phone": str(preorder.associated.phone_number),
         "exp": exp,
     }
 
@@ -857,7 +895,7 @@ def generate_url(request, id):
     url = url_base + reverse("service-order-contact-form", args=[token])
     context["url"] = url
 
-    sendSMSLesseeContactURL(associated.phone_number, url)
+    sendSMSLesseeContactURL(preorder.associated.phone_number, url)
 
     factory = qrcode.image.svg.SvgPathImage
     factory.QR_PATH_STYLE["fill"] = "#455565"
@@ -868,13 +906,15 @@ def generate_url(request, id):
     )
     context["qr_url"] = img.to_string(encoding="unicode")
 
+    context["preorder_state_url"] = reverse('view-preorder-state', args=[id])
+
     return render(request, "rent/client/lessee_url.html", context)
 
 
 def lessee_form(request, token):
     try:
         info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        lessee_id = info["lessee_id"]
+        preorder_id = info["preorder_id"]
     except jwt.ExpiredSignatureError:
         context = {
             "title": "Error",
@@ -890,16 +930,16 @@ def lessee_form(request, token):
         }
         return render(request, "rent/client/lessee_form_err.html", context)
 
-    lessee = get_object_or_404(Associated, id=lessee_id)
+    preorder = get_object_or_404(PreorderData, id=preorder_id)
 
     if request.method == "POST":
-        form = AssociatedCreateForm(
-            request.POST, request.FILES, instance=lessee)
+        form = LesseeContactForm(
+            request.POST, request.FILES, instance=preorder.associated,)
         if form.is_valid():
             form.save()
             return redirect("contact-view-conditions", token)
 
-    form = AssociatedCreateForm(instance=lessee)
+    form = LesseeContactForm(instance=preorder.associated)
     title = _("Complete form")
 
     context = {
@@ -913,7 +953,7 @@ def lessee_form(request, token):
 def contact_view_conditions(request, token):
     try:
         info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        lessee_id = info["lessee_id"]
+        preorder_id = info["preorder_id"]
     except jwt.ExpiredSignatureError:
         context = {
             "title": "Error",
@@ -929,21 +969,22 @@ def contact_view_conditions(request, token):
         }
         return render(request, "rent/client/lessee_form_err.html", context)
 
-    if "signature" in request.session and request.session["signature"] is not None:
-        signature = OrderSignature.objects.get(id=request.session["signature"])
-    else:
-        signature = OrderSignature()
+    preorder: PreorderData = get_object_or_404(PreorderData, id=preorder_id)
+    if request.method == 'POST':
+        preorder.ready = True
+        preorder.save()
+        return redirect('process-ended-page')
 
-    client = get_object_or_404(Associated, id=lessee_id)
+    signature = preorder.signature
 
     HasOrders = False
-    if client is not None:
-        orders = Order.objects.filter(associated=client)
-        HasOrders = len(orders) > 0
+    if preorder is not None and preorder.associated is not None:
+        HasOrders = Order.objects.filter(
+            associated=preorder.associated).exists()
 
     context = {
         "signature": signature,
-        "client": client,
+        "client": preorder.associated,
         "hasOrder": HasOrders,
         "token": token,
     }
@@ -953,7 +994,7 @@ def contact_view_conditions(request, token):
 def contact_create_handwriting(request, token):
     try:
         info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        client_id = info["lessee_id"]
+        preorder_id = info["preorder_id"]
     except jwt.ExpiredSignatureError:
         context = {
             "title": "Error",
@@ -972,9 +1013,10 @@ def contact_create_handwriting(request, token):
     if request.method == "POST":
         form = OrderSignatureForm(request.POST, request.FILES)
         if form.is_valid():
-            associated = get_object_or_404(Associated, id=client_id)
+            preorder: PreorderData = get_object_or_404(
+                PreorderData, id=preorder_id)
             handwriting: OrderSignature = form.save(commit=False)
-            handwriting.associated = associated
+            handwriting.associated = preorder.associated
             handwriting.position = "signature_order_client"
 
             # Save image
@@ -991,6 +1033,8 @@ def contact_create_handwriting(request, token):
                     form.instance.img.save(name, temp_file, True)
 
             handwriting.save()
+            preorder.signature = handwriting
+            preorder.save()
             request.session["signature"] = handwriting.id
             return redirect("contact-view-conditions", token)
     else:
@@ -1001,3 +1045,16 @@ def contact_create_handwriting(request, token):
         "form": form,
     }
     return render(request, "services/signature.html", context)
+
+
+def process_ended_page(request):
+    context = {}
+    return render(request, "services/process_ended.html", context)
+
+
+@login_required
+def preorder_state(request, preorder_id):
+    preorder = PreorderData.objects.filter(id=preorder_id).first()
+    return JsonResponse({
+        'ready': preorder.ready if preorder is not None else None,
+    })

@@ -16,7 +16,7 @@
                 <form method="GET">
                     <input type='submit' class="btn btn-outline-primary" value='Refresh' />
                 </form>
-                <form method="POST">
+                <form method="POST" id="nextForm">
                     {% csrf_token %}
                     <input type='submit' class="btn btn-outline-primary" value='NEXT' />
                 </form>
@@ -56,4 +56,22 @@
             </div>
         </div>
     </div>
+    <script>
+        const url = "{{preorder_state_url}}"
+        const next = document.getElementById('nextForm')
+
+        async function getState() {
+            const response = await fetch(url)
+            try {
+                const json = await response.json()
+                if (json.ready) {
+                    next.submit()
+                }
+            } catch (err) {
+                console.error(err)
+            }
+        }
+
+        setInterval(getState, 3000)
+    </script>
 {% endblock content %}

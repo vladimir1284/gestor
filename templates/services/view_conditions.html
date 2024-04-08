@@ -4,12 +4,14 @@
     Service conditions
 {% endblock title %}
 {% block Ctitle %}
-    CONDICIONES DE SERVICIO
-    {% if signature.img or hasOrder %}
-        <a href="{% url 'create-service-order' %}"
-           type="button"
-           class="btn btn-outline-primary float-end">Continue</a>
-    {% endif %}
+    <div class="d-flex justify-content-between">
+        <span>CONDICIONES DE SERVICIO</span>
+        {% if signature.img or hasOrder %}
+            <form method='post'>
+                <button type='submit'  class="btn btn-outline-primary">Continue</button>
+            </form>
+        {% endif %}
+    </div>
 {% endblock Ctitle %}
 {% block page %}
     <style>
