@@ -1,0 +1,96 @@
+{% extends 'base/base_form.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block img_id %}
+    const img_id = "id_image";
+{% endblock img_id %}
+{% block page %}
+    <style></style>
+    <link rel="stylesheet" href="{% static 'assets/css/capture-picture.css' %}" />
+{% endblock page %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>{{ title }}</h5>
+                        <a href="{{ back }}" class="btn btn-outline-danger">Cancel</a>
+                    </div>
+                </div>
+                <div id="controls">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="bx bx-camera"></i>
+                        </span>
+                        <select id="cameraSelector" class="form-select"></select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="bx bx-images"></i>
+                        </span>
+                        <select id="cameraResolution" class="form-select">
+                            <option value="640x480" selected>640x480</option>
+                            <option value="1280x720">1280x720</option>
+                            <option value="1920x1080">1920x1080</option>
+                            <option value="3840x2160">3840x2160</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-center mt-4">
+                        <button type="button" class="btn btn-primary" id="startCamBut" disabled>Start camera</button>
+                    </div>
+                </div>
+                <div id="preview">
+                    <div class="d-flex justify-content-center">
+                        <div id="videoBox">
+                            <video id="camPreview"
+                                   class="camera"
+                                   muted
+                                   autoplay="autoplay"
+                                   playsinline="playsinline"
+                                   webkit-playsinline>
+                            </video>
+                            <div id="settingsBox">
+                                <button id="settingsBut">
+                                    <i class="bx bxs-cog"></i>
+                                </button>
+                            </div>
+                            <div id="captureBox">
+                                <button id="captureBut">
+                                    <i class="bx bxs-camera"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="showImg">
+                    <div class="d-flex justify-content-center">
+                        <div id="showImgBox">
+                            <img id="photoTaken" alt="img" />
+                            <div id="ctl">
+                                <button id="recaptureBut">
+                                    <i class='bx bxs-image-add'></i>
+                                    Recapture
+                                </button>
+                                <button id="acceptBut">
+                                    <i class='bx bxs-badge-check'></i>
+                                    Accept
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <form method="post" id="sendForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="formImg" name="img">
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{%static 'assets/js/camera-controller.js'%}"></script>
+    <script src="{%static 'assets/js/picture.js'%}"></script>
+{% endblock content %}

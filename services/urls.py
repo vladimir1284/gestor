@@ -12,6 +12,9 @@ from .views import sms
 from .views import storage
 from .views import transaction
 from services.views.order_decline_reazon import order_decline_reazon
+from services.views.picture_capture import capture_service_picture
+from services.views.picture_capture import create_expense_capture_picture
+from services.views.picture_capture import update_expense_capture_picture
 
 
 urlpatterns = [
@@ -201,6 +204,22 @@ urlpatterns = [
          expense.create_expense, name="create-expense"),
     path("update-expense/<id>", expense.update_expense, name="update-expense"),
     path("delete-expense/<id>", expense.delete_expense, name="delete-expense"),
+    # -------------------- Picture ----------------------------
+    path(
+        "capture-service-picture/<order_id>",
+        capture_service_picture,
+        name="capture-service-picture",
+    ),
+    path(
+        "update-expense-capture-picture/<expense_id>",
+        update_expense_capture_picture,
+        name="update-expense-capture-picture",
+    ),
+    path(
+        "create-expense-capture-picture/<order_id>",
+        create_expense_capture_picture,
+        name="create-expense-capture-picture",
+    ),
     # ----------------- Service Picture -----------------------
     path(
         "new_picture/<int:order_id>",

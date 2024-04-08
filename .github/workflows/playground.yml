@@ -1,14 +1,14 @@
-name: Deploy
+name: Playgound
 
 on:
   workflow_dispatch:
 
 jobs:
-  production:
+  playgound:
     runs-on: ubuntu-latest
     environment:
-      name: production
-      url: https://www.towithouston.com/erp
+      name: playgound
+      url: https://playground.towithouston.com/erp
     steps:
       - name: Setup SSH
         run: |
@@ -20,4 +20,4 @@ jobs:
           ssh-keyscan -H 74.208.106.28 >> ~/.ssh/known_hosts
       - name: work in remote server
         run: |
-          ssh ${{ secrets.USER_IP }} "./gestor/deploy_gestor.sh ${{ secrets.SUDO_PASS }}"
+          ssh ${{ secrets.USER_IP }} "./gestor/deploy_playground.sh ${{ secrets.SUDO_PASS }}"

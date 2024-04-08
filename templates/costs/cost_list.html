@@ -40,7 +40,11 @@
     {% for cost in costs %}
         <tr data-tag="{{ cost.category.name }}">
             <td>
-                <a href={% url 'update-cost' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
+                {% if perms.costs.change_cost %}
+                    <a href={% url 'update-cost' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
+                {% else %}
+                    ${{ cost.amount|floatformat:"2" }}
+                {% endif %}
             </td>
             <td>
                 <strong>{{ cost.concept }}</strong>
@@ -72,8 +76,15 @@
     {% endfor %}
 {% endblock Tbody %}
 {% block createUrl %}
-    {% url 'create-cost' %}
+    {% if perms.costs.add_cost %}
+        {% url 'create-cost' %}
+    {% else %}
+        #
+    {% endif %}
 {% endblock createUrl %}
+{% block add %}
+    {% if not perms.costs.add_cost %}hidden{% endif %}
+{% endblock add %}
 {% block help %}
     Add cost
 {% endblock help %}

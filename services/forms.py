@@ -7,10 +7,12 @@ from crispy_forms.layout import Field
 from crispy_forms.layout import Fieldset
 from crispy_forms.layout import HTML
 from crispy_forms.layout import Layout
+from crispy_forms.layout import SafeString
 from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
+from django.shortcuts import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -168,9 +170,9 @@ class PaymentCategoryCreateForm(BaseForm):
             Div(Div(AppendedText("extra_charge", "%")), css_class="mb-3"),
             HTML(
                 """
-                <img id="preview" 
+                <img id="preview"
                 {% if form.icon.value %}
-                    class="img-responsive" 
+                    class="img-responsive"
                     src="/media/{{ form.icon.value }}"
                 {% endif %}">
                 """
@@ -425,8 +427,9 @@ class ExpenseCreateForm(BaseForm):
             "associated",
         )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, capUrl=None, imgData=None, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -457,20 +460,40 @@ class ExpenseCreateForm(BaseForm):
                 HTML(
                     """
                 {% load static %}
-                <img id="preview"
-                alt="image"
-                class="d-block rounded"
-                height="100" width="100"
-                {% if form.instance.image %}
-                    src="{{ form.instance.image.url }}"
-                {% else %}
-                    src="{% static 'assets/img/icons/no_image.jpg' %}"
-                {% endif %}>
+                <a href='"""
+                    + str(capUrl)
+                    + """' class="btn btn-outline-primary">
+
+                    <div class="d-flex">
+                        <img id="preview"
+                        alt="image"
+                        class="d-block rounded"
+                        height="100" width="100"
+                        {% if form.instance.image %}
+                            src="{{ form.instance.image.url }}"
+                        {% else %}
+                            src="{% static 'assets/img/icons/no_image.jpg' %}"
+                        {% endif %}>
+
+                        {%if request.session.expenseCaptureImgBase64%}
+                            <img id="toPreview"
+                            alt="image"
+                            class="d-block rounded ms-4"
+                            height="100" width="100"
+                            src="{{ request.session.expenseCaptureImgBase64 }}">
+                        {% endif %}
+                    </div>
+
+                    Capture
+                </a>
                 """
                 ),
                 css_class="d-flex align-items-start align-items-sm-center gap-4",
             ),
-            Div(Div(Field("image")), css_class="mb-3"),
+            Div(
+                Div(Field("image")),
+                css_class="mb-3",
+            ),
             Div(Div(Field("concept")), css_class="mb-3"),
             Div(Div(Field("description", rows="2")), css_class="mb-3"),
             Div(Div(Field(PrependedText("cost", "$"))), css_class="mb-3"),
@@ -484,8 +507,16 @@ class ServicePictureForm(BaseForm):
         model = ServicePicture
         fields = ("image",)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, id=None, **kwargs):
         super().__init__(*args, **kwargs)
+        capUrl = (
+            None
+            if id is None
+            else reverse(
+                "capture-service-picture",
+                args=[id],
+            )
+        )
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -505,7 +536,20 @@ class ServicePictureForm(BaseForm):
                 ),
                 css_class="d-flex align-items-start align-items-sm-center gap-4",
             ),
-            Div(Div(Field("image")), css_class="mb-3"),
+            Div(
+                Div(
+                    Field(
+                        "image"
+                        if id is None
+                        else AppendedText(
+                            "image",
+                            SafeString('<a href="' + str(capUrl) +
+                                       '">Capture</a>'),
+                        )
+                    )
+                ),
+                css_class="mb-3",
+            ),
             ButtonHolder(Submit("submit", "Add", css_class="btn btn-success")),
         )
 
