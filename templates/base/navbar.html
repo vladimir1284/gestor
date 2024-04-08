@@ -1,51 +1,48 @@
 <script>
   function filterText() {
-      let i, j;
-      let text = document.getElementById("search").value;
-      const headings = document.getElementsByClassName("list-head");
-      for(i=0; i < headings.length; i++) {
-        head = headings[i];
-        if (text == '') {
-          head.style.display = "";
-        } else {
-          head.style.display = "none";
-        } 
-      }
-      // Filer objects by text
-      let tables = document.getElementsByTagName("tbody");
-      for (j = 0; j < tables.length; j++) {
-          tr = tables[j].getElementsByTagName("tr");
-          for (i = 0; i < tr.length; i++) {
-            let data = tr[i].dataset['search'].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            if (data.toUpperCase().search(text.toUpperCase()) != -1 || text == '') {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }                    
-          }
+    let i, j;
+    let text = document.getElementById("search").value;
+    const headings = document.getElementsByClassName("list-head");
+    for (i = 0; i < headings.length; i++) {
+      head = headings[i];
+      if (text == "") {
+        head.style.display = "";
+      } else {
+        head.style.display = "none";
       }
     }
+    // Filer objects by text
+    let tables = document.getElementsByTagName("tbody");
+    for (j = 0; j < tables.length; j++) {
+      tr = tables[j].getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        let data = tr[i].dataset["search"]
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        if (data.toUpperCase().search(text.toUpperCase()) != -1 || text == "") {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
 </script>
 <!-- Navbar -->
-<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-     id="layout-navbar">
+<nav class="layout-navbar navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+  style="width: 100% !important" id="layout-navbar">
   <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
     <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
       <i class="bx bx-menu bx-sm"></i>
     </a>
   </div>
-  <div class="navbar-nav-right d-flex align-items-center"
-       id="navbar-collapse">
+  <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
     <!-- Search -->
     <div class="navbar-nav align-items-center">
       <div class="nav-item d-flex align-items-center">
         <i class="bx bx-search fs-4 lh-0"></i>
-        <input oninput="filterText()"
-               id="search"
-               type="text"
-               class="form-control border-0 shadow-none"
-               placeholder="Search..."
-               aria-label="Search..." />
+        <input oninput="filterText()" id="search" type="text" class="form-control border-0 shadow-none"
+          placeholder="Search..." aria-label="Search..." />
       </div>
     </div>
     <!-- /Search -->
@@ -56,19 +53,14 @@
 </li>-->
       <!-- User -->
       <li class="nav-item navbar-dropdown dropdown-user dropdown">
-        <a class="nav-link dropdown-toggle hide-arrow"
-           href="javascript:void(0);"
-           data-bs-toggle="dropdown">
+        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
           <div class="avatar avatar-online">
             {% if user.profile_user.avatar %}
-              <img src="{{ user.profile_user.avatar.url }}"
-                   alt=""
-                   class="w-px-40 rounded-circle" />
+            <img src="{{ user.profile_user.avatar.url }}" alt="" class="w-px-40 rounded-circle" />
             {% else %}
-              <span style="font-size:1.5em"
-                    class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
-                {{ user.first_name|first }}
-              </span>
+            <span style="font-size: 1.5em" class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+              {{ user.first_name|first }}
+            </span>
             {% endif %}
           </div>
         </a>
@@ -79,14 +71,11 @@
                 <div class="flex-shrink-0 me-3">
                   <div class="avatar avatar-online">
                     {% if user.profile_user.avatar %}
-                      <img src="{{ user.profile_user.avatar.url }}"
-                           alt=""
-                           class="w-px-40 rounded-circle" />
+                    <img src="{{ user.profile_user.avatar.url }}" alt="" class="w-px-40 rounded-circle" />
                     {% else %}
-                      <span style="font-size:1.5em"
-                            class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
-                        {{ user.first_name|first }}
-                      </span>
+                    <span style="font-size: 1.5em" class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                      {{ user.first_name|first }}
+                    </span>
                     {% endif %}
                   </div>
                 </div>
@@ -101,8 +90,8 @@
             <div class="dropdown-divider"></div>
           </li>
           <li>
-            <a class="dropdown-item"
-               {% if user.profile_user %} href="{% url 'update-user' user.profile_user.id %}" {% endif %}>
+            <a class="dropdown-item" {% if user.profile_user %} href="{% url 'update-user' user.profile_user.id %}"
+              {%endif %}>
               <i class="bx bx-user me-2"></i>
               <span class="align-middle">Mi perfil</span>
             </a>
