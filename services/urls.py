@@ -27,8 +27,10 @@ from services.views.order_flow.get_preorder_state import preorder_state
 from services.views.order_flow.order_create import create_order
 from services.views.order_flow.select_client import select_client
 from services.views.order_flow.select_lessee import select_lessee
+from services.views.order_flow.select_lessee import select_lessee_trailer
 from services.views.order_flow.select_unrented_trailer import select_unrented_trailer
 from services.views.order_flow.signature import create_handwriting
+from services.views.order_flow.start_flow import select_order_flow
 from services.views.order_flow.view_conditions import view_conditions
 from services.views.order_flow.view_contract_details import view_contract_details
 from services.views.picture_capture import capture_service_picture
@@ -94,14 +96,13 @@ urlpatterns = [
     ),
     path("delete-service/<id>", service.delete_service, name="delete-service"),
     # -------------------- Order ----------------------------
-    path("order-flow/", order.select_order_flow,
-         name="select-service-order-flow"),
+    path("order-flow/", select_order_flow, name="select-service-order-flow"),
     path("fast_order_create/<id>", fast_order_create, name="fast-order-create"),
     path("parts-sale/", parts_sale, name="parts-sale"),
     path("quotation_order/", order_quotation, name="quotation-order"),
     path("select-client/<id>", select_client, name="select-service-client"),
     path("select-client/", select_client, name="select-service-client"),
-    path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
+    # path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
     path("view-conditions/<id>", view_conditions, name="view-conditions"),
     path(
         "view-preorder-state/<preorder_id>",
@@ -131,7 +132,7 @@ urlpatterns = [
     path("select-lessee/", select_lessee, name="select-service-lessee"),
     path(
         "select-lessee-trailer/<id>",
-        order.select_lessee_trailer,
+        select_lessee_trailer,
         name="select-service-lessee-trailer",
     ),
     path(
