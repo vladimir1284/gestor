@@ -1,12 +1,15 @@
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
-from PIL import Image
 from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
-from users.models import User, Associated, Company
 from equipment.models import Vehicle
 from rent.models.vehicle import Trailer
-from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator, MaxValueValidator
+from users.models import Associated
+from users.models import Company
+from users.models import User
 
 
 def thumbnailField(image_field: models.ImageField, icon_size: int):
@@ -46,7 +49,8 @@ class Category(models.Model):
         ("#03c3ec", "blue"),
         ("#233446", "black"),
     )
-    chartColor = models.CharField(max_length=7, default="#8592a3", choices=COLOR_CHOICE)
+    chartColor = models.CharField(
+        max_length=7, default="#8592a3", choices=COLOR_CHOICE)
 
     ICON_SIZE = 64
     icon = models.ImageField(upload_to="images/icons", blank=True)
@@ -73,8 +77,10 @@ class Order(models.Model):
         ("sell", _("Sell")),
         ("purchase", _("Purchase")),
     )
-    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default="purchase")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default="pending")
+    type = models.CharField(
+        max_length=20, choices=TYPE_CHOICE, default="purchase")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICE, default="pending")
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
@@ -107,11 +113,28 @@ class Order(models.Model):
     company = models.ForeignKey(
         Company, blank=True, null=True, on_delete=models.SET_NULL
     )
+
     terminated_date = models.DateTimeField(blank=True, null=True)
+    terminated_user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="terminated_orders",
+    )
     processing_date = models.DateTimeField(blank=True, null=True)
+    processing_user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="processing_orders",
+    )
+
     discount = models.FloatField(default=0)
     quotation = models.BooleanField(default=False)
     invoice_sended = models.BooleanField(default=False)
+    labor_viewed = models.BooleanField(default=False)
     is_initial = False
 
     def __str__(self):
