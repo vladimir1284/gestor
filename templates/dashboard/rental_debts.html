@@ -3,7 +3,10 @@
             <div class="card">
                 <div class="list-head">
                     <h5 class="card-header">
-                        {{title}}: <strong>${{ rental_debt|floatformat:"0" }}</strong>
+                        {{title}}:
+                        {%if perms.extra_perm.rental_debts_total %}
+                        <strong>${{ rental_debt|floatformat:"0" }}</strong>
+                        {%endif%}
                         <a href="{% url 'client-list' %}"
                            class="btn btn-sm btn-outline-primary float-end">Details</a>
                     </h5>
