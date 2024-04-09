@@ -72,7 +72,7 @@ class MenuItem:
             self.matchs = self.getMatchs(self.url, self.extra_match)
 
         for u in self.matchs:
-            if url_match_internal(url, u, not self.extra_match):
+            if url_match_internal(url, u, not self.exact_match):
                 return True
         return False
 
@@ -115,7 +115,7 @@ class MenuItem:
             return True
 
         for c in self.children:
-            if c.has_perms(request):
+            if c.should_render(request):
                 return True
 
         return False
