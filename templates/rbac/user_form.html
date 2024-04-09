@@ -1,0 +1,77 @@
+{% extends 'base/base_form.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block page %}
+    <style>
+#id_users {
+    height: 10rem;
+}
+
+.accordion-header {
+    padding-left: 1.2rem;
+    align-items: center;
+}
+.accordion-header button {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+.accordion-header input {
+    margin-right: 1rem;
+    margin-top: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+    </style>
+{% endblock page %}
+{% block content %}
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="position-absolute top-0 end-0 pe-3 pt-3">
+                <a class="btn btn-outline-primary" href="{% url 'rbac-list-users' %}">
+                    <i class='bx bx-left-arrow-alt'></i>
+                    Cancel
+                </a>
+                {% if user is not None %}
+                    <a class="btn btn-outline-primary"
+                       href="{% url 'rbac-user-pass' user.id %}">
+                        <i class='bx bx-lock-open'></i>
+                        Change password
+                    </a>
+                {% endif %}
+                <button class="btn btn-outline-success" onclick="send()">
+                    <i class='bx bx-save'></i>
+                    Save
+                </button>
+                {% if user is not None %}
+                    <a class="btn btn-outline-danger"
+                       href="{% url 'rbac-user-delete' user.id %}">
+                        <i class="bx bx-trash"></i>
+                        Remove
+                    </a>
+                {% endif %}
+            </div>
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="user-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                    {% if pwf is not None %}
+                        {% crispy pwf %}
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function send() {
+            const form = document.getElementById('user-form')
+            form.submit()
+        }
+    </script>
+    <script src='{%static 'assets/js/role-form.js'%}'></script>
+{% endblock content %}

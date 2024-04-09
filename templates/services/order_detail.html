@@ -90,6 +90,7 @@
                         {% endif %}
                         - &nbsp;
                     </span>
+                    {%if perms.extra_perm.order_discount%}
                     <button type="button"
                             class="btn btn-outline-primary"
                             data-bs-toggle="collapse"
@@ -105,6 +106,7 @@
                             {% crispy form %}
                         </form>
                     </div>
+                    {%endif%}
                 </p>
                 <p>
                     <strong>Position:</strong>

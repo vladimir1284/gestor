@@ -7,60 +7,60 @@
         <th>Stock</th>
         <th>Unit</th>
         {% if type == 'part' %}<th>Price</th>{% endif %}
+        {%if perms.extra_perm.inventary_product_cost%}
         <th>Cost</th>
+        {%endif%}
     </tr>
 </thead>
 <tbody class="table-border-bottom-0">
     {% for product in products %}
-        {% if product.type == type %}
-            <tr data-tag="{{ product.category }}"
-                data-stock="{% if product.quantity_min > 0 and product.quantity < product.quantity_min %}low{% else %}ok{% endif %}"
-                data-search="{{ product.name }}">
-                <td>
-                    <a href={% url 'detail-product' product.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
-                </td>
-                <td>
-                    <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ product.name }}</strong>
-                </td>
-                <td>
-                    <ul class="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
-                        {% if product.pending %}
-                            <li data-bs-toggle="tooltip"
-                                data-popup="tooltip-custom"
-                                data-bs-placement="top"
-                                class="avatar avatar-xs pull-up"
-                                title=""
-                                data-bs-html="true"
-                                data-bs-original-title="<i class='tf-icons bx bx-cart'></i> Pending">
-                                <span class="badge badge-center rounded-pill bg-warning stock">{{ product.pending|floatformat:"-2" }}</span>
-                            </li>
-                        {% endif %}
-                        {% if product.processing %}
-                            <li data-bs-toggle="tooltip"
-                                data-popup="tooltip-custom"
-                                data-bs-placement="top"
-                                class="avatar avatar-xs pull-up"
-                                title=""
-                                data-bs-html="true"
-                                data-bs-original-title="<i class='tf-icons bx bx-mail-send'></i> in process">
-                                <span class="badge badge-center rounded-pill bg-primary stock">{{ product.processing|floatformat:"-2" }}</span>
-                            </li>
-                        {% endif %}
-                        <li data-bs-toggle="tooltip"
-                            data-popup="tooltip-custom"
-                            data-bs-placement="top"
-                            class="avatar avatar-xs pull-up"
-                            title=""
-                            data-bs-html="true"
-                            data-bs-original-title="<i class='tf-icons bx bx-collection'></i> in stock">
-                            <span class="badge badge-center rounded-pill bg-{% if product.quantity_min > 0 and product.quantity < product.quantity_min %}danger{% else %}success{% endif %} stock">{{ product.quantity|floatformat:"-2" }}</span>
-                        </li>
-                    </ul>
-                </td>
-                <td>{{ product.unit }}</td>
-                {% if type == 'part' %}<td>${{ product.sell_price|floatformat:"-2" }}</td>{% endif %}
-                <td>${{ product.average_cost|floatformat:"-2" }}</td>
-            </tr>
-        {% endif %}
+    {% if product.type == type %}
+    <tr data-tag="{{ product.category }}"
+        data-stock="{% if product.quantity_min > 0 and product.quantity < product.quantity_min %}low{% else %}ok{% endif %}"
+        data-search="{{ product.name }}">
+        <td>
+            <a href={% url 'detail-product' product.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
+        </td>
+        <td>
+            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ product.name }}</strong>
+        </td>
+        <td>
+            <ul class="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
+                {% if product.pending %}
+                <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
+                    class="avatar avatar-xs pull-up" title="" data-bs-html="true"
+                    data-bs-original-title="<i class='tf-icons bx bx-cart'></i> Pending">
+                    <span class="badge badge-center rounded-pill bg-warning stock">
+                        {{ product.pending|floatformat:"-2" }}</span>
+                </li>
+                {% endif %}
+                {% if product.processing %}
+                <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
+                    class="avatar avatar-xs pull-up" title="" data-bs-html="true"
+                    data-bs-original-title="<i class='tf-icons bx bx-mail-send'></i> in process">
+                    <span class="badge badge-center rounded-pill bg-primary stock">
+                        {{ product.processing|floatformat:"-2" }}</span>
+                </li>
+                {% endif %}
+                <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
+                    class="avatar avatar-xs pull-up" title="" data-bs-html="true"
+                    data-bs-original-title="<i class='tf-icons bx bx-collection'></i> in stock">
+                    <span
+                        class="badge badge-center rounded-pill bg-{% if product.quantity_min > 0 and product.quantity < product.quantity_min %}danger{% else %}success{% endif %} stock">
+                        {{ product.quantity|floatformat:"-2" }}</span>
+                </li>
+            </ul>
+        </td>
+        <td>{{ product.unit }}</td>
+        {% if type == 'part' %}
+        <td>
+            ${{ product.sell_price|floatformat:"-2" }}
+        </td>{% endif %}
+
+        {%if perms.extra_perm.inventary_product_cost%}
+        <td>${{ product.average_cost|floatformat:"-2" }}</td>
+        {%endif%}
+    </tr>
+    {% endif %}
     {% endfor %}
 </tbody>

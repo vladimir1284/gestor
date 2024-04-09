@@ -52,7 +52,9 @@
                 </span>
             </td>
             <td>
-                <a href={% url 'detail-associated' order.associated.id %}>{{ order.associated }}</a>
+                {% if order.associated %}
+                    <a href={% url 'detail-associated' order.associated.id %}>{{ order.associated }}</a>
+                {% endif %}
             </td>
             <td>${{ order.amount|floatformat:"2" }}</td>
         </tr>

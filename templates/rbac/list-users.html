@@ -1,0 +1,24 @@
+{% extends 'base/base_list.html' %}
+{% load static %}
+{% block Ttitle %}
+    <h5 class="card-header">Users</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th style='width:2rem;' data-type="number">
+        <i class="bx bx-cog"></i>
+    </th>
+    <th data-type="custom-string">Username</th>
+    <th data-type="string">First Name</th>
+    <th data-type="string">Last Name</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for user in users %}
+        {% include "rbac/user_item.html" %}
+    {% endfor %}
+{% endblock Tbody %}
+{% block createUrl %}
+    {% url 'rbac-user-create' %}
+{% endblock createUrl %}
+{% block help %}
+    New user
+{% endblock help %}

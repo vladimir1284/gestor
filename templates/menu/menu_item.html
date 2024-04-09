@@ -1,0 +1,29 @@
+{% load static %}
+{% load menu_items %}
+{% if MenuItem.header %}
+    <li class="menu-header small text-uppercase">
+        <span class="menu-header-text">{{ MenuItem.name }}</span>
+    </li>
+{% elif MenuItem.submenu %}
+    {% miOpenClass MenuItem request as open_class %}
+    <li class="menu-item {{ open_class }}">
+        <a href="javascript:void(0);" class="menu-link menu-toggle">
+            {% if MenuItem.has_icon %}<i class="menu-icon tf-icons bx {{ MenuItem.icon }}"></i>{% endif %}
+            <div data-i18n="{{ MenuItem.i18n }}">{{ MenuItem.name }}</div>
+        </a>
+        <ul class="menu-sub">
+            {% for menu_item in MenuItem.children %}
+                {% renderMI menu_item request as mi_result %}
+                {{ mi_result|safe }}
+            {% endfor %}
+        </ul>
+    </li>
+{% elif MenuItem.link %}
+    {% miActiveClass MenuItem request as active_class %}
+    <li class="menu-item {{ active_class }}">
+        <a href="{% url MenuItem.url %}" class="menu-link">
+            {% if MenuItem.has_icon %}<i class="menu-icon tf-icons bx {{ MenuItem.icon }}"></i>{% endif %}
+            <div data-i18n="{{ MenuItem.i18n }}">{{ MenuItem.name }}</div>
+        </a>
+    </li>
+{% endif %}
