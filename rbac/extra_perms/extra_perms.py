@@ -22,4 +22,9 @@ EXTRA_PERMS = [
         app="extra_perm",
         name="Costos de productos en inventario",
     ),
+    PermissionParam(
+        code="rental_debts_total",
+        app="extra_perm",
+        name="Mostrar el valor total de la deuda de alquiler",
+    ),
 ]
