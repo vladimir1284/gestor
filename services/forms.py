@@ -17,7 +17,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from .models import Expense
-from .models import OrderSignature
 from .models import Payment
 from .models import PaymentCategory
 from .models import PendingPayment
@@ -25,6 +24,7 @@ from .models import Service
 from .models import ServiceCategory
 from .models import ServicePicture
 from .models import ServiceTransaction
+from .models.order_signature import OrderSignature
 from services.tools.available_positions import get_available_positions
 from services.tools.storage_reazon import getStorageReazons
 from utils.forms import BaseForm

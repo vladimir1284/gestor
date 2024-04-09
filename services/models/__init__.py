@@ -1,12 +1,12 @@
 from django.db import models
-from django.utils import timezone
-
-from utils.models import Order, Transaction, Category
-from users.models import Associated
-from django.utils.translation import gettext_lazy as _
-from users.models import User
-
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+
+from users.models import Associated
+from users.models import User
+from utils.models import Category
+from utils.models import Order
+from utils.models import Transaction
 
 
 class ServiceCategory(Category):
@@ -75,7 +75,8 @@ class ServicePicture(models.Model):
 
     def get_absolute_url(self):
         return (
-            reverse("detail-service-order", kwargs={"id": self.order.id}) + "#gallery"
+            reverse("detail-service-order",
+                    kwargs={"id": self.order.id}) + "#gallery"
         )
 
 
@@ -125,7 +126,8 @@ class DebtStatus(models.Model):
         ("cleared", _("Cleared")),
         ("lost", _("Lost")),
     ]
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="pending")
     last_modified_date = models.DateField(auto_now=True)
     weeks = models.PositiveIntegerField(default=0)
     amount_due_per_week = models.DecimalField(
@@ -136,19 +138,3 @@ class DebtStatus(models.Model):
         return "{} (${}) -> status: {}".format(
             self.client, self.client.debt, self.status
         )
-
-
-class OrderSignature(models.Model):
-    associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name="hand_writing",
-        null=True,
-    )
-    position = models.CharField(max_length=50)
-    img = models.ImageField(upload_to="services/signatures")
-    date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.associated.name + "-" + self.position

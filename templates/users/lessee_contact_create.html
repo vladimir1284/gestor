@@ -15,9 +15,9 @@
             </div>
             <div class="card-body">
                 <form method="post" id="update-form">
-                    <div class="position-absolute top-0 end-0">
-                        <button type="submit" class="btn btn-outline-primary m-2">Enviar</button>
-                    </div>
+                    <!-- <div class="position-absolute top-0 end-0"> -->
+                    <!--     <button type="submit" class="btn btn-outline-primary m-2">Enviar</button> -->
+                    <!-- </div> -->
                     {% csrf_token %}
                     {% crispy form %}
                 </form>

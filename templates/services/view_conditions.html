@@ -1,15 +1,19 @@
 {% extends "base/base_select.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block title %}
     Service conditions
 {% endblock title %}
 {% block Ctitle %}
-    CONDICIONES DE SERVICIO
-    {% if signature.img or hasOrder %}
-        <a href="{% url 'create-service-order' %}"
-           type="button"
-           class="btn btn-outline-primary float-end">Continue</a>
-    {% endif %}
+    <div class="d-flex justify-content-between">
+        <span>CONDICIONES DE SERVICIO</span>
+        {% if signature.img or hasOrder %}
+            <form method='post'>
+                {% csrf_token %}
+                <button type='submit'  class="btn btn-outline-primary">Continue</button>
+            </form>
+        {% endif %}
+    </div>
 {% endblock Ctitle %}
 {% block page %}
     <style>
@@ -60,7 +64,7 @@
             {% if pdf %}
             {% else %}
                 <a class="signature_btn"
-                   href="{% url 'client-service-order-signature' %}">
+                   href="{% url 'client-service-order-signature' preorder %}">
                     <button type="button" class="btn btn-icon btn-primary">
                         <span class="tf-icons bx bx-edit"></span>
                     </button>
