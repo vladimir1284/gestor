@@ -72,23 +72,27 @@ from datetime import datetime, timedelta
 
 @login_required
 def create_order(request):
-    client_id = request.session.get("client_id")
-    client = None
-    if client_id:
-        client = Associated.objects.get(id=client_id)
+    preorder_id = request.session.get("preorder_id")
+    preorder = None
+    if preorder_id:
+        preorder = PreorderData.objects.get(id=preorder_id)
 
-    if request.session["using_signature"] and request.session["signature"] is None:
-        orders = Order.objects.filter(associated=client)
-        if len(orders) == 0:
-            return redirect("view-conditions")
+    associated = None if preorder is None else preorder.associated
+
+    if (
+        request.session["using_signature"]
+        and preorder.signature is None
+        and associated is not None
+        and not Order.objects.filter(associated=associated).exists()
+    ):
+        return redirect("view-conditions")
 
     initial = {"concept": request.session['concept']}
     creating_order = request.session.get("creating_order")
     request.session["all_selected"] = True
     order = Order()
     if creating_order:
-        if client:
-            order.associated = client
+        order.associated = associated
 
         company_id = request.session.get("company_id")
         if company_id:
@@ -112,14 +116,7 @@ def create_order(request):
             order.created_by = request.user
 
             # Link the client to order
-            client_id = request.session.get("client_id")
-            preorder = PreorderData.objects
-            filter_preorder = False
-            if client_id:
-                client = Associated.objects.get(id=client_id)
-                order.associated = client
-                preorder = preorder.filter(associated=client)
-                filter_preorder = True
+            order.associated = associated
 
             # Set the equipment type in the order
             equipment_type = request.session.get("equipment_type")
@@ -147,14 +144,10 @@ def create_order(request):
                     id=request.session["signature"])
                 signature.order = order
                 signature.save()
-                preorder = preorder.filter(signature=signature)
-                filter_preorder = True
 
-            if filter_preorder:
-                preorder = preorder.last()
-                if preorder is not None:
-                    preorder.orders.add(order)
-                    preorder.save()
+            if preorder is not None:
+                preorder.orders.add(order)
+                preorder.save()
 
             cleanSession(request)
 
