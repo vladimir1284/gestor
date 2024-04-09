@@ -90,11 +90,19 @@
                                 onclick="zkSignature.clear()">Clear</button>
                     </div>
                     <div class="col-md-4">
-                        <a href="{% url 'view-conditions' %}#{{ form.position.value }}">
-                            <button class="btn btn-secondary btn-block">
-                                <i class="fa fa-arrow-left"></i>
-                            </button>
-                        </a>
+                        {% if back %}
+                            <a href="{{ back }}#{{ form.position.value }}">
+                                <button class="btn btn-secondary btn-block">
+                                    <i class="fa fa-arrow-left"></i>
+                                </button>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'view-conditions' preorder %}#{{ form.position.value }}">
+                                <button class="btn btn-secondary btn-block">
+                                    <i class="fa fa-arrow-left"></i>
+                                </button>
+                            </a>
+                        {% endif %}
                     </div>
                     <div class="col-md-4">
                         <button class="btn btn-success btn-block" onclick="zkSignature.save()">Capture</button>

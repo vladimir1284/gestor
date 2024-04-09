@@ -2,7 +2,6 @@ from django.db import models
 
 from services.models.order_signature import OrderSignature
 from users.models import Associated
-from utils.models import Order
 
 
 class PreorderData(models.Model):
@@ -10,5 +9,3 @@ class PreorderData(models.Model):
     signature = models.ForeignKey(
         OrderSignature, on_delete=models.SET_NULL, null=True, blank=True
     )
-    orders = models.ManyToManyField(Order, related_name="preorders")
-    ready = models.BooleanField(null=True)

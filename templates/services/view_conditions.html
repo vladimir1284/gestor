@@ -1,5 +1,6 @@
 {% extends "base/base_select.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block title %}
     Service conditions
 {% endblock title %}
@@ -8,6 +9,7 @@
         <span>CONDICIONES DE SERVICIO</span>
         {% if signature.img or hasOrder %}
             <form method='post'>
+                {% csrf_token %}
                 <button type='submit'  class="btn btn-outline-primary">Continue</button>
             </form>
         {% endif %}
@@ -62,7 +64,7 @@
             {% if pdf %}
             {% else %}
                 <a class="signature_btn"
-                   href="{% url 'client-service-order-signature' %}">
+                   href="{% url 'client-service-order-signature' preorder %}">
                     <button type="button" class="btn btn-icon btn-primary">
                         <span class="tf-icons bx bx-edit"></span>
                     </button>
