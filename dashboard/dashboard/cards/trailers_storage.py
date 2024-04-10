@@ -46,6 +46,22 @@ def _resolver():
         if o.trace:
             o.trace.time = (make_aware(datetime.now()) - o.trace.date).days
 
+    clientOwnsTriler = sorted(
+        clientOwnsTriler,
+        key=lambda x: (x.trace.time if x.trace is not None else -1),
+        reverse=True,
+    )
+    clientRentTriler = sorted(
+        clientRentTriler,
+        key=lambda x: (x.trace.time if x.trace is not None else -1),
+        reverse=True,
+    )
+    justTriler = sorted(
+        justTriler,
+        key=lambda x: (x.trace.time if x.trace is not None else -1),
+        reverse=True,
+    )
+
     return {
         "client_owns_trailers": clientOwnsTriler,
         "client_rent_trailers": clientRentTriler,
