@@ -50,7 +50,7 @@
             {% endif %}
         </div>
     </td>
-    <td data-days={% if order.trace %}{{ order.trace.time }}{% else %}0{% endif %}>
+    <td data-days={% if order.trace %}{{ order.trace.time }}{% else %}-1{% endif %}>
         {% if order.trace %}
             <div>{{ order.trace.date | date:'b. d, Y' | capfirst }}</div>
             <div>

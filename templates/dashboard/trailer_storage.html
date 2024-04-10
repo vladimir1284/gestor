@@ -7,21 +7,112 @@
             </h5>
         </div>
         <div class="card-body pt-0">
-            <div class="table-responsive text-nowrap trailers-storage">
-                <table class="table w-100">
-                    <thead>
-                        <th>
-                            <i class="bx bx-cog"></i>
-                        </th>
-                        <th>VEHICLE/CLIENT</th>
-                        <th>DATE/REAZON</th>
-                    </thead>
-                    <tbody>
-                        {% for order in orders_storage %}
-                            {% include "services/storage/dashboard_storage_order.html" %}
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="nav-align-top">
+                <ul class="nav nav-pills nav-fill" role="tablist">
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link active"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#external-trailers"
+                                aria-controls="external-trailers"
+                                aria-selected="true">
+                            <i class='bx bx-cool'></i>
+                            Trailer del cliente
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ client_owns_trailers | length }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#rent-trailers"
+                                aria-controls="rent-trailers"
+                                aria-selected="false">
+                            <i class='bx bx-smile'></i>
+                            Trailer con cliente
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ client_rent_trailers |length }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#just-trailers"
+                                aria-controls="just-trailers"
+                                aria-selected="false">
+                            <i class='bx bx-meh-blank'></i>
+                            Trailer sin cliente
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ just_trailers | length }}</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="tab-content p-0">
+                <div class="tab-pane fade active show"
+                     id="external-trailers"
+                     role="tabpanel">
+                    <div class="table-responsive text-nowrap trailers-storage">
+                        <table class="table w-100" id="table_active">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <i class="bx bx-cog"></i>
+                                    </th>
+                                    <th>VEHICLE/CLIENT</th>
+                                    <th>DATE/REAZON</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in client_owns_trailers %}
+                                    {% include "services/storage/dashboard_storage_order.html" %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="rent-trailers" role="tabpanel">
+                    <div class="table-responsive text-nowrap trailers-storage">
+                        <table class="table w-100" id="table_active">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <i class="bx bx-cog"></i>
+                                    </th>
+                                    <th>VEHICLE/CLIENT</th>
+                                    <th>DATE/REAZON</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in client_rent_trailers %}
+                                    {% include "services/storage/dashboard_storage_order.html" %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="just-trailers" role="tabpanel">
+                    <div class="table-responsive text-nowrap trailers-storage">
+                        <table class="table w-100" id="table_active">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <i class="bx bx-cog"></i>
+                                    </th>
+                                    <th>VEHICLE/CLIENT</th>
+                                    <th>DATE/REAZON</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in just_trailers %}
+                                    {% include "services/storage/dashboard_storage_order.html" %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

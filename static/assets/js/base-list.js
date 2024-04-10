@@ -1,5 +1,5 @@
 let tables = document.getElementsByTagName("tbody");
-window.onload = function () {
+window.onload = function() {
   let add = document.getElementsByClassName("add")[0];
   if (add.style.visibility != "hidden") {
     $(add).tooltip("show");
@@ -26,6 +26,44 @@ function filterTag(tagName) {
         tr[i].style.display = "none";
       }
     }
+  }
+}
+
+function sort(th) {
+  // const th = e.target;
+  // if TH, then sort
+  // cellIndex is the number of th:
+  //   0 for the first column
+  //   1 for the second column, etc
+  const tableElement = th.closest("table");
+
+  const ths = tableElement.querySelectorAll("th");
+  ths.forEach((e) => {
+    const sortables = e.querySelectorAll(".sortable");
+    sortables.forEach((s) => {
+      s.classList.remove(SortClass);
+    });
+
+    if (e === th) {
+      return;
+    }
+    e.dataset.order = 0;
+  });
+
+  // Get the tbody element associated with the table
+  const tbodyElement = tableElement.querySelector("tbody");
+
+  const sorted = sortGrid(tbodyElement, th, th.cellIndex, th.dataset.type);
+
+  if (sorted == 1) {
+    let sortable = undefined;
+    if (th.dataset.reversed == 1) {
+      sortable = th.querySelector(".sortable.up");
+    } else {
+      sortable = th.querySelector(".sortable.down");
+    }
+    sortable.classList.add(SortClass);
+    th.dataset.order = 1;
   }
 }
 
@@ -61,42 +99,14 @@ ths.forEach((th) => {
   th.classList.add("cursor-pointer");
 
   th.onclick = (e) => {
-    // const th = e.target;
-    // if TH, then sort
-    // cellIndex is the number of th:
-    //   0 for the first column
-    //   1 for the second column, etc
-    const tableElement = th.closest("table");
-
-    const ths = tableElement.querySelectorAll("th");
-    ths.forEach((e) => {
-      const sortables = e.querySelectorAll(".sortable");
-      sortables.forEach((s) => {
-        s.classList.remove(SortClass);
-      });
-
-      if (e === th) {
-        return;
-      }
-      e.dataset.order = 0;
-    });
-
-    // Get the tbody element associated with the table
-    const tbodyElement = tableElement.querySelector("tbody");
-
-    const sorted = sortGrid(tbodyElement, th, th.cellIndex, th.dataset.type);
-
-    if (sorted == 1) {
-      let sortable = undefined;
-      if (th.dataset.reversed == 1) {
-        sortable = th.querySelector(".sortable.up");
-      } else {
-        sortable = th.querySelector(".sortable.down");
-      }
-      sortable.classList.add(SortClass);
+    sort(th);
+  };
+  if (th.dataset.defsort == "+" || th.dataset.defsort == "-") {
+    if (th.dataset.defsort == "-") {
       th.dataset.order = 1;
     }
-  };
+    sort(th);
+  }
 });
 
 function sortGrid(tbody, th, colNum, type) {
@@ -110,7 +120,7 @@ function sortGrid(tbody, th, colNum, type) {
   switch (type) {
     case "amount":
       reversed = 1;
-      compare = function (rowA, rowB) {
+      compare = function(rowA, rowB) {
         return (
           rowA.cells[colNum].innerHTML.replace("$", "") -
           rowB.cells[colNum].innerHTML.replace("$", "")
@@ -119,7 +129,7 @@ function sortGrid(tbody, th, colNum, type) {
       break;
     case "days":
       reversed = 1;
-      compare = function (rowA, rowB) {
+      compare = function(rowA, rowB) {
         const d =
           rowA.cells[colNum].dataset.days - rowB.cells[colNum].dataset.days;
         if (d == 0) return 1;
@@ -127,19 +137,19 @@ function sortGrid(tbody, th, colNum, type) {
       };
       break;
     case "number":
-      compare = function (rowA, rowB) {
+      compare = function(rowA, rowB) {
         return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
       };
       break;
     case "string":
-      compare = function (rowA, rowB) {
+      compare = function(rowA, rowB) {
         return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML
           ? 1
           : -1;
       };
       break;
     case "custom-string":
-      compare = function (rowA, rowB) {
+      compare = function(rowA, rowB) {
         return rowA.cells[colNum].dataset["custom"] >
           rowB.cells[colNum].dataset["custom"]
           ? 1
