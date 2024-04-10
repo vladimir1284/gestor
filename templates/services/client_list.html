@@ -9,16 +9,18 @@
         <!--    type="button" -->
         <!--    class="btn btn-outline-primary float-end">Skip</a> -->
     {% endif %}
-    {% if create == 'order' %}
-        <a href="{% url 'create-service-order-contact' %}"
-           type="button"
-           class="btn btn-outline-primary float-end">New client</a>
-    {% elif create %}
-        <!-- <a href="{% url 'create-lessee-contact' trailer_id %}" -->
-        <a href="{% url 'create-lessee' trailer_id %}"
-           type="button"
-           class="btn btn-outline-primary float-end">New client</a>
-    {% endif %}
+    {% if create != 'order' %}
+        {%comment%}
+                <a href="{% url 'create-service-order-contact' %}"
+                   type="button"
+                   class="btn btn-outline-primary float-end">New client</a>
+            {% elif create %}
+    {% endcomment %}
+    <!-- <a href="{% url 'create-lessee-contact' trailer_id %}" -->
+    <a href="{% url 'create-lessee' trailer_id %}"
+       type="button"
+       class="btn btn-outline-primary float-end">New client</a>
+{% endif %}
 {% endblock Ctitle %}
 {% block Cards %}
     {% for associated in associates %}
@@ -26,11 +28,12 @@
     {% endfor %}
 {% endblock Cards %}
 {% block createUrl %}
-    {% url 'create-client' %}?next={{ request.path|urlencode }}
+    {% if create == 'order' %}
+        {% url 'create-service-order-contact' %}
+    {% else %}
+        {% url 'create-client' %}?next={{ request.path|urlencode }}
+    {% endif %}
 {% endblock createUrl %}
 {% block help %}
     New client
 {% endblock help %}
-{% block createVisibility %}
-    none
-{% endblock createVisibility %}
