@@ -620,8 +620,9 @@ class OrderEndUpdatePositionForm(forms.Form):
 
         self.fields["position"] = forms.ChoiceField(
             required=False,
-            choices=positions,
-            initial=position,
+            choices=[("-", "---"), *positions],
+            # initial=position,
+            initial=position if readonly else "-",
         )
         self.fields["position"].widget.attrs["readonly"] = readonly
 
@@ -629,6 +630,12 @@ class OrderEndUpdatePositionForm(forms.Form):
             choices=getStorageReazons(end),
             initial=reason,
         )
+
+    def clean_position(self):
+        valor = self.cleaned_data.get("position")
+        if valor == "-":
+            raise forms.ValidationError("Please, select a position")
+        return valor
 
 
 class OrderDeclineReazonForm(forms.ModelForm):
