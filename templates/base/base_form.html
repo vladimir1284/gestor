@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load static %}
 <!-- Page CSS -->
 {% block page %}
     <style></style>
@@ -72,4 +73,5 @@
         }
         });
     </script>
+    <script src="{%static 'assets/js/phone-number.js'%}"></script>
 {% endblock scripts %}
