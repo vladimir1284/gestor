@@ -32,7 +32,8 @@ def get_available_positions(
                 ).exists()
                 or i == current_pos
             ):
-                options.append((i, f"Position {i}"))
+                current = " (Current)" if i == current_pos else ""
+                options.append((i, f"Position {i}{current}"))
                 availables_pos = True
     elif current_pos is not None and current_pos != 0:
         options.append((current_pos, f"Position {current_pos}"))
