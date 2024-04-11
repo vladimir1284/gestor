@@ -1,4 +1,11 @@
 from django.db import models
+from django.template import Context, Template as DT
+
+
+Style = """
+{%load static%}
+<link rel="stylesheet" href="{%static 'libs/ckeditor/ckeditor.css'%}" />
+"""
 
 
 class Template(models.Model):
@@ -7,17 +14,7 @@ class Template(models.Model):
     language = models.CharField(max_length=50)
     content = models.TextField()
 
-    def render(self, ctx) -> str:
-        temp = Template(str(self.content))
-        return temp.render(ctx)
-
-    def get_content(self, **vars) -> str:
-        content = str(self.content)
-        for v in self.vars.all():
-            content = v.replace(content, vars)
-
-        return content
-
-    def get_styled_content(self, **vars) -> str:
-        content = self.get_content(**vars)
-        return f'<link rel="stylesheet" href="/static/libs/ckeditor/ckeditor.css" /><div class="ck-content">{content}</div>'
+    def render_template(self, ctx) -> str:
+        content = f'{Style}<div class="ck-content">{str(self.content)}</div>'
+        temp = DT(content)
+        return temp.render(Context(ctx))

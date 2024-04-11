@@ -48,6 +48,6 @@ def contact_view_conditions(request, token):
         "client": preorder.preorder_data.associated,
         "hasOrder": HasOrders,
         "token": token,
-        "conditions": get_order_conditions(preorder),
     }
+    context["conditions"] = get_order_conditions(preorder, context)
     return render(request, "services/contact_view_conditions.html", context)

@@ -174,7 +174,7 @@ def contract_detail(request, id):
     )
     context["qr_url"] = img.to_string(encoding="unicode")
 
-    context['conditions'] = get_conditions(context['contract'])
+    context['conditions'] = get_conditions(context)
 
     return render(request, "rent/contract/contract_detail.html", context)
 

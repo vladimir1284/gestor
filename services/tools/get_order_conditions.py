@@ -6,7 +6,7 @@ from services.tools.init_conditions import TEMPLATE
 from template_admin.models.template import Template
 
 
-def get_order_conditions(preorder: Preorder):
+def get_order_conditions(preorder: Preorder, ctx):
     language = LANG_ES
     if (
         preorder.preorder_data is not None
@@ -23,23 +23,23 @@ def get_order_conditions(preorder: Preorder):
     if template is None:
         return None
 
-    return template.get_styled_content(
-        client_name=(
-            None
-            if preorder.preorder_data is None
-            or preorder.preorder_data.associated is None
-            else preorder.preorder_data.associated.name
-        ),
-        client_phone=(
-            None
-            if preorder.preorder_data is None
-            or preorder.preorder_data.associated is None
-            else preorder.preorder_data.associated.phone_number
-        ),
-        client_email=(
-            None
-            if preorder.preorder_data is None
-            or preorder.preorder_data.associated is None
-            else preorder.preorder_data.associated.email
-        ),
-    )
+    return template.render_template(ctx)
+    #     client_name=(
+    #         None
+    #         if preorder.preorder_data is None
+    #         or preorder.preorder_data.associated is None
+    #         else preorder.preorder_data.associated.name
+    #     ),
+    #     client_phone=(
+    #         None
+    #         if preorder.preorder_data is None
+    #         or preorder.preorder_data.associated is None
+    #         else preorder.preorder_data.associated.phone_number
+    #     ),
+    #     client_email=(
+    #         None
+    #         if preorder.preorder_data is None
+    #         or preorder.preorder_data.associated is None
+    #         else preorder.preorder_data.associated.email
+    #     ),
+    # )

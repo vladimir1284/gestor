@@ -26,6 +26,5 @@ def template_edit(request: HttpRequest, id):
         "form": form,
         "template": template,
         "content": template.content,
-        "vars": template.vars.all().order_by("pattern"),
     }
     return render(request, "templates/templates_editor.html", context)

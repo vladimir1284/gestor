@@ -41,6 +41,6 @@ def view_conditions(request, id):
         "client": preorder.preorder_data.associated,
         "hasOrder": HasOrders,
         "preorder": id,
-        "conditions": get_order_conditions(preorder),
     }
+    context["conditions"] = get_order_conditions(preorder, context)
     return render(request, "services/view_conditions.html", context)

@@ -1,6 +1,4 @@
 from template_admin.models.template import Template
-from template_admin.models.template_vars import set_vars
-from template_admin.models.template_vars import TV
 
 
 DEF_COND_ES = """
@@ -39,18 +37,6 @@ TEMPLATE = "order-conditions"
 LANG_ES = "spanish"
 LANG_EN = "english"
 
-VARS = [
-    TV(
-        name="client_name",
-    ),
-    TV(
-        name="client_phone",
-    ),
-    TV(
-        name="client_email",
-    ),
-]
-
 
 def init_conditions():
     # Spanish
@@ -66,7 +52,6 @@ def init_conditions():
             language=LANG_ES,
             content=DEF_COND_ES,
         )
-    set_vars(temp, VARS)
 
     # English
     temp = Template.objects.filter(
@@ -81,4 +66,3 @@ def init_conditions():
             language=LANG_EN,
             content=DEF_COND_EN,
         )
-    set_vars(temp, VARS)

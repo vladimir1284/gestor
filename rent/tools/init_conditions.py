@@ -1,9 +1,4 @@
 from template_admin.models.template import Template
-from template_admin.models.template_vars import set_vars
-from template_admin.models.template_vars import TV
-from template_admin.models.template_vars import TV_DATE
-from template_admin.models.template_vars import TV_FLOAT
-from template_admin.models.template_vars import TV_INT
 
 DEF_COND_EN = """
 <p class="center">
@@ -186,40 +181,6 @@ MODULE = "rent"
 TEMPLATE = "lease-conditions"
 LANG_EN = "english"
 
-VARS = [
-    TV("total_amount", type=TV_INT),
-    TV("contract_type"),
-    TV("security_deposit", type=TV_INT),
-    TV("contract_term", type=TV_FLOAT),
-    TV("delayed_payments", type=TV_INT),
-    TV("payment_frequency"),
-    TV("stage"),
-    TV("trailer_location"),
-    TV("effective_date", type=TV_DATE),
-    TV("ended_date", type=TV_DATE),
-    TV("final_debt", type=TV_FLOAT),
-    TV("payment_amount", type=TV_INT),
-    TV("service_charge", type=TV_INT),
-    TV("created_at", type=TV_DATE),
-    TV("updated_at", type=TV_DATE),
-    TV("client_name"),
-    TV("client_alias"),
-    TV("client_email"),
-    TV("client_phone"),
-    TV("trailer_type"),
-    TV("trailer_axis_number", type=TV_INT),
-    TV("trailer_load", type=TV_INT),
-    TV("trailer_year", type=TV_INT),
-    TV("trailer_vin"),
-    TV("trailer_plate"),
-    TV("trailer_note"),
-    TV("trailer_manufacturer_brand_name"),
-    TV("user_first_name"),
-    TV("user_last_name"),
-    TV("user_username"),
-    TV("user_emial"),
-]
-
 
 def init_conditions():
     # English
@@ -235,4 +196,3 @@ def init_conditions():
             language=LANG_EN,
             content=DEF_COND_EN,
         )
-    set_vars(temp, VARS)
