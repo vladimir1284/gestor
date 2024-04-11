@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "tolls.apps.TollsConfig",
     "menu",
     "dashboard",
+    "template_admin",
     # Must be the last one
     "rbac",
 ]

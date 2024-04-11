@@ -11,6 +11,7 @@ from .views import service
 from .views import sms
 from .views import storage
 from .views import transaction
+from services.tools.init_conditions import init_conditions
 from services.views.order_decline_reazon import order_decline_reazon
 from services.views.order_flow.contact_form import lessee_form
 from services.views.order_flow.contract_client_signature import (
@@ -37,6 +38,7 @@ from services.views.picture_capture import capture_service_picture
 from services.views.picture_capture import create_expense_capture_picture
 from services.views.picture_capture import update_expense_capture_picture
 
+init_conditions()
 
 urlpatterns = [
     # -------------------- Category ----------------------------

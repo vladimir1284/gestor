@@ -92,6 +92,7 @@ urlpatterns = [
     path("erp/rent/", include("rent.urls")),
     path("erp/utils/", include("utils.urls")),
     path("erp/tolls/", include("tolls.urls")),
+    path("erp/template/", include("template_admin.urls")),
     path("erp/rbac/", include("rbac.urls")),
 ]
 
