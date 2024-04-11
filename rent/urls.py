@@ -1,5 +1,7 @@
 from django.urls import path
 
+from rent.tools.init_conditions import init_conditions
+
 from .permissions import staff_required_view
 from .views import calendar
 from .views import client
@@ -22,6 +24,11 @@ from rent.views.deposit import trailer_deposit_cancel
 from rent.views.deposit import trailer_deposit_conditions
 from rent.views.deposit import trailer_deposit_details
 from rent.views.deposit import trailer_deposit_pdf
+
+try:
+    init_conditions()
+except Exception as e:
+    print(e)
 
 urlpatterns = [
     # -------------------- Category ----------------------------

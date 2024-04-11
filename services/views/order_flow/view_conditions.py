@@ -7,6 +7,7 @@ from services.models import Order
 from services.models.order_signature import OrderSignature
 from services.models.preorder import Preorder
 from services.models.preorder_data import PreorderData
+from services.tools.get_order_conditions import get_order_conditions
 
 
 @login_required
@@ -41,4 +42,5 @@ def view_conditions(request, id):
         "hasOrder": HasOrders,
         "preorder": id,
     }
+    context["conditions"] = get_order_conditions(preorder, context)
     return render(request, "services/view_conditions.html", context)

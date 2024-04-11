@@ -347,6 +347,20 @@ MENU = [
             ),
         ],
     ),
+    # System Config
+    MenuItem("System configuration"),
+    MenuItem(
+        "Templates",
+        url="template-list",
+        icon="bx-layout",
+        extra_match=[
+            "template-edit",
+        ],
+        self_perm=PermissionParam(
+            code="system_conf_templates",
+            name="Configuración de templates del sistema",
+        ),
+    ),
 ]
 
 

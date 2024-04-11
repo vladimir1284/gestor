@@ -1,0 +1,30 @@
+{% extends "base/base_list.html" %}
+{% load static %}
+{% block title %}
+    Templates
+{% endblock title %}
+{% block Ttitle %}
+    <h5 class="card-header">Templates</h5>
+{% endblock Ttitle %}
+{% block Theader %}
+    <th data-type="string" data-defsort="+">Module</th>
+    <th data-type="string">Template</th>
+    <th data-type="string">Language</th>
+{% endblock Theader %}
+{% block Tbody %}
+    {% for template in templates %}
+        <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
+            <td>
+                <a href="{% url 'template-edit' template.id %}">{{ template.module }}</a>
+            </td>
+            <td>
+                <a href="{% url 'template-edit' template.id %}">{{ template.template }}</a>
+            </td>
+            <td>
+                <a href="{% url 'template-edit' template.id %}">{{ template.language }}</a>
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
+{% block addButton %}
+{% endblock addButton %}
