@@ -7,10 +7,15 @@ class Template(models.Model):
     language = models.CharField(max_length=50)
     content = models.TextField()
 
+    def render(self, ctx) -> str:
+        temp = Template(str(self.content))
+        return temp.render(ctx)
+
     def get_content(self, **vars) -> str:
         content = str(self.content)
         for v in self.vars.all():
             content = v.replace(content, vars)
+
         return content
 
     def get_styled_content(self, **vars) -> str:

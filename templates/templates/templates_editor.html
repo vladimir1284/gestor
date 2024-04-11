@@ -13,21 +13,28 @@
         <div class="col">
             <div class="card mb-3">
                 <div class="card-body m-0 p-1">
-                    <div class="float-end">
-                        <button class="btn btn-link"
-                                data-bs-toggle="modal"
-                                data-bs-target="#varsModal">
-                            <i class='bx bx-message-square-add'></i>
-                        </button>
-                        <button class="btn btn-link" onclick="save()">
-                            <i class='bx bx-save'></i>
-                        </button>
+                    <div class="d-flex">
+                        <div class="d-flex flex-grow-1">
+                            <h5 class="card-title p-2">
+                                <a href="{% url 'template-list' %}">
+                                    <i class='bx bx-left-arrow-alt'></i>
+                                </a>
+                                {{ template.module|upper }} /
+                                {{ template.template|upper }} /
+                                {{ template.language|upper }}
+                            </h5>
+                        </div>
+                        <div>
+                            <button class="btn btn-link"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#varsModal">
+                                <i class='bx bx-message-square-add'></i>
+                            </button>
+                            <button class="btn btn-link" onclick="save()">
+                                <i class='bx bx-save'></i>
+                            </button>
+                        </div>
                     </div>
-                    <h3 class="card-title p-2">
-                        {{ template.module }} /
-                        {{ template.template }} /
-                        {{ template.language }}
-                    </h3>
                 </div>
                 <form enctype="multipart/form-data" method="post" id="form">
                     {% csrf_token %}

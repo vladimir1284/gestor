@@ -28,6 +28,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import UpdateView
 
 from rent.forms.trailer_deposit import TrailerDeposit
+from rent.tools.get_conditions import get_conditions
 
 from ..forms.lease import AssociatedCreateForm
 from ..forms.lease import ContractForm
@@ -172,6 +173,8 @@ def contract_detail(request, id):
         box_size=20,
     )
     context["qr_url"] = img.to_string(encoding="unicode")
+
+    context['conditions'] = get_conditions(context['contract'])
 
     return render(request, "rent/contract/contract_detail.html", context)
 

@@ -38,7 +38,10 @@ from services.views.picture_capture import capture_service_picture
 from services.views.picture_capture import create_expense_capture_picture
 from services.views.picture_capture import update_expense_capture_picture
 
-init_conditions()
+try:
+    init_conditions()
+except Exception as e:
+    print(e)
 
 urlpatterns = [
     # -------------------- Category ----------------------------
