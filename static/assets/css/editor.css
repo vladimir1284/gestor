@@ -1,5 +1,13 @@
-#editor {
-  border: none;
-  margin-top: 0.5rem;
-  height: calc(100vh - 150px);
+/* #editor { */
+/*   border: none; */
+/*   margin-top: 0.5rem; */
+/*   height: calc(100vh - 150px); */
+/* } */
+
+.ck-powered-by {
+  display: none;
+}
+
+.ck-content {
+  height: calc(100vh - 280px) !important;
 }

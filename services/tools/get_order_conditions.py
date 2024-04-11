@@ -7,7 +7,7 @@ def get_order_conditions(preorder: Preorder):
     if template is None:
         return None
 
-    return template.get_content(
+    return template.get_styled_content(
         client_name=(
             None
             if preorder.preorder_data is None

@@ -12,3 +12,7 @@ class Template(models.Model):
         for v in self.vars.all():
             content = v.replace(content, vars)
         return content
+
+    def get_styled_content(self, **vars) -> str:
+        content = self.get_content(**vars)
+        return f'<link rel="stylesheet" href="/static/libs/ckeditor/ckeditor.css" /><div class="ck-content">{content}</div>'

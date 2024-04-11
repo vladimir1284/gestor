@@ -24,6 +24,7 @@ def template_edit(request: HttpRequest, id):
 
     context = {
         "form": form,
+        "template": template,
         "content": template.content,
         "vars": template.vars.all(),
     }

@@ -5,17 +5,65 @@
     Editor
 {% endblock title %}
 {% block content %}
+    <link rel="stylesheet" href="{% static 'libs/ckeditor/ckeditor.css' %}" />
     <link rel="stylesheet" href="{% static 'assets/css/editor.css' %}" />
-    <link rel="stylesheet"
-          href="{% static 'libs/richtexteditor/rte_theme_default.css' %}" />
+    <!-- <link rel="stylesheet" -->
+    <!--       href="{% static 'libs/richtexteditor/rte_theme_default.css' %}" /> -->
     <div class="row">
         <div class="col">
             <div class="card mb-3">
+                <div class="card-body m-0 p-1">
+                    <div class="float-end">
+                        <button class="btn btn-link"
+                                data-bs-toggle="modal"
+                                data-bs-target="#varsModal">
+                            <i class='bx bx-message-square-add'></i>
+                        </button>
+                        <button class="btn btn-link" onclick="save()">
+                            <i class='bx bx-save'></i>
+                        </button>
+                    </div>
+                    <h3 class="card-title p-2">
+                        {{ template.module }} /
+                        {{ template.template }} /
+                        {{ template.language }}
+                    </h3>
+                </div>
                 <form enctype="multipart/form-data" method="post" id="form">
                     {% csrf_token %}
                     {% crispy form %}
                 </form>
-                <div id="editor">{{ content|safe }}</div>
+            </div>
+        </div>
+        <div class="modal fade"
+             id="varsModal"
+             tabindex="-1"
+             aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Template variables</h1>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div>Template variables are patterns to be replaced by real data when the template is used.</div>
+                        <ul class="list-group">
+                            {% for v in vars %}
+                                <li class="list-group-item"
+                                    onclick="insertText('{{ v.pattern }}')"
+                                    data-bs-dismiss="modal">
+                                    <span class="text-primary">{{ v.pattern }}</span>
+                                    <i class='bx bx-right-arrow-alt'></i>
+                                    <span class="text-success">{{ v.var_name }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -29,6 +77,8 @@
             {%endfor%}
         ];
     </script>
-    <script src="{%static 'libs/richtexteditor/rte.js'%}"></script>
-    <script src="{%static 'assets/js/texteditor.js'%}"></script>
+    <!-- <script src="{%static 'libs/richtexteditor/rte.js'%}"></script> -->
+    <!-- <script src="{%static 'assets/js/texteditor.js'%}"></script> -->
+    <script src="{%static 'libs/ckeditor/ckeditor.js'%}"></script>
+    <script src="{%static 'assets/js/ckeditor.js'%}"></script>
 {% endblock content %}
