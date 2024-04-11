@@ -115,7 +115,7 @@ class MenuItem:
             return True
 
         for c in self.children:
-            if c.has_perms(request):
+            if c.should_render(request):
                 return True
 
         return False
