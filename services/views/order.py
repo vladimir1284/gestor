@@ -133,8 +133,43 @@ def list_order(request):
         pos_null=False,
         pos_storate=False,
     )
-    context.setdefault("stage", "Terminated")
-    context.setdefault("alternative_view", "list-service-order-terminated")
+    context.setdefault(
+        "alternative_views",
+        [
+            {
+                "view": "list-service-order-terminated",
+                "text": "Terminated",
+            },
+            # {
+            #     "view": "list-service-order-terminated-on-pos",
+            #     "text": "Ready to release",
+            # },
+        ],
+    )
+    return render(request, "services/order_list.html", context)
+
+
+@login_required
+def list_terminated_order_on_pos(request):
+    context = prepareListOrder(
+        request,
+        ("complete", "decline", "payment_pending"),
+        pos_null=False,
+        pos_storate=False,
+    )
+    context.setdefault(
+        "alternative_views",
+        [
+            {
+                "view": "list-service-order",
+                "text": "Active",
+            },
+            {
+                "view": "list-service-order-terminated",
+                "text": "Terminated",
+            },
+        ],
+    )
     return render(request, "services/order_list.html", context)
 
 
@@ -150,8 +185,19 @@ def list_terminated_order(request, year=None, month=None):
         request, ("complete", "decline",
                   "payment_pending"), currentYear, currentMonth
     )
-    context.setdefault("stage", "Active")
-    context.setdefault("alternative_view", "list-service-order")
+    context.setdefault(
+        "alternative_views",
+        [
+            {
+                "view": "list-service-order",
+                "text": "Active",
+            },
+            # {
+            #     "view": "list-service-order-terminated-on-pos",
+            #     "text": "Ready to release",
+            # },
+        ],
+    )
 
     context.setdefault("previousMonth", previousMonth)
     context.setdefault("currentMonth", currentMonth)
