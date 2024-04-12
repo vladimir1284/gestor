@@ -8,11 +8,7 @@ from template_admin.models.template import Template
 
 def get_order_conditions(preorder: Preorder, ctx):
     language = LANG_ES
-    if (
-        preorder.preorder_data is not None
-        and preorder.preorder_data.associated is not None
-        and preorder.preorder_data.associated.language == LANG_EN
-    ):
+    if preorder.associated is not None and preorder.associated.language == LANG_EN:
         language = LANG_EN
 
     template = Template.objects.filter(
@@ -24,22 +20,3 @@ def get_order_conditions(preorder: Preorder, ctx):
         return None
 
     return template.render_template(ctx)
-    #     client_name=(
-    #         None
-    #         if preorder.preorder_data is None
-    #         or preorder.preorder_data.associated is None
-    #         else preorder.preorder_data.associated.name
-    #     ),
-    #     client_phone=(
-    #         None
-    #         if preorder.preorder_data is None
-    #         or preorder.preorder_data.associated is None
-    #         else preorder.preorder_data.associated.phone_number
-    #     ),
-    #     client_email=(
-    #         None
-    #         if preorder.preorder_data is None
-    #         or preorder.preorder_data.associated is None
-    #         else preorder.preorder_data.associated.email
-    #     ),
-    # )

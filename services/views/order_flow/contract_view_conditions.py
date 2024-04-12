@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 
 from services.models import Order
+from services.models.order_signature import OrderSignature
 from services.models.preorder import Preorder
 from services.tools.get_order_conditions import get_order_conditions
 
@@ -29,23 +30,31 @@ def contact_view_conditions(request, token):
         return render(request, "rent/client/lessee_form_err.html", context)
 
     preorder: Preorder = get_object_or_404(Preorder, id=preorder_id)
+    preorder.new_associated = False
+    preorder.save()
+
     if request.method == "POST":
         preorder.completed = False
         preorder.save()
         return redirect("process-ended-page")
 
-    signature = preorder.preorder_data.signature
+    old_sign = (
+        OrderSignature.objects.filter(associated=preorder.associated).last()
+        if preorder.associated is not None and preorder.signature is None
+        else None
+    )
+    signature = preorder.signature
 
     HasOrders = (
-        Order.objects.filter(
-            associated=preorder.preorder_data.associated).exists()
-        if preorder.preorder_data.associated is not None
+        Order.objects.filter(associated=preorder.associated).exists()
+        if preorder.associated is not None
         else False
     )
 
     context = {
         "signature": signature,
-        "client": preorder.preorder_data.associated,
+        "old_sign": old_sign,
+        "client": preorder.associated,
         "hasOrder": HasOrders,
         "token": token,
     }

@@ -13,7 +13,6 @@ from rent.models.vehicle import TrailerPicture
 from rent.tools.client import compute_client_debt
 from services.models import Order
 from services.models.preorder import Preorder
-from services.models.preorder_data import PreorderData
 from services.tools.order import getRepairDebt
 from services.views.category import get_object_or_404
 from users.models import Company
@@ -28,16 +27,9 @@ def view_contract_details(request, id):
             name="Towithouston",
             defaults={"name": "Towithouston"},
         )
-        preorder_data = PreorderData.objects.filter(
-            associated=contract.lessee,
-        ).last()
-        if preorder_data is None:
-            preorder_data = PreorderData.objects.create(
-                associated=contract.lessee,
-            )
 
         preorder: Preorder = Preorder(
-            preorder_data=preorder_data,
+            associated=contract.lessee,
             trailer=contract.trailer,
             company=towit,
         )
@@ -56,8 +48,7 @@ def view_contract_details(request, id):
         rental_debt = debs
         rental_last_payment = unpaid[0].start
 
-    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(
-        contract.lessee)
+    repair_debt, repair_overdue, repair_weekly_payment = getRepairDebt(contract.lessee)
 
     last_order = (
         Order.objects.filter(

@@ -31,11 +31,7 @@ def lessee_form(request, token):
 
     preorder: Preorder = get_object_or_404(Preorder, id=preorder_id)
 
-    associated = (
-        preorder.preorder_data.associated
-        if preorder.preorder_data is not None
-        else None
-    )
+    associated = preorder.associated
 
     if request.method == "POST":
         form = LesseeContactForm(

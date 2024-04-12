@@ -6,23 +6,17 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.views.decorators.debug import HttpRequest
 
 from services.forms import OrderSignatureForm
 from services.models.order_signature import OrderSignature
 from services.models.preorder import Preorder
-from services.models.preorder_data import PreorderData
 
 
 @login_required
 def create_handwriting(request, id):
     preorder: Preorder = get_object_or_404(Preorder, id=id)
-    if preorder.preorder_data is None:
-        preorder_data = PreorderData()
-        preorder_data.save()
-        preorder.preorder_data = preorder_data
-        preorder.save()
-
-    signature = preorder.preorder_data.signature
+    signature = preorder.signature
 
     if request.method == "POST":
         form = OrderSignatureForm(
@@ -32,7 +26,7 @@ def create_handwriting(request, id):
         )
         if form.is_valid():
             handwriting: OrderSignature = form.save(commit=False)
-            handwriting.associated = preorder.preorder_data.associated
+            handwriting.associated = preorder.associated
             handwriting.position = "signature_order_client"
 
             # Save image
@@ -49,8 +43,8 @@ def create_handwriting(request, id):
                     form.instance.img.save(name, temp_file, True)
 
             handwriting.save()
-            preorder.preorder_data.signature = handwriting
-            preorder.preorder_data.save()
+            preorder.signature = handwriting
+            preorder.save()
             return redirect("view-conditions", id)
     else:
         form = OrderSignatureForm(instance=signature)
@@ -61,3 +55,18 @@ def create_handwriting(request, id):
         "preorder": id,
     }
     return render(request, "services/signature.html", context)
+
+
+@login_required
+def use_old_sign(request: HttpRequest, id):
+    preorder: Preorder = get_object_or_404(Preorder, id=id)
+
+    old_sign = (
+        OrderSignature.objects.filter(associated=preorder.associated).last()
+        if preorder.associated is not None
+        else None
+    )
+    preorder.signature = old_sign
+    preorder.new_associated = False
+    preorder.save()
+    return redirect("view-conditions", id)

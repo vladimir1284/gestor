@@ -20,12 +20,9 @@ def create_order(request, id):
     # redirect him to view_conditions
     if (
         preorder.using_signature
-        and preorder.preorder_data is not None
-        and preorder.preorder_data.signature is None
-        and preorder.preorder_data.associated is not None
-        and not Order.objects.filter(
-            associated=preorder.preorder_data.associated
-        ).exists()
+        and preorder.signature is None
+        and preorder.associated is not None
+        # and not Order.objects.filter(associated=preorder.associated).exists()
     ):
         return redirect("view-conditions")
 
@@ -35,11 +32,7 @@ def create_order(request, id):
     request.session["all_selected"] = True
     order = Order()
     if preorder.creating_order:
-        order.associated = (
-            None
-            if preorder.preorder_data is None
-            else preorder.preorder_data.associated
-        )
+        order.associated = preorder.associated
         order.company = preorder.company
         order.trailer = preorder.trailer
         initial["concept"] = preorder.concept
@@ -53,11 +46,7 @@ def create_order(request, id):
             order.created_by = request.user
 
             # Link the client to order
-            order.associated = (
-                None
-                if preorder.preorder_data is None
-                else preorder.preorder_data.associated
-            )
+            order.associated = preorder.associated
 
             # Set the equipment type in the order
             order.equipment_type = preorder.equipment_type

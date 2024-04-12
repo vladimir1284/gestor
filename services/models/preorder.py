@@ -2,7 +2,8 @@ from django.db import models
 
 from equipment.models import Vehicle
 from rent.models.vehicle import Trailer
-from services.models.preorder_data import PreorderData
+from services.models.order_signature import OrderSignature
+from users.models import Associated
 from users.models import Company
 from utils.models import Order
 
@@ -19,11 +20,18 @@ ORDER_CONCEPT = [
 
 
 class Preorder(models.Model):
-    preorder_data = models.ForeignKey(
-        PreorderData,
+    associated = models.ForeignKey(
+        Associated,
         on_delete=models.SET_NULL,
         null=True,
     )
+    signature = models.ForeignKey(
+        OrderSignature,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
     order = models.ForeignKey(
         Order,
         on_delete=models.SET_NULL,
@@ -57,6 +65,7 @@ class Preorder(models.Model):
     )
     creating_order = models.BooleanField(default=True)
     using_signature = models.BooleanField(default=False)
+    new_associated = models.BooleanField(default=False)
     completed = models.BooleanField(null=True)
 
     @property
@@ -65,6 +74,5 @@ class Preorder(models.Model):
             self.trailer is None
             and self.vehicle is None
             and self.company is None
-            and self.preorder_data is not None
-            and self.preorder_data.associated is not None
+            and self.associated is not None
         )
