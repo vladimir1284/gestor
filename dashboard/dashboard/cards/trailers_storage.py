@@ -63,6 +63,7 @@ def _resolver():
     )
 
     return {
+        "total": orders.count(),
         "client_owns_trailers": clientOwnsTriler,
         "client_rent_trailers": clientRentTriler,
         "just_trailers": justTriler,
