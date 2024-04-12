@@ -15,6 +15,7 @@ def storage(request):
         # .exclude(status="complete")
         # .exclude(status="decline")
     )
+    total = orders.count()
 
     clientOwnsTriler = orders.filter(
         trailer=None,
@@ -47,6 +48,7 @@ def storage(request):
             o.trace.time = (make_aware(datetime.now()) - o.trace.date).days
 
     context = {
+        "total": total,
         "client_owns_trailers": clientOwnsTriler,
         "client_rent_trailers": clientRentTriler,
         "just_trailers": justTriler,
