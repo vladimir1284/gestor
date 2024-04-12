@@ -14,9 +14,8 @@ from .views import transaction
 from services.tools.init_conditions import init_conditions
 from services.views.order_decline_reazon import order_decline_reazon
 from services.views.order_flow.contact_form import lessee_form
-from services.views.order_flow.contract_client_signature import (
-    contact_create_handwriting,
-)
+from services.views.order_flow.contract_client_signature import contact_create_handwriting
+from services.views.order_flow.contract_client_signature import contract_client_use_old_sign
 from services.views.order_flow.contract_end import process_ended_page
 from services.views.order_flow.contract_view_conditions import contact_view_conditions
 from services.views.order_flow.create_order_contract import create_order_contact
@@ -31,6 +30,7 @@ from services.views.order_flow.select_lessee import select_lessee
 from services.views.order_flow.select_lessee import select_lessee_trailer
 from services.views.order_flow.select_unrented_trailer import select_unrented_trailer
 from services.views.order_flow.signature import create_handwriting
+from services.views.order_flow.signature import use_old_sign
 from services.views.order_flow.start_flow import select_order_flow
 from services.views.order_flow.view_conditions import view_conditions
 from services.views.order_flow.view_contract_details import view_contract_details
@@ -109,6 +109,12 @@ urlpatterns = [
     path("select-client/", select_client, name="select-service-client"),
     # path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
     path("view-conditions/<id>", view_conditions, name="view-conditions"),
+    path("use-old-sign/<id>", use_old_sign, name="use-old-sign"),
+    path(
+        "contract-client-use-old-sign/<token>",
+        contract_client_use_old_sign,
+        name="contract-client-use-old-sign",
+    ),
     path(
         "view-preorder-state/<preorder_id>",
         preorder_state,
@@ -183,8 +189,7 @@ urlpatterns = [
         {"msg": ""},
         name="detail-service-order",
     ),
-    path("detail-order/<id>/<msg>/", order.detail_order,
-         name="detail-service-order"),
+    path("detail-order/<id>/<msg>/", order.detail_order, name="detail-service-order"),
     path(
         "order-send-invoice/<id>",
         order.send_invoice_email,
@@ -236,8 +241,7 @@ urlpatterns = [
     path("pdf-labor/<id>", labor.generate_labor, name="pdf-labor"),
     path("html-labor/<id>", labor.html_labor, name="html-labor"),
     # -------------------- Expense ----------------------------
-    path("create-expense/<order_id>",
-         expense.create_expense, name="create-expense"),
+    path("create-expense/<order_id>", expense.create_expense, name="create-expense"),
     path("update-expense/<id>", expense.update_expense, name="update-expense"),
     path("delete-expense/<id>", expense.delete_expense, name="delete-expense"),
     # -------------------- Picture ----------------------------

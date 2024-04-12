@@ -41,7 +41,7 @@ def contact_create_handwriting(request, token):
                 id=preorder_id,
             )
             handwriting: OrderSignature = form.save(commit=False)
-            handwriting.associated = preorder.preorder_data.associated
+            handwriting.associated = preorder.associated
             handwriting.position = "signature_order_client"
 
             # Save image
@@ -58,8 +58,8 @@ def contact_create_handwriting(request, token):
                     handwriting.img.save(name, temp_file, True)
 
             handwriting.save()
-            preorder.preorder_data.signature = handwriting
-            preorder.preorder_data.save()
+            preorder.signature = handwriting
+            preorder.save()
             request.session["signature"] = handwriting.id
             return redirect("contact-view-conditions", token)
     else:
@@ -72,3 +72,35 @@ def contact_create_handwriting(request, token):
         "back": reverse("contact-view-conditions", args=[token]),
     }
     return render(request, "services/signature.html", context)
+
+
+def contract_client_use_old_sign(request, token):
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        preorder_id = info["preorder"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_err.html", context)
+
+    preorder: Preorder = get_object_or_404(Preorder, id=preorder_id)
+
+    old_sign = (
+        OrderSignature.objects.filter(associated=preorder.associated).last()
+        if preorder.associated is not None
+        else None
+    )
+    preorder.signature = old_sign
+    preorder.new_associated = False
+    preorder.save()
+    return redirect("contact-view-conditions", token)

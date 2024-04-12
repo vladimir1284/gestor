@@ -17,23 +17,19 @@ from services.views.order_flow.fast_orders import Preorder
 @login_required
 def generate_url(request, id):
     preorder: Preorder = get_object_or_404(Preorder, id=id)
+    preorder.completed = None
+    preorder.save()
 
     if request.method == "POST":
         return redirect("view-conditions", id)
 
     phone = (
-        preorder.preorder_data.associated.phone_number
-        if preorder.preorder_data is not None
-        and preorder.preorder_data.associated is not None
-        else None
+        preorder.associated.phone_number if preorder.associated is not None else None
     )
     exp = datetime.utcnow() + timedelta(hours=2)
     context = {
         "preorder": preorder.id,
-        "name": preorder.preorder_data.associated.name
-        if preorder.preorder_data is not None
-        and preorder.preorder_data.associated is not None
-        else "",
+        "name": (preorder.associated.name if preorder.associated is not None else ""),
         "phone": str(phone) if phone is not None else "",
         "exp": exp,
     }
@@ -41,7 +37,10 @@ def generate_url(request, id):
     token = jwt.encode(context, settings.SECRET_KEY, algorithm="HS256")
 
     url_base = "{}://{}".format(request.scheme, request.get_host())
-    url = url_base + reverse("service-order-contact-form", args=[token])
+    if preorder.new_associated:
+        url = url_base + reverse("service-order-contact-form", args=[token])
+    else:
+        url = url_base + reverse("contact-view-conditions", args=[token])
     context["url"] = url
 
     if phone is not None:

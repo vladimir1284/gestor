@@ -61,24 +61,42 @@
                 </li>
             </ol>
         {% endif %}
-        <p class="bottom-three">
-            <strong>Cliente</strong>:
-        </p>
-        <section id="signature_lessee">
-            {% if pdf %}
-            {% else %}
-                <a class="signature_btn"
-                   href="{% url 'client-service-order-signature' preorder %}">
-                    <button type="button" class="btn btn-icon btn-primary">
-                        <span class="tf-icons bx bx-edit"></span>
-                    </button>
-                </a>
+        <div class="d-flex justify-content-between">
+            <div>
+                <p class="bottom-three">
+                    <strong>Cliente</strong>:
+                </p>
+                <section id="signature_lessee">
+                    {% if pdf %}
+                    {% else %}
+                        <a class="signature_btn"
+                           href="{% url 'client-service-order-signature' preorder %}">
+                            <button type="button" class="btn btn-icon btn-primary">
+                                <span class="tf-icons bx bx-edit"></span>
+                            </button>
+                        </a>
+                    {% endif %}
+                    {% if signature.img %}<img class="signature" src="{{ signature.img.url }}">{% endif %}
+                </section>
+                <p class="bottom-three-left-two">
+                    <mark>{{ client }}</mark>
+                </p>
+            </div>
+            {% if old_sign %}
+                <div>
+                    <p class="bottom-three">
+                        <strong>You can use this signature</strong>:
+                    </p>
+                    <section id="signature_lessee">
+                        {% if old_sign.img %}<img class="signature" src="{{ old_sign.img.url }}">{% endif %}
+                    </section>
+                    <div class="text-center">
+                        <a href="{% url 'use-old-sign' preorder %}"
+                           class="btn btn-outline-primary">Use this signature</a>
+                    </div>
+                </div>
             {% endif %}
-            {% if signature.img %}<img class="signature" src="{{ signature.img.url }}">{% endif %}
-        </section>
-        <p class="bottom-three-left-two">
-            <mark>{{ client }}</mark>
-        </p>
+        </div>
     </div>
 {% endblock Cards %}
 {% block createVisibility %}
