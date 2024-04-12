@@ -183,14 +183,18 @@ urlpatterns = [
         {"msg": ""},
         name="detail-service-order",
     ),
-    path("detail-order/<id>/<msg>/", order.detail_order,
-         name="detail-service-order"),
+    path("detail-order/<id>/<msg>/", order.detail_order, name="detail-service-order"),
     path(
         "order-send-invoice/<id>",
         order.send_invoice_email,
         name="service-order-send-invoice",
     ),
     path("list-order/", order.list_order, name="list-service-order"),
+    path(
+        "list-terminated-order-on-pos/",
+        order.list_terminated_order_on_pos,
+        name="list-service-order-terminated-on-pos",
+    ),
     path(
         "list-terminated-order/",
         order.list_terminated_order,
@@ -236,8 +240,7 @@ urlpatterns = [
     path("pdf-labor/<id>", labor.generate_labor, name="pdf-labor"),
     path("html-labor/<id>", labor.html_labor, name="html-labor"),
     # -------------------- Expense ----------------------------
-    path("create-expense/<order_id>",
-         expense.create_expense, name="create-expense"),
+    path("create-expense/<order_id>", expense.create_expense, name="create-expense"),
     path("update-expense/<id>", expense.update_expense, name="update-expense"),
     path("delete-expense/<id>", expense.delete_expense, name="delete-expense"),
     # -------------------- Picture ----------------------------
