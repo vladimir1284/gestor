@@ -46,7 +46,8 @@ def update_order(request, id):
 
     if request.method == "POST":
         # pass the object as instance in form
-        form = OrderCreateForm(request.POST, instance=order, get_plate=order.external)
+        form = OrderCreateForm(
+            request.POST, instance=order, get_plate=order.external)
 
         # save the data from the form and
         # redirect to detail_view
@@ -55,7 +56,8 @@ def update_order(request, id):
             return redirect("detail-service-order", id)
 
     # add form dictionary to context
-    context = {"form": form, "order": order, "title": _("Update service order")}
+    context = {"form": form, "order": order,
+               "title": _("Update service order")}
 
     return render(request, "services/order_create.html", context)
 
@@ -138,10 +140,10 @@ def list_order(request):
                 "view": "list-service-order-terminated",
                 "text": "Terminated",
             },
-            {
-                "view": "list-service-order-terminated-on-pos",
-                "text": "Ready to release",
-            },
+            # {
+            #     "view": "list-service-order-terminated-on-pos",
+            #     "text": "Ready to release",
+            # },
         ],
     )
     return render(request, "services/order_list.html", context)
@@ -180,7 +182,8 @@ def list_terminated_order(request, year=None, month=None):
     ) = getMonthYear(month, year)
 
     context = preparePaginatedListOrder(
-        request, ("complete", "decline", "payment_pending"), currentYear, currentMonth
+        request, ("complete", "decline",
+                  "payment_pending"), currentYear, currentMonth
     )
     context.setdefault(
         "alternative_views",
@@ -189,10 +192,10 @@ def list_terminated_order(request, year=None, month=None):
                 "view": "list-service-order",
                 "text": "Active",
             },
-            {
-                "view": "list-service-order-terminated-on-pos",
-                "text": "Ready to release",
-            },
+            # {
+            #     "view": "list-service-order-terminated-on-pos",
+            #     "text": "Ready to release",
+            # },
         ],
     )
 
@@ -242,7 +245,8 @@ def prepareListOrder(
         )
 
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
-    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
+    orders = sorted(orders, key=lambda x: 0 if x.status ==
+                    "payment_pending" else 1)
 
     statuses = set()
     for order in orders:
@@ -261,7 +265,8 @@ def preparePaginatedListOrder(request, status_list, currentYear, currentMonth):
         created_date__month=currentMonth,
     ).order_by("-created_date")
 
-    orders = sorted(orders, key=lambda x: 0 if x.status == "payment_pending" else 1)
+    orders = sorted(orders, key=lambda x: 0 if x.status ==
+                    "payment_pending" else 1)
 
     # orders = sorted(orders, key=lambda x: STATUS_ORDER.index(x.status))
     statuses = set()
@@ -324,7 +329,8 @@ def detail_order(request, id, msg=None):
 
     if context["terminated"]:
         # Payments
-        context.setdefault("payments", Payment.objects.filter(order=context["order"]))
+        context.setdefault(
+            "payments", Payment.objects.filter(order=context["order"]))
 
     # partsFilter = request.GET['parts_filter'] if 'parts_filter' in request.GET else ''
     # servicesFilter = request.GET['services_filter'] if 'services_filter' in request.GET else ''
