@@ -8,7 +8,6 @@ CONTACT_FORM_URL = {
 
 
 def sendSMSLesseeContactURL(to: str, url: str, lang: str = "spanish"):
-    print(to)
     body = CONTACT_FORM_URL[lang].format(url)
     sendSMS(to, body)
 
