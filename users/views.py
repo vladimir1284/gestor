@@ -6,6 +6,7 @@ import pytz
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404
@@ -116,6 +117,15 @@ def update_user(request, id):
     context = {"form": form, "user_form": userCform}
 
     return render(request, "users/user_update.html", context)
+
+
+@login_required
+def create_user_profile(request, id):
+    user = get_object_or_404(User, id=id)
+    profile = UserProfile.objects.filter(user=user).last()
+    if profile is None:
+        profile = UserProfile.objects.create(user=user)
+    return redirect("update-user", profile.id)
 
 
 @permission_required("auth.user.can_add_user")

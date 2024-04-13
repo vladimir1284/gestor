@@ -28,7 +28,7 @@ def user_create(request: HttpRequest):
     context = {
         "form": form,
         "pwf": pwf,
-        "user": None,
+        "user_instance": None,
         "title": "New user",
     }
     return render(request, "rbac/user_form.html", context)
@@ -49,7 +49,7 @@ def user_update(request: HttpRequest, id=None):
     context = {
         "form": form,
         "pwf": None,
-        "user": user,
+        "user_instance": user,
         "title": "Editing user",
     }
     return render(request, "rbac/user_form.html", context)
