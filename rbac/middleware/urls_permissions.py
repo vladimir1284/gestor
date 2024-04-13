@@ -1,4 +1,4 @@
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth import PermissionDenied
 
 from menu.menu.menu_element import HttpRequest
 from rbac.tools.get_url_perm import get_url_perm
@@ -17,7 +17,8 @@ class UrlsPermissions:
             if user is None or not user.has_perm(
                 f"{perm.content_type.app_label}.{perm.codename}"
             ):
-                return redirect_to_login(next=url)
+                # return redirect_to_login(next=url)
+                raise PermissionDenied
 
         response = self.get_response(request)
         return response
