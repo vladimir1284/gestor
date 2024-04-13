@@ -145,39 +145,22 @@ class Order(models.Model):
         )
 
 
-class OrderDeclineReazon(models.Model):
-    DECLINE_REAZON = [
-        ("no_money", "No tiene dinero"),
-        ("price", "No está de acuerdo con el precio"),
-        ("later", "Lo va a hacer más adelante"),
-        ("wait", "No puede esperar"),
-        ("conditions", "No está de acuerdo con los terminos"),
-        ("data_error", "Error en los datos"),
-    ]
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    decline_reazon = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True,
-        choices=DECLINE_REAZON,
-    )
-    note = models.TextField(
-        blank=True,
-        null=True,
-    )
-
-    def get_decline_reazon(self) -> str:
-        for r in self.DECLINE_REAZON:
-            if r[0] == self.decline_reazon:
-                return r[1]
-        return "UNKNOWN"
+@receiver(models.signals.post_save, sender=Order)
+def on_create(sender, instance, created, **kwargs):
+    if created and instance.position == 0:
+        trace = OrderTrace(
+            order=instance,
+            trace="storage_in",
+            status=instance.status,
+            reason=instance.storage_reason,
+        )
+        trace.save()
 
 
 @receiver(models.signals.pre_save, sender=Order)
 def on_field_change(sender, instance, **kwargs):
-    try:
-        old_order = Order.objects.get(id=instance.id)
-    except Exception:
+    old_order = Order.objects.filter(id=instance.id).last()
+    if old_order is None:
         return
 
     if old_order.position != instance.position:
@@ -207,6 +190,34 @@ def on_field_change(sender, instance, **kwargs):
             reason=instance.storage_reason,
         )
         trace.save()
+
+
+class OrderDeclineReazon(models.Model):
+    DECLINE_REAZON = [
+        ("no_money", "No tiene dinero"),
+        ("price", "No está de acuerdo con el precio"),
+        ("later", "Lo va a hacer más adelante"),
+        ("wait", "No puede esperar"),
+        ("conditions", "No está de acuerdo con los terminos"),
+        ("data_error", "Error en los datos"),
+    ]
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    decline_reazon = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=DECLINE_REAZON,
+    )
+    note = models.TextField(
+        blank=True,
+        null=True,
+    )
+
+    def get_decline_reazon(self) -> str:
+        for r in self.DECLINE_REAZON:
+            if r[0] == self.decline_reazon:
+                return r[1]
+        return "UNKNOWN"
 
 
 class Transaction(models.Model):
