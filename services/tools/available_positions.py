@@ -12,8 +12,11 @@ def get_available_positions(
     availables: bool = False,
     just_current_pos: bool = False,
     invert_order: bool = False,
+    unselected: bool = False,
 ):
     options = []
+    if unselected:
+        options.append((-10, "---"))
     availables_pos = False
 
     if invert_order:
