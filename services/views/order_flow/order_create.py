@@ -24,7 +24,7 @@ def create_order(request, id):
         and preorder.associated is not None
         # and not Order.objects.filter(associated=preorder.associated).exists()
     ):
-        return redirect("view-conditions")
+        return redirect("view-conditions", id)
 
     initial = {
         "concept": preorder.concept,
