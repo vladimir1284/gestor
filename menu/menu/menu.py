@@ -133,6 +133,15 @@ MENU = [
         ),
     ),
     MenuItem(
+        name="Taller",
+        icon="bxs-car-mechanic",
+        url="service-order-on-pos",
+        self_perm=PermissionParam(
+            code="service_order_on_pos",
+            name="Ordenes de servicio en el taller",
+        ),
+    ),
+    MenuItem(
         name="Configuración",
         i18n="Account Settings",
         icon="bx-cog",
