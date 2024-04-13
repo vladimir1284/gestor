@@ -16,17 +16,20 @@ def order_update_position(
     args: list = [],
 ):
     order = get_object_or_404(Order, id=id)
-    if status == "decline":
-        order.position = None
-        order.save()
-        return redirect("list-service-order")
+    # if status == "decline":
+    #     order.position = None
+    #     order.save()
+    #     return redirect("list-service-order")
 
     if status == "complete" and order.position is None:
         return redirect("process-payment", id)
 
     if request.method == "POST":
         form = OrderEndUpdatePositionForm(
-            request.POST, order=order, status=status)
+            request.POST,
+            order=order,
+            status=status,
+        )
         if form.is_valid():
             pos = form.cleaned_data["position"]
             reason = form.cleaned_data["reason"]
