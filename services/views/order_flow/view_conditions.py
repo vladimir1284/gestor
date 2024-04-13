@@ -3,7 +3,6 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 
-from services.models import Order
 from services.models.order_signature import OrderSignature
 from services.models.preorder import Preorder
 from services.tools.get_order_conditions import get_order_conditions
@@ -26,18 +25,10 @@ def view_conditions(request, id):
 
     signature = OrderSignature()
 
-    HasOrders = (
-        Order.objects.filter(
-            associated=preorder.associated,
-        ).exists()
-        if preorder.associated is not None
-        else False
-    )
-
     context = {
         "signature": signature,
         "client": preorder.associated,
-        "hasOrder": HasOrders,
+        "hasOrder": False,
         "preorder": id,
         "old_sign": old_sign,
     }
