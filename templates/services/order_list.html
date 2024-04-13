@@ -5,28 +5,26 @@
     Service Orders
 {% endblock title %}
 {% block nav %}
-    {% if stage == 'Active' %}
-        {% if previousYear and previousMonth %}
-            <!-- Month -->
-            <div class="text-center">
-                <div class="demo-inline-spacing pb-3">
+    {% if previousYear and previousMonth %}
+        <!-- Month -->
+        <div class="text-center">
+            <div class="demo-inline-spacing pb-3">
+                <a type="button"
+                   href="{% url 'list-service-order-terminated' previousYear previousMonth %}"
+                   class="btn btn-icon btn-outline-primary">
+                    <span class="tf-icons bx bx-chevron-left"></span>
+                </a>
+                <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
+                {% if thisMonth == currentMonth and thisYear == currentYear %}
+                {% else %}
                     <a type="button"
-                       href="{% url 'list-service-order-terminated' previousYear previousMonth %}"
+                       href="{% url 'list-service-order-terminated' nextYear nextMonth %}"
                        class="btn btn-icon btn-outline-primary">
-                        <span class="tf-icons bx bx-chevron-left"></span>
+                        <span class="tf-icons bx bx-chevron-right"></span>
                     </a>
-                    <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
-                    {% if thisMonth == currentMonth and thisYear == currentYear %}
-                    {% else %}
-                        <a type="button"
-                           href="{% url 'list-service-order-terminated' nextYear nextMonth %}"
-                           class="btn btn-icon btn-outline-primary">
-                            <span class="tf-icons bx bx-chevron-right"></span>
-                        </a>
-                    {% endif %}
-                </div>
+                {% endif %}
             </div>
-        {% endif %}
+        </div>
     {% endif %}
 {% endblock nav %}
 {% block Ttitle %}
@@ -41,11 +39,11 @@
                 </a>
             {% endfor %}
             {%comment%}
-                        <a href="{% url alternative_view %}"
-                           type="button"
-                           class="btn btn-outline-primary">
-                            <span class="tf-icons bx bx-repost"></span>&nbsp;{{ stage }}
-                    </a>
+                                    <a href="{% url alternative_view %}"
+                                       type="button"
+                                       class="btn btn-outline-primary">
+                                        <span class="tf-icons bx bx-repost"></span>&nbsp;{{ stage }}
+                            </a>
         {% endcomment %}
     </div>
 </h5>

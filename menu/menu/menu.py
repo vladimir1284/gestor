@@ -118,6 +118,10 @@ MENU = [
         i18n="Sells",
         icon="bx-wrench",
         url="list-service-order",
+        extra_match=[
+            "list-service-order-terminated",
+            "detail-service-order",
+        ],
         self_perm=PermissionParam(
             code="service_order",
             name="Ordenes de servicio",
