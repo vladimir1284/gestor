@@ -34,9 +34,9 @@
                     <i class='bx bx-left-arrow-alt'></i>
                     Cancel
                 </a>
-                {% if user is not None %}
+                {% if user_instance is not None %}
                     <a class="btn btn-outline-primary"
-                       href="{% url 'rbac-user-pass' user.id %}">
+                       href="{% url 'rbac-user-pass' user_instance.id %}">
                         <i class='bx bx-lock-open'></i>
                         Change password
                     </a>
@@ -45,9 +45,9 @@
                     <i class='bx bx-save'></i>
                     Save
                 </button>
-                {% if user is not None %}
+                {% if user_instance is not None %}
                     <a class="btn btn-outline-danger"
-                       href="{% url 'rbac-user-delete' user.id %}">
+                       href="{% url 'rbac-user-delete' user_instance.id %}">
                         <i class="bx bx-trash"></i>
                         Remove
                     </a>
