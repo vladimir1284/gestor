@@ -645,3 +645,9 @@ class OrderDeclineReazonForm(forms.ModelForm):
     class Meta:
         model = OrderDeclineReazon
         fields = ["decline_reazon", "note"]
+
+    def clean_decline_reazon(self):
+        reazon = self.cleaned_data.get("decline_reazon")
+        if reazon is None:
+            raise forms.ValidationError("Please, select a reazon")
+        return reazon
