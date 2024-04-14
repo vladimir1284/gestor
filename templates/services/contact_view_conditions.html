@@ -33,6 +33,7 @@
               href="{% static 'assets/vendor/css/theme-default.css' %}"
               class="template-customizer-theme-css" />
         <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
         <!-- Vendors CSS -->
         <link rel="stylesheet"
               href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
@@ -68,6 +69,11 @@
             .was-validated .form-control:invalid, .form-control.is-invalid {
                 border-color: #ff3e1d;
             }
+
+            .complete-hidden {
+                transform: translateX(200%);
+                box-sizing: border-box;
+            }
         </style>
         <!-- Helpers -->
         <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
@@ -84,8 +90,26 @@
                         {% if signature and signature.img %}
                             <form method='post'>
                                 {% csrf_token %}
-                                <button type="submit" class="float-right btn btn-outline-primary">Finalizar</button>
+                                <button id="complete1" type="submit" class="float-right btn btn-outline-primary transition-all">Finalizar</button>
+                                <button id="complete2" type="submit" class="float-right btn btn-primary transition-all fixed top-4 right-4">Finalizar</button>
                             </form>
+                            <script>
+                                const complete1 = document.getElementById('complete1');
+                                const complete2 = document.getElementById('complete2');
+                                const observer = new IntersectionObserver((entries) => {
+                                    if (entries[0].isIntersecting) {
+                                        //complete2.classList.add('hidden');
+                                        complete2.classList.add('complete-hidden');
+                                    } else {
+                                        //complete2.classList.remove('hidden');
+                                        complete2.classList.remove('complete-hidden');
+                                    }
+                                }, {
+                                    root: null,
+                                    threshold: 0,
+                                });
+                                observer.observe(complete1);
+                            </script>
                         {% endif %}
                     </div>
                     <div class="card-body">
@@ -118,26 +142,28 @@
                                 </li>
                             </ol>
                         {% endif %}
-                        <div class="d-flex justify-content-between">
-                            <div>
+                        <div class="d-flex justify-content-between flex-wrap">
+                            <div class="me-4 mb-4">
                                 <p class="bottom-three">
                                     <strong>Cliente</strong>:
-                                </p>
-                                <section id="signature_lessee">
-                                    {% if pdf %}
-                                    {% else %}
-                                        <a class="signature_btn"
-                                           href="{% url 'contact-client-service-order-signature' token %}">
-                                            <button type="button" class="btn btn-icon btn-primary">
-                                                <span class="tf-icons bx bx-edit"></span>
-                                            </button>
-                                        </a>
-                                    {% endif %}
-                                    {% if signature and signature.img %}<img class="signature" src="{{ signature.img.url }}">{% endif %}
-                                </section>
-                                <p class="bottom-three-left-two">
                                     <mark>{{ client }}</mark>
                                 </p>
+                                <section id="signature_lessee">
+                                    {% if signature.img %}
+                                        <img class="signature" src="{{ signature.img.url }}">
+                                    {% else %}
+                                        <img class="signature" src="{% static 'images/signs/empty.png' %}">
+                                    {% endif %}
+                                </section>
+                                <div class="text-center">
+                                    <a class="signature_btn"
+                                        href="{% url 'contact-client-service-order-signature' token %}">
+                                        <button type="button" class="btn btn-primary">
+                                            <span class="tf-icons bx bx-edit"></span>
+                                            Capture a new signature
+                                        </button>
+                                    </a>
+                                </div>
                             </div>
                             {% if old_sign %}
                                 <div>
