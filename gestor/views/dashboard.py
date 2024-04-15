@@ -13,12 +13,18 @@ from utils.models import Statistics
 
 @login_required
 def dashboard(request):
+    ctx = {
+        "dashboard_cards": DASHBOARD,
+    }
+
+    if "403" in request.session and request.session["403"]:
+        request.session["403"] = None
+        ctx["e403"] = True
+
     return render(
         request,
         "dashboard.html",
-        {
-            "dashboard_cards": DASHBOARD,
-        },
+        ctx,
     )
 
 
