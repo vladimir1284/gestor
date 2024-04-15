@@ -5,3 +5,7 @@
 [x-cloak] {
   display: none !important;
 }
+
+.collapse {
+  visibility: unset;
+}
