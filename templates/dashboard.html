@@ -52,18 +52,22 @@
                 <div role="alert"
                      aria-live="assertive"
                      aria-atomic="true"
-                     class="toast show mb-4"
+                     class="toast show mb-4 relative"
                      style="width:100%"
                      data-bs-autohide="false">
-                    <div class="toast-header">
-                        <strong class="me-auto text-red-500">Access denied</strong>
-                        <small>403</small>
+                    <div class="absolute right-4 top-4">
                         <button type="button"
-                                class="btn-close"
+                                class="btn-close text-red-500"
                                 data-bs-dismiss="toast"
                                 aria-label="Close"></button>
                     </div>
-                    <div class="toast-body">You do not have the necessary permissions to access this URL</div>
+                    <div class="toast-body flex items-center">
+                        <img src="{% static 'assets/img/illustrations/403.png' %}" class="w-80">
+                        <div>
+                            <h1 class="text-red-500">Access denied</h1>
+                            <div>You do not have the necessary permissions to access this URL</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         {% endif %}

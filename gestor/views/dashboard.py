@@ -19,7 +19,7 @@ def dashboard(request):
 
     if "403" in request.session and request.session["403"]:
         request.session["403"] = None
-    ctx["e403"] = True
+        ctx["e403"] = True
 
     return render(
         request,
