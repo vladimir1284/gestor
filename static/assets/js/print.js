@@ -2,7 +2,8 @@ async function printPDF(url, scale = 1) {
     // const pdfjsLib = window["pdfjs-dist/build/pdf"];
 
     // pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "/static/libs/pdf/pdf.worker.mjs";
+    // pdfjsLib.GlobalWorkerOptions.workerSrc = "/static/libs/pdf/pdf.worker.mjs";
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
     const pdf = await pdfjsLib.getDocument(url).promise;
     const totalPages = pdf.numPages;
