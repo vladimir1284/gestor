@@ -5,6 +5,7 @@ from rbac.views.delete_user import delete_user
 from rbac.views.list_roles import list_roles
 from rbac.views.list_users import list_users
 from rbac.views.role_form import role_form
+from rbac.views.role_from_user import new_role_from_user
 from rbac.views.user_change_password import user_change_password
 from rbac.views.user_form import user_create
 from rbac.views.user_form import user_update
@@ -55,5 +56,10 @@ urlpatterns = [
         "user-password/<id>",
         user_change_password,
         name="rbac-user-pass",
+    ),
+    path(
+        "role-from-user/<user_id>/<role_name>",
+        new_role_from_user,
+        name="rbac-role-from-user",
     ),
 ]

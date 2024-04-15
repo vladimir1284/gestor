@@ -150,26 +150,28 @@ def list_order(request):
 
 
 @login_required
-def list_terminated_order_on_pos(request):
+def list_order_on_pos(request):
+    status = [s[0] for s in Order.STATUS_CHOICE]
     context = prepareListOrder(
         request,
-        ("complete", "decline", "payment_pending"),
+        # ("complete", "decline", "payment_pending"),
+        status,
         pos_null=False,
         pos_storate=False,
     )
-    context.setdefault(
-        "alternative_views",
-        [
-            {
-                "view": "list-service-order",
-                "text": "Active",
-            },
-            {
-                "view": "list-service-order-terminated",
-                "text": "Terminated",
-            },
-        ],
-    )
+    # context.setdefault(
+    #     "alternative_views",
+    #     [
+    #         {
+    #             "view": "list-service-order",
+    #             "text": "Active",
+    #         },
+    #         {
+    #             "view": "list-service-order-terminated",
+    #             "text": "Terminated",
+    #         },
+    #     ],
+    # )
     return render(request, "services/order_list.html", context)
 
 

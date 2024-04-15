@@ -7,6 +7,7 @@ from django.shortcuts import render
 
 from menu.menu.menu_element import HttpRequest
 from rbac.forms.user_form import UserForm
+from rbac.tools.get_role_perms import get_role_perms_all
 
 
 @login_required
@@ -15,6 +16,10 @@ def user_create(request: HttpRequest):
         form = UserForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
+
+            perms = get_role_perms_all(form.cleaned_data)
+            user.user_permissions.set(perms)
+
             pwf = SetPasswordForm(user, request.POST)
             if pwf.is_valid():
                 user = pwf.save(commit=False)
@@ -28,7 +33,7 @@ def user_create(request: HttpRequest):
     context = {
         "form": form,
         "pwf": pwf,
-        "user": None,
+        "user_instance": None,
         "title": "New user",
     }
     return render(request, "rbac/user_form.html", context)
@@ -41,7 +46,10 @@ def user_update(request: HttpRequest, id=None):
     if request.method == "POST":
         form = UserForm(request.POST, instance=user)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)
+            perms = get_role_perms_all(form.cleaned_data)
+            user.user_permissions.set(perms)
+            user.save()
             return redirect("rbac-list-users")
     else:
         form = UserForm(instance=user)
@@ -49,7 +57,7 @@ def user_update(request: HttpRequest, id=None):
     context = {
         "form": form,
         "pwf": None,
-        "user": user,
+        "user_instance": user,
         "title": "Editing user",
     }
     return render(request, "rbac/user_form.html", context)

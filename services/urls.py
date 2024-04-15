@@ -14,8 +14,12 @@ from .views import transaction
 from services.tools.init_conditions import init_conditions
 from services.views.order_decline_reazon import order_decline_reazon
 from services.views.order_flow.contact_form import lessee_form
-from services.views.order_flow.contract_client_signature import contact_create_handwriting
-from services.views.order_flow.contract_client_signature import contract_client_use_old_sign
+from services.views.order_flow.contract_client_signature import (
+    contact_create_handwriting,
+)
+from services.views.order_flow.contract_client_signature import (
+    contract_client_use_old_sign,
+)
 from services.views.order_flow.contract_end import process_ended_page
 from services.views.order_flow.contract_view_conditions import contact_view_conditions
 from services.views.order_flow.create_order_contract import create_order_contact
@@ -197,9 +201,9 @@ urlpatterns = [
     ),
     path("list-order/", order.list_order, name="list-service-order"),
     path(
-        "list-terminated-order-on-pos/",
-        order.list_terminated_order_on_pos,
-        name="list-service-order-terminated-on-pos",
+        "service-order-on-pos/",
+        order.list_order_on_pos,
+        name="service-order-on-pos",
     ),
     path(
         "list-terminated-order/",

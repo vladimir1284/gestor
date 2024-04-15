@@ -5,7 +5,7 @@ from django.shortcuts import render
 
 from menu.menu.menu_element import HttpRequest
 from rbac.forms.role_form import RoleForm
-from rbac.tools.get_role_perms import get_role_perms
+from rbac.tools.get_role_perms import get_role_perms_all
 
 
 @login_required
@@ -24,12 +24,7 @@ def role_form(request: HttpRequest, id=None):
 
             group.user_set.set(data["users"])
 
-            perms = []
-            perms += get_role_perms(data, "menu")
-            perms += get_role_perms(data, "urls")
-            perms += get_role_perms(data, "dashboard_card")
-            perms += get_role_perms(data, "extra_perm")
-
+            perms = get_role_perms_all(data)
             group.permissions.set(perms)
 
             group.save()

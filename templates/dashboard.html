@@ -46,35 +46,27 @@
 {% endblock page %}
 {% block content %}
     {% localize on %}
-    {% if e403 %}
-        <div x-data="{open: true}">
-            <div class="modal"
-                 x-show.important="open"
-                 tabindex="-1"
-                 x-on:click="alert(123)"
-                 style="display: block">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Modal title</h5>
-                            <button type="button"
-                                    class="btn-close"
-                                    @click="console.log('lasf')"
-                                    aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Modal body text goes here.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>
-                        </div>
+    <div class="row">
+        {% if e403 %}
+            <div class="col-12">
+                <div role="alert"
+                     aria-live="assertive"
+                     aria-atomic="true"
+                     class="toast show mb-4"
+                     style="width:100%"
+                     data-bs-autohide="false">
+                    <div class="toast-header">
+                        <strong class="me-auto text-red-500">Access denied</strong>
+                        <small>403</small>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="toast"
+                                aria-label="Close"></button>
                     </div>
+                    <div class="toast-body">You do not have the necessary permissions to access this URL</div>
                 </div>
             </div>
-        </div>
-    {% endif %}
-    <div class="row">
+        {% endif %}
         <!--Graph overview-->
         {% for card in dashboard_cards %}
             {% renderDBC card request as card_html %}

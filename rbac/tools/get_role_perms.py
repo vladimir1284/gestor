@@ -13,3 +13,12 @@ def get_role_perms(data: dict, label: str) -> list[Permission]:
             perms.append(perm)
 
     return perms
+
+
+def get_role_perms_all(data: dict) -> list[Permission]:
+    perms = []
+    perms += get_role_perms(data, "menu")
+    perms += get_role_perms(data, "urls")
+    perms += get_role_perms(data, "dashboard_card")
+    perms += get_role_perms(data, "extra_perm")
+    return perms

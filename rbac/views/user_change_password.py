@@ -22,7 +22,7 @@ def user_change_password(request: HttpRequest, id):
 
     context = {
         "form": form,
-        "user": user,
+        "user_instance": user,
         "title": f"Change password for user {user.username}",
     }
     return render(request, "rbac/user_pass.html", context)
