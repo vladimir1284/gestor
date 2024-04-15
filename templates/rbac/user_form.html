@@ -24,9 +24,46 @@
     width: 1.5rem;
     height: 1.5rem;
 }
+
+.loader {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin: 10px 40px;
+  background-color: #08f;
+  box-shadow: 32px 0 #08f, -32px 0 #08f;
+  position: relative;
+  animation: flash 0.5s ease-out infinite alternate;
+}
+
+@keyframes flash {
+  0% {
+    background-color: #08F2;
+    box-shadow: 32px 0 #08F2, -32px 0 #08F;
+  }
+  50% {
+    background-color: #08F;
+    box-shadow: 32px 0 #08F2, -32px 0 #08F2;
+  }
+  100% {
+    background-color: #08F2;
+    box-shadow: 32px 0 #08F, -32px 0 #08F2;
+  }
+}
+      
     </style>
 {% endblock page %}
 {% block content %}
+    <script>
+        window.user_id = {{user_instance.id}}
+        window.newRoleUrl = "{%url 'rbac-role-from-user' user_instance.id 'role_name' %}"
+        window.RoleUrl = "{%url 'rbac-role-form' 'role_id' %}"
+
+        function send() {
+            const form = document.getElementById('user-form')
+            form.submit()
+        }
+    </script>
     <div class="col-xxl">
         <div class="card mb-4">
             <div class="position-absolute top-0 end-0 pe-3 pt-3">
@@ -34,6 +71,13 @@
                     <i class='bx bx-left-arrow-alt'></i>
                     Cancel
                 </a>
+                <button type="button"
+                        class="btn btn-outline-info"
+                        data-bs-toggle="modal"
+                        data-bs-target="#newRoleModal">
+                    <i class='bx bxl-baidu'></i>
+                    New Role
+                </button>
                 {% if user_instance is not None %}
                     <a class="btn btn-outline-primary"
                        href="{% url 'rbac-user-pass' user_instance.id %}">
@@ -67,11 +111,61 @@
             </div>
         </div>
     </div>
-    <script>
-        function send() {
-            const form = document.getElementById('user-form')
-            form.submit()
-        }
-    </script>
+    <!-- Modal -->
+    <div class="modal fade"
+         id="newRoleModal"
+         tabindex="-1"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" x-data="role">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">New Role</h1>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Create a new role with all permission from this user
+                    <template x-if="fail">
+                        <div class="help-block text-danger">
+                            <strong>Role creation fail</strong>
+                        </div>
+                    </template>
+                    <div id="div_id_username" class="form-group mt-4">
+                        <label for="id_username" class="control-label form-label requiredField">Role name</label>
+                        <div class="controls ">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class='bx bxl-baidu'></i>
+                                </span>
+                                <input type="text"
+                                       name="role_name"
+                                       maxlength="150"
+                                       class="textinput form-control"
+                                       x-model="role_name"
+                                       x-ref="roleName"
+                                       id="role_name">
+                            </div>
+                            <template x-if="error != ''">
+                                <div class="help-block text-danger">
+                                    <strong x-text="error">error</strong>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="loader" x-show="loading"></span>
+                    <div x-show="!loading">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" @click="createNewRole">Create</button>
+                    </div>
+                </div>
+                <script src="{% static "assets/js/role_from_user.js"%}"></script>
+            </div>
+        </div>
+    </div>
     <script src='{%static 'assets/js/role-form.js'%}'></script>
 {% endblock content %}
