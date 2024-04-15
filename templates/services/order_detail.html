@@ -526,12 +526,18 @@
             <b>+</b>
         </button>
     </a>
+    <script src="{% static "libs/pdf/pdf.mjs" %}" type="module"></script>
+    <script src="{% static "assets/js/print.js" %}"></script>
     <script>
-        function updateStatus(url, status) {
+        async function updateStatus(url, status) {
             let confirmAction = confirm("Are you sure you want to change the order status to " + status + "?");
-            if (confirmAction) {
-                window.location = url;
+            if (!confirmAction) {
+                return
             }
+            if (status == "processing") {
+                await printPDF("{% url 'pdf-labor' order.id %}", 1.5)
+            }
+            window.location = url;
         }
 
         let round_to, cost, hint, profit, discount;
