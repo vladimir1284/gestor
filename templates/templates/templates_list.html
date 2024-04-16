@@ -7,20 +7,20 @@
     <h5 class="card-header">Templates</h5>
 {% endblock Ttitle %}
 {% block Theader %}
-    <th data-type="string" data-defsort="+">Module</th>
-    <th data-type="string">Template</th>
-    <th data-type="string">Language</th>
+    <th data-type="custom-string" data-defsort="+">Module</th>
+    <th data-type="custom-string">Template</th>
+    <th data-type="custom-string">Language</th>
 {% endblock Theader %}
 {% block Tbody %}
     {% for template in templates %}
         <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
-            <td>
+            <td data-custom="{{ template.module }}">
                 <a href="{% url 'template-edit' template.id %}">{{ template.module }}</a>
             </td>
-            <td>
+            <td data-custom="{{ template.template }}">
                 <a href="{% url 'template-edit' template.id %}">{{ template.template }}</a>
             </td>
-            <td>
+            <td data-custom="{{ template.language }}">
                 <a href="{% url 'template-edit' template.id %}">{{ template.language }}</a>
             </td>
         </tr>
