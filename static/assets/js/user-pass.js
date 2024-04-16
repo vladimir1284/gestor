@@ -2,7 +2,8 @@ function autoGenPass() {
   const length = 10;
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   const digits = "0123456789";
-  const spec = ".-+*%$&#@";
+  // const spec = ".-+*%$&#@";
+  const spec = "+-@#/.&";
   const all = letters + digits + spec;
   let pass = "";
   let hasDig = false;
