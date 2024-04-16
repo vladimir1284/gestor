@@ -1,43 +1,39 @@
+function randomChar(map) {
+  const idx = Math.floor(Math.random() * map.length);
+  return map.charAt(idx);
+}
+
+function choiceEle(els) {
+  const idx = Math.floor(Math.random() * els.length);
+  return els.splice(idx, 1);
+}
+
+function choice(els, map) {
+  if (Math.random() < 0.3) {
+    return choiceEle(els);
+  }
+  return randomChar(map);
+}
+
 function autoGenPass() {
   const length = 10;
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   const digits = "0123456789";
-  // const spec = ".-+*%$&#@";
   const spec = "+-@#/.&";
-  const all = letters + digits + spec;
+  const all = letters + digits;
+
+  const els = [randomChar(letters), randomChar(digits), randomChar(spec)];
+
   let pass = "";
-  let hasDig = false;
-  let hasLet = false;
-  let hasSpe = false;
 
-  for (let i = 0; i < length; i++) {
-    const idx = Math.floor(Math.random() * all.length);
-    const char = all.charAt(idx);
-    pass += char;
+  while (pass.length + els.length < length) {
+    pass += choice(els, all);
+  }
 
-    if (letters.indexOf(char) != -1) {
-      hasLet = true;
-    } else if (digits.indexOf(char) != -1) {
-      hasDig = true;
-    } else if (spec.indexOf(char) != -1) {
-      hasSpe = true;
-    }
+  while (els.length > 0) {
+    pass += choiceEle(els);
   }
-  if (!hasLet) {
-    const idx = Math.floor(Math.random() * letters.length);
-    const char = letters.charAt(idx);
-    pass += char;
-  }
-  if (!hasDig) {
-    const idx = Math.floor(Math.random() * digits.length);
-    const char = digits.charAt(idx);
-    pass += char;
-  }
-  if (!hasSpe) {
-    const idx = Math.floor(Math.random() * spec.length);
-    const char = spec.charAt(idx);
-    pass += char;
-  }
+
   return pass;
 }
 
