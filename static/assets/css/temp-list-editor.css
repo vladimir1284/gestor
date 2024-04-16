@@ -1,0 +1,4 @@
+.content {
+  height: calc(100vh - 280px) !important;
+  overflow-y: auto;
+}

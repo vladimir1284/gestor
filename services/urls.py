@@ -11,7 +11,7 @@ from .views import service
 from .views import sms
 from .views import storage
 from .views import transaction
-from services.tools.init_conditions import init_conditions
+from services.tools.init_temps import init_temps
 from services.views.order_decline_reazon import order_decline_reazon
 from services.views.order_flow.contact_form import lessee_form
 from services.views.order_flow.contract_client_signature import (
@@ -43,7 +43,7 @@ from services.views.picture_capture import create_expense_capture_picture
 from services.views.picture_capture import update_expense_capture_picture
 
 try:
-    init_conditions()
+    init_temps()
 except Exception as e:
     print(e)
 
@@ -193,7 +193,8 @@ urlpatterns = [
         {"msg": ""},
         name="detail-service-order",
     ),
-    path("detail-order/<id>/<msg>/", order.detail_order, name="detail-service-order"),
+    path("detail-order/<id>/<msg>/", order.detail_order,
+         name="detail-service-order"),
     path(
         "order-send-invoice/<id>",
         order.send_invoice_email,
@@ -250,7 +251,8 @@ urlpatterns = [
     path("pdf-labor/<id>", labor.generate_labor, name="pdf-labor"),
     path("html-labor/<id>", labor.html_labor, name="html-labor"),
     # -------------------- Expense ----------------------------
-    path("create-expense/<order_id>", expense.create_expense, name="create-expense"),
+    path("create-expense/<order_id>",
+         expense.create_expense, name="create-expense"),
     path("update-expense/<id>", expense.update_expense, name="update-expense"),
     path("delete-expense/<id>", expense.delete_expense, name="delete-expense"),
     # -------------------- Picture ----------------------------
