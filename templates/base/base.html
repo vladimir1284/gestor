@@ -103,7 +103,9 @@
                         {% block containerFull %}
                             <div class="container-xxl">
                             {% endblock containerFull %}
-                            {% include "base/navbar.html" %}
+                            {% block navbar %}
+                                {% include "base/navbar.html" %}
+                            {% endblock navbar %}
                             <!-- Content wrapper -->
                             <div class="content-wrapper">
                                 <div class="flex-grow-1 container-p-y">
