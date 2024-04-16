@@ -48,24 +48,7 @@ def storage(request):
         if o.trace:
             o.trace.time = (make_aware(datetime.now()) - o.trace.date).days
 
-    onWorkshop = (
-        Order.objects.filter(
-            status__in=[
-                # "pending",
-                # "approved",
-                # "processing",
-                "decline",
-                "payment_pending",
-                "complete",
-            ],
-        )
-        .exclude(
-            position=0,
-        )
-        .exclude(
-            position=None,
-        )
-    )
+    onWorkshop = Order.objects.filter(position__in=[i for i in range(1, 9)])
     for o in onWorkshop:
         if o.terminated_date is not None:
             o.time = (make_aware(datetime.now()) - o.terminated_date).days
