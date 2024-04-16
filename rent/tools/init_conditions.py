@@ -1,4 +1,5 @@
 from template_admin.models.template import Template
+from template_admin.models.template import TT_TEXT
 
 DEF_COND_EN = """
 <p class="center">
@@ -188,6 +189,7 @@ def init_conditions():
         module=MODULE,
         template=TEMPLATE,
         language=LANG_EN,
+        tmp_type=TT_TEXT,
     ).last()
     if temp is None:
         temp = Template.objects.create(
@@ -195,4 +197,5 @@ def init_conditions():
             template=TEMPLATE,
             language=LANG_EN,
             content=DEF_COND_EN,
+            tmp_type=TT_TEXT,
         )

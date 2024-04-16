@@ -1,4 +1,6 @@
 from template_admin.models.template import Template
+from template_admin.models.template import TT_LIST
+from template_admin.models.template import TT_TEXT
 
 
 DEF_COND_ES = """
@@ -32,10 +34,22 @@ DEF_COND_EN = """
 <ol> <li>To start the inspection, there is a charge of $100, which does not include the solution to the problem.</li> <li>Please note that we are not responsible for possible losses of tools or belongings in your trailer during its stay here.</li> <li>We offer a warranty for labor for 30 days, but not for parts.</li> <li>If you decide not to do the work immediately, storage costs $10 a day. This payment is made monthly in advance.</li> <li>The vehicle will remain in our facilities until 100% of the total cost of work and storage has been paid.</li> <li>During the first 72 hours after completing the work, there are no storage charges. After this period, daily rates apply.</li> <li>We strive to be efficient in our work, but if there is urgency, let us know to coordinate in the best possible way.</li> <li>Our service hours are from 8:30 am to 6:00 pm. After this time, we do not perform work under any exception.</li> <li>All rules are mandatory. If you do not agree with any, unfortunately, we will not be able to carry out the service.</li> </ol>
 """
 
+DEF_DEC_REAZON = """
+[
+    "No tiene dinero",
+    "No está de acuerdo con el precio",
+    "Lo va a hacer más adelante",
+    "No puede esperar",
+    "No está de acuerdo con los terminos",
+    "Error en los datos"
+]
+"""
+
 MODULE = "services"
 TEMPLATE = "order-conditions"
 LANG_ES = "spanish"
 LANG_EN = "english"
+DEC_REAZONS = "decline-reazons"
 
 
 def init_conditions():
@@ -44,6 +58,7 @@ def init_conditions():
         module=MODULE,
         template=TEMPLATE,
         language=LANG_ES,
+        tmp_type=TT_TEXT,
     ).last()
     if temp is None:
         temp = Template.objects.create(
@@ -51,6 +66,7 @@ def init_conditions():
             template=TEMPLATE,
             language=LANG_ES,
             content=DEF_COND_ES,
+            tmp_type=TT_TEXT,
         )
 
     # English
@@ -58,6 +74,7 @@ def init_conditions():
         module=MODULE,
         template=TEMPLATE,
         language=LANG_EN,
+        tmp_type=TT_TEXT,
     ).last()
     if temp is None:
         temp = Template.objects.create(
@@ -65,4 +82,27 @@ def init_conditions():
             template=TEMPLATE,
             language=LANG_EN,
             content=DEF_COND_EN,
+            tmp_type=TT_TEXT,
         )
+
+
+def init_decline_reazons():
+    temp = Template.objects.filter(
+        module=MODULE,
+        template=DEC_REAZONS,
+        language=LANG_ES,
+        tmp_type=TT_LIST,
+    ).last()
+    if temp is None:
+        Template.objects.create(
+            module=MODULE,
+            template=DEC_REAZONS,
+            language=LANG_ES,
+            tmp_type=TT_LIST,
+            content=DEF_DEC_REAZON,
+        )
+
+
+def init_temps():
+    init_conditions()
+    init_decline_reazons()

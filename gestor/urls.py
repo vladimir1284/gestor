@@ -22,11 +22,15 @@ from django.urls import path
 from .views import cost
 from .views import dashboard
 from .views import reports
+from gestor.tools.week_stats_recal import initRecalculator
 from rbac.init_permissions import init_permissions
 
 
 def trigger_error(request):
     pass
+
+
+initRecalculator()
 
 
 urlpatterns = [
@@ -56,8 +60,7 @@ urlpatterns = [
         dashboard.week_stats_recalculate,
         name="week-stats-recalculate",
     ),
-    path("erp/weekly-costs/<category_id>/<date>",
-         cost.weekly_cost, name="weekly-cost"),
+    path("erp/weekly-costs/<category_id>/<date>", cost.weekly_cost, name="weekly-cost"),
     # Monthly reports
     path("erp/monthly/", reports.monthly_report, name="monthly-report"),
     path(

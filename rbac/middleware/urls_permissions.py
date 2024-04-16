@@ -17,6 +17,7 @@ class UrlsPermissions:
             if user is None or not user.has_perm(
                 f"{perm.content_type.app_label}.{perm.codename}"
             ):
+                request.session["403"] = True
                 return redirect("dashboard")
                 # return redirect_to_login(next=url)
                 # raise PermissionDenied

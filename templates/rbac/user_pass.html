@@ -12,7 +12,7 @@
     </style>
 {% endblock page %}
 {% block content %}
-    <div class="col-xxl">
+    <div class="col-xxl" x-data="userPass">
         <div class="card mb-4">
             <div class="position-absolute top-0 end-0 pe-3 pt-3">
                 <a class="btn btn-outline-primary"
@@ -20,6 +20,10 @@
                     <i class='bx bx-left-arrow-alt'></i>
                     Cancel
                 </a>
+                <button class="btn btn-outline-warning" @click="randomPass">
+                    <i class='bx bx-dice-5'></i>
+                    Random pass
+                </button>
                 <button class="btn btn-outline-success" onclick="send()">
                     <i class='bx bx-save'></i>
                     Save
@@ -42,4 +46,5 @@
             form.submit()
         }
     </script>
+    <script src='{%static 'assets/js/user-pass.js'%}'></script>
 {% endblock content %}
