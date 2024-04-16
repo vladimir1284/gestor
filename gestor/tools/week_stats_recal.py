@@ -1,3 +1,4 @@
+import inspect
 import time
 from datetime import datetime
 from datetime import timedelta
@@ -36,10 +37,13 @@ def _recalculator():
     while True:
         if len(Queue) > 0:
             date = Queue.pop(0)
-            if isinstance(date, str):
-                date = datetime.strptime(date, "%m%d%Y").date()
-            print("Recal Statistics", date)
-            week_stats_recal(date)
+            try:
+                if isinstance(date, str):
+                    date = datetime.strptime(date, "%m%d%Y").date()
+                print("Recal Statistics", date)
+                week_stats_recal(date)
+            except Exception as e:
+                print(e)
         else:
             time.sleep(5)
 
@@ -56,7 +60,18 @@ def pushRecal(date):
     if date is None or date in Queue:
         return
     if not isinstance(date, str):
-        date = date.date()
+        try:
+            if (
+                hasattr(date, "day")
+                and hasattr(date, "month")
+                and hasattr(date, "year")
+            ):
+                d = date.day() if inspect.ismethod(date.day) else date.day
+                m = date.month() if inspect.ismethod(date.month) else date.month
+                y = date.year() if inspect.ismethod(date.year) else date.year
+                date = f"{m:02}{d:02}{y:04}"
+        except Exception as e:
+            print(e)
     Queue.append(date)
 
 
