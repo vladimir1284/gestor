@@ -78,28 +78,12 @@
   position: relative;
 }
 
-.bottom-0 {
-  bottom: 0px;
-}
-
 .end-0 {
   inset-inline-end: 0px;
 }
 
-.left-0 {
-  left: 0px;
-}
-
-.right-0 {
-  right: 0px;
-}
-
 .right-4 {
   right: 1rem;
-}
-
-.right-\[-0\.3rem\] {
-  right: -0.3rem;
 }
 
 .start-0 {
@@ -114,6 +98,22 @@
   top: 1rem;
 }
 
+.bottom-0 {
+  bottom: 0px;
+}
+
+.left-0 {
+  left: 0px;
+}
+
+.right-0 {
+  right: 0px;
+}
+
+.right-\[-0\.3rem\] {
+  right: -0.3rem;
+}
+
 .top-\[-0\.3rem\] {
   top: -0.3rem;
 }
@@ -122,12 +122,12 @@
   isolation: isolate;
 }
 
-.z-0 {
-  z-index: 0;
-}
-
 .z-50 {
   z-index: 50;
+}
+
+.z-0 {
+  z-index: 0;
 }
 
 .float-right {
@@ -240,10 +240,6 @@
   margin-top: 1rem;
 }
 
-.ml-2 {
-  margin-left: 0.5rem;
-}
-
 .ml-1 {
   margin-left: 0.25rem;
 }
@@ -300,20 +296,16 @@
   height: 0.25rem;
 }
 
-.h-72 {
-  height: 18rem;
-}
-
 .h-auto {
   height: auto;
 }
 
-.w-3 {
-  width: 0.75rem;
+.h-72 {
+  height: 18rem;
 }
 
-.w-8 {
-  width: 2rem;
+.w-3 {
+  width: 0.75rem;
 }
 
 .w-80 {
@@ -322,6 +314,10 @@
 
 .w-auto {
   width: auto;
+}
+
+.w-8 {
+  width: 2rem;
 }
 
 .flex-shrink {
@@ -414,19 +410,14 @@
   border-width: 0px;
 }
 
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-.bg-black {
-  --tw-bg-opacity: 1;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
-}
-
 .bg-\[\#000\] {
   --tw-bg-opacity: 1;
   background-color: rgb(0 0 0 / var(--tw-bg-opacity));
+}
+
+.bg-white {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .p-0 {
