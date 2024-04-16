@@ -1,5 +1,3 @@
-from django.db.models import Q
-
 from utils.models import (
     Order,
 )
@@ -28,11 +26,12 @@ def get_available_positions(
     if not just_current_pos:
         for i in range(1, 9):
             if (
-                not Order.objects.filter(
-                    Q(position=i),
-                    Q(Q(status="pending") | Q(status="processing"))
-                    | Q(Q(status="complete") | Q(status="payment_pending")),
-                ).exists()
+                not Order.objects.filter(position=i).exists()
+                # not Order.objects.filter(
+                #     Q(position=i),
+                #     Q(Q(status="pending") | Q(status="processing"))
+                #     | Q(Q(status="complete") | Q(status="payment_pending")),
+                # ).exists()
                 or i == current_pos
             ):
                 current = " (Current)" if i == current_pos else ""
