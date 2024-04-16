@@ -248,6 +248,7 @@
                         <span class="tf-icons bx bx-money"></span>
                     </a>
                 {% endif %}
+                {%if not terminated%}
                     <a href="{% url 'select-service' 'create-service-transaction' order.id %}"
                        type="button"
                         data-bs-toggle="tooltip"
@@ -258,6 +259,7 @@
                        class="btn btn-icon btn-outline-info float-end">
                         <span class="tf-icons bx bx-plus"></span>
                     </a>
+                {% endif %}
             </div>
         </div>
     </div>
