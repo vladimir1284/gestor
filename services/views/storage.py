@@ -4,6 +4,7 @@ from django.utils.timezone import datetime
 from django.utils.timezone import make_aware
 
 from services.models import Order
+from utils.models import OrderDeclineReazon
 
 
 @login_required
@@ -47,10 +48,35 @@ def storage(request):
         if o.trace:
             o.trace.time = (make_aware(datetime.now()) - o.trace.date).days
 
+    onWorkshop = (
+        Order.objects.filter(
+            status__in=[
+                # "pending",
+                # "approved",
+                # "processing",
+                "decline",
+                "payment_pending",
+                "complete",
+            ],
+        )
+        .exclude(
+            position=0,
+        )
+        .exclude(
+            position=None,
+        )
+    )
+    for o in onWorkshop:
+        if o.terminated_date is not None:
+            o.time = (make_aware(datetime.now()) - o.terminated_date).days
+        if o.status == "decline":
+            o.dec_reazon = OrderDeclineReazon.objects.filter(order=o).last()
+
     context = {
-        "total": total,
+        "total": total + onWorkshop.count(),
         "client_owns_trailers": clientOwnsTriler,
         "client_rent_trailers": clientRentTriler,
         "just_trailers": justTriler,
+        "workshop": onWorkshop,
     }
     return render(request, "services/storage/storage_view.html", context)
