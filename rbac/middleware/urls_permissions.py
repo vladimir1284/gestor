@@ -1,3 +1,4 @@
+from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import redirect
 
 from menu.menu.menu_element import HttpRequest
@@ -14,13 +15,13 @@ class UrlsPermissions:
 
         if perm is not None:
             user = request.user
-            if user is None or not user.has_perm(
-                f"{perm.content_type.app_label}.{perm.codename}"
-            ):
+
+            if user is None:
+                return redirect_to_login(next="")
+
+            if not user.has_perm(f"{perm.content_type.app_label}.{perm.codename}"):
                 request.session["403"] = True
                 return redirect("dashboard")
-                # return redirect_to_login(next=url)
-                # raise PermissionDenied
 
         response = self.get_response(request)
         return response
