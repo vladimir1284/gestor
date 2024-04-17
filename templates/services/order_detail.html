@@ -206,11 +206,17 @@
                     <span class="tf-icons bx bx-printer"></span>
                 </a>
 
-                <a class="btn btn-icon btn-outline-primary"
+                <!-- <a class="btn btn-icon btn-outline-primary" -->
+                <!--    type="button" -->
+                <!--    href="{% url 'service-labor' order.id %}"> -->
+                <!--     <span class="tf-icons bx bx-wrench"></span> -->
+                <!-- </a> -->
+                <button class="btn btn-icon btn-outline-primary"
                    type="button"
-                   href="{% url 'service-labor' order.id %}">
+                   onclick="printLabor()"
+                   >
                     <span class="tf-icons bx bx-wrench"></span>
-                </a>
+                </button>
 
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
@@ -546,6 +552,17 @@
     <!-- <script src="{% static "assets/js/print.js" %}"></script> -->
     <script src="{% static "js/print.min.js" %}"></script>
     <script>
+        function printLabor() {
+            Alpine.store('printing').show()
+            printJS({
+                printable: "{% url 'pdf-labor' order.id %}",
+                onPrintDialogClose: () => {
+                    console.log("printed")
+                    Alpine.store('printing').hide()
+                },
+            })
+        }
+
         function updateStatus(url, status) {
             let confirmAction = confirm("Are you sure you want to change the order status to " + status + "?");
             if (!confirmAction) {
