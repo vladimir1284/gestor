@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
 from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404
@@ -33,6 +34,11 @@ from services.models import Payment
 from services.models import PendingPayment
 from services.views.order import computeOrderAmount
 from utils.models import Order
+
+
+class CustomLoginView(LoginView):
+    def get_success_url(self):
+        return settings.LOGIN_REDIRECT_URL
 
 
 def compute_client_debt(lease: Lease):
