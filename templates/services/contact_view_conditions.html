@@ -80,6 +80,7 @@
         <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="{% static 'assets/js/config.js' %}"></script>
+        <script defer src="{% static 'js/alpine.min.js' %}"></script>
     </head>
     <body>
         <div class="container-xxl flex-grow-1 container-p-y">
@@ -142,7 +143,7 @@
                                 </li>
                             </ol>
                         {% endif %}
-                        <div class="d-flex justify-content-between flex-wrap">
+                        <div class="d-flex justify-content-between flex-wrap" x-data="{height: $refs.oldSign? $refs.oldSign.offsetHeight: null}">
                             <div class="me-4 mb-4">
                                 <p class="bottom-three">
                                     <strong>Cliente</strong>:
@@ -150,9 +151,9 @@
                                 </p>
                                 <section id="signature_lessee">
                                     {% if signature.img %}
-                                        <img class="signature" src="{{ signature.img.url }}">
+                                        <img class="signature max-w-full" src="{{ signature.img.url }}">
                                     {% else %}
-                                        <img class="signature" src="{% static 'images/signs/empty.png' %}">
+                                        <img class="signature max-w-full" src="{% static 'images/signs/empty.png' %}" :style="height && `height: ${height}px`">
                                     {% endif %}
                                 </section>
                                 <div class="text-center">
@@ -171,7 +172,7 @@
                                         <strong>You can use this signature</strong>:
                                     </p>
                                     <section id="signature_lessee">
-                                        {% if old_sign.img %}<img class="signature" src="{{ old_sign.img.url }}">{% endif %}
+                                        {% if old_sign.img %}<img class="signature max-w-full" src="{{ old_sign.img.url }}" x-ref="oldSign">{% endif %}
                                     </section>
                                     <div class="text-center">
                                         <a href="{% url 'contract-client-use-old-sign' token %}"
