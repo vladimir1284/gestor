@@ -50,7 +50,16 @@
     box-shadow: 32px 0 #08F, -32px 0 #08F2;
   }
 }
-      
+
+.disabled {
+    color: #ba8;
+    text-decoration: line-through;
+    margin-left: 22px;
+
+    input[type="checkbox"] {
+        display: none;
+    }
+}
     </style>
 {% endblock page %}
 {% block content %}
@@ -60,6 +69,8 @@
         window.newRoleUrl = "{%url 'rbac-role-from-user' user_instance.id 'role_name' %}"
         window.RoleUrl = "{%url 'rbac-role-form' 'role_id' %}"
         {%endif%}
+
+        window.jroles = {{roles | safe}}
 
         function send() {
             const form = document.getElementById('user-form')
@@ -107,7 +118,7 @@
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">{{ title }}</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body" x-data="UserRolesPerms">
                 <form enctype="multipart/form-data" method="post" id="user-form">
                     {% csrf_token %}
                     {% crispy form %}
@@ -176,6 +187,7 @@
             </div>
         </div>
     {% endif %}
-    <script src='{%static 'assets/js/role-form.js'%}'></script>
+    <!-- <script src='{%static 'assets/js/role-form.js'%}'></script> -->
     <script src='{%static 'assets/js/user-pass.js'%}'></script>
+    <script src='{%static 'assets/js/user-form.js'%}'></script>
 {% endblock content %}

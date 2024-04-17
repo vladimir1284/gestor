@@ -8,6 +8,7 @@ from menu.menu.menu_element import HttpRequest
 from rbac.forms.passwords import SetUserPassForm
 from rbac.forms.user_form import UserForm
 from rbac.tools.get_role_perms import get_role_perms_all
+from rbac.tools.get_roles_json import get_roles_json
 
 
 @login_required
@@ -37,6 +38,7 @@ def user_create(request: HttpRequest):
         "pwf": pwf,
         "user_instance": None,
         "title": "New user",
+        "roles": get_roles_json(),
     }
     return render(request, "rbac/user_form.html", context)
 
@@ -61,5 +63,6 @@ def user_update(request: HttpRequest, id=None):
         "pwf": None,
         "user_instance": user,
         "title": "Editing user",
+        "roles": get_roles_json(),
     }
     return render(request, "rbac/user_form.html", context)

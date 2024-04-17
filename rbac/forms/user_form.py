@@ -10,6 +10,8 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
 from django.contrib.auth.models import User
 
+from rbac.tools.get_roles_json import get_bind_name
+
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -43,12 +45,13 @@ class UserForm(forms.ModelForm):
                     id=perm.id
                 ).exists()
             else:
-                self.initial[name] = True
+                self.initial[name] = False
 
             self.fields[name] = forms.BooleanField(
                 required=False,
                 label=perm.name,
             )
+            self.fields[name].widget.attrs["data-perm"] = get_bind_name(name)
             menuDiv.fields.append(Div(Field(name), css_class="mb-2"))
 
         perms = Permission.objects.filter(
@@ -63,12 +66,13 @@ class UserForm(forms.ModelForm):
                     id=perm.id
                 ).exists()
             else:
-                self.initial[name] = True
+                self.initial[name] = False
 
             self.fields[name] = forms.BooleanField(
                 required=False,
                 label=perm.name,
             )
+            self.fields[name].widget.attrs["data-perm"] = get_bind_name(name)
             urlsDiv.fields.append(Div(Field(name), css_class="mb-2"))
 
         perms = Permission.objects.filter(
@@ -84,12 +88,13 @@ class UserForm(forms.ModelForm):
                     id=perm.id
                 ).exists()
             else:
-                self.initial[name] = True
+                self.initial[name] = False
 
             self.fields[name] = forms.BooleanField(
                 required=False,
                 label=perm.name,
             )
+            self.fields[name].widget.attrs["data-perm"] = get_bind_name(name)
             dashCardDiv.fields.append(Div(Field(name), css_class="mb-2"))
 
         perms = Permission.objects.filter(
@@ -105,12 +110,13 @@ class UserForm(forms.ModelForm):
                     id=perm.id
                 ).exists()
             else:
-                self.initial[name] = True
+                self.initial[name] = False
 
             self.fields[name] = forms.BooleanField(
                 required=False,
                 label=perm.name,
             )
+            self.fields[name].widget.attrs["data-perm"] = get_bind_name(name)
             extraPermDiv.fields.append(Div(Field(name), css_class="mb-2"))
 
         # self.fields["groups"].label = "Roles"
@@ -162,7 +168,7 @@ class UserForm(forms.ModelForm):
                     HTML(
                         """
                             <h2 class="accordion-header d-flex">
-                            <input type="checkbox" class="mark-all checkboxinput">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="all_roles" @click="toggleAllRoles">
                             <button
                             data-bs-target="#groups"
                             class="accordion-button collapsed text-primary"
@@ -199,7 +205,7 @@ class UserForm(forms.ModelForm):
                     HTML(
                         """
                             <h2 class="accordion-header d-flex">
-                            <input type="checkbox" class="mark-all checkboxinput">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="menu_all" @click="toggleMenuAll">
                             <button
                             data-bs-target="#menu_perms"
                             class="accordion-button collapsed text-primary"
@@ -225,7 +231,7 @@ class UserForm(forms.ModelForm):
                     HTML(
                         """
                             <h2 class="accordion-header d-flex">
-                            <input type="checkbox" class="mark-all checkboxinput">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="urls_all" @click="toggleUrlsAll">
                             <button
                             data-bs-target="#urls_perms"
                             class="accordion-button collapsed text-primary"
@@ -251,7 +257,7 @@ class UserForm(forms.ModelForm):
                     HTML(
                         """
                             <h2 class="accordion-header d-flex">
-                            <input type="checkbox" class="mark-all checkboxinput">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="dash_all" @click="toggleDashAll">
                             <button
                             data-bs-target="#dashboard_card_perms"
                             class="accordion-button collapsed text-primary"
@@ -277,7 +283,7 @@ class UserForm(forms.ModelForm):
                     HTML(
                         """
                             <h2 class="accordion-header d-flex">
-                            <input type="checkbox" class="mark-all checkboxinput">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="extra_all" @click="toggleExtraAll">
                             <button
                             data-bs-target="#extra_perms"
                             class="accordion-button collapsed text-primary"
