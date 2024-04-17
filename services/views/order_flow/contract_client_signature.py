@@ -24,14 +24,14 @@ def contact_create_handwriting(request, token):
             "msg": "Expirated token",
             "err": True,
         }
-        return render(request, "rent/client/lessee_form_err.html", context)
+        return render(request, "rent/client/lessee_form_inf.html", context)
     except jwt.InvalidTokenError:
         context = {
             "title": "Error",
             "msg": "Invalid token",
             "err": True,
         }
-        return render(request, "rent/client/lessee_form_err.html", context)
+        return render(request, "rent/client/lessee_form_inf.html", context)
 
     if request.method == "POST":
         form = OrderSignatureForm(request.POST, request.FILES)
