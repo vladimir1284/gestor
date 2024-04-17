@@ -130,6 +130,10 @@
   z-index: 50;
 }
 
+.z-\[2000\] {
+  z-index: 2000;
+}
+
 .z-\[50000\] {
   z-index: 50000;
 }
@@ -250,6 +254,10 @@
 
 .mt-4 {
   margin-top: 1rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
 }
 
 .box-border {

@@ -12,7 +12,7 @@ from rbac.forms.passwords import SetUserPassForm
 @login_required
 def user_change_password(request: HttpRequest, id):
     user = get_object_or_404(User, id=id)
-    print(request.user.has_perm("extra_perm.change_password"))
+    request.session["pass_saved"] = None
     if request.method == "POST":
         if request.user.has_perm("extra_perm.change_password"):
             form = SetUserPassForm(user, request.POST)
@@ -20,6 +20,7 @@ def user_change_password(request: HttpRequest, id):
             form = ChangeUserPassForm(user, request.POST)
         if form.is_valid():
             form.save()
+            request.session["pass_saved"] = True
             return redirect("rbac-user-update", id)
     else:
         if request.user.has_perm("extra_perm.change_password"):
