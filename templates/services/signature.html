@@ -127,7 +127,7 @@
                         Please, insert your signature
                     </h3>
                     <div class="row">
-                        <div class="col-12 text-center" id="canvas">Canvas is not supported.</div>
+                        <div class="col-12 text-center box-border p-0" id="canvas">Canvas is not supported.</div>
                     </div>
                     <script>zkSignature.capture();</script>
                     <br />
@@ -153,8 +153,9 @@
                         </div>
                     </div>
                     <div class="text-center mt-4 mb-1">Example:</div>
-                    <div class="text-center">
-                        <img class="signature" src="{% static '/images/signs/firma_daniel.png' %}" />
+                    <div class="text-center max-w-full">
+                        <img class="signature max-w-full"
+                             src="{% static '/images/signs/firma_daniel.png' %}" />
                     </div>
                 </div>
             </div>

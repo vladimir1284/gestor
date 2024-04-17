@@ -61,7 +61,8 @@
                 </li>
             </ol>
         {% endif %}
-        <div class="d-flex justify-content-between flex-wrap">
+        <div class="d-flex justify-content-between flex-wrap"
+             x-data="{height: $refs.oldSign? $refs.oldSign.offsetHeight: null}">
             <div class="me-4 mb-4">
                 <p class="bottom-three">
                     <strong>Cliente</strong>:
@@ -69,9 +70,11 @@
                 </p>
                 <section id="signature_lessee">
                     {% if signature.img %}
-                        <img class="signature" src="{{ signature.img.url }}">
+                        <img class="signature max-w-full" src="{{ signature.img.url }}">
                     {% else %}
-                        <img class="signature" src="{% static 'images/signs/empty.png' %}">
+                        <img class="signature max-w-full"
+                             src="{% static 'images/signs/empty.png' %}"
+                             :style="height && `height: ${height}px`">
                     {% endif %}
                 </section>
                 <div class="text-center">
@@ -90,7 +93,11 @@
                         <strong>You can use this signature</strong>:
                     </p>
                     <section id="signature_lessee">
-                        {% if old_sign.img %}<img class="signature" src="{{ old_sign.img.url }}">{% endif %}
+                        {% if old_sign.img %}
+                            <img class="signature max-w-full"
+                                 x-ref="oldSign"
+                                 src="{{ old_sign.img.url }}">
+                        {% endif %}
                     </section>
                     <div class="text-center">
                         <a href="{% url 'use-old-sign' preorder %}"
