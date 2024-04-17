@@ -141,6 +141,14 @@ function sortGrid(tbody, th, colNum, type) {
         return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
       };
       break;
+    case "custom-number":
+      compare = function(rowA, rowB) {
+        return (
+          rowA.cells[colNum].dataset["custom"] -
+          rowB.cells[colNum].dataset["custom"]
+        );
+      };
+      break;
     case "string":
       compare = function(rowA, rowB) {
         return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML
