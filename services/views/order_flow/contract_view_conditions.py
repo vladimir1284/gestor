@@ -20,14 +20,14 @@ def contact_view_conditions(request, token):
             "msg": "Expirated token",
             "err": True,
         }
-        return render(request, "rent/client/lessee_form_err.html", context)
+        return render(request, "rent/client/lessee_form_inf.html", context)
     except jwt.InvalidTokenError:
         context = {
             "title": "Error",
             "msg": "Invalid token",
             "err": True,
         }
-        return render(request, "rent/client/lessee_form_err.html", context)
+        return render(request, "rent/client/lessee_form_inf.html", context)
 
     preorder: Preorder = get_object_or_404(Preorder, id=preorder_id)
     preorder.new_associated = False

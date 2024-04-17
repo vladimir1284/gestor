@@ -38,6 +38,7 @@
               href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
         <link rel="stylesheet"
               href="{% static 'assets/vendor/libs/apex-charts/apex-charts.css' %}" />
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
         <!-- Page CSS -->
         <style>
             .input-group-addon {
@@ -68,23 +69,65 @@
             .was-validated .form-control:invalid, .form-control.is-invalid {
                 border-color: #ff3e1d;
             }
+
         </style>
         <!-- Helpers -->
         <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
         <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="{% static 'assets/js/config.js' %}"></script>
+        <script defer src="{%static 'js/alpine.min.js'%}"></script>
     </head>
     <body>
-        <div class="container-xxl flex-grow-1 container-p-y">
-            <div class="col-xxl">
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between">
-                        <h3>Proceso finalizado</h3>
+        <div class="flex justify-center">
+            <div class="card rounded-lg m-4" x-data="countdown">
+                <div class="card-header flex justify-center ">
+                    <h2 class="text-main">Proceso finalizado</h2>
+                </div>
+                <div class="card-body flex flex-col justify-center items-center">
+                    <div class="rounded-full w-[100px] h-[100px] shadow flex justify-center items-center relative">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             version="1.1"
+                             x-show="timer > 0"
+                             class="absolute top-0 left-0 bottom-0 right-0"
+                             width="100px"
+                             height="100px">
+                            <circle class="stroke-main fill-none stroke-[8px]" cx="50px" cy="50px" r="43px" stroke-linecap="round" :style="circle" />
+                        </svg>
+                        <span x-text="parseInt((timer+9)/10)" class="text-6xl"></span>
                     </div>
-                    <div class="card-body"></div>
                 </div>
             </div>
         </div>
+        <script>
+            const Max = 50
+            document.addEventListener('alpine:init', () => {
+                Alpine.data("countdown", () => {
+                    return {
+                        timer: Max,
+                        interval: 0,
+                        circle: {
+                            'stroke-dasharray': Math.PI * 2 * 43,
+                            'stroke-dashoffset': 0,
+                        },
+
+                        init() {
+                            this.interval = window.setInterval(() => this.update(), 100)
+                        },
+
+                        update() {
+                            if (this.timer > 0) {
+                                this.timer--
+                            }
+                            this.circle['stroke-dashoffset'] = parseInt(this.circle['stroke-dasharray'] * (1.0 -parseFloat(this.timer)/Max))
+                            if (this.timer <= 0) {
+                                window.clearInterval(this.interval)
+                                window.location.href="{{redir_client}}"
+                            }
+                        },
+                    }
+                })
+            })
+        </script>
     </body>
 </html>
