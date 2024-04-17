@@ -78,6 +78,38 @@
         }
     </script>
     <div class="col-xxl" x-data="userPass">
+        {%if pass_saved %}
+            <div class="toast-container position-fixed top-0 end-0 p-3 z-[2000]" x-data='passSaved'>
+                <div id="liveToast" class="toast z-[2000] show" x-show="show" x-transition x-transition.duration.500ms x-cloak role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header text-main">
+                        <i class='bx bxs-check-circle' ></i>
+                        <strong class="me-auto ml-2">Success</strong>
+                        <button type="button" class="btn-close" @click="show = false"></button>
+                    </div>
+                    <div class="toast-body">
+                        Password changed and copied to clipboard.
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener('alpine:init', () => {
+                    Alpine.data('passSaved', () => {
+                        return {
+                            show: false,
+                            init() {
+                                setTimeout(() => {
+                                    this.show = true
+                                }, 500)
+                                setTimeout(() => {
+                                    this.show = false
+                                }, 5500)
+                            },
+                        }
+                    })
+                })
+            </script>
+        {%endif%}
         <div class="card mb-4">
             <div class="position-absolute top-0 end-0 pe-3 pt-3">
                 <a class="btn btn-outline-primary" href="{% url 'rbac-list-users' %}">

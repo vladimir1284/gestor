@@ -46,6 +46,10 @@ def user_create(request: HttpRequest):
 @login_required
 def user_update(request: HttpRequest, id=None):
     user = get_object_or_404(User, id=id)
+    pass_saved = (
+        request.session["pass_saved"] if "pass_saved" in request.session else None
+    )
+    request.session["pass_saved"] = None
 
     if request.method == "POST":
         form = UserForm(request.POST, instance=user)
@@ -64,5 +68,6 @@ def user_update(request: HttpRequest, id=None):
         "user_instance": user,
         "title": "Editing user",
         "roles": get_roles_json(),
+        "pass_saved": pass_saved,
     }
     return render(request, "rbac/user_form.html", context)

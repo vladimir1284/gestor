@@ -42,6 +42,9 @@
     </div>
     <script>
         function send() {
+            const passIn = document.querySelector('#id_new_password1')
+            const pass = passIn.value
+            navigator.clipboard.writeText(pass);
             const form = document.getElementById('user-form')
             form.submit()
         }
