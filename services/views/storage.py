@@ -48,18 +48,25 @@ def storage(request):
         if o.trace:
             o.trace.time = (make_aware(datetime.now()) - o.trace.date).days
 
-    onWorkshop = Order.objects.filter(position__in=[i for i in range(1, 9)])
-    for o in onWorkshop:
-        if o.terminated_date is not None:
-            o.time = (make_aware(datetime.now()) - o.terminated_date).days
-        if o.status == "decline":
-            o.dec_reazon = OrderDeclineReazon.objects.filter(order=o).last()
+    workshop = {}
+    onWorkshop = 0
+    for pos in range(1, 9):
+        orders = Order.objects.filter(position=pos)
+        onWorkshop += orders.count()
+        for o in orders:
+            if o.terminated_date is not None:
+                o.time = (make_aware(datetime.now()) - o.terminated_date).days
+            if o.status == "decline":
+                o.dec_reazon = OrderDeclineReazon.objects.filter(
+                    order=o).last()
+        workshop[pos] = orders
 
     context = {
-        "total": total + onWorkshop.count(),
+        "total": total + onWorkshop,
         "client_owns_trailers": clientOwnsTriler,
         "client_rent_trailers": clientRentTriler,
         "just_trailers": justTriler,
-        "workshop": onWorkshop,
+        "workshop_total": onWorkshop,
+        "workshop": workshop,
     }
     return render(request, "services/storage/storage_view.html", context)
