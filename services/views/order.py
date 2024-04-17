@@ -353,11 +353,16 @@ def detail_order(request, id, msg=None):
     context["parts_history"] = parts
     context["parts_next"] = pNum + 5
     context["parts_number"] = pNum
-    context["parts_total"] = pTotal
+    context["parts_total_count"] = pTotal
     context["services_history"] = services
     context["services_next"] = sNum + 5
     context["services_number"] = sNum
-    context["services_total"] = sTotal
+    context["services_total_count"] = sTotal
+
+    context["psc_total"] = (
+        context["parts_total"] + context["service_total"] +
+        context["consumable_total"]
+    )
 
     return render(request, "services/order_detail.html", context)
 

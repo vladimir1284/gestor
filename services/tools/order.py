@@ -1,17 +1,17 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 
 import pytz
-from utils.models import Associated
+
 from inventory.models import (
     ProductTransaction,
 )
-from services.models import (
-    ServiceTransaction,
-    Order,
-    Expense,
-    Payment,
-    DebtStatus,
-)
+from services.models import DebtStatus
+from services.models import Expense
+from services.models import Order
+from services.models import Payment
+from services.models import ServiceTransaction
+from utils.models import Associated
 
 
 def getDebtOrders(debtor: Associated):
