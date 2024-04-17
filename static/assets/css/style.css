@@ -118,6 +118,10 @@
   top: -0.3rem;
 }
 
+.bottom-4 {
+  bottom: 1rem;
+}
+
 .isolate {
   isolation: isolate;
 }
@@ -156,6 +160,10 @@
 
 .m-3 {
   margin: 0.75rem;
+}
+
+.m-4 {
+  margin: 1rem;
 }
 
 .my-2 {
@@ -320,6 +328,10 @@
   height: auto;
 }
 
+.h-\[100px\] {
+  height: 100px;
+}
+
 .w-3 {
   width: 0.75rem;
 }
@@ -334,6 +346,10 @@
 
 .w-auto {
   width: auto;
+}
+
+.w-\[100px\] {
+  width: 100px;
 }
 
 .max-w-full {
@@ -379,6 +395,10 @@
 
 .flex-row {
   flex-direction: row;
+}
+
+.flex-col {
+  flex-direction: column;
 }
 
 .flex-wrap {
@@ -435,6 +455,14 @@
   border-radius: 1.5rem;
 }
 
+.rounded-full {
+  border-radius: 9999px;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
 .border {
   border-width: 1px;
 }
@@ -454,6 +482,18 @@
 
 .bg-mainBG {
   background-color: rgba(105, 108, 255, 0.16);
+}
+
+.fill-none {
+  fill: none;
+}
+
+.stroke-main {
+  stroke: #696cff;
+}
+
+.stroke-\[8px\] {
+  stroke-width: 8px;
 }
 
 .p-0 {
@@ -577,6 +617,10 @@
   padding-top: 1.25rem;
 }
 
+.pb-24 {
+  padding-bottom: 6rem;
+}
+
 .text-center {
   text-align: center;
 }
@@ -592,6 +636,11 @@
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
+}
+
+.text-6xl {
+  font-size: 3.75rem;
+  line-height: 1;
 }
 
 .uppercase {
