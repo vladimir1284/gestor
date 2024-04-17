@@ -7,6 +7,8 @@
 {% block containerFull %}
 <div class="px-4">
 {% endblock containerFull %}
+{%block navbar%}
+{%endblock navbar%}
 {% block content %}
     <style>
     .add {
@@ -75,7 +77,7 @@
         }
     </style>
     <div class="row">
-    <div class="col col-xl-8">
+    <div class="lg:pr-[30vw]">
         {% if mensaje %}
         
             <div class="alert alert-danger" role="alert">
@@ -204,11 +206,17 @@
                     <span class="tf-icons bx bx-printer"></span>
                 </a>
 
-                <a class="btn btn-icon btn-outline-primary"
+                <!-- <a class="btn btn-icon btn-outline-primary" -->
+                <!--    type="button" -->
+                <!--    href="{% url 'service-labor' order.id %}"> -->
+                <!--     <span class="tf-icons bx bx-wrench"></span> -->
+                <!-- </a> -->
+                <button class="btn btn-icon btn-outline-primary"
                    type="button"
-                   href="{% url 'service-labor' order.id %}">
+                   onclick="printLabor()"
+                   >
                     <span class="tf-icons bx bx-wrench"></span>
-                </a>
+                </button>
 
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
@@ -244,6 +252,18 @@
                        type="button"
                        class="btn btn-icon btn-outline-success float-end">
                         <span class="tf-icons bx bx-money"></span>
+                    </a>
+                {% endif %}
+                {%if not terminated%}
+                    <a href="{% url 'select-service' 'create-service-transaction' order.id %}"
+                       type="button"
+                        data-bs-toggle="tooltip"
+                        data-bs-offset="0,4"
+                        data-bs-placement="left"
+                        data-bs-html="true"
+                        data-bs-original-title="Add part or service"
+                       class="btn btn-icon btn-outline-info float-end">
+                        <span class="tf-icons bx bx-plus"></span>
                     </a>
                 {% endif %}
             </div>
@@ -508,30 +528,63 @@
             {% endif %}
         </div>
     </div>
-    <div class="col col-xl-4">
+    <div class="lg:fixed lg:top-6 lg:bottom-6 lg:right-2 lg:w-[30vw]">
                     {% include "services/order_parts_history.html" %}
                     {% include "services/order_services_history.html" %}
     </div>
     </div>
-    <a href="{% url 'select-service' 'create-service-transaction' order.id %}" class="z-50">
-        <button type="button"
-                style="visibility: {% if terminated %}hidden{% endif %}"
-                class="btn rounded-pill btn-primary btn-icon add"
-                data-bs-toggle="tooltip"
-                data-bs-offset="0,4"
-                data-bs-placement="left"
-                data-bs-html="true"
-                title=""
-                data-bs-original-title="Add part or service">
-            <b>+</b>
-        </button>
-    </a>
+    {%include 'utils/printing.html'%}
+    <!-- <a href="{% url 'select-service' 'create-service-transaction' order.id %}" class="z-50"> -->
+    <!--     <button type="button" -->
+    <!--             style="visibility: {% if terminated %}hidden{% endif %}" -->
+    <!--             class="btn rounded-pill btn-primary btn-icon add" -->
+    <!--             data-bs-toggle="tooltip" -->
+    <!--             data-bs-offset="0,4" -->
+    <!--             data-bs-placement="left" -->
+    <!--             data-bs-html="true" -->
+    <!--             title="" -->
+    <!--             data-bs-original-title="Add part or service"> -->
+    <!--         <b>+</b> -->
+    <!--     </button> -->
+    <!-- </a> -->
+    <!-- <script src="{% static "libs/pdf/pdf.js" %}" type="module"></script> -->
+    <!-- <script src="{% static "libs/pdf/pdf.worker.js" %}" type="module"></script> -->
+    <!-- <script src="{% static "assets/js/print.js" %}"></script> -->
+    <script src="{% static "js/print.min.js" %}"></script>
     <script>
+        function printLabor() {
+            Alpine.store('printing').show()
+            printJS({
+                printable: "{% url 'pdf-labor' order.id %}",
+                onPrintDialogClose: () => {
+                    console.log("printed")
+                    Alpine.store('printing').hide()
+                },
+            })
+        }
+
         function updateStatus(url, status) {
             let confirmAction = confirm("Are you sure you want to change the order status to " + status + "?");
-            if (confirmAction) {
-                window.location = url;
+            if (!confirmAction) {
+                return
             }
+            if (status == "processing") {
+                try {
+                    Alpine.store('printing').show()
+                    printJS({
+                        printable: "{% url 'pdf-labor' order.id %}",
+                        onPrintDialogClose: () => {
+                            console.log("printed")
+                            Alpine.store('printing').hide()
+                            window.location = url
+                        },
+                    })
+                    return
+                } catch(e) {
+                    console.error(e)
+                }
+            }
+            window.location = url;
         }
 
         let round_to, cost, hint, profit, discount;

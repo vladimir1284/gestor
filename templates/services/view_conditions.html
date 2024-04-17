@@ -61,26 +61,28 @@
                 </li>
             </ol>
         {% endif %}
-        <div class="d-flex justify-content-between">
-            <div>
+        <div class="d-flex justify-content-between flex-wrap">
+            <div class="me-4 mb-4">
                 <p class="bottom-three">
                     <strong>Cliente</strong>:
-                </p>
-                <section id="signature_lessee">
-                    {% if pdf %}
-                    {% else %}
-                        <a class="signature_btn"
-                           href="{% url 'client-service-order-signature' preorder %}">
-                            <button type="button" class="btn btn-icon btn-primary">
-                                <span class="tf-icons bx bx-edit"></span>
-                            </button>
-                        </a>
-                    {% endif %}
-                    {% if signature.img %}<img class="signature" src="{{ signature.img.url }}">{% endif %}
-                </section>
-                <p class="bottom-three-left-two">
                     <mark>{{ client }}</mark>
                 </p>
+                <section id="signature_lessee">
+                    {% if signature.img %}
+                        <img class="signature" src="{{ signature.img.url }}">
+                    {% else %}
+                        <img class="signature" src="{% static 'images/signs/empty.png' %}">
+                    {% endif %}
+                </section>
+                <div class="text-center">
+                    <a class="signature_btn"
+                       href="{% url 'client-service-order-signature' preorder %}">
+                        <button type="button" class="btn btn-primary">
+                            <span class="tf-icons bx bx-edit"></span>
+                            Capture a new signature
+                        </button>
+                    </a>
+                </div>
             </div>
             {% if old_sign %}
                 <div>

@@ -1,8 +1,8 @@
 from services.models.preorder import Preorder
-from services.tools.init_conditions import LANG_EN
-from services.tools.init_conditions import LANG_ES
-from services.tools.init_conditions import MODULE
-from services.tools.init_conditions import TEMPLATE
+from services.tools.init_temps import LANG_EN
+from services.tools.init_temps import LANG_ES
+from services.tools.init_temps import MODULE
+from services.tools.init_temps import TEMPLATE
 from template_admin.models.template import Template
 
 

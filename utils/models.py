@@ -50,8 +50,7 @@ class Category(models.Model):
         ("#03c3ec", "blue"),
         ("#233446", "black"),
     )
-    chartColor = models.CharField(
-        max_length=7, default="#8592a3", choices=COLOR_CHOICE)
+    chartColor = models.CharField(max_length=7, default="#8592a3", choices=COLOR_CHOICE)
 
     ICON_SIZE = 64
     icon = models.ImageField(upload_to="images/icons", blank=True)
@@ -78,10 +77,8 @@ class Order(models.Model):
         ("sell", _("Sell")),
         ("purchase", _("Purchase")),
     )
-    type = models.CharField(
-        max_length=20, choices=TYPE_CHOICE, default="purchase")
-    status = models.CharField(
-        max_length=20, choices=STATUS_CHOICE, default="pending")
+    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default="purchase")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default="pending")
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
@@ -193,20 +190,11 @@ def on_field_change(sender, instance, **kwargs):
 
 
 class OrderDeclineReazon(models.Model):
-    DECLINE_REAZON = [
-        ("no_money", "No tiene dinero"),
-        ("price", "No está de acuerdo con el precio"),
-        ("later", "Lo va a hacer más adelante"),
-        ("wait", "No puede esperar"),
-        ("conditions", "No está de acuerdo con los terminos"),
-        ("data_error", "Error en los datos"),
-    ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     decline_reazon = models.CharField(
-        max_length=20,
+        max_length=50,
         blank=True,
         null=True,
-        choices=DECLINE_REAZON,
     )
     note = models.TextField(
         blank=True,
@@ -214,10 +202,13 @@ class OrderDeclineReazon(models.Model):
     )
 
     def get_decline_reazon(self) -> str:
-        for r in self.DECLINE_REAZON:
-            if r[0] == self.decline_reazon:
-                return r[1]
-        return "UNKNOWN"
+        if self.decline_reazon is None:
+            return "UNKNOWN"
+        return str(self.decline_reazon)
+        # for r in self.DECLINE_REAZON:
+        #     if r[0] == self.decline_reazon:
+        #         return r[1]
+        # return "UNKNOWN"
 
 
 class Transaction(models.Model):

@@ -49,7 +49,7 @@
               href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
         <link rel="stylesheet"
               href="{% static 'assets/vendor/libs/apex-charts/apex-charts.css' %}" />
-        <!-- <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" /> -->
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
         <!-- Page CSS -->
         <style>
       .input-group-addon {
@@ -89,6 +89,7 @@
         <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="{% static 'assets/js/config.js' %}"></script>
+        <script defer src="{%static 'js/alpine-sort.min.js'%}"></script>
         <script defer src="{%static 'js/alpine.min.js'%}"></script>
     </head>
     <body>
@@ -102,7 +103,9 @@
                         {% block containerFull %}
                             <div class="container-xxl">
                             {% endblock containerFull %}
-                            {% include "base/navbar.html" %}
+                            {% block navbar %}
+                                {% include "base/navbar.html" %}
+                            {% endblock navbar %}
                             <!-- Content wrapper -->
                             <div class="content-wrapper">
                                 <div class="flex-grow-1 container-p-y">
