@@ -100,8 +100,8 @@
                         {% if signature and signature.img %}
                             <form method='post'>
                                 {% csrf_token %}
-                                <button id="complete1" type="submit" x-intersect:enter="finishFix = false" x-intersect:leave="finishFix = true" class="float-right btn btn-outline-primary transition-all">Finalizar</button>
-                                <button id="complete2" type="submit" x-cloak class="btn btn-primary fixed right-4" :style="{'bottom': `calc(100vh - ${bottom - $el.offsetHeight} + 'px')`}" :class="{'transition-all': bottom < 15, 'complete-hidden': !finishFix}">Finalizar</button>
+                                <button id="complete1" type="submit" x-intersect:enter="finishFix = false" x-intersect:leave="finishFix = true" class="float-right btn btn-outline-primary">Finalizar</button>
+                                <button id="complete2" type="submit" x-cloak class="btn btn-primary fixed right-4 transition-all" :style="{'bottom': Math.max(bottom - $el.offsetHeight, 15) + 'px'}" :class="{'transition-none': bottom > 15, 'complete-hidden': !finishFix}">Finalizar</button>
                             </form>
                         {% endif %}
                     </div>
@@ -150,7 +150,7 @@
                                 </section>
                                 <div class="text-center">
                                     <a class="signature_btn"
-                                        x-effect="bottom = $store.scroll.scroll - $el.offsetTop"
+                                        x-effect="bottom = $store.scroll.scroll + window.innerHeight - $el.offsetTop - $el.offsetHeight"
                                         href="{% url 'contact-client-service-order-signature' token %}">
                                         <button type="button" class="btn btn-primary">
                                             <span class="tf-icons bx bx-edit"></span>
