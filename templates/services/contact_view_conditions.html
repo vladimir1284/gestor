@@ -80,37 +80,29 @@
         <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="{% static 'assets/js/config.js' %}"></script>
+        <script defer src="{%static 'js/alpine-intersect.min.js'%}"></script>
         <script defer src="{% static 'js/alpine.min.js' %}"></script>
     </head>
     <body>
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.store("scroll", {scroll: 0})
+                window.addEventListener("scroll", () => {
+                    Alpine.store("scroll").scroll = window.scrollY
+                })
+            })
+        </script>
         <div class="container-xxl flex-grow-1 container-p-y pb-24">
             <div class="col-xxl">
-                <div class="card">
+                <div class="card" x-data="{finishFix: false, bottom: 0}" >
                     <div class="card-header d-flex justify-content-between">
                         <h3>Condiciones de servicio</h3>
                         {% if signature and signature.img %}
                             <form method='post'>
                                 {% csrf_token %}
-                                <button id="complete1" type="submit" class="float-right btn btn-outline-primary transition-all">Finalizar</button>
-                                <button id="complete2" type="submit" class="btn btn-primary transition-all fixed bottom-4 right-4">Finalizar</button>
+                                <button id="complete1" type="submit" x-intersect:enter="finishFix = false" x-intersect:leave="finishFix = true" class="float-right btn btn-outline-primary transition-all">Finalizar</button>
+                                <button id="complete2" type="submit" x-cloak class="btn btn-primary fixed right-4" x-effect="console.log(bottom)" :style="{'bottom': Math.max(bottom - $el.offsetHeight, 15) + 'px'}" :class="{'transition-all': bottom < 15, 'complete-hidden': !finishFix}">Finalizar</button>
                             </form>
-                            <script>
-                                const complete1 = document.getElementById('complete1');
-                                const complete2 = document.getElementById('complete2');
-                                const observer = new IntersectionObserver((entries) => {
-                                    if (entries[0].isIntersecting) {
-                                        //complete2.classList.add('hidden');
-                                        complete2.classList.add('complete-hidden');
-                                    } else {
-                                        //complete2.classList.remove('hidden');
-                                        complete2.classList.remove('complete-hidden');
-                                    }
-                                }, {
-                                    root: null,
-                                    threshold: 0,
-                                });
-                                observer.observe(complete1);
-                            </script>
                         {% endif %}
                     </div>
                     <div class="card-body">
@@ -158,6 +150,7 @@
                                 </section>
                                 <div class="text-center">
                                     <a class="signature_btn"
+                                        x-effect="bottom = $store.scroll.scroll - $el.offsetTop - $el.offsetHeight + window.screen.height"
                                         href="{% url 'contact-client-service-order-signature' token %}">
                                         <button type="button" class="btn btn-primary">
                                             <span class="tf-icons bx bx-edit"></span>
