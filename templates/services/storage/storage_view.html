@@ -62,7 +62,7 @@
                                 aria-selected="false">
                             <i class='bx bxs-car-mechanic'></i>
                             Trailers en bodegas
-                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ workshop | length }}</span>
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ workshop_total }}</span>
                         </button>
                     </li>
                 </ul>
@@ -163,8 +163,24 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
-                        {% for order in workshop %}
-                            {% include 'services/storage/workshop_order.html' %}
+                        {% for pos, orders in workshop.items %}
+                            {%if orders|length == 0 %}
+                                <tr class="bg-green-100">
+                                    <td class="text-green-800 text-center" data-custom="{{pos}}">
+                                        <strong>{{pos}}</strong>
+                                    </td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                    <td data-days="-2"></td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                </tr>
+                            {%else%}
+                                {%for order in orders%}
+                                    {% include 'services/storage/workshop_order.html' %}
+                                {% endfor %}
+                            {%endif%}
                         {% endfor %}
                     </tbody>
                 </table>
