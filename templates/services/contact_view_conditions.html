@@ -83,16 +83,16 @@
         <script defer src="{% static 'js/alpine.min.js' %}"></script>
     </head>
     <body>
-        <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="container-xxl flex-grow-1 container-p-y pb-24">
             <div class="col-xxl">
-                <div class="card mb-4">
+                <div class="card">
                     <div class="card-header d-flex justify-content-between">
                         <h3>Condiciones de servicio</h3>
                         {% if signature and signature.img %}
                             <form method='post'>
                                 {% csrf_token %}
                                 <button id="complete1" type="submit" class="float-right btn btn-outline-primary transition-all">Finalizar</button>
-                                <button id="complete2" type="submit" class="float-right btn btn-primary transition-all fixed top-4 right-4">Finalizar</button>
+                                <button id="complete2" type="submit" class="btn btn-primary transition-all fixed bottom-4 right-4">Finalizar</button>
                             </form>
                             <script>
                                 const complete1 = document.getElementById('complete1');

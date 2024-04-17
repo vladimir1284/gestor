@@ -118,6 +118,10 @@
   top: -0.3rem;
 }
 
+.bottom-4 {
+  bottom: 1rem;
+}
+
 .isolate {
   isolation: isolate;
 }
@@ -254,6 +258,14 @@
 
 .mt-4 {
   margin-top: 1rem;
+}
+
+.mb-28 {
+  margin-bottom: 7rem;
+}
+
+.mb-16 {
+  margin-bottom: 4rem;
 }
 
 .box-border {
@@ -671,6 +683,14 @@
 
 .pt-5 {
   padding-top: 1.25rem;
+}
+
+.pb-16 {
+  padding-bottom: 4rem;
+}
+
+.pb-24 {
+  padding-bottom: 6rem;
 }
 
 .text-center {
