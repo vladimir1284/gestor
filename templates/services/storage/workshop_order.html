@@ -1,6 +1,6 @@
 {% load static %}
 <tr data-search=" {{ order.vin }}{{ order.plate }} {% if order.associated %}{{ order.associated.name }}{{ order.associated.phone_number }}{{ order.associated.email }}{% endif %} {% if order.trailer %} {{ order.trailer.get_manufacturer_display }}{{ order.trailer.get_type_display }}{{ order.trailer.get_year_display }} {% else %} {{ order.vehicle.get_manufacturer_display }}{{ order.vehicle.get_model_display }}{{ order.vehicle.get_year_display }}{{ order.trailer.vin }} {% endif %}">
-    <td class="chapilla">
+    <td class="chapilla" data-custom="{{ order.position }}">
         <a href="{% url 'detail-service-order' order.id %}">
             <img {% if order.status == 'processing' %} src="{% static 'assets/img/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'assets/img/icons/tag-success.png' %}" {% elif order.status == 'pending' %} src="{% static 'assets/img/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'assets/img/icons/tag-info.png' %}" {% elif order.status == 'payment_pending' %} src="{% static 'assets/img/icons/tag-danger.png' %}" {% elif order.status == 'decline' %} src="{% static 'assets/img/icons/cancel.png' %}" {% endif %}
                  alt="{{ order.position }}"
@@ -51,12 +51,12 @@
             {% endif %}
         </div>
     </td>
-    <td data-days={% if order.time %}{{ order.time }}{% else %}-1{% endif %}>
-        {% if order.time %}
-            <div>{{ order.terminated_date | date:'b. d, Y' | capfirst }}</div>
+    <td data-days="{{ order.days_on_pos }}">
+        <div>{{ order.last_pos_change | date:'b. d, Y' | capfirst }}</div>
+        {% if order.days_on_pos != -1 %}
             <div>
-                {{ order.time }}
-                {% if order.time == 1 %}
+                {{ order.days_on_pos }}
+                {% if order.days_on_pos == 1 %}
                     Day
                 {% else %}
                     Days

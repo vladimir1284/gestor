@@ -61,7 +61,7 @@
                                 aria-controls="workshop"
                                 aria-selected="false">
                             <i class='bx bxs-car-mechanic'></i>
-                            Trailers en el taller
+                            Trailers en bodegas
                             <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ workshop | length }}</span>
                         </button>
                     </li>
@@ -151,12 +151,12 @@
                 <table class="table" id="table_consumables">
                     <thead>
                         <tr>
-                            <th>
+                            <th data-type="custom-number" data-defsort="+">
                                 <i class="bx bx-cog"></i>
                             </th>
                             <th data-type='custom-string'>Client</th>
                             <th data-type='custom-string'>Trailer</th>
-                            <th data-type='days' data-defsort="+">Date</th>
+                            <th data-type='days'>Date</th>
                             <th data-type='string'>Status</th>
                             <th data-type='string'>Reason</th>
                             <th>Options</th>

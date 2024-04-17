@@ -1,7 +1,9 @@
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.functions.datetime import datetime
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
@@ -50,7 +52,8 @@ class Category(models.Model):
         ("#03c3ec", "blue"),
         ("#233446", "black"),
     )
-    chartColor = models.CharField(max_length=7, default="#8592a3", choices=COLOR_CHOICE)
+    chartColor = models.CharField(
+        max_length=7, default="#8592a3", choices=COLOR_CHOICE)
 
     ICON_SIZE = 64
     icon = models.ImageField(upload_to="images/icons", blank=True)
@@ -77,8 +80,10 @@ class Order(models.Model):
         ("sell", _("Sell")),
         ("purchase", _("Purchase")),
     )
-    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default="purchase")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default="pending")
+    type = models.CharField(
+        max_length=20, choices=TYPE_CHOICE, default="purchase")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICE, default="pending")
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
@@ -86,6 +91,7 @@ class Order(models.Model):
         null=True,
         validators=[MinValueValidator(0), MaxValueValidator(8)],
     )
+    position_date = models.DateTimeField(null=True)
     invoice_data = models.TextField(blank=True)
     # external = models.BooleanField(default=False)
     vin = models.CharField(max_length=17, blank=True, null=True)
@@ -134,6 +140,20 @@ class Order(models.Model):
         return sorted(qs, key=lambda x: order.index(x.status))
 
     @property
+    def last_pos_change(self):
+        if self.position_date is None:
+            return self.created_date
+        return self.position_date
+
+    @property
+    def days_on_pos(self):
+        last_pos_change = self.last_pos_change
+        if last_pos_change is None:
+            return -1
+
+        return (timezone.now() - last_pos_change).days
+
+    @property
     def external(self):
         return (
             self.associated is not None
@@ -176,6 +196,7 @@ def on_field_change(sender, instance, **kwargs):
                 reason=instance.storage_reason,
             )
         trace.save()
+        instance.position_date = datetime.now()
     if instance.position == 0 and (
         old_order.status != instance.status
         or old_order.storage_reason != instance.storage_reason
