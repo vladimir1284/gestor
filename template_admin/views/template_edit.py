@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -9,6 +10,7 @@ from template_admin.models.template import Template
 from template_admin.models.template import TT_LIST
 
 
+@login_required
 def template_edit(request: HttpRequest, id):
     template: Template = get_object_or_404(Template, id=id)
 
