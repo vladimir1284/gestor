@@ -63,7 +63,7 @@ def update_order(request, id):
 
 
 @login_required
-def update_order_status(request, id, status):
+def update_order_status(request, id, status, labor=None):
     order = get_object_or_404(Order, id=id)
 
     try:
@@ -91,6 +91,8 @@ def update_order_status(request, id, status):
 
         order.status = status
         order.save()
+        if order.status == "processing" and labor is not None:
+            return redirect("service-labor", id)
     except NotEnoughStockError as error:
         print(error)
 

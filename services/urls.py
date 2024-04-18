@@ -198,6 +198,11 @@ urlpatterns = [
         name="update-service-order-status",
     ),
     path(
+        "update-order-status/<id>/<status>/<labor>",
+        order.update_order_status,
+        name="update-service-order-status",
+    ),
+    path(
         "update-order-position/<id>/<status>",
         order.order_end_update_position,
         name="update-order-position",

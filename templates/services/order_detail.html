@@ -582,15 +582,42 @@
     <!-- <script src="{% static "assets/js/print.js" %}"></script> -->
     <script src="{% static "js/print.min.js" %}"></script>
     <script>
-        function printLabor() {
-            Alpine.store('printing').show()
+        function isAndroid() {
+            const ua = navigator.userAgent.toLowerCase();
+            return ua.indexOf("android") > -1;
+        }
+
+        function printLabPDF(callback = null) {
+            const printable = "{% url 'pdf-labor' order.id %}"
             printJS({
-                printable: "{% url 'pdf-labor' order.id %}",
+                printable,
+                fallbackPrintable: printable,
+                onError: (e) => {
+                    alert(e)
+                    Alpine.store('printing').hide()
+                },
+                onLoadingStart: () => {
+                    console.log("print: loading start")
+                    Alpine.store('printing').show()
+                },
+                onLoadingEnd: () => {
+                    console.log("print: loading end")
+                    Alpine.store('printing').hide()
+                },
                 onPrintDialogClose: () => {
                     console.log("printed")
                     Alpine.store('printing').hide()
+                    if(callback) callback()
                 },
             })
+        }
+
+        function printLabor() {
+            if (isAndroid()) {
+                window.location.href = "{%url "service-labor" order.id %}"
+                return
+            }
+            printLabPDF()
         }
 
         function updateStatus(url, status) {
@@ -600,14 +627,16 @@
             }
             if (status == "processing") {
                 try {
-                    Alpine.store('printing').show()
-                    printJS({
-                        printable: "{% url 'pdf-labor' order.id %}",
-                        onPrintDialogClose: () => {
-                            console.log("printed")
-                            Alpine.store('printing').hide()
-                            window.location = url
-                        },
+                    if (isAndroid()) {
+                        if (!url.endsWith('/')) {
+                            url += '/'
+                        }
+                        url += "lab"
+                        window.location.href = url
+                        return
+                    }
+                    printLabPDF(() => {
+                        window.location.href=url
                     })
                     return
                 } catch(e) {
