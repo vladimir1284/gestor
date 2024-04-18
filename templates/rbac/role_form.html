@@ -29,7 +29,9 @@
 {% block content %}
     <div class="col-xxl">
         <div class="card mb-4">
-            <div class="position-absolute top-0 end-0 pe-3 pt-3">
+            <div class="card-header flex items-center justify-end gap-2 flex-wrap">
+                <h5 class="mb-0 flex-grow">{{ title }}</h5>
+                <!-- <div class="position-absolute top-0 end-0 pe-3 pt-3"> -->
                 <a class="btn btn-outline-primary" href="{% url 'rbac-list-roles' %}">
                     <i class='bx bx-left-arrow-alt'></i>
                     Cancel
@@ -40,9 +42,7 @@
                         <i class="bx bx-trash"></i>
                     </a>
                 {% endif %}
-            </div>
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">{{ title }}</h5>
+                <!-- </div> -->
             </div>
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}
