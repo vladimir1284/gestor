@@ -84,24 +84,21 @@
         <script defer src="{% static 'js/alpine.min.js' %}"></script>
     </head>
     <body>
-        <script>
-            document.addEventListener('alpine:init', () => {
-                Alpine.store("scroll", {scroll: 0})
-                window.addEventListener("scroll", () => {
-                    Alpine.store("scroll").scroll = window.scrollY
-                })
-            })
-        </script>
         <div class="container-xxl flex-grow-1 container-p-y pb-24">
             <div class="col-xxl">
-                <div class="card" x-data="{finishFix: false, bottom: 0}" >
+                <div class="card relative" x-ref="card" x-data="{finishFix: false, bottom: 0, sign: false}" >
                     <div class="card-header d-flex justify-content-between">
                         <h3>Condiciones de servicio</h3>
                         {% if signature and signature.img %}
                             <form method='post'>
                                 {% csrf_token %}
                                 <button id="complete1" type="submit" x-intersect:enter="finishFix = false" x-intersect:leave="finishFix = true" class="float-right btn btn-outline-primary">Finalizar</button>
-                                <button id="complete2" type="submit" x-cloak class="btn btn-primary fixed right-4 transition-all" :style="{'bottom': Math.max(bottom - $el.offsetHeight, 15) + 'px'}" :class="{'transition-none': bottom > 15, 'complete-hidden': !finishFix}">Finalizar</button>
+                                <button id="complete2" type="submit" class="btn btn-primary transition-all" :class="{
+                                            absolute: sign,
+                                            fixed: !sign,
+                                            'transition-all': !sign,
+                                            'complete-hidden': !finishFix,
+                                            }" :style="{bottom: sign ? bottom : '15px'}">Finalizar</button>
                             </form>
                         {% endif %}
                     </div>
@@ -156,9 +153,12 @@
                                     {% endif %}
                                     >
                                     <a class="signature_btn"
-                                        x-effect="bottom = $store.scroll.scroll + window.innerHeight - $el.offsetTop - $el.offsetHeight"
                                         href="{% url 'contact-client-service-order-signature' token %}">
-                                        <button type="button" class="btn btn-primary">
+                                        <button type="button" class="btn btn-outline-primary"
+                                            x-init="bottom = $refs.card.offsetHeight - $el.offsetTop - $el.offsetHeight"
+                                            x-intersect:enter.full.margin.-15px = "sign = true"
+                                            x-intersect:leave.full.margin.-15px = "sign = false"
+                                            >
                                             <span class="tf-icons bx bx-edit"></span>
                                             {% if signature.img %}
                                                 Recapture
@@ -179,7 +179,7 @@
                                     </section>
                                     <div class="text-center">
                                         <a href="{% url 'contract-client-use-old-sign' token %}"
-                                           class="btn btn-outline-primary">Use this signature</a>
+                                           class="btn btn-primary">Use this signature</a>
                                     </div>
                                 </div>
                             {% endif %}

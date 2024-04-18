@@ -1,9 +1,90 @@
 {% load static %}
 <div class="container">
-    <div class="row d-block pb-2">
-        Created: <strong>{{ order.created_date|date:"m/d/Y" }}</strong>
-        Processing: <strong>{{ order.processing_date|date:"m/d/Y" }}</strong>
-        Terminated: <strong>{{ order.terminated_date|date:"m/d/Y" }}</strong>
+    <div class="flex pb-2">
+        <span class="shadow-inner rounded-lg p-2 mb-2">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="text-center">Created:</td>
+                        <td class="text-center">Processing:</td>
+                        <td class="text-center">Terminated:</td>
+                    </tr>
+                    <tr>
+                        <td class="ps-2 pe-2">
+                            <div class="d-flex justify-content-center">
+                            <strong>{{ order.created_date|date:"m/d/Y" }}</strong>
+                            </div>
+                        </td>
+                        <td class="ps-2 pe-2">
+                            <div class="d-flex justify-content-center">
+                            <strong>{{ order.processing_date|date:"m/d/Y" }}</strong>
+                            </div>
+                        </td>
+                        <td class="ps-2 pe-2">
+                            <div class="d-flex justify-content-center">
+                            <strong>{{ order.terminated_date|date:"m/d/Y" }}</strong>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="d-flex justify-content-center">
+                            {% if order.created_by %}
+                                <div class="avatar avatar-online">
+                                    {% if order.created_by.profile_user.avatar %}
+                                        <img src="{{ order.created_by.profile_user.avatar.url }}"
+                                             alt=""
+                                             class="w-px-40 rounded-circle" />
+                                    {% else %}
+                                        <span style="font-size:1.5em"
+                                              class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                            {{ order.created_by.first_name|first }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center">
+                            {% if order.processing_user %}
+                                <div class="avatar avatar-online">
+                                    {% if order.processing_user.profile_user.avatar %}
+                                        <img src="{{ order.processing_user.profile_user.avatar.url }}"
+                                             alt=""
+                                             class="w-px-40 rounded-circle" />
+                                    {% else %}
+                                        <span style="font-size:1.5em"
+                                              class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                            {{ order.processing_user.first_name|first }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center">
+                                {% if order.terminated_user %}
+                                    <div class="avatar avatar-online">
+                                        {% if order.terminated_user.profile_user.avatar %}
+                                            <img src="{{ order.terminated_user.profile_user.avatar.url }}"
+                                                 alt=""
+                                                 class="w-px-40 rounded-circle" />
+                                        {% else %}
+                                            <span style="font-size:1.5em"
+                                                  class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                                {{ order.terminated_user.first_name|first }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </span>
     </div>
     <div class="row">
         <div class="col-md-4 d-flex pb-1">

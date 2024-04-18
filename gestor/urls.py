@@ -60,7 +60,8 @@ urlpatterns = [
         dashboard.week_stats_recalculate,
         name="week-stats-recalculate",
     ),
-    path("erp/weekly-costs/<category_id>/<date>", cost.weekly_cost, name="weekly-cost"),
+    path("erp/weekly-costs/<category_id>/<date>",
+         cost.weekly_cost, name="weekly-cost"),
     # Monthly reports
     path("erp/monthly/", reports.monthly_report, name="monthly-report"),
     path(
@@ -90,6 +91,7 @@ urlpatterns = [
     path("erp/users/", include("users.urls")),
     path("erp/inventory/", include("inventory.urls")),
     path("erp/services/", include("services.urls")),
+    path("client/", include("services.client_urls")),
     path("erp/equipment/", include("equipment.urls")),
     path("erp/costs/", include("costs.urls")),
     path("erp/rent/", include("rent.urls")),
