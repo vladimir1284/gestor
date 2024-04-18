@@ -86,10 +86,13 @@ def update_order_status(request, id, status):
         if status == "processing":
             # Send SMS
             order.processing_date = timezone.localtime(timezone.now())
+            order.processing_user = request.user
             twilioSendSMS(order, status)
 
         order.status = status
         order.save()
+        if order.status == "processing" and not order.labor_viewed:
+            return redirect("service-labor", id)
     except NotEnoughStockError as error:
         print(error)
 
