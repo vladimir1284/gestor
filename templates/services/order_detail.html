@@ -580,11 +580,7 @@
                 return
             }
             if (status == "processing") {
-                try {
-                    await printPDF("{% url 'pdf-labor' order.id %}", 1.5)
-                } catch(e) {
-                    console.error(e)
-                }
+                await printPDF("{% url 'pdf-labor' order.id %}", 1.5)
             }
             window.location = url;
         }
