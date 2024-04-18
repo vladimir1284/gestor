@@ -154,7 +154,7 @@
                                     >
                                     <a class="signature_btn"
                                         href="{% url 'contact-client-service-order-signature' token %}">
-                                        <button type="button" class="btn {% if signature.img %}btn-outline-primary{%else%}btn-primary{%endif%}"
+                                        <button type="button" class="btn btn-outline-primary"
                                             x-init="bottom = $refs.card.offsetHeight - $el.offsetTop - $el.offsetHeight"
                                             x-intersect:enter.full.margin.-15px = "sign = true"
                                             x-intersect:leave.full.margin.-15px = "sign = false"
@@ -179,7 +179,7 @@
                                     </section>
                                     <div class="text-center">
                                         <a href="{% url 'contract-client-use-old-sign' token %}"
-                                           class="btn btn-outline-primary">Use this signature</a>
+                                           class="btn btn-primary">Use this signature</a>
                                     </div>
                                 </div>
                             {% endif %}
