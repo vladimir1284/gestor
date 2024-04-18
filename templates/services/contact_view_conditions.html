@@ -148,13 +148,23 @@
                                         <img class="signature max-w-full" src="{% static 'images/signs/empty.png' %}" :style="height && `height: ${height}px`">
                                     {% endif %}
                                 </section>
-                                <div class="text-center">
+                                <div 
+                                    {% if signature.img %}
+                                        class="text-left"
+                                    {% else %}
+                                        class="text-center"
+                                    {% endif %}
+                                    >
                                     <a class="signature_btn"
                                         x-effect="bottom = $store.scroll.scroll + window.innerHeight - $el.offsetTop - $el.offsetHeight"
                                         href="{% url 'contact-client-service-order-signature' token %}">
                                         <button type="button" class="btn btn-primary">
                                             <span class="tf-icons bx bx-edit"></span>
-                                            Capture a new signature
+                                            {% if signature.img %}
+                                                Recapture
+                                            {% else %}
+                                                Capture a new signature
+                                            {% endif %}
                                         </button>
                                     </a>
                                 </div>
