@@ -99,6 +99,11 @@ urlpatterns = [
         name="select-service",
     ),
     path(
+        "select-service/<next>/<order_id>/<type>",
+        service.select_service,
+        name="select-service",
+    ),
+    path(
         "select-new-service/<next>/<order_id>",
         service.select_new_service,
         name="select-new-service",

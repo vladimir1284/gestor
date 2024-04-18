@@ -278,19 +278,18 @@
             </div>
         </div>
     {% endif %}
-        <div class="card mb-3" x-data="{parts: true, services: true, consumables: true}">
-            <div class="card-header flex items-start justify-between">
-                <div class="flex-grow p-0 m-0">
-                    <h4 class="m-0 p-0">Parts, Services, Consumables</h4>
+        <div class="card mb-3">
+                <div class="card-header flex items-center">
+                    <h5 class="flex-grow m-0 p-0">
+                        Parts
+                        {% if parts_amount %}
+                            <b>${{ parts_total|floatformat:"-2" }}</b>
+                            {% if parts_tax > 0 %}= ${{ parts_amount|floatformat:"-2" }}+${{ parts_tax|floatformat:"-2" }}{% endif %}
+                        {% endif %}
+                    </h5>
                     <div>
-                        Total: 
-                        <b>${{ psc_total|floatformat:"-2" }}</b>
-                        = ${{parts_total|floatformat:"-2"}} + ${{service_total|floatformat:"-2"}} + ${{consumable_total|floatformat:"-2"}}
-                    </div>
-                </div>
-                <div>
                     {%if not terminated%}
-                        <a href="{% url 'select-service' 'create-service-transaction' order.id %}"
+                        <a href="{% url 'select-service' 'create-service-transaction' order.id 'parts' %}"
                            type="button"
                             data-bs-toggle="tooltip"
                             data-bs-offset="0,4"
@@ -301,25 +300,9 @@
                             <span class="tf-icons bx bx-plus"></span>
                         </a>
                     {% endif %}
-                </div>
-            </div>
-            {% if parts_amount %}
-                <div class="border"></div>
-                <div class="card-header flex items-center">
-                    <h5 class="flex-grow m-0 p-0">
-                        Parts
-                        {% if parts_amount %}
-                            <b>${{ parts_total|floatformat:"-2" }}</b>
-                            {% if parts_tax > 0 %}= ${{ parts_amount|floatformat:"-2" }}+${{ parts_tax|floatformat:"-2" }}{% endif %}
-                        {% endif %}
-                    </h5>
-                    <div>
-                        <button class="btn btn-link float-right m-0 p-2" @click="parts = !parts">
-                            <i class='bx bx-chevron-right transition' :class="{'rotate-90': parts}"></i>
-                        </button>
                     </div>
                 </div>
-                <div class="table-responsive text-nowrap" x-show="parts" x-collapse>
+                <div class="table-responsive text-nowrap">
                     <table class="table table-sm">
                         <thead>
                             <tr>
@@ -355,9 +338,8 @@
                         </tbody>
                     </table>
                 </div>
-            {% endif %}
-            {% if services %}
-                <div class="border"></div>
+        </div>
+        <div class="card mb-3">
                 <div class="card-header flex items-center">
                     <h5 class="flex-grow m-0 p-0">
                         Services
@@ -367,12 +349,21 @@
                         {% endif %}
                     </h5>
                     <div>
-                        <button class="btn btn-link float-right m-0 p-2" @click="services = !services">
-                            <i class='bx bx-chevron-right transition' :class="{'rotate-90': services}"></i>
-                        </button>
+                    {%if not terminated%}
+                        <a href="{% url 'select-service' 'create-service-transaction' order.id 'services' %}"
+                           type="button"
+                            data-bs-toggle="tooltip"
+                            data-bs-offset="0,4"
+                            data-bs-placement="left"
+                            data-bs-html="true"
+                            data-bs-original-title="Add part or service"
+                           class="btn btn-icon btn-outline-info float-end">
+                            <span class="tf-icons bx bx-plus"></span>
+                        </a>
+                    {% endif %}
                     </div>
                 </div>
-                <div class="table-responsive text-nowrap" x-show="services" x-collapse>
+                <div class="table-responsive text-nowrap">
                     <table class="table table-sm">
                         <thead>
                             <tr>
@@ -404,9 +395,8 @@
                         </tbody>
                     </table>
                 </div>
-            {% endif %}
-            {% if consumables %}
-                <div class="border"></div>
+        </div>
+        <div class="card mb-3">
                 <div class="card-header flex items-center">
                     <h5 class="flex-grow m-0 p-0">
                         Consumables
@@ -418,12 +408,21 @@
                         {% endif %}
                     </h5>
                     <div>
-                        <button class="btn btn-link float-right m-0 p-2" @click="consumables = !consumables">
-                            <i class='bx bx-chevron-right transition' :class="{'rotate-90': consumables}"></i>
-                        </button>
+                    {%if not terminated%}
+                        <a href="{% url 'select-service' 'create-service-transaction' order.id 'consumable' %}"
+                           type="button"
+                            data-bs-toggle="tooltip"
+                            data-bs-offset="0,4"
+                            data-bs-placement="left"
+                            data-bs-html="true"
+                            data-bs-original-title="Add part or service"
+                           class="btn btn-icon btn-outline-info float-end">
+                            <span class="tf-icons bx bx-plus"></span>
+                        </a>
+                    {% endif %}
                     </div>
                 </div>
-                <div class="table-responsive text-nowrap" x-show="consumables" x-collapse>
+                <div class="table-responsive text-nowrap">
                     <table class="table table-sm">
                         <thead>
                             <tr>
@@ -459,7 +458,6 @@
                         </tbody>
                     </table>
                 </div>
-            {% endif %}
         </div>
         {% if not terminated or expenses %}
             <div class="card mb-3">
