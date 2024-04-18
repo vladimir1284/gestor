@@ -206,17 +206,11 @@
                     <span class="tf-icons bx bx-printer"></span>
                 </a>
 
-                <!-- <a class="btn btn-icon btn-outline-primary" -->
-                <!--    type="button" -->
-                <!--    href="{% url 'service-labor' order.id %}"> -->
-                <!--     <span class="tf-icons bx bx-wrench"></span> -->
-                <!-- </a> -->
-                <button class="btn btn-icon btn-outline-primary"
+                <a class="btn btn-icon btn-outline-primary"
                    type="button"
-                   onclick="printLabor()"
-                   >
+                   href="{% url 'service-labor' order.id %}">
                     <span class="tf-icons bx bx-wrench"></span>
-                </button>
+                </a>
 
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
@@ -563,7 +557,6 @@
                     {% include "services/order_services_history.html" %}
     </div>
     </div>
-    {%include 'utils/printing.html'%}
     <!-- <a href="{% url 'select-service' 'create-service-transaction' order.id %}" class="z-50"> -->
     <!--     <button type="button" -->
     <!--             style="visibility: {% if terminated %}hidden{% endif %}" -->
@@ -577,73 +570,12 @@
     <!--         <b>+</b> -->
     <!--     </button> -->
     <!-- </a> -->
-    <!-- <script src="{% static "libs/pdf/pdf.js" %}" type="module"></script> -->
-    <!-- <script src="{% static "libs/pdf/pdf.worker.js" %}" type="module"></script> -->
-    <!-- <script src="{% static "assets/js/print.js" %}"></script> -->
-    <script src="{% static "js/print.min.js" %}"></script>
     <script>
-        function isAndroid() {
-            const ua = navigator.userAgent.toLowerCase();
-            return ua.indexOf("android") > -1;
-        }
-
-        function printLabPDF(callback = null) {
-            const printable = "{% url 'pdf-labor' order.id %}"
-            printJS({
-                printable,
-                fallbackPrintable: printable,
-                onError: (e) => {
-                    alert(e)
-                    Alpine.store('printing').hide()
-                },
-                onLoadingStart: () => {
-                    console.log("print: loading start")
-                    Alpine.store('printing').show()
-                },
-                onLoadingEnd: () => {
-                    console.log("print: loading end")
-                    Alpine.store('printing').hide()
-                },
-                onPrintDialogClose: () => {
-                    console.log("printed")
-                    Alpine.store('printing').hide()
-                    if(callback) callback()
-                },
-            })
-        }
-
-        function printLabor() {
-            if (isAndroid()) {
-                window.location.href = "{%url "service-labor" order.id %}"
-                return
-            }
-            printLabPDF()
-        }
-
         function updateStatus(url, status) {
             let confirmAction = confirm("Are you sure you want to change the order status to " + status + "?");
-            if (!confirmAction) {
-                return
+            if (confirmAction) {
+                window.location = url;
             }
-            if (status == "processing") {
-                try {
-                    if (isAndroid()) {
-                        if (!url.endsWith('/')) {
-                            url += '/'
-                        }
-                        url += "lab"
-                        window.location.href = url
-                        return
-                    }
-                    printLabPDF(() => {
-                        window.location.href=url
-                    })
-                    return
-                } catch(e) {
-                    console.error(e)
-                }
-            }
-            window.location = url;
         }
 
         let round_to, cost, hint, profit, discount;
