@@ -557,7 +557,6 @@
                     {% include "services/order_services_history.html" %}
     </div>
     </div>
-    {%include 'utils/printing.html'%}
     <!-- <a href="{% url 'select-service' 'create-service-transaction' order.id %}" class="z-50"> -->
     <!--     <button type="button" -->
     <!--             style="visibility: {% if terminated %}hidden{% endif %}" -->
@@ -571,28 +570,18 @@
     <!--         <b>+</b> -->
     <!--     </button> -->
     <!-- </a> -->
-    <!-- <script src="{% static "libs/pdf/pdf.js" %}" type="module"></script> -->
-    <!-- <script src="{% static "libs/pdf/pdf.worker.js" %}" type="module"></script> -->
-    <!-- <script src="{% static "assets/js/print.js" %}"></script> -->
-    <script src="{% static "js/print.min.js" %}"></script>
+    <script src="{% static "libs/pdf/pdf.js" %}" type="module"></script>
+    <script src="{% static "libs/pdf/pdf.worker.js" %}" type="module"></script>
+    <script src="{% static "assets/js/print.js" %}"></script>
     <script>
-        function updateStatus(url, status) {
+        async function updateStatus(url, status) {
             let confirmAction = confirm("Are you sure you want to change the order status to " + status + "?");
             if (!confirmAction) {
                 return
             }
             if (status == "processing") {
                 try {
-                    Alpine.store('printing').show()
-                    printJS({
-                        printable: "{% url 'pdf-labor' order.id %}",
-                        onPrintDialogClose: () => {
-                            console.log("printed")
-                            Alpine.store('printing').hide()
-                            window.location = url
-                        },
-                    })
-                    return
+                    await printPDF("{% url 'pdf-labor' order.id %}", 1.5)
                 } catch(e) {
                     console.error(e)
                 }
