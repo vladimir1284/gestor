@@ -13,6 +13,15 @@ from .views import storage
 from .views import transaction
 from services.tools.init_temps import init_temps
 from services.views.order_decline_reazon import order_decline_reazon
+from services.views.order_flow.contact_form import lessee_form
+from services.views.order_flow.contract_client_signature import (
+    contact_create_handwriting,
+)
+from services.views.order_flow.contract_client_signature import (
+    contract_client_use_old_sign,
+)
+from services.views.order_flow.contract_end import process_ended_page
+from services.views.order_flow.contract_view_conditions import contact_view_conditions
 from services.views.order_flow.create_order_contract import create_order_contact
 from services.views.order_flow.fast_orders import fast_order_create
 from services.views.order_flow.fast_orders import order_quotation
@@ -111,6 +120,11 @@ urlpatterns = [
     path("view-conditions/<id>", view_conditions, name="view-conditions"),
     path("use-old-sign/<id>", use_old_sign, name="use-old-sign"),
     path(
+        "contract-client-use-old-sign/<token>",
+        contract_client_use_old_sign,
+        name="contract-client-use-old-sign",
+    ),
+    path(
         "view-preorder-state/<preorder_id>",
         preorder_state,
         name="view-preorder-state",
@@ -129,6 +143,11 @@ urlpatterns = [
         "client-signature/<id>",
         create_handwriting,
         name="client-service-order-signature",
+    ),
+    path(
+        "process-ended-page/",
+        process_ended_page,
+        name="process-ended-page",
     ),
     path("select-lessee/", select_lessee, name="select-service-lessee"),
     path(
@@ -155,6 +174,21 @@ urlpatterns = [
         "generate-order-contact-url/<id>",
         generate_url,
         name="generate-service-order-contact-url",
+    ),
+    path(
+        "contact-form/<token>",
+        lessee_form,
+        name="service-order-contact-form",
+    ),
+    path(
+        "contact-view-conditions/<token>",
+        contact_view_conditions,
+        name="contact-view-conditions",
+    ),
+    path(
+        "contact-client-signature/<token>",
+        contact_create_handwriting,
+        name="contact-client-service-order-signature",
     ),
     path("create-order/<id>", create_order, name="create-service-order"),
     path("update-order/<id>", order.update_order, name="update-service-order"),

@@ -17,12 +17,11 @@ from services.views.order_flow.fast_orders import Preorder
 @login_required
 def generate_url(request, id):
     preorder: Preorder = get_object_or_404(Preorder, id=id)
+    preorder.completed = None
+    preorder.save()
 
     if request.method == "POST":
         return redirect("view-conditions", id)
-
-    preorder.completed = None
-    preorder.save()
 
     phone = (
         preorder.associated.phone_number if preorder.associated is not None else None
