@@ -14,7 +14,7 @@ def user_change_password(request: HttpRequest, id):
     user = get_object_or_404(User, id=id)
     request.session["pass_saved"] = None
     if request.method == "POST":
-        if request.user.has_perm("extra_perm.change_password"):
+        if request.user.is_superuser:
             form = SetUserPassForm(user, request.POST)
         else:
             form = ChangeUserPassForm(user, request.POST)
@@ -23,7 +23,7 @@ def user_change_password(request: HttpRequest, id):
             request.session["pass_saved"] = True
             return redirect("rbac-user-update", id)
     else:
-        if request.user.has_perm("extra_perm.change_password"):
+        if request.user.is_superuser:
             form = SetUserPassForm(user)
         else:
             form = ChangeUserPassForm(user)

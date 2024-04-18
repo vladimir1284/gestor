@@ -111,44 +111,44 @@
             </script>
         {%endif%}
         <div class="card mb-4">
-            <div class="position-absolute top-0 end-0 pe-3 pt-3">
-                <a class="btn btn-outline-primary" href="{% url 'rbac-list-users' %}">
-                    <i class='bx bx-left-arrow-alt'></i>
-                    Cancel
-                </a>
-                {% if user_instance is not None %}
-                    <button type="button"
-                            class="btn btn-outline-info"
-                            data-bs-toggle="modal"
-                            data-bs-target="#newRoleModal">
-                        <i class='bx bxl-baidu'></i>
-                        New Role
-                    </button>
-                    <a class="btn btn-outline-primary"
-                       href="{% url 'rbac-user-pass' user_instance.id %}">
-                        <i class='bx bx-lock-open'></i>
-                        Change password
+            <div class="card-header flex items-center justify-end flex-wrap gap-2">
+                <h5 class="mb-2 flex-grow">{{ title }}</h5>
+                <!-- <div class="flex justify-end flex-wrap gap-2"> -->
+                    <a class="btn btn-outline-primary" href="{% url 'rbac-list-users' %}">
+                        <i class='bx bx-left-arrow-alt'></i>
+                        Cancel
                     </a>
-                {% else %}
-                    <button class="btn btn-outline-warning" @click="randomPass">
-                        <i class='bx bx-dice-5'></i>
-                        Random pass
+                    {% if user_instance is not None %}
+                        <button type="button"
+                                class="btn btn-outline-info"
+                                data-bs-toggle="modal"
+                                data-bs-target="#newRoleModal">
+                            <i class='bx bxl-baidu'></i>
+                            New Role
+                        </button>
+                        <a class="btn btn-outline-primary"
+                           href="{% url 'rbac-user-pass' user_instance.id %}">
+                            <i class='bx bx-lock-open'></i>
+                            Change password
+                        </a>
+                    {% else %}
+                        <button class="btn btn-outline-warning" @click="randomPass">
+                            <i class='bx bx-dice-5'></i>
+                            Random pass
+                        </button>
+                    {% endif %}
+                    <button class="btn btn-outline-success" onclick="send()">
+                        <i class='bx bx-save'></i>
+                        Save
                     </button>
-                {% endif %}
-                <button class="btn btn-outline-success" onclick="send()">
-                    <i class='bx bx-save'></i>
-                    Save
-                </button>
-                {% if user_instance is not None %}
-                    <a class="btn btn-outline-danger"
-                       href="{% url 'rbac-user-delete' user_instance.id %}">
-                        <i class="bx bx-trash"></i>
-                        Remove
-                    </a>
-                {% endif %}
-            </div>
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">{{ title }}</h5>
+                    {% if user_instance is not None %}
+                        <a class="btn btn-outline-danger"
+                           href="{% url 'rbac-user-delete' user_instance.id %}">
+                            <i class="bx bx-trash"></i>
+                            Remove
+                        </a>
+                    {% endif %}
+                <!-- </div> -->
             </div>
             <div class="card-body" x-data="UserRolesPerms">
                 <form enctype="multipart/form-data" method="post" id="user-form">

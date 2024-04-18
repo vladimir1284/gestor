@@ -27,9 +27,4 @@ EXTRA_PERMS = [
         app="extra_perm",
         name="Mostrar el valor total de la deuda de alquiler",
     ),
-    PermissionParam(
-        code="change_password",
-        app="extra_perm",
-        name="Puede cambiar la contraseña de los usuarios sin necesidad de tener la anterior",
-    ),
 ]

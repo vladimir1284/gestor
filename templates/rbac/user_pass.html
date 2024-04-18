@@ -14,7 +14,9 @@
 {% block content %}
     <div class="col-xxl" x-data="userPass">
         <div class="card mb-4">
-            <div class="position-absolute top-0 end-0 pe-3 pt-3">
+            <div class="card-header flex items-center justify-end flex-wrap gap-2">
+                <h5 class="mb-2 flex-grow">{{ title }}</h5>
+                <!-- <div class="flex flex-wrap gap-2 justify-end"> -->
                 <a class="btn btn-outline-primary"
                    href="{% url 'rbac-user-update' user_instance.id %}">
                     <i class='bx bx-left-arrow-alt'></i>
@@ -28,9 +30,7 @@
                     <i class='bx bx-save'></i>
                     Save
                 </button>
-            </div>
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">{{ title }}</h5>
+                <!-- </div> -->
             </div>
             <div class="card-body">
                 <form enctype="multipart/form-data" method="post" id="user-form">
