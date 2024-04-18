@@ -33,16 +33,13 @@ def contact_create_handwriting(request, token):
         }
         return render(request, "rent/client/lessee_form_inf.html", context)
 
-    preorder: Preorder = get_object_or_404(
-        Preorder,
-        id=preorder_id,
-    )
-    if preorder.completed is not None:
-        return redirect("process-ended-page")
-
     if request.method == "POST":
         form = OrderSignatureForm(request.POST, request.FILES)
         if form.is_valid():
+            preorder: Preorder = get_object_or_404(
+                Preorder,
+                id=preorder_id,
+            )
             handwriting: OrderSignature = form.save(commit=False)
             handwriting.associated = preorder.associated
             handwriting.position = "signature_order_client"
@@ -97,8 +94,6 @@ def contract_client_use_old_sign(request, token):
         return render(request, "rent/client/lessee_form_err.html", context)
 
     preorder: Preorder = get_object_or_404(Preorder, id=preorder_id)
-    if preorder.completed is not None:
-        return redirect("process-ended-page")
 
     old_sign = (
         OrderSignature.objects.filter(associated=preorder.associated).last()

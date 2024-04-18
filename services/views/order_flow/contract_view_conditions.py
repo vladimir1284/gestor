@@ -30,9 +30,6 @@ def contact_view_conditions(request, token):
         return render(request, "rent/client/lessee_form_inf.html", context)
 
     preorder: Preorder = get_object_or_404(Preorder, id=preorder_id)
-    if preorder.completed is not None:
-        return redirect("process-ended-page")
-
     preorder.new_associated = False
     preorder.save()
 
