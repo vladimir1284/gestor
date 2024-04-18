@@ -1,0 +1,95 @@
+#videoBox {
+  position: relative;
+
+  video {
+    border-radius: 1rem;
+    max-width: 100%;
+  }
+
+  button {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    color: white;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+      color: #0f8;
+    }
+    &:active {
+      color: #0ff;
+    }
+  }
+
+  #captureBox {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    button {
+      border-radius: 100% 100% 0 0;
+      padding: 1.5rem;
+      padding-bottom: 1rem;
+
+      i {
+        font-size: 2rem;
+      }
+    }
+  }
+
+  #settingsBox {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    button {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 1rem 0 50% 0;
+    }
+  }
+}
+
+#showImgBox {
+  position: relative;
+
+  img {
+    border-radius: 1rem;
+    max-width: 100%;
+  }
+
+  #ctl {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+
+    button {
+      border-radius: 1rem 1rem 0 0;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 0.3rem 1rem;
+      margin: 0 3px;
+      border: none;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease-in-out;
+
+      &:hover {
+        color: #0f8;
+      }
+      &:active {
+        color: #0ff;
+      }
+    }
+  }
+}

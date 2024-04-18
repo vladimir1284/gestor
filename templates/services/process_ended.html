@@ -1,0 +1,133 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<!-- beautify ignore:start -->
+<html lang="es"
+      class="light-style layout-menu-fixed"
+      dir="ltr"
+      data-theme="theme-default"
+      data-assets-path="{% static 'assets/' %}"
+      data-template="vertical-menu-template-free">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+        <title>Gestor de Mantenimientos</title>
+        <meta name="description" content="" />
+        <!-- Favicon -->
+        <link rel="icon"
+              type="image/x-icon"
+              href="{% static 'assets/img/favicon/favicon.ico' %}" />
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+              rel="stylesheet" />
+        <!-- Icons. Uncomment required icon fonts -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+        <!-- Core CSS -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/css/core.css' %}"
+              class="template-customizer-core-css" />
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/css/theme-default.css' %}"
+              class="template-customizer-theme-css" />
+        <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+        <!-- Vendors CSS -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/libs/apex-charts/apex-charts.css' %}" />
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+        <!-- Page CSS -->
+        <style>
+            .input-group-addon {
+                display: flex;
+                align-items: center;
+                padding: 0.4375rem 0.875rem;
+                font-size: 0.9375rem;
+                font-weight: 400;
+                line-height: 1.53;
+                color: #697a8d;
+                text-align: center;
+                white-space: nowrap;
+                background-color: #fff;
+                border: 1px solid #d9dee3;
+                border-radius: 0.375rem;
+            }
+            .help-block {
+                margin-top: 0.3rem;
+                font-size: 85%;
+                color: #b4bdc6;
+            }
+            span[id^="error_"] {
+                width: 100%;
+                margin-top: 0.3rem;
+                font-size: 85%;
+                color: #ff3e1d;
+            }
+            .was-validated .form-control:invalid, .form-control.is-invalid {
+                border-color: #ff3e1d;
+            }
+
+        </style>
+        <!-- Helpers -->
+        <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+        <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+        <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+        <script src="{% static 'assets/js/config.js' %}"></script>
+        <script defer src="{%static 'js/alpine.min.js'%}"></script>
+    </head>
+    <body>
+        <div class="flex justify-center">
+            <div class="card rounded-lg m-4" x-data="countdown">
+                <div class="card-header flex justify-center ">
+                    <h2 class="text-main">Proceso finalizado</h2>
+                </div>
+                <div class="card-body flex flex-col justify-center items-center">
+                    <div class="rounded-full w-[100px] h-[100px] shadow flex justify-center items-center relative">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             version="1.1"
+                             x-show="timer > 0"
+                             class="absolute top-0 left-0 bottom-0 right-0"
+                             width="100px"
+                             height="100px">
+                            <circle class="stroke-main fill-none stroke-[8px]" cx="50px" cy="50px" r="43px" stroke-linecap="round" :style="circle" />
+                        </svg>
+                        <span x-text="parseInt((timer+9)/10)" class="text-6xl"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const Max = 50
+            document.addEventListener('alpine:init', () => {
+                Alpine.data("countdown", () => {
+                    return {
+                        timer: Max,
+                        interval: 0,
+                        circle: {
+                            'stroke-dasharray': Math.PI * 2 * 43,
+                            'stroke-dashoffset': 0,
+                        },
+
+                        init() {
+                            this.interval = window.setInterval(() => this.update(), 100)
+                        },
+
+                        update() {
+                            if (this.timer > 0) {
+                                this.timer--
+                            }
+                            this.circle['stroke-dashoffset'] = parseInt(this.circle['stroke-dasharray'] * (1.0 -parseFloat(this.timer)/Max))
+                            if (this.timer <= 0) {
+                                window.clearInterval(this.interval)
+                                window.location.href="{{redir_client}}"
+                            }
+                        },
+                    }
+                })
+            })
+        </script>
+    </body>
+</html>

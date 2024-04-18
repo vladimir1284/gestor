@@ -1,7 +1,7 @@
 {% load static %}
 <div class="container">
-    <div class="row d-flex pb-2">
-        <span>
+    <div class="flex pb-2">
+        <span class="shadow-inner rounded-lg p-2 mb-2">
             <table>
                 <tbody>
                     <tr>
@@ -146,6 +146,8 @@
                 {% include "equipment/equipment_line.html" with equipment=order.trailer equipment_type="trailer" %}
             {% elif order.vehicle %}
                 {% include "equipment/equipment_line.html" with equipment=order.vehicle equipment_type="vehicle" %}
+            {% elif order.vin or order.plate %}
+                {% include "services/order_clients_trailer.html" %}
             {% else %}
                 <a href="{% url 'select-trailer' %}"
                    type="button"

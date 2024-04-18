@@ -20,4 +20,16 @@
             </form>
         </div>
     </div>
+    <script>
+        const position = document.querySelector('#div_id_position select')
+        const reason = document.querySelector('#div_id_reason')
+
+        function updateReason() {
+            const value = position.value
+            reason.style.display = value != '' && value == 0? 'block': 'none'
+        }
+
+        position.addEventListener('change', updateReason)
+        updateReason()
+    </script>
 {% endblock content %}

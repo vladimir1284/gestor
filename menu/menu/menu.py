@@ -94,20 +94,14 @@ MENU = [
                 url="rbac-list-users",
                 # dj_perms=["auth.add_user"],
                 extra_match=["rbac-user-create", "rbac-user-update"],
-                self_perm=PermissionParam(
-                    code="user_admin",
-                    name="Administrador de usuarios",
-                ),
+                admin=True,
             ),
             MenuItem(
                 name="Roles",
                 url="rbac-list-roles",
                 # dj_perms=["auth.add_user"],
                 extra_match=["rbac-role-form"],
-                self_perm=PermissionParam(
-                    code="role_admin",
-                    name="Administrador de roles",
-                ),
+                admin=True,
             ),
         ],
     ),
@@ -118,18 +112,31 @@ MENU = [
         i18n="Sells",
         icon="bx-wrench",
         url="list-service-order",
+        extra_match=[
+            "list-service-order-terminated",
+            "detail-service-order",
+        ],
         self_perm=PermissionParam(
             code="service_order",
             name="Ordenes de servicio",
         ),
     ),
+    MenuItem(
+        name="Storage",
+        icon="bxs-car-garage",
+        url="storage-view",
+        self_perm=PermissionParam(
+            code="service_order_storage",
+            name="Ordenes de servicio en storage",
+        ),
+    ),
     # MenuItem(
-    #     name="Storage",
-    #     icon="bxs-car-garage",
-    #     url="storage-view",
+    #     name="Taller",
+    #     icon="bxs-car-mechanic",
+    #     url="service-order-on-pos",
     #     self_perm=PermissionParam(
-    #         code="service_order_storage",
-    #         name="Ordenes de servicio en storage",
+    #         code="service_order_on_pos",
+    #         name="Ordenes de servicio en el taller",
     #     ),
     # ),
     MenuItem(
@@ -346,6 +353,20 @@ MENU = [
                 ),
             ),
         ],
+    ),
+    # System Config
+    MenuItem("System configuration"),
+    MenuItem(
+        "Templates",
+        url="template-list",
+        icon="bx-layout",
+        extra_match=[
+            "template-edit",
+        ],
+        self_perm=PermissionParam(
+            code="system_conf_templates",
+            name="Configuración de templates del sistema",
+        ),
     ),
 ]
 

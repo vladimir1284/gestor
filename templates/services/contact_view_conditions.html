@@ -1,0 +1,190 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<!-- beautify ignore:start -->
+<html lang="es"
+      class="light-style layout-menu-fixed"
+      dir="ltr"
+      data-theme="theme-default"
+      data-assets-path="{% static 'assets/' %}"
+      data-template="vertical-menu-template-free">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+        <title>Gestor de Mantenimientos</title>
+        <meta name="description" content="" />
+        <!-- Favicon -->
+        <link rel="icon"
+              type="image/x-icon"
+              href="{% static 'assets/img/favicon/favicon.ico' %}" />
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+              rel="stylesheet" />
+        <!-- Icons. Uncomment required icon fonts -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+        <!-- Core CSS -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/css/core.css' %}"
+              class="template-customizer-core-css" />
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/css/theme-default.css' %}"
+              class="template-customizer-theme-css" />
+        <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+        <!-- Vendors CSS -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/libs/apex-charts/apex-charts.css' %}" />
+        <!-- Page CSS -->
+        <style>
+            .input-group-addon {
+                display: flex;
+                align-items: center;
+                padding: 0.4375rem 0.875rem;
+                font-size: 0.9375rem;
+                font-weight: 400;
+                line-height: 1.53;
+                color: #697a8d;
+                text-align: center;
+                white-space: nowrap;
+                background-color: #fff;
+                border: 1px solid #d9dee3;
+                border-radius: 0.375rem;
+            }
+            .help-block {
+                margin-top: 0.3rem;
+                font-size: 85%;
+                color: #b4bdc6;
+            }
+            span[id^="error_"] {
+                width: 100%;
+                margin-top: 0.3rem;
+                font-size: 85%;
+                color: #ff3e1d;
+            }
+            .was-validated .form-control:invalid, .form-control.is-invalid {
+                border-color: #ff3e1d;
+            }
+
+            .complete-hidden {
+                transform: translateX(200%);
+                box-sizing: border-box;
+            }
+        </style>
+        <!-- Helpers -->
+        <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+        <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+        <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+        <script src="{% static 'assets/js/config.js' %}"></script>
+        <script defer src="{%static 'js/alpine-intersect.min.js'%}"></script>
+        <script defer src="{% static 'js/alpine.min.js' %}"></script>
+    </head>
+    <body>
+        <div class="container-xxl flex-grow-1 container-p-y pb-24">
+            <div class="col-xxl">
+                <div class="card relative" x-ref="card" x-data="{finishFix: false, bottom: 0, sign: false}" >
+                    <div class="card-header d-flex justify-content-between">
+                        <h3>Condiciones de servicio</h3>
+                        {% if signature and signature.img %}
+                            <form method='post'>
+                                {% csrf_token %}
+                                <button id="complete1" type="submit" x-intersect:enter="finishFix = false" x-intersect:leave="finishFix = true" class="float-right btn btn-outline-primary">Finalizar</button>
+                                <button id="complete2" type="submit" class="btn btn-primary" x-show="finishFix" :class="{
+                                            absolute: sign,
+                                            fixed: !sign,
+                                            }" :style="{bottom: sign ? bottom : '15px'}">Finalizar</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if conditions %}
+                            {{ conditions|safe }}
+                        {% else %}
+                            <ol class='m-3 mt-0'>
+                                <li>Para iniciar la inspección, hay un cargo de $100, que no incluye la solución al problema.</li>
+                                <li>
+                                    Por favor, ten en cuenta que no nos hacemos responsables de posibles pérdidas de herramientas o pertenencias en tu trailer durante su estancia aquí.
+                                </li>
+                                <li>Ofrecemos garantía por la mano de obra durante 30 días, pero no por las partes.</li>
+                                <li>
+                                    Si decides no realizar el trabajo de inmediato, el almacenamiento tiene un costo de $10 al día. Este pago se realiza mensualmente por adelantado.
+                                </li>
+                                <li>
+                                    El vehículo permanecerá en nuestras instalaciones hasta que se haya pagado el 100% del costo total del trabajo y almacenamiento.
+                                </li>
+                                <li>
+                                    Durante las primeras 72 horas después de completar el trabajo, no hay cargos de almacenamiento. Después de este periodo, se aplican tarifas diarias.
+                                </li>
+                                <li>
+                                    Nos esforzamos por ser eficientes en nuestro trabajo, pero si hay urgencia, háganoslo saber para coordinar de la mejor manera posible.
+                                </li>
+                                <li>
+                                    Nuestro horario de servicio es de 8:30 am a 6:00 pm. Después de este horario, no realizamos trabajos bajo ninguna excepción.
+                                </li>
+                                <li>
+                                    Todas las reglas son obligatorias. Si no estás de acuerdo con alguna, lamentablemente, no podremos llevar a cabo el servicio.
+                                </li>
+                            </ol>
+                        {% endif %}
+                        <div class="d-flex justify-content-between flex-wrap" x-data="{height: $refs.oldSign? $refs.oldSign.offsetHeight: null}">
+                            <div class="me-4 mb-4">
+                                <p class="bottom-three">
+                                    <strong>Cliente</strong>:
+                                    <mark>{{ client }}</mark>
+                                </p>
+                                <section id="signature_lessee">
+                                    {% if signature.img %}
+                                        <img class="signature max-w-full" src="{{ signature.img.url }}">
+                                    {% else %}
+                                        <img class="signature max-w-full" src="{% static 'images/signs/empty.png' %}" :style="height && `height: ${height}px`">
+                                    {% endif %}
+                                </section>
+                                <div 
+                                    {% if signature.img %}
+                                        class="text-left"
+                                    {% else %}
+                                        class="text-center"
+                                    {% endif %}
+                                    >
+                                    <a class="signature_btn"
+                                        href="{% url 'contact-client-service-order-signature' token %}">
+                                        <button type="button" class="btn btn-outline-primary"
+                                            x-init="bottom = $refs.card.offsetHeight - $el.offsetTop - $el.offsetHeight"
+                                            x-intersect:enter.full.margin.-15px = "sign = true"
+                                            x-intersect:leave.full.margin.-15px = "sign = false"
+                                            >
+                                            <span class="tf-icons bx bx-edit"></span>
+                                            {% if signature.img %}
+                                                Recapture
+                                            {% else %}
+                                                Capture a new signature
+                                            {% endif %}
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                            {% if old_sign %}
+                                <div>
+                                    <p class="bottom-three">
+                                        <strong>You can use this signature</strong>:
+                                    </p>
+                                    <section id="signature_lessee">
+                                        {% if old_sign.img %}<img class="signature max-w-full" src="{{ old_sign.img.url }}" x-ref="oldSign">{% endif %}
+                                    </section>
+                                    <div class="text-center">
+                                        <a href="{% url 'contract-client-use-old-sign' token %}"
+                                           class="btn btn-primary">Use this signature</a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

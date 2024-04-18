@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
+
 import os
 
 import sentry_sdk
@@ -17,6 +18,10 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+PHONE_NUMBER_DEFAULT_REGION = "US"
+
+REDIR_CLIENTS = "https://towithouston.com/"
 
 
 # Quick-start development settings - unsuitable for production
@@ -65,6 +70,7 @@ INSTALLED_APPS = [
     "tolls.apps.TollsConfig",
     "menu",
     "dashboard",
+    "template_admin",
     # Must be the last one
     "rbac",
 ]

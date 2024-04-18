@@ -1,17 +1,51 @@
 from django.urls import path
-from .views import (
-    category,
-    expense,
-    image,
-    invoice,
-    order,
-    payment,
-    service,
-    sms,
-    transaction,
-    labor,
-)
 
+from .views import category
+from .views import expense
+from .views import image
+from .views import invoice
+from .views import labor
+from .views import order
+from .views import payment
+from .views import service
+from .views import sms
+from .views import storage
+from .views import transaction
+from services.tools.init_temps import init_temps
+from services.views.order_decline_reazon import order_decline_reazon
+from services.views.order_flow.contact_form import lessee_form
+from services.views.order_flow.contract_client_signature import (
+    contact_create_handwriting,
+)
+from services.views.order_flow.contract_client_signature import (
+    contract_client_use_old_sign,
+)
+from services.views.order_flow.contract_end import process_ended_page
+from services.views.order_flow.contract_view_conditions import contact_view_conditions
+from services.views.order_flow.create_order_contract import create_order_contact
+from services.views.order_flow.fast_orders import fast_order_create
+from services.views.order_flow.fast_orders import order_quotation
+from services.views.order_flow.fast_orders import parts_sale
+from services.views.order_flow.generate_url import generate_url
+from services.views.order_flow.get_preorder_state import preorder_state
+from services.views.order_flow.order_create import create_order
+from services.views.order_flow.select_client import select_client
+from services.views.order_flow.select_lessee import select_lessee
+from services.views.order_flow.select_lessee import select_lessee_trailer
+from services.views.order_flow.select_unrented_trailer import select_unrented_trailer
+from services.views.order_flow.signature import create_handwriting
+from services.views.order_flow.signature import use_old_sign
+from services.views.order_flow.start_flow import select_order_flow
+from services.views.order_flow.view_conditions import view_conditions
+from services.views.order_flow.view_contract_details import view_contract_details
+from services.views.picture_capture import capture_service_picture
+from services.views.picture_capture import create_expense_capture_picture
+from services.views.picture_capture import update_expense_capture_picture
+
+try:
+    init_temps()
+except Exception as e:
+    print(e)
 
 urlpatterns = [
     # -------------------- Category ----------------------------
@@ -65,16 +99,36 @@ urlpatterns = [
         name="select-service",
     ),
     path(
+        "select-service/<next>/<order_id>/<type>",
+        service.select_service,
+        name="select-service",
+    ),
+    path(
         "select-new-service/<next>/<order_id>",
         service.select_new_service,
         name="select-new-service",
     ),
     path("delete-service/<id>", service.delete_service, name="delete-service"),
     # -------------------- Order ----------------------------
-    path("order-flow/", order.select_order_flow, name="select-service-order-flow"),
-    path("select-client/", order.select_client, name="select-service-client"),
-    path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
-    path("view-conditions/", order.view_conditions, name="view-conditions"),
+    path("order-flow/", select_order_flow, name="select-service-order-flow"),
+    path("fast_order_create/<id>", fast_order_create, name="fast-order-create"),
+    path("parts-sale/", parts_sale, name="parts-sale"),
+    path("quotation_order/", order_quotation, name="quotation-order"),
+    path("select-client/<id>", select_client, name="select-service-client"),
+    path("select-client/", select_client, name="select-service-client"),
+    # path("get-vin-plate/", order.get_vin_plate, name="get-vin-plate"),
+    path("view-conditions/<id>", view_conditions, name="view-conditions"),
+    path("use-old-sign/<id>", use_old_sign, name="use-old-sign"),
+    path(
+        "contract-client-use-old-sign/<token>",
+        contract_client_use_old_sign,
+        name="contract-client-use-old-sign",
+    ),
+    path(
+        "view-preorder-state/<preorder_id>",
+        preorder_state,
+        name="view-preorder-state",
+    ),
     path(
         "view-conditions-pdf/<id>",
         order.show_conditions_as_pdf,
@@ -86,27 +140,57 @@ urlpatterns = [
         name="trailer-identification-pdf",
     ),
     path(
-        "client-signature/",
-        order.create_handwriting,
+        "client-signature/<id>",
+        create_handwriting,
         name="client-service-order-signature",
     ),
-    path("select-lessee/", order.select_lessee, name="select-service-lessee"),
+    path(
+        "process-ended-page/",
+        process_ended_page,
+        name="process-ended-page",
+    ),
+    path("select-lessee/", select_lessee, name="select-service-lessee"),
     path(
         "select-lessee-trailer/<id>",
-        order.select_lessee_trailer,
+        select_lessee_trailer,
         name="select-service-lessee-trailer",
     ),
     path(
         "view-contract-details/<id>",
-        order.view_contract_details,
+        view_contract_details,
         name="view-contract-details",
     ),
     path(
         "select-unrented-trailer/",
-        order.select_unrented_trailer,
+        select_unrented_trailer,
         name="select-service-unrented-trailer",
     ),
-    path("create-order/", order.create_order, name="create-service-order"),
+    path(
+        "create-order-contact/",
+        create_order_contact,
+        name="create-service-order-contact",
+    ),
+    path(
+        "generate-order-contact-url/<id>",
+        generate_url,
+        name="generate-service-order-contact-url",
+    ),
+    path(
+        "contact-form/<token>",
+        lessee_form,
+        name="service-order-contact-form",
+    ),
+    path(
+        "contact-view-conditions/<token>",
+        contact_view_conditions,
+        name="contact-view-conditions",
+    ),
+    path(
+        "contact-client-signature/<token>",
+        contact_create_handwriting,
+        name="contact-client-service-order-signature",
+    ),
+    path("create-order/<id>", create_order, name="create-service-order"),
     path("update-order/<id>", order.update_order, name="update-service-order"),
     path(
         "detail-order/<id>",
@@ -114,13 +198,19 @@ urlpatterns = [
         {"msg": ""},
         name="detail-service-order",
     ),
-    path("detail-order/<id>/<msg>/", order.detail_order, name="detail-service-order"),
+    path("detail-order/<id>/<msg>/", order.detail_order,
+         name="detail-service-order"),
     path(
         "order-send-invoice/<id>",
         order.send_invoice_email,
         name="service-order-send-invoice",
     ),
     path("list-order/", order.list_order, name="list-service-order"),
+    path(
+        "service-order-on-pos/",
+        order.list_order_on_pos,
+        name="service-order-on-pos",
+    ),
     path(
         "list-terminated-order/",
         order.list_terminated_order,
@@ -132,6 +222,11 @@ urlpatterns = [
         name="list-service-order-terminated",
     ),
     path(
+        "order-decline-reazon/<id>",
+        order_decline_reazon,
+        name="order-decline-reazon",
+    ),
+    path(
         "update-order-status/<id>/<status>",
         order.update_order_status,
         name="update-service-order-status",
@@ -140,6 +235,16 @@ urlpatterns = [
         "update-order-position/<id>/<status>",
         order.order_end_update_position,
         name="update-order-position",
+    ),
+    path(
+        "order-position-change/<id>",
+        order.order_change_position,
+        name="order-position-change",
+    ),
+    path(
+        "order-position-change-storage/<id>",
+        order.order_change_position_from_storage,
+        name="order-position-change-storage",
     ),
     path("send-sms/<order_id>", sms.sendSMS, name="send-sms"),
     # -------------------- Invoice ----------------------------
@@ -151,9 +256,26 @@ urlpatterns = [
     path("pdf-labor/<id>", labor.generate_labor, name="pdf-labor"),
     path("html-labor/<id>", labor.html_labor, name="html-labor"),
     # -------------------- Expense ----------------------------
-    path("create-expense/<order_id>", expense.create_expense, name="create-expense"),
+    path("create-expense/<order_id>",
+         expense.create_expense, name="create-expense"),
     path("update-expense/<id>", expense.update_expense, name="update-expense"),
     path("delete-expense/<id>", expense.delete_expense, name="delete-expense"),
+    # -------------------- Picture ----------------------------
+    path(
+        "capture-service-picture/<order_id>",
+        capture_service_picture,
+        name="capture-service-picture",
+    ),
+    path(
+        "update-expense-capture-picture/<expense_id>",
+        update_expense_capture_picture,
+        name="update-expense-capture-picture",
+    ),
+    path(
+        "create-expense-capture-picture/<order_id>",
+        create_expense_capture_picture,
+        name="create-expense-capture-picture",
+    ),
     # ----------------- Service Picture -----------------------
     path(
         "new_picture/<int:order_id>",
@@ -207,4 +329,5 @@ urlpatterns = [
         payment.update_debt_status,
         name="update-debt-status",
     ),
+    path("storage", storage.storage, name="storage-view"),
 ]

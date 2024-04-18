@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <!-- =========================================================
 * Sneat - Bootstrap 5 HTML Admin Template - Pro | v1.0.0
@@ -10,7 +11,6 @@
 
 =========================================================
  -->
-{% load static %}
 <!-- beautify ignore:start -->
 <html lang="es"
       class="light-style layout-menu-fixed"
@@ -49,36 +49,38 @@
               href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
         <link rel="stylesheet"
               href="{% static 'assets/vendor/libs/apex-charts/apex-charts.css' %}" />
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
         <!-- Page CSS -->
         <style>
-            .input-group-addon {
-                display: flex;
-                align-items: center;
-                padding: 0.4375rem 0.875rem;
-                font-size: 0.9375rem;
-                font-weight: 400;
-                line-height: 1.53;
-                color: #697a8d;
-                text-align: center;
-                white-space: nowrap;
-                background-color: #fff;
-                border: 1px solid #d9dee3;
-                border-radius: 0.375rem;
-            }
-            .help-block {
-                margin-top: 0.3rem;
-                font-size: 85%;
-                color: #b4bdc6;
-            }
-            span[id^="error_"] {
-                width: 100%;
-                margin-top: 0.3rem;
-                font-size: 85%;
-                color: #ff3e1d;
-            }
-            .was-validated .form-control:invalid, .form-control.is-invalid {
-                border-color: #ff3e1d;
-            }
+      .input-group-addon {
+        display: flex;
+        align-items: center;
+        padding: 0.4375rem 0.875rem;
+        font-size: 0.9375rem;
+        font-weight: 400;
+        line-height: 1.53;
+        color: #697a8d;
+        text-align: center;
+        white-space: nowrap;
+        background-color: #fff;
+        border: 1px solid #d9dee3;
+        border-radius: 0.375rem;
+      }
+      .help-block {
+        margin-top: 0.3rem;
+        font-size: 85%;
+        color: #b4bdc6;
+      }
+      span[id^="error_"] {
+        width: 100%;
+        margin-top: 0.3rem;
+        font-size: 85%;
+        color: #ff3e1d;
+      }
+      .was-validated .form-control:invalid,
+      .form-control.is-invalid {
+        border-color: #ff3e1d;
+      }
         </style>
         {% block page %}
         {% endblock page %}
@@ -87,6 +89,10 @@
         <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="{% static 'assets/js/config.js' %}"></script>
+        <script defer src="{%static 'js/alpine-sort.min.js'%}"></script>
+        <script defer src="{%static 'js/alpine-collapse.min.js'%}"></script>
+        <script defer src="{%static 'js/alpine-intersect.min.js'%}"></script>
+        <script defer src="{%static 'js/alpine.min.js'%}"></script>
     </head>
     <body>
         {% block body %}
@@ -96,16 +102,22 @@
                     {% include "base/menu.html" %}
                     <!-- Layout container -->
                     <div class="layout-page">
-                        {% include "base/navbar.html" %}
-                        <!-- Content wrapper -->
-                        <div class="content-wrapper">
-                            <div class="container-xxl flex-grow-1 container-p-y">
-                                {% block content %}
-                                {% endblock content %}
+                        {% block containerFull %}
+                            <div class="container-xxl">
+                            {% endblock containerFull %}
+                            {% block navbar %}
+                                {% include "base/navbar.html" %}
+                            {% endblock navbar %}
+                            <!-- Content wrapper -->
+                            <div class="content-wrapper">
+                                <div class="flex-grow-1 container-p-y">
+                                    {% block content %}
+                                    {% endblock content %}
+                                </div>
+                                <div class="content-backdrop fade"></div>
                             </div>
-                            <div class="content-backdrop fade"></div>
+                            <!-- Content wrapper -->
                         </div>
-                        <!-- Content wrapper -->
                     </div>
                     <!-- / Layout page -->
                 </div>

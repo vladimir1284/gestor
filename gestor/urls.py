@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -22,11 +23,15 @@ from django.urls import path
 from .views import cost
 from .views import dashboard
 from .views import reports
+from gestor.tools.week_stats_recal import initRecalculator
 from rbac.init_permissions import init_permissions
 
 
 def trigger_error(request):
     pass
+
+
+initRecalculator()
 
 
 urlpatterns = [
@@ -92,6 +97,7 @@ urlpatterns = [
     path("erp/rent/", include("rent.urls")),
     path("erp/utils/", include("utils.urls")),
     path("erp/tolls/", include("tolls.urls")),
+    path("erp/template/", include("template_admin.urls")),
     path("erp/rbac/", include("rbac.urls")),
 ]
 

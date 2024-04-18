@@ -1,12 +1,15 @@
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.functions.datetime import datetime
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
 from equipment.models import Vehicle
 from rent.models.vehicle import Trailer
+from services.tools.storage_reazon import getStorageReazons
 from users.models import Associated
 from users.models import Company
 from users.models import User
@@ -88,9 +91,10 @@ class Order(models.Model):
         null=True,
         validators=[MinValueValidator(0), MaxValueValidator(8)],
     )
+    position_date = models.DateTimeField(null=True)
     invoice_data = models.TextField(blank=True)
     # external = models.BooleanField(default=False)
-    vin = models.CharField(max_length=5, blank=True, null=True)
+    vin = models.CharField(max_length=17, blank=True, null=True)
     plate = models.CharField(max_length=20, blank=True, null=True)
     created_date = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -134,8 +138,14 @@ class Order(models.Model):
     discount = models.FloatField(default=0)
     quotation = models.BooleanField(default=False)
     invoice_sended = models.BooleanField(default=False)
-    labor_viewed = models.BooleanField(default=False)
     is_initial = False
+    storage_reason = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=getStorageReazons(),
+        default="storage_service",
+    )
 
     def __str__(self):
         return f"{self.concept}  ({self.type}) {self.created_date}"
@@ -146,6 +156,20 @@ class Order(models.Model):
         return sorted(qs, key=lambda x: order.index(x.status))
 
     @property
+    def last_pos_change(self):
+        if self.position_date is None:
+            return self.created_date
+        return self.position_date
+
+    @property
+    def days_on_pos(self):
+        last_pos_change = self.last_pos_change
+        if last_pos_change is None:
+            return -1
+
+        return (timezone.now() - last_pos_change).days
+
+    @property
     def external(self):
         return (
             self.associated is not None
@@ -154,28 +178,74 @@ class Order(models.Model):
         )
 
 
+@receiver(models.signals.post_save, sender=Order)
+def on_create(sender, instance, created, **kwargs):
+    if created and instance.position == 0:
+        trace = OrderTrace(
+            order=instance,
+            trace="storage_in",
+            status=instance.status,
+            reason=instance.storage_reason,
+        )
+        trace.save()
+
+
 @receiver(models.signals.pre_save, sender=Order)
 def on_field_change(sender, instance, **kwargs):
-    try:
-        old_order = Order.objects.get(id=instance.id)
-    except Exception:
+    old_order = Order.objects.filter(id=instance.id).last()
+    if old_order is None:
         return
 
     if old_order.position != instance.position:
         if instance.position == 0:
             trace = OrderTrace(
-                order=instance, trace="storage_in", status=instance.status
+                order=instance,
+                trace="storage_in",
+                status=instance.status,
+                reason=instance.storage_reason,
             )
         else:
             trace = OrderTrace(
-                order=instance, trace="storage_out", status=instance.status
+                order=instance,
+                trace="storage_out",
+                status=instance.status,
+                reason=instance.storage_reason,
             )
         trace.save()
-    if old_order.status != instance.status and instance.position == 0:
+        instance.position_date = datetime.now()
+    if instance.position == 0 and (
+        old_order.status != instance.status
+        or old_order.storage_reason != instance.storage_reason
+    ):
         trace = OrderTrace(
-            order=instance, trace="storage_stage", status=instance.status
+            order=instance,
+            trace="storage_stage",
+            status=instance.status,
+            reason=instance.storage_reason,
         )
         trace.save()
+
+
+class OrderDeclineReazon(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    decline_reazon = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+    )
+    note = models.TextField(
+        blank=True,
+        null=True,
+    )
+
+    def get_decline_reazon(self) -> str:
+        if self.decline_reazon is None:
+            return "UNKNOWN"
+        return str(self.decline_reazon)
+        # for r in self.DECLINE_REAZON:
+        #     if r[0] == self.decline_reazon:
+        #         return r[1]
+        # return "UNKNOWN"
 
 
 class Transaction(models.Model):
@@ -271,7 +341,17 @@ class OrderTrace(models.Model):
         ("storage_out", "Storage out"),
         ("storage_stage", "Storage stage change"),
     ]
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name="storage_traces"
+    )
     date = models.DateTimeField(auto_now_add=True)
     trace = models.CharField(max_length=50, choices=TRACE_TYPE)
     status = models.CharField(max_length=50)
+    reason = models.CharField(max_length=20, null=True, blank=True)
+
+    def get_reason(self):
+        reazons = getStorageReazons()
+        for r in reazons:
+            if r[0] == self.reason:
+                return r[1]
+        return "UNKNOWN"

@@ -7,7 +7,10 @@ from crispy_forms.layout import Field
 from crispy_forms.layout import HTML
 from django import forms
 from django.contrib.auth.models import Group
+from django.contrib.auth.models import Permission
 from django.contrib.auth.models import User
+
+from rbac.tools.get_roles_json import get_bind_name
 
 
 class UserForm(forms.ModelForm):
@@ -28,6 +31,94 @@ class UserForm(forms.ModelForm):
             required=False,
             label="",
         )
+
+        instance = kwargs["instance"] if "instance" in kwargs else None
+        perms = Permission.objects.filter(
+            content_type__model="rbac", content_type__app_label="menu"
+        ).order_by("name")
+        menuDiv = Div()
+        for perm in perms:
+            name = f"{perm.content_type.app_label}.{perm.codename}"
+
+            if instance is not None:
+                self.initial[name] = instance.user_permissions.filter(
+                    id=perm.id
+                ).exists()
+            else:
+                self.initial[name] = False
+
+            self.fields[name] = forms.BooleanField(
+                required=False,
+                label=perm.name,
+            )
+            self.fields[name].widget.attrs["data-perm"] = get_bind_name(name)
+            menuDiv.fields.append(Div(Field(name), css_class="mb-2"))
+
+        perms = Permission.objects.filter(
+            content_type__model="rbac", content_type__app_label="urls"
+        ).order_by("name")
+        urlsDiv = Div()
+        for perm in perms:
+            name = f"{perm.content_type.app_label}.{perm.codename}"
+
+            if instance is not None:
+                self.initial[name] = instance.user_permissions.filter(
+                    id=perm.id
+                ).exists()
+            else:
+                self.initial[name] = False
+
+            self.fields[name] = forms.BooleanField(
+                required=False,
+                label=perm.name,
+            )
+            self.fields[name].widget.attrs["data-perm"] = get_bind_name(name)
+            urlsDiv.fields.append(Div(Field(name), css_class="mb-2"))
+
+        perms = Permission.objects.filter(
+            content_type__model="rbac",
+            content_type__app_label="dashboard_card",
+        ).order_by("name")
+        dashCardDiv = Div()
+        for perm in perms:
+            name = f"{perm.content_type.app_label}.{perm.codename}"
+
+            if instance is not None:
+                self.initial[name] = instance.user_permissions.filter(
+                    id=perm.id
+                ).exists()
+            else:
+                self.initial[name] = False
+
+            self.fields[name] = forms.BooleanField(
+                required=False,
+                label=perm.name,
+            )
+            self.fields[name].widget.attrs["data-perm"] = get_bind_name(name)
+            dashCardDiv.fields.append(Div(Field(name), css_class="mb-2"))
+
+        perms = Permission.objects.filter(
+            content_type__model="rbac",
+            content_type__app_label="extra_perm",
+        ).order_by("name")
+        extraPermDiv = Div()
+        for perm in perms:
+            name = f"{perm.content_type.app_label}.{perm.codename}"
+
+            if instance is not None:
+                self.initial[name] = instance.user_permissions.filter(
+                    id=perm.id
+                ).exists()
+            else:
+                self.initial[name] = False
+
+            self.fields[name] = forms.BooleanField(
+                required=False,
+                label=perm.name,
+            )
+            self.fields[name].widget.attrs["data-perm"] = get_bind_name(name)
+            extraPermDiv.fields.append(Div(Field(name), css_class="mb-2"))
+
         # self.fields["groups"].label = "Roles"
         # self.fields["groups"].widget = forms.CheckboxSelectMultiple()
         self.helper = FormHelper()
@@ -77,7 +168,7 @@ class UserForm(forms.ModelForm):
                     HTML(
                         """
                             <h2 class="accordion-header d-flex">
-                            <input type="checkbox" class="mark-all checkboxinput">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="all_roles" @click="toggleAllRoles">
                             <button
                             data-bs-target="#groups"
                             class="accordion-button collapsed text-primary"
@@ -109,4 +200,111 @@ class UserForm(forms.ModelForm):
             #         css_class="btn btn-success",
             #     ),
             # ),
+            Div(
+                Div(
+                    HTML(
+                        """
+                            <h2 class="accordion-header d-flex">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="menu_all" @click="toggleMenuAll">
+                            <button
+                            data-bs-target="#menu_perms"
+                            class="accordion-button collapsed text-primary"
+                            type="button"
+                            data-bs-toggle="collapse">
+                                Menu permissions
+                            </button>
+                            </h2>
+                        """
+                    ),
+                    Div(
+                        Div(
+                            menuDiv,
+                            css_class="accordion-body",
+                        ),
+                        css_id="menu_perms",
+                        css_class="accordion-collapse collapse",
+                    ),
+                    css_id="menu-accordion",
+                    css_class="accordion-item border-bottom",
+                ),
+                Div(
+                    HTML(
+                        """
+                            <h2 class="accordion-header d-flex">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="urls_all" @click="toggleUrlsAll">
+                            <button
+                            data-bs-target="#urls_perms"
+                            class="accordion-button collapsed text-primary"
+                            type="button"
+                            data-bs-toggle="collapse">
+                                URLS permissions
+                            </button>
+                            </h2>
+                        """
+                    ),
+                    Div(
+                        Div(
+                            urlsDiv,
+                            css_class="accordion-body",
+                        ),
+                        css_id="urls_perms",
+                        css_class="accordion-collapse collapse",
+                    ),
+                    css_id="urls-accordion",
+                    css_class="accordion-item border-bottom",
+                ),
+                Div(
+                    HTML(
+                        """
+                            <h2 class="accordion-header d-flex">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="dash_all" @click="toggleDashAll">
+                            <button
+                            data-bs-target="#dashboard_card_perms"
+                            class="accordion-button collapsed text-primary"
+                            type="button"
+                            data-bs-toggle="collapse">
+                                Dashboard cards permissions
+                            </button>
+                            </h2>
+                        """
+                    ),
+                    Div(
+                        Div(
+                            dashCardDiv,
+                            css_class="accordion-body",
+                        ),
+                        css_id="dashboard_card_perms",
+                        css_class="accordion-collapse collapse",
+                    ),
+                    css_id="dashcards-accordion",
+                    css_class="accordion-item border-bottom",
+                ),
+                Div(
+                    HTML(
+                        """
+                            <h2 class="accordion-header d-flex">
+                            <input type="checkbox" class="mark-all checkboxinput" x-ref="extra_all" @click="toggleExtraAll">
+                            <button
+                            data-bs-target="#extra_perms"
+                            class="accordion-button collapsed text-primary"
+                            type="button"
+                            data-bs-toggle="collapse">
+                                Other permissions
+                            </button>
+                            </h2>
+                        """
+                    ),
+                    Div(
+                        Div(
+                            extraPermDiv,
+                            css_class="accordion-body",
+                        ),
+                        css_id="extra_perms",
+                        css_class="accordion-collapse collapse",
+                    ),
+                    css_class="accordion-item",
+                ),
+                css_id="others-accordion",
+                css_class="accordion mb-4 border rounded",
+            ),
         )

@@ -14,7 +14,6 @@ from services.models import Service
 from users.forms import (
     UserProfile,
 )
-from utils.models import Order
 
 # -------------------- Labor ----------------------------
 
@@ -38,10 +37,6 @@ def get_labor_context(order_id):
 @login_required
 def view_labor(request, id):
     context = get_labor_context(id)
-
-    order: Order = context["order"]
-    order.labor_viewed = True
-    order.save()
 
     # Payments
     context.setdefault(

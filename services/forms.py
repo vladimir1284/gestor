@@ -1,43 +1,37 @@
+from crispy_forms.bootstrap import AppendedText
+from crispy_forms.bootstrap import PrependedText
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import ButtonHolder
+from crispy_forms.layout import Div
+from crispy_forms.layout import Field
+from crispy_forms.layout import Fieldset
+from crispy_forms.layout import HTML
+from crispy_forms.layout import Layout
+from crispy_forms.layout import SafeString
+from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils.safestring import mark_safe
 from django.forms import ModelForm
-from django import forms
-from services.tools.available_positions import get_available_positions
-from utils.models import (
-    Order,
-)
-from .models import (
-    OrderSignature,
-    Service,
-    ServiceTransaction,
-    ServiceCategory,
-    Expense,
-    ServicePicture,
-    PaymentCategory,
-    Payment,
-    PendingPayment,
-)
-from utils.forms import (
-    BaseForm,
-    CategoryCreateForm as BaseCategoryCreateForm,
-)
-
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import (
-    Layout,
-    Fieldset,
-    ButtonHolder,
-    Submit,
-    Div,
-    HTML,
-    Field,
-)
-from crispy_forms.bootstrap import (
-    PrependedText,
-    AppendedText,
-)
+from django.shortcuts import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
+from services.models import Expense
+from services.models import Payment
+from services.models import PaymentCategory
+from services.models import PendingPayment
+from services.models import Service
+from services.models import ServiceCategory
+from services.models import ServicePicture
+from services.models import ServiceTransaction
+from services.models.order_signature import OrderSignature
+from services.tools.available_positions import get_available_positions
+from services.tools.get_order_dec_reazons import get_order_dec_reazons
+from services.tools.storage_reazon import getStorageReazons
+from utils.forms import BaseForm
+from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
+from utils.models import Order
+from utils.models import OrderDeclineReazon
 
 
 class OrderCreateForm(BaseForm):
@@ -49,6 +43,7 @@ class OrderCreateForm(BaseForm):
             "concept",
             "note",
             "position",
+            "storage_reason",
             "quotation",
             "vin",
             "plate",
@@ -59,11 +54,16 @@ class OrderCreateForm(BaseForm):
         super().__init__(*args, **kwargs)
         self.getPlate = get_plate
 
-        position = kwargs["instance"].position if "instance" in kwargs.keys() else None
+        position = kwargs["instance"].position if "instance" in kwargs.keys(
+        ) else None
 
-        availables_positions = get_available_positions(current_pos=position)
+        availables_positions = get_available_positions(
+            current_pos=position,
+            unselected=True,
+        )
 
-        self.fields["position"].widget = forms.Select(choices=availables_positions)
+        self.fields["position"].widget = forms.Select(
+            choices=availables_positions)
 
         self.fields["invoice_data"].widget.attrs[
             "placeholder"
@@ -79,9 +79,11 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("vin")), css_class="mb-3"),
                 Div(Div(Field("plate")), css_class="mb-3"),
                 Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("storage_reason")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
-                ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
             )
         else:
             self.helper.layout = Layout(
@@ -89,16 +91,28 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("concept")), css_class="mb-3"),
                 Div(Div(Field("vin")), css_class="mb-3"),
                 Div(Div(Field("position")), css_class="mb-3"),
+                Div(Div(Field("storage_reason")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
-                ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
             )
+
+    def clean_position(self):
+        valor = self.cleaned_data.get("position")
+        if valor == -10:
+            raise forms.ValidationError("Please, select a position")
+        return valor
 
     def clean(self):
         cleaned_data = super().clean()
 
         vin = cleaned_data.get("vin")
         plate = cleaned_data.get("plate")
+        # pos = cleaned_data.get("position")
+        #
+        # if pos == "-":
+        #     self.add_error("position", "Please select a position")
 
         if (
             self.getPlate
@@ -130,7 +144,8 @@ class PendingPaymentCreateForm(BaseForm):
 
 
 class PaymentCreateForm(BaseForm):
-    weeks = forms.IntegerField(required=False, initial=0)  # Add the "weeks" field
+    weeks = forms.IntegerField(
+        required=False, initial=0)  # Add the "weeks" field
 
     class Meta:
         model = Payment
@@ -141,9 +156,9 @@ class PaymentCreateForm(BaseForm):
         self.category = self.initial["category"]
         self.fields["amount"].label = self.category.name
         if self.category.extra_charge > 0:
-            self.fields[
-                "amount"
-            ].help_text = f"Extra charge: {self.category.extra_charge}%"
+            self.fields["amount"].help_text = (
+                f"Extra charge: {self.category.extra_charge}%"
+            )
 
         self.helper.layout = Layout(
             Div(
@@ -169,15 +184,16 @@ class PaymentCategoryCreateForm(BaseForm):
             Div(Div(AppendedText("extra_charge", "%")), css_class="mb-3"),
             HTML(
                 """
-                <img id="preview" 
+                <img id="preview"
                 {% if form.icon.value %}
-                    class="img-responsive" 
+                    class="img-responsive"
                     src="/media/{{ form.icon.value }}"
                 {% endif %}">
                 """
             ),
             Div(Div(Field("icon", css_class="form-select")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -185,7 +201,8 @@ class CommonTransactionLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
             Div(
-                Div(Field(PrependedText("price", "$")), css_class="col-md-4 mb-3"),
+                Div(Field(PrependedText("price", "$")),
+                    css_class="col-md-4 mb-3"),
                 Div(Div(AppendedText("tax", "%")), css_class="col-md-4 mb-3"),
                 Div(Field("quantity"), css_class="col-md-4 mb-3"),
                 css_class="row",
@@ -322,7 +339,8 @@ class ServiceCreateForm(forms.ModelForm):
                             css_class="row mb-3",
                         ),
                         ButtonHolder(
-                            Submit("submit", "Enviar", css_class="btn btn-success")
+                            Submit("submit", "Enviar",
+                                   css_class="btn btn-success")
                         ),
                         css_class="card-body",
                     ),
@@ -423,8 +441,9 @@ class ExpenseCreateForm(BaseForm):
             "associated",
         )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, capUrl=None, imgData=None, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -455,24 +474,45 @@ class ExpenseCreateForm(BaseForm):
                 HTML(
                     """
                 {% load static %}
-                <img id="preview"
-                alt="image"
-                class="d-block rounded"
-                height="100" width="100"
-                {% if form.instance.image %}
-                    src="{{ form.instance.image.url }}"
-                {% else %}
-                    src="{% static 'assets/img/icons/no_image.jpg' %}"
-                {% endif %}>
+                <a href='"""
+                    + str(capUrl)
+                    + """' class="btn btn-outline-primary">
+
+                    <div class="d-flex">
+                        <img id="preview"
+                        alt="image"
+                        class="d-block rounded"
+                        height="100" width="100"
+                        {% if form.instance.image %}
+                            src="{{ form.instance.image.url }}"
+                        {% else %}
+                            src="{% static 'assets/img/icons/no_image.jpg' %}"
+                        {% endif %}>
+
+                        {%if request.session.expenseCaptureImgBase64%}
+                            <img id="toPreview"
+                            alt="image"
+                            class="d-block rounded ms-4"
+                            height="100" width="100"
+                            src="{{ request.session.expenseCaptureImgBase64 }}">
+                        {% endif %}
+                    </div>
+
+                    Capture
+                </a>
                 """
                 ),
                 css_class="d-flex align-items-start align-items-sm-center gap-4",
             ),
-            Div(Div(Field("image")), css_class="mb-3"),
+            Div(
+                Div(Field("image")),
+                css_class="mb-3",
+            ),
             Div(Div(Field("concept")), css_class="mb-3"),
             Div(Div(Field("description", rows="2")), css_class="mb-3"),
             Div(Div(Field(PrependedText("cost", "$"))), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -481,8 +521,16 @@ class ServicePictureForm(BaseForm):
         model = ServicePicture
         fields = ("image",)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, id=None, **kwargs):
         super().__init__(*args, **kwargs)
+        capUrl = (
+            None
+            if id is None
+            else reverse(
+                "capture-service-picture",
+                args=[id],
+            )
+        )
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -502,7 +550,20 @@ class ServicePictureForm(BaseForm):
                 ),
                 css_class="d-flex align-items-start align-items-sm-center gap-4",
             ),
-            Div(Div(Field("image")), css_class="mb-3"),
+            Div(
+                Div(
+                    Field(
+                        "image"
+                        if id is None
+                        else AppendedText(
+                            "image",
+                            SafeString('<a href="' + str(capUrl) +
+                                       '">Capture</a>'),
+                        )
+                    )
+                ),
+                css_class="mb-3",
+            ),
             ButtonHolder(Submit("submit", "Add", css_class="btn btn-success")),
         )
 
@@ -530,25 +591,81 @@ class OrderSignatureForm(ModelForm):
 
 
 class OrderEndUpdatePositionForm(forms.Form):
-    def __init__(self, *args, order: Order, **kwargs):
+    def __init__(self, *args, order: Order, status: str = "", **kwargs):
         position = order.position
         super().__init__(*args, **kwargs)
 
+        if status == "":
+            status = str(order.status)
+
+        reason = order.storage_reason
+
+        end = status in ["complete", "decline"]
         if order.quotation:
             positions = [(None, "Null")]
             position = None
             readonly = True
         else:
-            positions = get_available_positions(
+            if order.trailer is not None and order.associated is None:
+                null = False
+            else:
+                null = True
+            positions, availables = get_available_positions(
                 current_pos=position,
-                null=order.status in ["complete", "decline"],
+                null=end and null,
+                availables=True,
+                just_current_pos=end,
+                invert_order=end,
             )
-            print(order.status)
+            if (reason == "" or reason is None) and not availables:
+                reason = "capacity"
             readonly = False
+
+        if reason is None or reason == "":
+            if status in ["complete", "decline"]:
+                reason = "ready"
+            elif status == "pendding":
+                reason = "approval"
+            else:
+                reason = "storage_service"
+
+        if end and reason in ["approval", "capacity"]:
+            reason = "ready"
 
         self.fields["position"] = forms.ChoiceField(
             required=False,
-            choices=positions,
-            initial=position,
+            choices=[("-", "---"), *positions],
+            # initial=position,
+            initial=position if readonly else "-",
         )
         self.fields["position"].widget.attrs["readonly"] = readonly
+
+        self.fields["reason"] = forms.ChoiceField(
+            choices=getStorageReazons(end),
+            initial=reason,
+        )
+
+    def clean_position(self):
+        valor = self.cleaned_data.get("position")
+        if valor == "-":
+            raise forms.ValidationError("Please, select a position")
+        return valor
+
+
+class OrderDeclineReazonForm(forms.ModelForm):
+    class Meta:
+        model = OrderDeclineReazon
+        fields = ["decline_reazon", "note"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["decline_reazon"] = forms.ChoiceField(
+            choices=get_order_dec_reazons(),
+        )
+
+    def clean_decline_reazon(self):
+        reazon = self.cleaned_data.get("decline_reazon")
+        if reazon is None:
+            raise forms.ValidationError("Please, select a reazon")
+        return reazon

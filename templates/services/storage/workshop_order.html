@@ -1,0 +1,92 @@
+{% load static %}
+<tr data-search=" {{ order.vin }}{{ order.plate }} {% if order.associated %}{{ order.associated.name }}{{ order.associated.phone_number }}{{ order.associated.email }}{% endif %} {% if order.trailer %} {{ order.trailer.get_manufacturer_display }}{{ order.trailer.get_type_display }}{{ order.trailer.get_year_display }} {% else %} {{ order.vehicle.get_manufacturer_display }}{{ order.vehicle.get_model_display }}{{ order.vehicle.get_year_display }}{{ order.trailer.vin }} {% endif %}">
+    <!-- {% if pos %}<td>{{ pos }}</td>{% endif %} -->
+    <td class="chapilla" data-custom="{{ order.position }}">
+        <a href="{% url 'detail-service-order' order.id %}">
+            <img {% if order.status == 'processing' %} src="{% static 'assets/img/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'assets/img/icons/tag-success.png' %}" {% elif order.status == 'pending' %} src="{% static 'assets/img/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'assets/img/icons/tag-info.png' %}" {% elif order.status == 'payment_pending' %} src="{% static 'assets/img/icons/tag-danger.png' %}" {% elif order.status == 'decline' %} src="{% static 'assets/img/icons/cancel.png' %}" {% endif %}
+                 alt="{{ order.position }}"
+                 height="32px"
+                 width="20px"
+                 class="h-px-40 w-auto" />
+            <span {% if order.status == 'decline' %}class="ml-1.5 bg-[#000]"{% endif %}>{{ order.position }}</span>
+        </a>
+    </td>
+    {% if order.associated %}
+        <td data-custom="{{ order.associated.name }}">
+            {% include "users/associated_line.html" with associated=order.associated %}
+        </td>
+    {% elif order.company %}
+        <td data-custom="{{ order.company.name }}">
+            <div class="d-flex pb-1">
+                <div class="avatar flex-shrink-0 me-3">
+                    <a href={% url 'detail-company' order.company.id %}>
+                        <span class="avatar-initial rounded-circle bg-label-primary">
+                            <img {% if order.company.avatar %} src="{{ order.company.avatar.url }}" {% else %} src="{% static 'assets/img/icons/company.png' %}" {% endif %}
+                                 alt="Avatar"
+                                 height="100px"
+                                 width="100px"
+                                 class="w-px-40 rounded-circle" />
+                        </span>
+                    </a>
+                </div>
+                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                    <div data-tag="{{ order.associated.name }}{{ order.associated.phone_number }}"
+                         class="me-2  associated-data">
+                        <h6 class="mb-0">{{ order.company.name }}</h6>
+                        <small class="text-muted">{{ order.company.phone_number }}</small>
+                    </div>
+                </div>
+            </div>
+        </td>
+    {% else %}
+        <td data-custom=''></td>
+    {% endif %}
+    <td data-custom=" {% if order.trailer %} {{ order.trailer.get_manufacturer_display }} {{ order.trailer.get_type_display }} ({{ order.trailer.get_year_display }}) {% elif order.vehicle %} {{ order.vehicle.get_manufacturer_display }} {{ order.vehicle.get_model_display }} ({{ order.vehicle.get_year_display }}) {% elif order.vin or order.plate %} {{ order.vin }}-{{ order.plate }} {% endif %} ">
+        <div class="d-flex">
+            {% if order.trailer %}
+                {% include "equipment/equipment_line.html" with equipment=order.trailer equipment_type="trailer" %}
+            {% elif order.vehicle %}
+                {% include "equipment/equipment_line.html" with equipment=order.vehicle equipment_type="vehicle" %}
+            {% elif order.vin or order.plate %}
+                {% include "services/order_clients_trailer.html" %}
+            {% endif %}
+        </div>
+    </td>
+    <td data-days="{{ order.days_on_pos }}">
+        <div>{{ order.last_pos_change | date:'b. d, Y' | capfirst }}</div>
+        {% if order.days_on_pos != -1 %}
+            <div>
+                {{ order.days_on_pos }}
+                {% if order.days_on_pos == 1 %}
+                    Day
+                {% else %}
+                    Days
+                {% endif %}
+            </div>
+        {% else %}
+            UNKNOWN
+        {% endif %}
+    </td>
+    <td>
+        {% if order.status %}
+            {{ order.status }}
+        {% else %}
+            UNKNOWN
+        {% endif %}
+    </td>
+    <td>
+        {% if order.dec_reazon %}
+            {% if order.dec_reazon.decline_reazon %}
+                {{ order.dec_reazon.decline_reazon }}
+            {% else %}
+                UNKNOWN
+            {% endif %}
+        {% endif %}
+    </td>
+    <td>
+        <a class="btn btn-link"
+           href="{% url 'order-position-change-storage' order.id %}">
+            <i class='bx bx-refresh'></i>
+        </a>
+    </td>
+</tr>

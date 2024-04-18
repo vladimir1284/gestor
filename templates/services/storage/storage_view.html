@@ -1,0 +1,193 @@
+{% extends "base/base_list.html" %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block card %}
+    <div class="list-head">
+        <div class="demo-inline-spacing">
+            <h5 class="card-header">
+                Trailers on storage: <strong>{{ total }}</strong>
+            </h5>
+        </div>
+        <div class="card-body tabs">
+            <div class="nav-align-top">
+                <ul class="nav nav-pills nav-fill" role="tablist">
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link active"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#navs-pills-justified-active"
+                                aria-controls="navs-pills-justified-active"
+                                aria-selected="true">
+                            <i class='bx bx-cool'></i>
+                            Trailer del cliente
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ client_owns_trailers | length }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#navs-pills-justified-processing"
+                                aria-controls="navs-pills-justified-processing"
+                                aria-selected="false">
+                            <i class='bx bx-smile'></i>
+                            Trailer de renta con cliente
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ client_rent_trailers |length }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#navs-pills-justified-ended"
+                                aria-controls="navs-pills-justified-ended"
+                                aria-selected="false">
+                            <i class='bx bx-meh-blank'></i>
+                            Trailer de renta sin cliente
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ just_trailers | length }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#workshop"
+                                aria-controls="workshop"
+                                aria-selected="false">
+                            <i class='bx bxs-car-mechanic'></i>
+                            Trailers en bodegas
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ workshop_total }}</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="tab-content p-0">
+        <div class="tab-pane fade active show"
+             id="navs-pills-justified-active"
+             role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table" id="table_active">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th data-type='custom-string'>Client</th>
+                            <th data-type='custom-string'>Trailer</th>
+                            <th data-type='days' data-defsort="+">Date</th>
+                            <th data-type='string'>Status</th>
+                            <th data-type='string'>Reason</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for order in client_owns_trailers %}
+                            {% include 'services/storage/storage_order.html' %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade"
+             id="navs-pills-justified-processing"
+             role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table" id="table_consumables">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th data-type='custom-string'>Client</th>
+                            <th data-type='custom-string'>Trailer</th>
+                            <th data-type='days' data-defsort="+">Date</th>
+                            <th data-type='string'>Status</th>
+                            <th data-type='string'>Reason</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for order in client_rent_trailers %}
+                            {% include 'services/storage/storage_order.html' %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="navs-pills-justified-ended" role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table" id="table_consumables">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th data-type='custom-string'>Client</th>
+                            <th data-type='custom-string'>Trailer</th>
+                            <th data-type='days' data-defsort="+">Date</th>
+                            <th data-type='string'>Status</th>
+                            <th data-type='string'>Reason</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for order in just_trailers %}
+                            {% include 'services/storage/storage_order.html' %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="workshop" role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table" id="table_consumables">
+                    <thead>
+                        <tr>
+                            <th data-type="custom-number" data-defsort="+">
+                                <i class="bx bx-cog"></i>
+                            </th>
+                            <th data-type='custom-string'>Client</th>
+                            <th data-type='custom-string'>Trailer</th>
+                            <th data-type='days'>Date</th>
+                            <th data-type='string'>Status</th>
+                            <th data-type='string'>Reason</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for pos, orders in workshop.items %}
+                            {%if orders|length == 0 %}
+                                <tr class="bg-mainBG">
+                                    <td class="text-main text-center" data-custom="{{pos}}">
+                                        <strong>{{pos}}</strong>
+                                    </td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                    <td data-days="-2"></td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                    <td data-custom="FREE-{{pos}}"></td>
+                                </tr>
+                            {%else%}
+                                {%for order in orders%}
+                                    {% include 'services/storage/workshop_order.html' %}
+                                {% endfor %}
+                            {%endif%}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock card %}
+{% block add %}
+    hidden
+{% endblock add %}

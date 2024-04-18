@@ -24,6 +24,9 @@ from rent.models.cost import (
 from rent.models.lease import Due
 from rent.models.lease import Lease
 from rent.models.lease import Payment as RentalPayment
+from rent.models.trailer_deposit import get_cancelled_trailer_deposits
+from rent.models.trailer_deposit import get_done_trailer_deposits
+from rent.models.trailer_deposit import get_expirated_trailer_deposits
 from rent.tools.client import get_start_paying_date
 from services.models import Expense
 from services.models import Payment
@@ -365,6 +368,23 @@ def monthly_membership_report(request, year=None, month=None):
     ) = getMonthYear(month, year)
 
     context = getMonthlyMembership(currentYear, currentMonth)
+
+    done_deposits, done_amount = get_done_trailer_deposits(
+        currentYear, currentMonth)
+    cancelled_deposits, cancelled_amount = get_cancelled_trailer_deposits(
+        currentYear, currentMonth
+    )
+    expirated_deposits, expirated_amount = get_expirated_trailer_deposits(
+        currentYear, currentMonth
+    )
+    context.setdefault("done_deposits", done_deposits)
+    context.setdefault("cancelled_deposits", cancelled_deposits)
+    context.setdefault("expirated_deposits", expirated_deposits)
+    context.setdefault("done_deposits_amount", done_amount)
+    context.setdefault("cancelled_deposits_amount", cancelled_amount)
+    context.setdefault("expirated_deposits_amount", expirated_amount)
+    context.setdefault("total_deposits_amount",
+                       expirated_amount + cancelled_amount)
 
     context.setdefault("previousMonth", previousMonth)
     context.setdefault("currentMonth", currentMonth)

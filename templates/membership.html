@@ -12,6 +12,9 @@
         .invoice-descrpition{
             width: 100%;
         }
+        th {
+            font-weight: bold;
+        }
     </style>
     {% block nav %}
     {% endblock nav %}
@@ -87,6 +90,135 @@
                 </div>
             </div>
         </div>
+
+        <div class="card mb-3 col-md-6">
+            <div class="card-header">
+                <h4>Deposits</h4>
+            </div>
+            <!-- Services -->
+            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                Contracts' deposits:
+                <div class="text-success">
+                    <strong>{{ done_deposits_amount|floatformat:"0"|intcomma }}</strong>
+                    <span class="text-muted">USD</span>
+                </div>
+            </h5>
+            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                Expirated deposits:
+                <div class="text-danger">
+                    <strong>{{ expirated_deposits_amount|floatformat:"2"|intcomma }}</strong>
+                    <span class="text-muted">USD</span>
+                </div>
+            </h5>
+            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                Cancelled deposits:
+                <div class="text-danger">
+                    <strong>{{ cancelled_deposits_amount|floatformat:"2"|intcomma }}</strong>
+                    <span class="text-muted">USD</span>
+                </div>
+            </h5>
+            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                Total income:
+                <div class="text-danger">
+                    <strong>{{ total_deposits_amount|floatformat:"2"|intcomma }}</strong>
+                    <span class="text-muted">USD</span>
+                </div>
+            </h5>
+            <div class="table-responsive text-nowrap">
+                <div class="container ps-0" style="height: 500px; overflow-y: auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th rowspan="4" class="text-success pt-5 position-relative">
+                                    <div class="position-absolute">Contract</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <thead>
+                            <tr>
+                                <th><i class="bx bx-cog"></i></th>
+                                <th>Client</th>
+                                <th class="text-end">Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in done_deposits %}
+                                <tr>
+                                        <td>
+                                            <a href="{%url 'trailer-deposit-details' d.id %}">
+                                                <i class="bx bx-dots-vertical-rounded"></i>
+                                            </a>
+                                        </td>
+                                        <td>{{ d.client.name|slice:":20" }}</td>
+                                        <td class="text-end">${{ d.amount|floatformat:"2" }}</td>
+                                        <td>{{ d.date|date:"m/d/Y" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <thead>
+                            <tr>
+                                <th rowspan="4" class="text-danger pt-5 position-relative">
+                                    <div class="position-absolute">Expirated</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <thead>
+                            <tr>
+                                <th><i class="bx bx-cog"></i></th>
+                                <th>Client</th>
+                                <th class="text-end">Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in expirated_deposits %}
+                                <tr>
+                                        <td>
+                                            <a href="{%url 'trailer-deposit-details' d.id %}">
+                                                <i class="bx bx-dots-vertical-rounded"></i>
+                                            </a>
+                                        </td>
+                                        <td>{{ d.client.name|slice:":20" }}</td>
+                                        <td class="text-end">${{ d.amount|floatformat:"2" }}</td>
+                                        <td>{{ d.date|date:"m/d/Y" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <thead>
+                            <tr>
+                                <th rowspan="4" class="text-danger pt-5 position-relative">
+                                    <div class="position-absolute">Cancelled</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <thead>
+                            <tr>
+                                <th><i class="bx bx-cog"></i></th>
+                                <th>Client</th>
+                                <th class="text-end">Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in cancelled_deposits %}
+                                <tr>
+                                        <td>
+                                            <a href="{%url 'trailer-deposit-details' d.id %}">
+                                                <i class="bx bx-dots-vertical-rounded"></i>
+                                            </a>
+                                        </td>
+                                        <td>{{ d.client.name|slice:":20" }}</td>
+                                        <td class="text-end">${{ d.amount|floatformat:"2" }}</td>
+                                        <td>{{ d.date|date:"m/d/Y" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="card mb-3 col-md-6">
             <!-- Services -->
             <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">

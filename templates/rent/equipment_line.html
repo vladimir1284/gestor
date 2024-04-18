@@ -1,6 +1,7 @@
 {% load static %}
 <div class="avatar flex-shrink-0 me-3">
-    <a {% if equipment_type == 'trailer' %} href="{% url 'detail-trailer' equipment.id %}" {% else %} href="{% url 'detail-vehicle' equipment.id %}" {% endif %}>
+    <a {% if equipment and equipment.id %}{% if equipment_type == 'trailer' %} href="{% url 'detail-trailer' equipment.id %}" {% else %} href="{% url 'detail-vehicle' equipment.id %}" {% endif %}
+       {% endif %}>
         <span class="avatar-initial rounded-circle bg-label-primary">
             <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'assets/img/icons/trailer.png' %}" {% endif %}
                  alt="image"
@@ -12,9 +13,17 @@
 </div>
 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
     <div class="me-2" style="line-height:0.8em">
-        <h6 class="mb-0">{{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}</h6>
-        <small class="text-muted">{{ equipment.vin }}
-            <br>
-        Plate: {{ equipment.plate }}</small>
+        <h6 class="mb-0">
+            {% if equipment.year %}{{ equipment.get_year_display }}{% endif %}
+            {% if equipment.manufacturer %}{{ equipment.manufacturer }}{% endif %}
+            {{ equipment.get_type_display }}
+        </h6>
+        <small class="text-muted">
+            {% if equipment.vin %}
+                {{ equipment.vin }}
+                <br>
+            {% endif %}
+            {% if equipment.plate %}Plate: {{ equipment.plate }}{% endif %}
+        </small>
     </div>
 </div>

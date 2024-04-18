@@ -1,8 +1,12 @@
-from services.models import Order, OrderSignature
-from django.template.loader import render_to_string
-from django.conf import settings
 import tempfile
-from django.core.mail import EmailMessage, get_connection
+
+from django.conf import settings
+from django.core.mail import EmailMessage
+from django.core.mail import get_connection
+from django.template.loader import render_to_string
+
+from services.models import Order
+from services.models.order_signature import OrderSignature
 
 
 def conditions_to_pdf(request, order_id):

@@ -28,9 +28,9 @@ def get_start_paying_date(lease: Lease):
 def compute_client_debt(lease: Lease):
     interval_start = get_start_paying_date(lease)
     occurrences = (
-        []
-        if lease.event is None
-        else lease.event.get_occurrences(interval_start, timezone.now())
+        lease.event.get_occurrences(interval_start, timezone.now())
+        if lease.event is not None
+        else []
     )
     unpaid_dues = []
     for occurrence in occurrences:

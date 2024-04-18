@@ -5,53 +5,62 @@
     Service Orders
 {% endblock title %}
 {% block nav %}
-    {% if stage == 'Active' %}
-        {% if previousYear and previousMonth %}
-            <!-- Month -->
-            <div class="text-center">
-                <div class="demo-inline-spacing pb-3">
+    {% if previousYear and previousMonth %}
+        <!-- Month -->
+        <div class="text-center">
+            <div class="demo-inline-spacing pb-3">
+                <a type="button"
+                   href="{% url 'list-service-order-terminated' previousYear previousMonth %}"
+                   class="btn btn-icon btn-outline-primary">
+                    <span class="tf-icons bx bx-chevron-left"></span>
+                </a>
+                <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
+                {% if thisMonth == currentMonth and thisYear == currentYear %}
+                {% else %}
                     <a type="button"
-                       href="{% url 'list-service-order-terminated' previousYear previousMonth %}"
+                       href="{% url 'list-service-order-terminated' nextYear nextMonth %}"
                        class="btn btn-icon btn-outline-primary">
-                        <span class="tf-icons bx bx-chevron-left"></span>
+                        <span class="tf-icons bx bx-chevron-right"></span>
                     </a>
-                    <button type="button" class="btn btn-outline-primary">{{ currentMonth | month_name }}</button>
-                    {% if thisMonth == currentMonth and thisYear == currentYear %}
-                    {% else %}
-                        <a type="button"
-                           href="{% url 'list-service-order-terminated' nextYear nextMonth %}"
-                           class="btn btn-icon btn-outline-primary">
-                            <span class="tf-icons bx bx-chevron-right"></span>
-                        </a>
-                    {% endif %}
-                </div>
+                {% endif %}
             </div>
-        {% endif %}
+        </div>
     {% endif %}
 {% endblock nav %}
 {% block Ttitle %}
     <h5 class="card-header">
         Service Orders <spam id="filter_tag"></spam>
-        <a href="{% url alternative_view %}"
-           type="button"
-           class="btn btn-outline-primary float-end">
-            <span class="tf-icons bx bx-repost"></span>&nbsp;{{ stage }}
-        </a>
-    </h5>
-    <div class="card-body">
-        <div class="demo-inline-spacing">
-            <button onClick="filterTag('all')"
-                    type="button"
-                    class="btn rounded-pill btn-primary">all</button>
-            {% for status in statuses %}
-                <button onClick="filterTag('{{ status }}')"
-                        type="button"
-                        class="btn rounded-pill btn-outline-{% if status == 'processing' %}primary{% elif status == 'complete' %}success{% elif status == 'pending' %}warning{% elif status == 'approved' %}info{% elif status == 'payment_pending' %}danger{% elif status == 'decline' %}danger{% endif %}">
-                    {{ status }}
-                </button>
+        <div class="float-end">
+            {% for av in alternative_views %}
+                <a href="{% url av.view %}"
+                   type="button"
+                   class="btn btn-outline-primary">
+                    <span class="tf-icons bx bx-repost"></span>&nbsp;{{ av.text }}
+                </a>
             {% endfor %}
-        </div>
+            {%comment%}
+                                    <a href="{% url alternative_view %}"
+                                       type="button"
+                                       class="btn btn-outline-primary">
+                                        <span class="tf-icons bx bx-repost"></span>&nbsp;{{ stage }}
+                            </a>
+        {% endcomment %}
     </div>
+</h5>
+<div class="card-body">
+    <div class="demo-inline-spacing">
+        <button onClick="filterTag('all')"
+                type="button"
+                class="btn rounded-pill btn-primary">all</button>
+        {% for status in statuses %}
+            <button onClick="filterTag('{{ status }}')"
+                    type="button"
+                    class="btn rounded-pill btn-outline-{% if status == 'processing' %}primary{% elif status == 'complete' %}success{% elif status == 'pending' %}warning{% elif status == 'approved' %}info{% elif status == 'payment_pending' %}danger{% elif status == 'decline' %}danger{% endif %}">
+                {{ status }}
+            </button>
+        {% endfor %}
+    </div>
+</div>
 {% endblock Ttitle %}
 {% block Theader %}
     <th>

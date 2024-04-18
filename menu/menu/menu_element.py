@@ -21,6 +21,7 @@ class MenuItem:
         exact_match: bool = False,
         extra_match: list[str] | None = None,
         self_perm: PermissionParam | None = None,
+        admin: bool = False,
     ):
         self.name: str = name
         self.icon: str | None = icon
@@ -31,6 +32,7 @@ class MenuItem:
         self.exact_match: bool = exact_match
         self.extra_match = extra_match
         self.matchs = None
+        self.admin = admin
 
         if self_perm is not None and self_perm.app == "":
             self_perm.app = "menu"
@@ -89,6 +91,9 @@ class MenuItem:
         return False
 
     def has_perms(self, request) -> bool:
+        if self.admin and not request.user.is_superuser:
+            return False
+
         if self.self_perm is None and (
             self.dj_perms is None or len(self.dj_perms) == 0
         ):
