@@ -1,31 +1,27 @@
 from typing import List
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404,
-)
+
 from django.contrib.auth.decorators import login_required
-from inventory.models import (
-    ProductTransaction,
-    Product,
-    ProductKit,
-    KitElement,
-)
-from utils.models import Order
+from django.db.models import F
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
+
 from inventory.models import convertUnit
+from inventory.models import KitElement
+from inventory.models import Product
+from inventory.models import ProductKit
+from inventory.models import ProductTransaction
 from inventory.views.product import (
     prepare_product_list,
 )
-from services.models import (
-    Service,
-    ServiceTransaction,
-)
-from django.contrib.auth.mixins import LoginRequiredMixin
 from services.forms import (
     ServiceCreateForm,
 )
-from django.utils.translation import gettext_lazy as _
-from django.db.models import Sum, F
+from services.models import Service
+from services.models import ServiceTransaction
+from utils.models import Order
 
 # -------------------- Service ----------------------------
 
@@ -33,15 +29,13 @@ from django.db.models import Sum, F
 @login_required
 def create_service(request):
     form = ServiceCreateForm()
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ServiceCreateForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('list-service')
-    context = {
-        'form': form
-    }
-    return render(request, 'services/service_create.html', context)
+            return redirect("list-service")
+    context = {"form": form}
+    return render(request, "services/service_create.html", context)
 
 
 @login_required
@@ -50,21 +44,20 @@ def update_service(request, id):
     obj = get_object_or_404(Service, id=id)
 
     # pass the object as instance in form
-    form = ServiceCreateForm(request.POST or None,
-                             instance=obj, title=_("Update Service"))
+    form = ServiceCreateForm(
+        request.POST or None, instance=obj, title=_("Update Service")
+    )
 
     # save the data from the form and
     # redirect to detail_view
     if form.is_valid():
         form.save()
-        return redirect('list-service')
+        return redirect("list-service")
 
     # add form dictionary to context
-    context = {
-        'form': form
-    }
+    context = {"form": form}
 
-    return render(request, 'services/service_create.html', context)
+    return render(request, "services/service_create.html", context)
 
 
 def service_list_metadata(services: List[Service]):
@@ -79,21 +72,26 @@ def service_list_metadata(services: List[Service]):
 
 
 def prepare_service_list(order_id=None):
-    services = Service.objects.annotate(
-        total_quantity=Sum('servicetransaction__quantity')
-    ).annotate(
-        total_income=Sum(F('servicetransaction__quantity')
-                         * F('servicetransaction__price'))
-    ).order_by('-total_income')
+    services = (
+        Service.objects.annotate(total_quantity=Sum(
+            "servicetransaction__quantity"))
+        .annotate(
+            total_income=Sum(
+                F("servicetransaction__quantity") *
+                F("servicetransaction__price")
+            )
+        )
+        .order_by("-total_income")
+    )
     # Pareto computation
-    total_income_sum = services.aggregate(total_income_sum=Sum('total_income'))
+    total_income_sum = services.aggregate(total_income_sum=Sum("total_income"))
     accumulated = 0
     for service in services:
         if service.total_income:
             accumulated += service.total_income
-            if accumulated/total_income_sum['total_income_sum'] < 0.8:
+            if accumulated / total_income_sum["total_income_sum"] < 0.8:
                 service.pareto = True
-    products = Product.objects.filter(active=True).order_by('name')
+    products = Product.objects.filter(active=True).order_by("name")
     products_in_order = []
 
     # Don't include products in the current order
@@ -113,10 +111,10 @@ def prepare_service_list(order_id=None):
                     product_list.append(product)
 
     context = prepare_product_list(product_list)
-    context.setdefault('services', services)
-    context.setdefault('total_income_sum',
-                       total_income_sum['total_income_sum'])
-    context.setdefault('categories', service_list_metadata(services))
+    context.setdefault("services", services)
+    context.setdefault("total_income_sum",
+                       total_income_sum["total_income_sum"])
+    context.setdefault("categories", service_list_metadata(services))
 
     kits = ProductKit.objects.all()
     # Verify availability
@@ -126,16 +124,15 @@ def prepare_service_list(order_id=None):
         elements = KitElement.objects.filter(kit=kit)
         for element in elements:
             element.product.available = convertUnit(
-                element.product.unit,
-                element.unit,
-                element.product.computeAvailable())
+                element.product.unit, element.unit, element.product.computeAvailable()
+            )
             if element.product.available < element.quantity:
                 kit.available = False
                 kit_alerts += 1
                 break
 
-    context.setdefault('kits', kits)
-    context.setdefault('kit_alerts', kit_alerts)
+    context.setdefault("kits", kits)
+    context.setdefault("kit_alerts", kit_alerts)
 
     return context
 
@@ -143,46 +140,50 @@ def prepare_service_list(order_id=None):
 @login_required
 def list_service(request):
     response = prepare_service_list()
-    return render(request, 'services/service_list.html', response)
+    return render(request, "services/service_list.html", response)
 
 
 @login_required
-def select_service(request, next, order_id):
+def select_service(request, next, order_id, type=None):
     response = prepare_service_list(order_id)
     response.setdefault("next", next)
     response.setdefault("order_id", order_id)
-    return render(request, 'services/service_select.html', response)
+    response.setdefault("initType", type)
+    return render(request, "services/service_select.html", response)
 
 
 @login_required
 def select_new_service(request, next, order_id):
     form = ServiceCreateForm()
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ServiceCreateForm(request.POST)
         if form.is_valid():
             service = form.save()
             return redirect(next, order_id=order_id, service_id=service.id)
     context = {
-        'form': form,
-        'next': next,
-        'order_id': order_id,
+        "form": form,
+        "next": next,
+        "order_id": order_id,
     }
-    return render(request, 'services/service_create.html', context)
+    return render(request, "services/service_create.html", context)
 
 
 @login_required
 def detail_service(request, id):
     # fetch the object related to passed id
     service = get_object_or_404(Service, id=id)
-    sells = ServiceTransaction.objects.filter(
-        service=service).order_by('-order__created_date')
+    sells = ServiceTransaction.objects.filter(service=service).order_by(
+        "-order__created_date"
+    )
     latest_sell = sells.first()
     latest_order = None
     if latest_sell:
         latest_order = latest_sell.order
-    return render(request, 'services/service_detail.html', {'service': service,
-                                                            'sells': sells,
-                                                            'latest_order': latest_order})
+    return render(
+        request,
+        "services/service_detail.html",
+        {"service": service, "sells": sells, "latest_order": latest_order},
+    )
 
 
 @login_required
@@ -190,4 +191,4 @@ def delete_service(request, id):
     # fetch the object related to passed id
     obj = get_object_or_404(Service, id=id)
     obj.delete()
-    return redirect('list-service')
+    return redirect("list-service")
