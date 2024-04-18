@@ -23,13 +23,15 @@ class CommonUserLayout(Layout):
         super().__init__(
             Div(
                 Field(
-                    PrependedText("first_name", mark_safe('<i class="bx bx-user"></i>'))
+                    PrependedText("first_name", mark_safe(
+                        '<i class="bx bx-user"></i>'))
                 ),
                 css_class="row mb-3",
             ),
             Div(
                 Field(
-                    PrependedText("last_name", mark_safe('<i class="bx bx-user"></i>')),
+                    PrependedText("last_name", mark_safe(
+                        '<i class="bx bx-user"></i>')),
                     css_class="form-control",
                 ),
                 css_class="row mb-3",
@@ -37,7 +39,8 @@ class CommonUserLayout(Layout):
             Div(
                 Field(
                     PrependedText(
-                        "username", mark_safe('<i class="bx bx-user-circle"></i>')
+                        "username", mark_safe(
+                            '<i class="bx bx-user-circle"></i>')
                     )
                 ),
                 css_class="row mb-3",
@@ -86,7 +89,8 @@ class CommonContactLayout(Layout):
             Div(
                 Field(
                     PrependedText(
-                        "phone_number", mark_safe('<i class="bx bx-phone"></i>')
+                        "phone_number", mark_safe(
+                            '<i class="bx bx-phone"></i>')
                     )
                 ),
                 css_class="row",
@@ -142,11 +146,11 @@ class PictureLayout(Layout):
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "username", "email", "groups")
+        fields = ("first_name", "last_name", "username", "email")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["groups"].label = "System roles"
+        # self.fields["groups"].label = "System roles"
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
         self.helper.disable_csrf = True  # Don't render CSRF token
@@ -154,7 +158,8 @@ class UserUpdateForm(forms.ModelForm):
         # self.helper.css = 'is-invalid'
         self.helper.layout = Layout(
             CommonUserLayout(),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -179,10 +184,13 @@ class UserCreateForm(UserCreationForm):
         for item in errorList:
             self.fields[item].widget.attrs.update({"autofocus": "autofocus"})
             break
-        self.fields["first_name"].widget.attrs.update({"placeholder": _("John")})
+        self.fields["first_name"].widget.attrs.update(
+            {"placeholder": _("John")})
         self.fields["last_name"].widget.attrs.update({"placeholder": _("Doe")})
-        self.fields["email"].widget.attrs.update({"placeholder": _("john.doe")})
-        self.fields["username"].widget.attrs.update({"placeholder": _("john.doe")})
+        self.fields["email"].widget.attrs.update(
+            {"placeholder": _("john.doe")})
+        self.fields["username"].widget.attrs.update(
+            {"placeholder": _("john.doe")})
         self.fields["groups"].label = "System roles"
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
@@ -192,7 +200,8 @@ class UserCreateForm(UserCreationForm):
             CommonUserLayout(),
             Div(Field("password1"), css_class="row mb-3"),
             Div(Field("password2"), css_class="row mb-3"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -208,7 +217,8 @@ class UserProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["phone_number"].widget = RegionalPhoneNumberWidget(region="US")
+        self.fields["phone_number"].widget = RegionalPhoneNumberWidget(
+            region="US")
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
         for item in errorList:
@@ -223,7 +233,8 @@ class UserProfileForm(forms.ModelForm):
             Div(
                 Field(
                     PrependedText(
-                        "phone_number", mark_safe('<i class="bx bx-phone"></i>')
+                        "phone_number", mark_safe(
+                            '<i class="bx bx-phone"></i>')
                     )
                 ),
                 css_class="row",
@@ -262,7 +273,8 @@ class BaseContactForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["phone_number"].widget = RegionalPhoneNumberWidget(region="US")
+        self.fields["phone_number"].widget = RegionalPhoneNumberWidget(
+            region="US")
         # Focus on form field whenever error occurred
         errorList = list(self.errors)
         for item in errorList:
@@ -293,7 +305,8 @@ class AssociatedCreateForm(BaseContactForm):
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field("type"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -312,7 +325,8 @@ class ProviderCreateForm(AssociatedCreateForm):
             CommonContactLayout(),
             Field("type"),
             Div(Field("outsource"), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -329,5 +343,6 @@ class CompanyCreateForm(BaseContactForm):
         self.helper.layout = Layout(
             CommonContactLayout(),
             Div(Field("vehicles", css_class="form-select"), css_class="row mb-3"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )

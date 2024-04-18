@@ -73,6 +73,7 @@
                                                         <span class="input-group-addon"><i class='bx bx-edit-alt'></i></span>
                                                         <input type="text"
                                                                autofocus
+                                                               x-intersect="$el.focus()"
                                                                x-model="data[index]"
                                                                @keyup.enter="unselect"
                                                                @click.stop
@@ -87,7 +88,7 @@
                                         <td class="flex justify-end">
                                             <button class="btn btn-link text-red-500"
                                                     @click.stop="() => setToRemove(index)">
-                                                <i class='bx bx-trash'></i>
+                                                <i class='bx bx-trash text-red-500'></i>
                                             </button>
                                         </td>
                                     </tr>
