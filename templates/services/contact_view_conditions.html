@@ -84,6 +84,7 @@
         <script defer src="{% static 'js/alpine.min.js' %}"></script>
     </head>
     <body>
+        {% include 'playground.html' %}
         <div class="container-xxl flex-grow-1 container-p-y pb-24">
             <div class="col-xxl">
                 <div class="card relative" x-ref="card" x-data="{finishFix: false, bottom: 0, sign: false}" >

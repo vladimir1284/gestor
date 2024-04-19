@@ -93,13 +93,9 @@
         <script defer src="{%static 'js/alpine-collapse.min.js'%}"></script>
         <script defer src="{%static 'js/alpine-intersect.min.js'%}"></script>
         <script defer src="{%static 'js/alpine.min.js'%}"></script>
-        <link rel="stylesheet"
-              href="{% static 'assets/css/playground_caution.css' %}" />
     </head>
     <body>
-        <div class="caution_tape">
-            <div class="content">Playground</div>
-        </div>
+        {% include 'playground.html' %}
         {% block body %}
             <!-- Layout wrapper -->
             <div class="layout-wrapper layout-content-navbar">
