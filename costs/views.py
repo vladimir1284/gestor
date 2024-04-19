@@ -53,7 +53,7 @@ def delete_category(request, id):
 
 
 @login_required
-@permission_required("costs.add_cost")
+@permission_required("extra_perm.costs_edit")
 def create_cost(request):
     form = CostsCreateForm()
     if request.method == "POST":
@@ -68,7 +68,7 @@ def create_cost(request):
 
 
 @login_required
-@permission_required("costs.change_cost")
+@permission_required("extra_perm.costs_edit")
 def update_cost(request, id):
     # fetch the object related to passed id
     cost = get_object_or_404(Cost, id=id)
@@ -89,7 +89,7 @@ def update_cost(request, id):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def list_cost(request, year=None, month=None):
     (
         (previousMonth, previousYear),
@@ -126,7 +126,7 @@ def list_cost(request, year=None, month=None):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def detail_cost(request, id):
     # fetch the object related to passed id
     cost = get_object_or_404(Cost, id=id)
@@ -134,7 +134,7 @@ def detail_cost(request, id):
 
 
 @login_required
-@permission_required("costs.delete_cost")
+@permission_required("extra_perm.costs_edit")
 def delete_cost(request, id):
     # fetch the object related to passed id
     cost = get_object_or_404(Cost, id=id)

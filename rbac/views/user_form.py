@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 
 from menu.menu.menu_element import HttpRequest
+from rbac.decorators.admin_required import admin_required
 from rbac.forms.passwords import SetUserPassForm
 from rbac.forms.user_form import UserForm
 from rbac.tools.get_role_perms import get_role_perms_all
@@ -12,6 +13,7 @@ from rbac.tools.get_roles_json import get_roles_json
 
 
 @login_required
+@admin_required
 def user_create(request: HttpRequest):
     if request.method == "POST":
         form = UserForm(request.POST)

@@ -131,7 +131,7 @@ def getOrderBalance(order: Order, products: dict):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def monthly_report(request, year=None, month=None):
     """
     The function takes optional parameters for the year and month, allowing
@@ -303,7 +303,7 @@ def monthly_payments(request, category_id, year, month):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def weekly_membership_report(request, date=None):
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
 
@@ -358,7 +358,7 @@ def getWeekMembership(start_date, end_date):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def monthly_membership_report(request, year=None, month=None):
     # Prepare dashboard from last close
     (
@@ -439,7 +439,7 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def weekly_report(request, date=None):
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
 
