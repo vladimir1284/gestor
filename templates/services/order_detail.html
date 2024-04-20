@@ -117,13 +117,23 @@
                 </p>
                 <p>
                     <strong>Position:</strong>
-                    {% if order.position == 0 %}
-                        Storage
-                    {% elif order.position is None %}
-                        Null
-                    {% else %}
-                        {{ order.position }}
-                    {% endif %}
+                    {%if terminated and order.trailer is not None%}
+                        {% if order.trailer.position == 0 %}
+                            Storage
+                        {% elif order.trailer.position is None %}
+                            Null
+                        {% else %}
+                            {{ order.trailer.position }}
+                        {% endif %}
+                    {%else%}
+                        {% if order.position == 0 %}
+                            Storage
+                        {% elif order.position is None %}
+                            Null
+                        {% else %}
+                            {{ order.position }}
+                        {% endif %}
+                    {%endif%}
 
                     <a class="btn btn-outline-primary" href="{%url 'order-position-change' order.id%}">
                         <i class='bx bx-refresh'></i>
