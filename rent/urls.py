@@ -1,7 +1,5 @@
 from django.urls import path
 
-from rent.tools.init_conditions import init_conditions
-
 from .permissions import staff_required_view
 from .views import calendar
 from .views import client
@@ -18,12 +16,14 @@ from .views.cost import delete_cost
 from .views.cost import detail_cost
 from .views.cost import list_cost
 from .views.cost import update_cost
+from rent.tools.init_conditions import init_conditions
 from rent.views.deposit import create_trailer_reservation
 from rent.views.deposit import reserve_trailer
 from rent.views.deposit import trailer_deposit_cancel
 from rent.views.deposit import trailer_deposit_conditions
 from rent.views.deposit import trailer_deposit_details
 from rent.views.deposit import trailer_deposit_pdf
+from rent.views.trailer_change_pos import trailer_change_position
 
 try:
     init_conditions()
@@ -337,4 +337,9 @@ urlpatterns = [
         name="deactivate-reminder",
     ),
     # -------------------- Cost ----------------------------
+    path(
+        "change_trailer_pos/<id>",
+        trailer_change_position,
+        name="change-trailer-pos",
+    ),
 ]

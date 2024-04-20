@@ -54,14 +54,16 @@ class OrderCreateForm(BaseForm):
         super().__init__(*args, **kwargs)
         self.getPlate = get_plate
 
-        position = kwargs["instance"].position if "instance" in kwargs.keys() else None
+        position = kwargs["instance"].position if "instance" in kwargs.keys(
+        ) else None
 
         availables_positions = get_available_positions(
             current_pos=position,
             unselected=True,
         )
 
-        self.fields["position"].widget = forms.Select(choices=availables_positions)
+        self.fields["position"].widget = forms.Select(
+            choices=availables_positions)
 
         self.fields["invoice_data"].widget.attrs[
             "placeholder"
@@ -80,7 +82,8 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("storage_reason")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
-                ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
             )
         else:
             self.helper.layout = Layout(
@@ -91,7 +94,8 @@ class OrderCreateForm(BaseForm):
                 Div(Div(Field("storage_reason")), css_class="mb-3"),
                 Div(Div(Field("invoice_data", rows="2")), css_class="mb-3"),
                 Div(Div(Field("note", rows="2")), css_class="mb-3"),
-                ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+                ButtonHolder(Submit("submit", "Enviar",
+                             css_class="btn btn-success")),
             )
 
     def clean_position(self):
@@ -140,7 +144,8 @@ class PendingPaymentCreateForm(BaseForm):
 
 
 class PaymentCreateForm(BaseForm):
-    weeks = forms.IntegerField(required=False, initial=0)  # Add the "weeks" field
+    weeks = forms.IntegerField(
+        required=False, initial=0)  # Add the "weeks" field
 
     class Meta:
         model = Payment
@@ -187,7 +192,8 @@ class PaymentCategoryCreateForm(BaseForm):
                 """
             ),
             Div(Div(Field("icon", css_class="form-select")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -195,7 +201,8 @@ class CommonTransactionLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
             Div(
-                Div(Field(PrependedText("price", "$")), css_class="col-md-4 mb-3"),
+                Div(Field(PrependedText("price", "$")),
+                    css_class="col-md-4 mb-3"),
                 Div(Div(AppendedText("tax", "%")), css_class="col-md-4 mb-3"),
                 Div(Field("quantity"), css_class="col-md-4 mb-3"),
                 css_class="row",
@@ -332,7 +339,8 @@ class ServiceCreateForm(forms.ModelForm):
                             css_class="row mb-3",
                         ),
                         ButtonHolder(
-                            Submit("submit", "Enviar", css_class="btn btn-success")
+                            Submit("submit", "Enviar",
+                                   css_class="btn btn-success")
                         ),
                         css_class="card-body",
                     ),
@@ -503,7 +511,8 @@ class ExpenseCreateForm(BaseForm):
             Div(Div(Field("concept")), css_class="mb-3"),
             Div(Div(Field("description", rows="2")), css_class="mb-3"),
             Div(Div(Field(PrependedText("cost", "$"))), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar",
+                         css_class="btn btn-success")),
         )
 
 
@@ -548,7 +557,8 @@ class ServicePictureForm(BaseForm):
                         if id is None
                         else AppendedText(
                             "image",
-                            SafeString('<a href="' + str(capUrl) + '">Capture</a>'),
+                            SafeString('<a href="' + str(capUrl) +
+                                       '">Capture</a>'),
                         )
                     )
                 ),
@@ -582,15 +592,18 @@ class OrderSignatureForm(ModelForm):
 
 class OrderEndUpdatePositionForm(forms.Form):
     def __init__(self, *args, order: Order, status: str = "", **kwargs):
-        position = order.position
         super().__init__(*args, **kwargs)
 
         if status == "":
             status = str(order.status)
 
+        end = status in ["complete", "decline"]
+        position = order.position
+        if end and order.trailer is not None:
+            position = order.trailer.position
+
         reason = order.storage_reason
 
-        end = status in ["complete", "decline"]
         if order.quotation:
             positions = [(None, "Null")]
             position = None
