@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 
 from .order import getOrderContext
 from .sms import twilioSendSMS
-from .transaction import handle_transaction
 from inventory.models import (
     ProductTransaction,
 )
@@ -19,6 +18,7 @@ from services.models import Order
 from services.models import Payment
 from services.models import PaymentCategory
 from services.models import PendingPayment
+from services.tools.transaction import handle_transaction
 from users.models import (
     Associated,
 )
@@ -43,8 +43,7 @@ def update_payment_category(request, id):
     category = get_object_or_404(PaymentCategory, id=id)
     form = PaymentCategoryCreateForm(instance=category)
     if request.method == "POST":
-        form = PaymentCategoryCreateForm(
-            request.POST, request.FILES, instance=category)
+        form = PaymentCategoryCreateForm(request.POST, request.FILES, instance=category)
         if form.is_valid():
             form.save()
             return redirect("list-payment-category")
@@ -90,7 +89,7 @@ def process_payment(request, order_id):
             )
         )
 
-    order = get_object_or_404(Order, id=order_id)
+    order: Order = get_object_or_404(Order, id=order_id)
     if order.associated is not None:
         initial = {"category": debt}
         forms.append(
@@ -129,8 +128,7 @@ def process_payment(request, order_id):
                         if order.associated is not None:
                             # check if the client has profile pic
                             if not order.associated.avatar:
-                                next_url = reverse(
-                                    "process-payment", args=[order_id])
+                                next_url = reverse("process-payment", args=[order_id])
                                 update_associated_url = reverse(
                                     "update-associated", args=[order.associated.id]
                                 )

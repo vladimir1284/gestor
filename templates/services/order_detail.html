@@ -644,5 +644,13 @@
                   alert("Please, select at least one picture!")
               }
           }
+
+                {%for n in notifications%}
+                    notify(
+                        "{{n.title}}",
+                        "{{n.msg}}",
+                        "{{n.icon}}",
+                    )
+                {%endfor%}
     </script>
 {% endblock content %}

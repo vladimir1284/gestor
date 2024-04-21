@@ -6,11 +6,12 @@ module.exports = {
     "./templates/**/*.html",
   ],
   theme: {
-    colors: {
-      main: "#696cff",
-      mainBG: "rgba(105, 108, 255, 0.16)",
+    extend: {
+      colors: {
+        main: "#696cff",
+        mainBG: "rgba(105, 108, 255, 0.16)",
+      },
     },
-    extend: {},
   },
   plugins: [],
 };

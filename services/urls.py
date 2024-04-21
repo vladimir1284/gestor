@@ -39,6 +39,9 @@ from services.views.order_flow.signature import use_old_sign
 from services.views.order_flow.start_flow import select_order_flow
 from services.views.order_flow.view_conditions import view_conditions
 from services.views.order_flow.view_contract_details import view_contract_details
+from services.views.order_payment.rent_not_client_payment import (
+    process_payment_rent_without_client,
+)
 from services.views.picture_capture import capture_service_picture
 from services.views.picture_capture import create_expense_capture_picture
 from services.views.picture_capture import update_expense_capture_picture
@@ -336,5 +339,10 @@ urlpatterns = [
         "service-order-complete/<id>",
         order_complete,
         name="service-order-complete",
+    ),
+    path(
+        "service-order-payment-trailer-without-client/<order_id>",
+        process_payment_rent_without_client,
+        name="service-order-payment-trailer-without-client",
     ),
 ]

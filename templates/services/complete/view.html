@@ -11,25 +11,32 @@
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">Select position</h5>
             </div>
-            <div class="card-body">
-                <form enctype="multipart/form-data" method="post" id="update-form">
+            <div class="card-body" x-data="completeOrder">
+                {% if errs|length > 0 %}
+                    <div class="alert alert-danger" role="alert">
+                        <ul>
+                            {% for e in errs %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                <form enctype="multipart/form-data"
+                      method="post"
+                      id="update-form"
+                      x-ref="form">
                     {% csrf_token %}
+                    <input type="hidden" x-ref="flow" name="flow" />
                     {% crispy posForm %}
-                    <input type="submit" class="btn btn-outline-primary mt-2" value="Accept" />
                 </form>
+                <div class="flex flex-wrap gap-2 mt-4">
+                    {% if orderType == "rent" %}
+                        {% include 'services/complete/card_button.html' with click="processPay" %}
+                    {% else %}
+                        {% include 'services/complete/card_button.html' with text="Process Payment" show="payment" click="processPay" %}
+                        {% include 'services/complete/card_button.html' with text="Payment Pending" but="danger" show="pending" click="pendingPay" %}
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
-    <script>
-    const position = document.querySelector("#div_id_position select");
-    const reason = document.querySelector("#div_id_reason");
-
-    function updateReason() {
-        const value = position.value;
-        reason.style.display = value != "" && value == 0 ? "block" : "none";
-    }
-
-    position.addEventListener("change", updateReason);
-    updateReason();
-    </script>
+    <script src="{%static 'assets/js/complete_order_view.js'%}"></script>
 {% endblock content %}
