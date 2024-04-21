@@ -59,17 +59,25 @@ class TrailerCreateForm(BaseForm):
         super().__init__(*args, **kwargs)
         self.helper.field_class = "mb-3"
 
-        pos_readonly = self.instance.pos_readonly
+        creating = self.instance is None or self.instance.id is None
+        pos_readonly = not creating and self.instance.pos_readonly
+
         availables_positions = get_available_positions(
             current_pos=self.instance.position,
             null=True,
-            # unselected=not pos_readonly,
+            unselected=creating,
         )
-        self.initial["position"] = self.instance.position
+
+        self.initial["position"] = -10 if creating else self.instance.position
         self.initial["position_note"] = self.instance.position_note
+
         self.fields["position"].widget = forms.Select(
             choices=availables_positions,
         )
+
+        self.fields["position"].label = "Location"
+        self.fields["position_note"].label = "Location Note"
+
         self.fields["position_note"].required = False
         self.fields["position_note"].widget.attrs["rows"] = 2
         if pos_readonly:
@@ -104,6 +112,12 @@ class TrailerCreateForm(BaseForm):
             ButtonHolder(Submit("submit", "Enviar",
                          css_class="btn btn-success")),
         )
+
+    def clean_position(self):
+        position = self.cleaned_data["position"]
+        if position == -10:
+            raise forms.ValidationError("Please, select a position")
+        return position
 
     def clean_position_note(self):
         position_note = self.cleaned_data["position_note"]
