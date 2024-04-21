@@ -28,6 +28,7 @@ from services.views.order_flow.fast_orders import order_quotation
 from services.views.order_flow.fast_orders import parts_sale
 from services.views.order_flow.generate_url import generate_url
 from services.views.order_flow.get_preorder_state import preorder_state
+from services.views.order_flow.order_complete import order_complete
 from services.views.order_flow.order_create import create_order
 from services.views.order_flow.select_client import select_client
 from services.views.order_flow.select_lessee import select_lessee
@@ -330,4 +331,10 @@ urlpatterns = [
         name="update-debt-status",
     ),
     path("storage", storage.storage, name="storage-view"),
+    ################# Order Complete ######################
+    path(
+        "service-order-complete/<id>",
+        order_complete,
+        name="service-order-complete",
+    ),
 ]

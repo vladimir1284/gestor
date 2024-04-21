@@ -1,0 +1,35 @@
+{% extends 'base/base_form.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+    Select position
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">Select position</h5>
+            </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy posForm %}
+                    <input type="submit" class="btn btn-outline-primary mt-2" value="Accept" />
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+    const position = document.querySelector("#div_id_position select");
+    const reason = document.querySelector("#div_id_reason");
+
+    function updateReason() {
+        const value = position.value;
+        reason.style.display = value != "" && value == 0 ? "block" : "none";
+    }
+
+    position.addEventListener("change", updateReason);
+    updateReason();
+    </script>
+{% endblock content %}

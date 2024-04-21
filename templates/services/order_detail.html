@@ -163,7 +163,9 @@
                         {% if order.status != 'complete' and order.status != 'pending' and order.status != 'payment_pending' and satisfied %}
                             <li>
                                 <a class="dropdown-item badge bg-success"
-                                   href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
+                                   href="{% url 'service-order-complete' order.id %}">Complete</a>
+                                <!-- <a class="dropdown-item badge bg-success" -->
+                                <!--    href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a> -->
                             </li>
                         {% endif %}
                     </ul>

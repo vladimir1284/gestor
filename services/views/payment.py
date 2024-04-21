@@ -171,8 +171,8 @@ def process_payment(request, order_id):
             order.status = "complete"
             order.save()
             twilioSendSMS(order, order.status)
-            # return redirect('detail-service-order', order_id)
-            return redirect("order-position-change", order_id)
+            return redirect("detail-service-order", order_id)
+            # return redirect("order-position-change", order_id)
         else:
             return redirect("process-payment", order_id)
 
