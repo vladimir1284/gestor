@@ -1,8 +1,10 @@
+{% load static %}
 <div class="table-responsive text-nowrap">
     <table class="table">
         <thead>
             <tr>
                 <th>VIN</th>
+                <th>Status</th>
                 <th>date</th>
                 <th>Gross</th>
                 <th>Net</th>
@@ -19,6 +21,14 @@
                     <tr data-search="{{ order.trailer.vin }}">
                         <td>
                             <a href={% url 'detail-trailer' order.trailer.id %}>{{ order.trailer.vin }}</a>
+                        </td>
+                        <td>
+                            {% if order.associated %}
+                                <span class="text-main cursor-pointer"
+                                      @click="() => showRepStatus({{ order.js }})">Rented</span>
+                            {% else %}
+                                -
+                            {% endif %}
                         </td>
                         <td>{{ order.terminated_date|date:"D, d" }}</td>
                         <td>
@@ -53,6 +63,7 @@
                 <th>
                     <strong>Total =</strong>
                 </th>
+                <th></th>
                 <th></th>
                 <th>
                     <div class="float-end">${{ total.gross|floatformat:"2" }}</div>

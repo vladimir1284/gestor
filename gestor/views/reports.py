@@ -1,6 +1,7 @@
 from datetime import datetime
 from datetime import timedelta
 from itertools import chain
+import json
 from typing import List
 
 import pytz
@@ -9,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Min
+from django.db.models import Q
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
@@ -32,6 +34,7 @@ from services.models import Expense
 from services.models import Payment
 from services.models import PaymentCategory
 from services.models import PendingPayment
+from services.models.towit_payment import TowitPayment
 from services.views.order import (
     computeOrderAmount,
 )
@@ -128,6 +131,22 @@ def getOrderBalance(order: Order, products: dict):
     order.amount -= order.discount
     order.net = order.amount - order.parts - order.consumable - order.third_party
     order.amount += order.tax
+
+    # separated payments
+    tps = TowitPayment.objects.filter(order=order)
+    if tps.exists():
+        order.towit_payment = 0
+        order.towit_payment_notes = []
+        for tp in tps:
+            order.towit_payment += tp.amount
+            order.towit_payment_notes.append(tp.note)
+    elif order.rent_without_client:
+        order.towit_payment = order.amount
+        order.towit_payment_notes = []
+    else:
+        order.towit_payment = 0
+        order.towit_payment_notes = []
+    order.client_payment = order.amount - order.towit_payment
 
 
 @login_required
@@ -404,6 +423,15 @@ def monthly_membership_report(request, year=None, month=None):
 
 
 def getMonthlyMembership(currentYear, currentMonth, all=False):
+    tps = TowitPayment.objects.select_related("order").filter(
+        order__isnull=False,
+        order__status="complete",
+        order__type="sell",
+        order__terminated_date__year=currentYear,
+        order__terminated_date__month=currentMonth,
+    )
+    tp_orders = [tp.order.id for tp in tps]
+
     orders = (
         Order.objects.filter(
             status="complete",
@@ -411,11 +439,15 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
             terminated_date__year=currentYear,
             terminated_date__month=currentMonth,
         )
-        .order_by("-terminated_date")
         .exclude(company__membership=False)
         .exclude(company=None)
-        .exclude(associated__isnull=False)
+        .exclude(
+            ~Q(id__in=tp_orders),
+            associated__isnull=False,
+        )
+        .order_by("-terminated_date")
     )
+
     # Separate initial orders only for Rental Report
     if not all:
         orders.has_initial = False
@@ -435,7 +467,21 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
         created_date__year=currentYear, created_date__month=currentMonth
     ).order_by("-created_date")
 
-    return computeReport(orders, costs, pending_payments)
+    rep = computeReport(orders, costs, pending_payments)
+    rep["total"]["gross"] = rep["total"]["gross_towit"]
+    rep["total_initial"]["gross_initial"] = rep["total_initial"]["gross_towit_initial"]
+    for o in rep["orders"]:
+        o.amount = o.towit_payment
+        data = {
+            'towit_payment': o.towit_payment,
+            "notes": o.towit_payment_notes,
+            'client_payment': o.client_payment,
+            "client_name": o.associated.name if o.associated is not None else '',
+            "client_phone": str(o.associated.phone_number) if o.associated is not None else '',
+            "client_avatar": o.associated.avatar.url if o.associated is not None and o.associated.avatar and bool(o.associated.avatar) else '',
+        }
+        o.js = json.dumps(data)
+    return rep
 
 
 @login_required
@@ -566,6 +612,8 @@ def computeReport(orders, costs, pending_payments):
     parts = 0
     consumable = 0
     gross = 0
+    gross_client = 0
+    gross_towit = 0
     third_party = 0
     net = 0
     labor = 0
@@ -574,6 +622,8 @@ def computeReport(orders, costs, pending_payments):
     parts_initial = 0
     consumable_initial = 0
     gross_initial = 0
+    gross_client_initial = 0
+    gross_towit_initial = 0
     third_party_initial = 0
     net_initial = 0
     labor_initial = 0
@@ -589,6 +639,8 @@ def computeReport(orders, costs, pending_payments):
             parts_initial += order.parts
             consumable_initial += order.consumable
             gross_initial += order.amount
+            gross_client_initial += order.client_payment
+            gross_towit_initial += order.towit_payment
             third_party_initial += order.third_party
             net_initial += order.net
             labor_initial += order.labor
@@ -598,6 +650,8 @@ def computeReport(orders, costs, pending_payments):
             parts += order.parts
             consumable += order.consumable
             gross += order.amount
+            gross_client += order.client_payment
+            gross_towit += order.towit_payment
             third_party += order.third_party
             net += order.net
             labor += order.labor
@@ -611,6 +665,8 @@ def computeReport(orders, costs, pending_payments):
         "parts": parts,
         "consumable": consumable,
         "gross": gross,
+        "gross_client": gross_client,
+        "gross_towit": gross_towit,
         "third_party": third_party,
         "net": net,
         "labor": labor,
@@ -621,6 +677,8 @@ def computeReport(orders, costs, pending_payments):
         "parts": parts_initial,
         "consumable": consumable_initial,
         "gross": gross_initial,
+        "gross_client_initial": gross_client_initial,
+        "gross_towit_initial": gross_towit_initial,
         "third_party": third_party_initial,
         "net": net_initial,
         "labor": labor_initial,
@@ -723,6 +781,13 @@ def computeReport(orders, costs, pending_payments):
             payment_cats[category][2] += payment.amount
             payment_cats[category][5] += 1
 
+    towit_payments = TowitPayment.objects.filter(
+        order__in=orders)  # Order payments
+    towit_payment_total = 0
+    towit_payment_count = towit_payments.count()
+    for tp in towit_payments:
+        towit_payment_total += tp.amount
+
     # Sort by amount
     sorted_payment_cats = sorted(
         payment_cats, key=lambda cat: payment_cats[cat][0], reverse=True
@@ -763,6 +828,8 @@ def computeReport(orders, costs, pending_payments):
         "chart_costs": chart_costs,
         "payment_cats": sorted_payment_cats,
         "payment_total": payment_total,
+        "towit_payment_total": towit_payment_total,
+        "towit_payment_count": towit_payment_count,
         "chart_payments": chart_payments,
         "debt_paid": debt_paid,
         "payment_transactions": len(payments),

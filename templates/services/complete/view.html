@@ -1,0 +1,42 @@
+{% extends 'base/base_form.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+    Select position
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">Select position</h5>
+            </div>
+            <div class="card-body" x-data="completeOrder">
+                {% if errs|length > 0 %}
+                    <div class="alert alert-danger" role="alert">
+                        <ul>
+                            {% for e in errs %}<li>{{ e }}</li>{% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                <form enctype="multipart/form-data"
+                      method="post"
+                      id="update-form"
+                      x-ref="form">
+                    {% csrf_token %}
+                    <input type="hidden" x-ref="flow" name="flow" />
+                    {% crispy posForm %}
+                </form>
+                <div class="flex flex-wrap gap-2 mt-4">
+                    {% if orderType == "rent" %}
+                        {% include 'services/complete/card_button.html' with click="processPay" %}
+                    {% else %}
+                        {% include 'services/complete/card_button.html' with text="Process Payment" show="payment" click="processPay" %}
+                        {% include 'services/complete/card_button.html' with text="Payment Pending" but="danger" show="pending" click="pendingPay" %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{%static 'assets/js/complete_order_view.js'%}"></script>
+{% endblock content %}
