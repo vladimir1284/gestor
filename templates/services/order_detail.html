@@ -271,7 +271,8 @@
                     </a>
                 {% endif %}
                 {% if order.status == 'payment_pending' %}
-                    <a href="{% url 'process-payment' order.id %}"
+                    <!-- <a href="{% url 'process-payment' order.id %}" -->
+                    <a href="{% url 'update-order-position' order.id 'complete' %}"
                        type="button"
                        class="btn btn-icon btn-outline-success float-end">
                         <span class="tf-icons bx bx-money"></span>
