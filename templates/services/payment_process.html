@@ -45,6 +45,16 @@
                             <div class="w-100">{% crispy form %}</div>
                         </div>
                     {% endfor %}
+                    {% if towitForm %}
+                        <div class="d-flex pb-1 mt-4">
+                            <div class="flex-shrink-0 me-3">
+                                <img src="{% static 'assets/img/icons/company.png' %}"
+                                     alt=""
+                                     class="w-px-75 h-auto" />
+                            </div>
+                            <div class="w-100">{% crispy towitForm %}</div>
+                        </div>
+                    {% endif %}
                 </form>
             </div>
         </div>

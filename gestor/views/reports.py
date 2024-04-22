@@ -32,6 +32,7 @@ from services.models import Expense
 from services.models import Payment
 from services.models import PaymentCategory
 from services.models import PendingPayment
+from services.models.towit_payment import TowitPayment
 from services.views.order import (
     computeOrderAmount,
 )
@@ -129,6 +130,15 @@ def getOrderBalance(order: Order, products: dict):
     order.net = order.amount - order.parts - order.consumable - order.third_party
     order.amount += order.tax
 
+    # separated payments
+    tps = TowitPayment.objects.filter(order=order)
+    order.towit_payment = 0
+    order.towit_payment_notes = []
+    for tp in tps:
+        order.towit_payment += tp.amount
+        order.towit_payment_notes.append(tp.note)
+    order.client_payment = order.amount - order.towit_payment
+
 
 @login_required
 @permission_required("costs.view_cost")
@@ -202,8 +212,7 @@ def monthly_report(request, year=None, month=None):
 
     context.setdefault(
         "membership",
-        getMonthlyMembership(currentYear, currentMonth, all=True)[
-            "total"]["gross"],
+        getMonthlyMembership(currentYear, currentMonth, all=True)["total"]["gross"],
     )
 
     return render(request, "monthly.html", context)
@@ -227,8 +236,7 @@ def getRentalReport(currentYear, currentMonth):
             timezone.datetime(currentYear, currentMonth, 1),
             pytz.timezone(settings.TIME_ZONE),
         )
-        first_day_of_next_month = first_day_of_this_month + \
-            relativedelta(months=1)
+        first_day_of_next_month = first_day_of_this_month + relativedelta(months=1)
 
         interval_start = max(first_day_of_this_month, interval_start)
         interval_end = min(first_day_of_next_month, timezone.now())
@@ -240,8 +248,7 @@ def getRentalReport(currentYear, currentMonth):
         lease.unpaid_dues = []
         unpaid_lease = False
         for occurrence in occurrences:
-            paid_due = Due.objects.filter(
-                due_date=occurrence.start.date(), lease=lease)
+            paid_due = Due.objects.filter(due_date=occurrence.start.date(), lease=lease)
             if len(paid_due) == 0:
                 unpaid_amount += lease.payment_amount
                 lease.unpaid_dues.append(occurrence)
@@ -347,8 +354,7 @@ def getWeekMembership(start_date, end_date):
         .exclude(company=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -369,8 +375,7 @@ def monthly_membership_report(request, year=None, month=None):
 
     context = getMonthlyMembership(currentYear, currentMonth)
 
-    done_deposits, done_amount = get_done_trailer_deposits(
-        currentYear, currentMonth)
+    done_deposits, done_amount = get_done_trailer_deposits(currentYear, currentMonth)
     cancelled_deposits, cancelled_amount = get_cancelled_trailer_deposits(
         currentYear, currentMonth
     )
@@ -383,8 +388,7 @@ def monthly_membership_report(request, year=None, month=None):
     context.setdefault("done_deposits_amount", done_amount)
     context.setdefault("cancelled_deposits_amount", cancelled_amount)
     context.setdefault("expirated_deposits_amount", expirated_amount)
-    context.setdefault("total_deposits_amount",
-                       expirated_amount + cancelled_amount)
+    context.setdefault("total_deposits_amount", expirated_amount + cancelled_amount)
 
     context.setdefault("previousMonth", previousMonth)
     context.setdefault("currentMonth", currentMonth)
@@ -404,6 +408,15 @@ def monthly_membership_report(request, year=None, month=None):
 
 
 def getMonthlyMembership(currentYear, currentMonth, all=False):
+    tps_orders = TowitPayment.objects.select_related("order").filter(
+        order__isnull=False,
+        order__status="complete",
+        order__type="sell",
+        order__terminated_date__year=currentYear,
+        order__terminated_date__month=currentMonth,
+    )
+    tps_o_ids = [tp.order.id for tp in tps_orders]
+
     orders = (
         Order.objects.filter(
             status="complete",
@@ -411,11 +424,13 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
             terminated_date__year=currentYear,
             terminated_date__month=currentMonth,
         )
-        .order_by("-terminated_date")
         .exclude(company__membership=False)
         .exclude(company=None)
         .exclude(associated__isnull=False)
+        .union(Order.objects.filter(id__in=tps_o_ids), all=True)
+        .order_by("-terminated_date")
     )
+
     # Separate initial orders only for Rental Report
     if not all:
         orders.has_initial = False
@@ -455,8 +470,7 @@ def weekly_report(request, date=None):
         .exclude(company__membership=True, associated=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -566,6 +580,8 @@ def computeReport(orders, costs, pending_payments):
     parts = 0
     consumable = 0
     gross = 0
+    gross_client = 0
+    gross_towit = 0
     third_party = 0
     net = 0
     labor = 0
@@ -574,6 +590,8 @@ def computeReport(orders, costs, pending_payments):
     parts_initial = 0
     consumable_initial = 0
     gross_initial = 0
+    gross_client_initial = 0
+    gross_towit_initial = 0
     third_party_initial = 0
     net_initial = 0
     labor_initial = 0
@@ -589,6 +607,8 @@ def computeReport(orders, costs, pending_payments):
             parts_initial += order.parts
             consumable_initial += order.consumable
             gross_initial += order.amount
+            gross_client_initial += order.client_payment
+            gross_towit_initial += order.towit_payment
             third_party_initial += order.third_party
             net_initial += order.net
             labor_initial += order.labor
@@ -598,6 +618,8 @@ def computeReport(orders, costs, pending_payments):
             parts += order.parts
             consumable += order.consumable
             gross += order.amount
+            gross_client += order.client_payment
+            gross_towit += order.towit_payment
             third_party += order.third_party
             net += order.net
             labor += order.labor
@@ -611,6 +633,8 @@ def computeReport(orders, costs, pending_payments):
         "parts": parts,
         "consumable": consumable,
         "gross": gross,
+        "gross_client": gross_client,
+        "gross_towit": gross_towit,
         "third_party": third_party,
         "net": net,
         "labor": labor,
@@ -621,6 +645,8 @@ def computeReport(orders, costs, pending_payments):
         "parts": parts_initial,
         "consumable": consumable_initial,
         "gross": gross_initial,
+        "gross_client_initial": gross_client_initial,
+        "gross_towit_initial": gross_towit_initial,
         "third_party": third_party_initial,
         "net": net_initial,
         "labor": labor_initial,

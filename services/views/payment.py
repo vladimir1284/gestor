@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -13,6 +14,7 @@ from inventory.models import (
 )
 from services.forms import PaymentCategoryCreateForm
 from services.forms import PaymentCreateForm
+from services.forms.towit_payment_form import TowitPaymentForm
 from services.models import DebtStatus
 from services.models import Order
 from services.models import Payment
@@ -68,6 +70,7 @@ def delete_payment_category(request, id):
 
 
 @login_required
+@atomic
 def process_payment(request, order_id):
     categories = PaymentCategory.objects.all().exclude(name="debt")
 
@@ -90,6 +93,15 @@ def process_payment(request, order_id):
         )
 
     order: Order = get_object_or_404(Order, id=order_id)
+
+    towitForm = (
+        None
+        if order.external
+        else TowitPaymentForm(
+            request.POST or None,
+        )
+    )
+
     if order.associated is not None:
         initial = {"category": debt}
         forms.append(
@@ -160,7 +172,15 @@ def process_payment(request, order_id):
                                 )
                                 debt_status.save()
                             order.associated.save()
-        if valid:
+        if valid and (towitForm is None or towitForm.is_valid()):
+            if towitForm is not None:
+                amount = towitForm.cleaned_data.get("amount")
+                if amount is not None and amount > 0:
+                    payment = towitForm.save(commit=False)
+                    payment.order = order
+                    payment.category = form.category
+                    payment.extra_charge = payment.category.extra_charge
+                    payment.save()
             transactions = ProductTransaction.objects.filter(order=order)
             for transaction in transactions:
                 handle_transaction(transaction)
@@ -177,6 +197,7 @@ def process_payment(request, order_id):
     context = getOrderContext(order_id)
 
     context.setdefault("forms", forms)
+    context.setdefault("towitForm", towitForm)
     context.setdefault("title", _("Process payment"))
     return render(request, "services/payment_process.html", context)
 

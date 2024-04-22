@@ -25,6 +25,7 @@ from services.forms import OrderDeclineReazon
 from services.models import Order
 from services.models import Payment
 from services.models import ServicePicture
+from services.models.towit_payment import TowitPayment
 from services.tools.conditios_to_pdf import (
     conditions_to_pdf,
 )
@@ -330,6 +331,9 @@ def detail_order(request, id, msg=None):
     if context["terminated"]:
         # Payments
         context.setdefault("payments", Payment.objects.filter(order=context["order"]))
+        context.setdefault(
+            "towit_payments", TowitPayment.objects.filter(order=context["order"])
+        )
 
     # partsFilter = request.GET['parts_filter'] if 'parts_filter' in request.GET else ''
     # servicesFilter = request.GET['services_filter'] if 'services_filter' in request.GET else ''
