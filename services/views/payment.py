@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -8,17 +9,18 @@ from django.utils.translation import gettext_lazy as _
 
 from .order import getOrderContext
 from .sms import twilioSendSMS
-from .transaction import handle_transaction
 from inventory.models import (
     ProductTransaction,
 )
 from services.forms import PaymentCategoryCreateForm
 from services.forms import PaymentCreateForm
+from services.forms.towit_payment_form import TowitPaymentForm
 from services.models import DebtStatus
 from services.models import Order
 from services.models import Payment
 from services.models import PaymentCategory
 from services.models import PendingPayment
+from services.tools.transaction import handle_transaction
 from users.models import (
     Associated,
 )
@@ -43,8 +45,7 @@ def update_payment_category(request, id):
     category = get_object_or_404(PaymentCategory, id=id)
     form = PaymentCategoryCreateForm(instance=category)
     if request.method == "POST":
-        form = PaymentCategoryCreateForm(
-            request.POST, request.FILES, instance=category)
+        form = PaymentCategoryCreateForm(request.POST, request.FILES, instance=category)
         if form.is_valid():
             form.save()
             return redirect("list-payment-category")
@@ -69,6 +70,7 @@ def delete_payment_category(request, id):
 
 
 @login_required
+@atomic
 def process_payment(request, order_id):
     categories = PaymentCategory.objects.all().exclude(name="debt")
 
@@ -90,7 +92,16 @@ def process_payment(request, order_id):
             )
         )
 
-    order = get_object_or_404(Order, id=order_id)
+    order: Order = get_object_or_404(Order, id=order_id)
+
+    towitForm = (
+        None
+        if order.external
+        else TowitPaymentForm(
+            request.POST or None,
+        )
+    )
+
     if order.associated is not None:
         initial = {"category": debt}
         forms.append(
@@ -129,8 +140,7 @@ def process_payment(request, order_id):
                         if order.associated is not None:
                             # check if the client has profile pic
                             if not order.associated.avatar:
-                                next_url = reverse(
-                                    "process-payment", args=[order_id])
+                                next_url = reverse("process-payment", args=[order_id])
                                 update_associated_url = reverse(
                                     "update-associated", args=[order.associated.id]
                                 )
@@ -162,7 +172,15 @@ def process_payment(request, order_id):
                                 )
                                 debt_status.save()
                             order.associated.save()
-        if valid:
+        if valid and (towitForm is None or towitForm.is_valid()):
+            if towitForm is not None:
+                amount = towitForm.cleaned_data.get("amount")
+                if amount is not None and amount > 0:
+                    payment = towitForm.save(commit=False)
+                    payment.order = order
+                    payment.category = form.category
+                    payment.extra_charge = payment.category.extra_charge
+                    payment.save()
             transactions = ProductTransaction.objects.filter(order=order)
             for transaction in transactions:
                 handle_transaction(transaction)
@@ -171,14 +189,15 @@ def process_payment(request, order_id):
             order.status = "complete"
             order.save()
             twilioSendSMS(order, order.status)
-            # return redirect('detail-service-order', order_id)
-            return redirect("order-position-change", order_id)
+            return redirect("detail-service-order", order_id)
+            # return redirect("order-position-change", order_id)
         else:
             return redirect("process-payment", order_id)
 
     context = getOrderContext(order_id)
 
     context.setdefault("forms", forms)
+    context.setdefault("towitForm", towitForm)
     context.setdefault("title", _("Process payment"))
     return render(request, "services/payment_process.html", context)
 

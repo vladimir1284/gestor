@@ -174,8 +174,10 @@
                             {% endif %}
                             {% if order.status != 'complete' and order.status != 'pending' and order.status != 'payment_pending' and satisfied %}
                                 <li>
-                                    <a class="dropdown-item badge bg-success"
-                                       href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
+                                    <!-- <a class="dropdown-item badge bg-success" -->
+                                    <!--    href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a> -->
+                                <a class="dropdown-item badge bg-success"
+                                   href="{% url 'service-order-complete' order.id %}">Complete</a>
                                 </li>
                             {% endif %}
                         </ul>
@@ -194,6 +196,19 @@
                             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                 <div class="me-2">
                                     <small class="text-muted d-block mb-1">{{ payment.category }}</small>
+                                    <h6 class="mb-0">${{ payment.amount|floatformat:"2" }}</h6>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                    {% for payment in towit_payments %}
+                        <li class="d-flex mb-4 pb-1">
+                            <div class="avatar flex-shrink-0 me-3">
+                                <img src="{%static 'assets/img/icons/company.png'%}" alt="" class="w-px-40" />
+                            </div>
+                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                                <div class="me-2">
+                                    <small class="text-muted d-block mb-1">Towit Payment: <strong>{{payment.note}}</strong></small>
                                     <h6 class="mb-0">${{ payment.amount|floatformat:"2" }}</h6>
                                 </div>
                             </div>
@@ -656,5 +671,13 @@
                   alert("Please, select at least one picture!")
               }
           }
+
+                {%for n in notifications%}
+                    notify(
+                        "{{n.title}}",
+                        "{{n.msg}}",
+                        "{{n.icon}}",
+                    )
+                {%endfor%}
     </script>
 {% endblock content %}

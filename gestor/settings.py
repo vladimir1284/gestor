@@ -101,6 +101,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "menu.menu.menu.getMenuCtx",
+                "gestor.tools.set_not.get_not",
             ],
         },
     },

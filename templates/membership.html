@@ -219,7 +219,8 @@
             </div>
         </div>
 
-        <div class="card mb-3 col-md-6">
+        <div class="card mb-3 col-md-6" x-data="maintenanceCard">
+            {%include 'report_maintenance_cost_status_dialog.html'%}
             <!-- Services -->
             <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                 Maintenance cost:
@@ -301,5 +302,6 @@
             </div>
         </div>
     </div>
+    <script src="{%static 'assets/js/rent-report.js'%}"></script>
 {% endlocaltime %}
 {% endblock content %}

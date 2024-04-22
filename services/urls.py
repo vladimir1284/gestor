@@ -28,6 +28,7 @@ from services.views.order_flow.fast_orders import order_quotation
 from services.views.order_flow.fast_orders import parts_sale
 from services.views.order_flow.generate_url import generate_url
 from services.views.order_flow.get_preorder_state import preorder_state
+from services.views.order_flow.order_complete import order_complete
 from services.views.order_flow.order_create import create_order
 from services.views.order_flow.select_client import select_client
 from services.views.order_flow.select_lessee import select_lessee
@@ -38,6 +39,9 @@ from services.views.order_flow.signature import use_old_sign
 from services.views.order_flow.start_flow import select_order_flow
 from services.views.order_flow.view_conditions import view_conditions
 from services.views.order_flow.view_contract_details import view_contract_details
+from services.views.order_payment.rent_not_client_payment import (
+    process_payment_rent_without_client,
+)
 from services.views.picture_capture import capture_service_picture
 from services.views.picture_capture import create_expense_capture_picture
 from services.views.picture_capture import update_expense_capture_picture
@@ -330,4 +334,15 @@ urlpatterns = [
         name="update-debt-status",
     ),
     path("storage", storage.storage, name="storage-view"),
+    ################# Order Complete ######################
+    path(
+        "service-order-complete/<id>",
+        order_complete,
+        name="service-order-complete",
+    ),
+    path(
+        "service-order-payment-trailer-without-client/<order_id>",
+        process_payment_rent_without_client,
+        name="service-order-payment-trailer-without-client",
+    ),
 ]

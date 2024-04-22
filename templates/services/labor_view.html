@@ -43,6 +43,11 @@
             <div class="demo-inline-spacing">
                 <a class="btn btn-icon btn-outline-primary"
                    type="button"
+                   href="{% url 'detail-service-order' order.id %}">
+                    <i class='bx bx-left-arrow-alt'></i>
+                </a>
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
                    href="{% url 'pdf-labor' order.id %}">
                     <span class="tf-icons bx bx-file"></span>
                 </a>
