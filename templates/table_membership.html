@@ -1,4 +1,4 @@
-{%load static%}
+{% load static %}
 <div class="table-responsive text-nowrap">
     <table class="table">
         <thead>
@@ -17,38 +17,45 @@
         </thead>
         <tbody>
             {% for order in orders %}
-            {% if order.is_initial == initial %}
-            <tr data-search="{{ order.trailer.vin }}">
-                <td>
-                    <a href={% url 'detail-trailer' order.trailer.id %}>{{ order.trailer.vin }}</a>
-                </td>
-                <td>{%if order.associated %}Rented{%else%}-{%endif%}</td>
-                <td>{{ order.terminated_date|date:"D, d" }}</td>
-                <td>
-                    <div class="float-end">${{ order.amount|floatformat:"2" }}</div>
-                </td>
-                <td>
-                    <div class="float-end">
-                        <strong>${{ order.net|floatformat:"2" }}</strong>
-                    </div>
-                </td>
-                <td>
-                    <div class="float-end">${{ order.parts|floatformat:"2" }}</div>
-                </td>
-                <td>
-                    <div class="float-end">${{ order.consumable|floatformat:"2" }}</div>
-                </td>
-                <td>
-                    <div class="float-end">${{ order.third_party|floatformat:"2" }}</div>
-                </td>
-                <td>
-                    <div class="float-end">${{ order.discount|floatformat:"2" }}</div>
-                </td>
-                <td>
-                    <div class="float-end">${{ order.tax|floatformat:"2" }}</div>
-                </td>
-            </tr>
-            {% endif %}
+                {% if order.is_initial == initial %}
+                    <tr data-search="{{ order.trailer.vin }}">
+                        <td>
+                            <a href={% url 'detail-trailer' order.trailer.id %}>{{ order.trailer.vin }}</a>
+                        </td>
+                        <td>
+                            {% if order.associated %}
+                                <span class="text-main cursor-pointer"
+                                      @click="() => showRepStatus({{ order.js }})">Rented</span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ order.terminated_date|date:"D, d" }}</td>
+                        <td>
+                            <div class="float-end">${{ order.amount|floatformat:"2" }}</div>
+                        </td>
+                        <td>
+                            <div class="float-end">
+                                <strong>${{ order.net|floatformat:"2" }}</strong>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="float-end">${{ order.parts|floatformat:"2" }}</div>
+                        </td>
+                        <td>
+                            <div class="float-end">${{ order.consumable|floatformat:"2" }}</div>
+                        </td>
+                        <td>
+                            <div class="float-end">${{ order.third_party|floatformat:"2" }}</div>
+                        </td>
+                        <td>
+                            <div class="float-end">${{ order.discount|floatformat:"2" }}</div>
+                        </td>
+                        <td>
+                            <div class="float-end">${{ order.tax|floatformat:"2" }}</div>
+                        </td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
         <tfoot class="table-border-bottom-0">

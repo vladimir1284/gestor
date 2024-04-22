@@ -256,34 +256,34 @@
                             </li>
                         {% endfor %}
 
-                        {%if towit_payment_total%}
-                            <li class="d-flex mb-4 pb-1">
-                                <div class="avatar flex-shrink-0 me-3 mt-0">
-                                    <img src="{% static 'assets/img/icons/company.png' %}"
-                                         alt=""
-                                         class="rounded" />
-                                </div>
-                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-0">
-                                    <h6 class="mb-0">Towit Payment</h6>
-                                    <a type="button">
-                                        <small class="badge bg-secondary">
-                                            ${{ towit_payment_total|floatformat:"0" }}
-                                        </small>
-                                    </a>
-
-                                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between">
-                                        <small class="text-muted">
-                                            {{ towit_payment_count }}
-                                            {%if towit_payment_count == 1 %}
-                                                payment
-                                            {%else%}
-                                                payments
-                                            {%endif%}
-                                        </small>
-                                    </div>
-                                </div>
-                            </li>
-                        {%endif%}
+                        <!-- {%if towit_payment_total%} -->
+                        <!--     <li class="d-flex mb-4 pb-1"> -->
+                        <!--         <div class="avatar flex-shrink-0 me-3 mt-0"> -->
+                        <!--             <img src="{% static 'assets/img/icons/company.png' %}" -->
+                        <!--                  alt="" -->
+                        <!--                  class="rounded" /> -->
+                        <!--         </div> -->
+                        <!--         <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-0"> -->
+                        <!--             <h6 class="mb-0">Towit Payment</h6> -->
+                        <!--             <a type="button"> -->
+                        <!--                 <small class="badge bg-secondary"> -->
+                        <!--                     ${{ towit_payment_total|floatformat:"0" }} -->
+                        <!--                 </small> -->
+                        <!--             </a> -->
+                        <!---->
+                        <!--             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between"> -->
+                        <!--                 <small class="text-muted"> -->
+                        <!--                     {{ towit_payment_count }} -->
+                        <!--                     {%if towit_payment_count == 1 %} -->
+                        <!--                         payment -->
+                        <!--                     {%else%} -->
+                        <!--                         payments -->
+                        <!--                     {%endif%} -->
+                        <!--                 </small> -->
+                        <!--             </div> -->
+                        <!--         </div> -->
+                        <!--     </li> -->
+                        <!-- {%endif%} -->
                     </ul>
                 </div>
             </div>
@@ -698,11 +698,11 @@
             },
         {%endfor%}
 
-            {
-                'name': "Towit",
-                'amount': {{towit_payment_total|floatformat:'0'}},
-                'color': "#A8A8A8",
-            },
+            //{
+            //    'name': "Towit",
+            //    'amount': {{towit_payment_total|floatformat:'0'}},
+            //    'color': "#A8A8A8",
+            //},
     ]
     cats = cats.sort((a,b) => {
         return b.amount - a.amount
@@ -719,7 +719,7 @@
         series.push(e.amount)
         colors.push(e.color)
     })
-    total = {{ payment_total }} + {{ towit_payment_total }}
+    total = {{ payment_total }} // + {{ towit_payment_total }}
     plotChart('#paymentStatisticsChart', labels, series, colors, '$' + parseInt(total))
      
 })();

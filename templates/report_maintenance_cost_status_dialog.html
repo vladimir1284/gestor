@@ -1,0 +1,69 @@
+<div class="fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center z-50" tabindex="100" x-cloak
+    x-show="show" x-transition>
+    <div class="modal-dialog relative min-w-[30%]">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cost information</h5>
+                <button type="button"
+                    class="btn-close bg-white shadow rounded-lg p-2 absolute top-[-0.3rem] right-1 hover:bg-red-500 transition-all"
+                    aria-label="Close" @click="closeRepStatus"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <div class="flex pb-4">
+                    <div class="avatar flex-shrink-0 me-3">
+                        <span class="avatar-initial rounded-circle bg-label-primary">
+                            <img :src="client_avatar && client_avatar != ''? client_avatar : '/static/assets/img/icons/user.png'"
+                                alt=" Avatar " height="100px" width="100px" class="w-px-40 rounded-circle" />
+                        </span>
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div class="me-2 associated-data">
+                            <h6 class="mb-0" x-text="client_name"></h6>
+                            <small class="text-muted" x-text="client_phone"></small>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <table>
+                        <tr>
+                            <td>
+                                <span class="mr-2"> Client Payment:</span>
+                            </td>
+                            <td>
+                                <strong>$<span x-text="client_payment"></span></strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="mr-2 text-danger"> Towit Payment:</span>
+                            </td>
+                            <td>
+                                <strong>$<span x-text="towit_payment"></span></strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="mr-2 text-main"> Total Payment:</span>
+                            </td>
+                            <td>
+                                <strong>$<span x-text="towit_payment + client_payment"></span></strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="mt-4">
+                    <strong>Notes:</strong>
+                    <ul>
+                        <template x-for="note in notes">
+                            <li>
+                                <div>
+                                    <span x-text="note"></span>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

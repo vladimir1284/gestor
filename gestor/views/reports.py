@@ -1,6 +1,7 @@
 from datetime import datetime
 from datetime import timedelta
 from itertools import chain
+import json
 from typing import List
 
 import pytz
@@ -471,6 +472,15 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
     rep["total_initial"]["gross_initial"] = rep["total_initial"]["gross_towit_initial"]
     for o in rep["orders"]:
         o.amount = o.towit_payment
+        data = {
+            'towit_payment': o.towit_payment,
+            "notes": o.towit_payment_notes,
+            'client_payment': o.client_payment,
+            "client_name": o.associated.name if o.associated is not None else '',
+            "client_phone": str(o.associated.phone_number) if o.associated is not None else '',
+            "client_avatar": o.associated.avatar.url if o.associated is not None and o.associated.avatar and bool(o.associated.avatar) else '',
+        }
+        o.js = json.dumps(data)
     return rep
 
 
