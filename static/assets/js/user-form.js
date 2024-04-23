@@ -10,12 +10,26 @@ const dash = document.querySelectorAll(
 );
 const extra = document.querySelectorAll('#extra_perms input[type="checkbox"]');
 
+const accordionCollapse = document.querySelectorAll(
+    ".accordion-collapse.collapse",
+);
+const accordionButton = document.querySelectorAll(
+    ".accordion-button.collapsed",
+);
+
+accordionCollapse.forEach((ac) => {
+    ac.setAttribute(":class", '{show: $store.search.search != ""}');
+});
+accordionButton.forEach((ac) => {
+    ac.setAttribute(":class", '{collapsed: $store.search.search == ""}');
+});
+
 const refs = [];
 
 roles.forEach((r) => {
     r.setAttribute("x-model", `model.role_${r.value}`);
     r.classList.add("checkboxinput");
-    r.setAttribute("x-show", "() => match($el)");
+    r.parentNode.setAttribute("x-show", "() => match($el)");
 });
 
 function initPerms(perms, model) {
