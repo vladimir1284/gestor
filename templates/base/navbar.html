@@ -28,6 +28,12 @@
       }
     }
   }
+
+  document.addEventListener('alpine:init', () => {
+      Alpine.store('search', {
+          search: '',
+      })
+  })
     </script>
     <!-- Navbar -->
     <nav class="layout-navbar navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
@@ -44,7 +50,10 @@
             <div class="navbar-nav align-items-center">
                 <div class="nav-item d-flex align-items-center">
                     <i class="bx bx-search fs-4 lh-0"></i>
-                    <input oninput="filterText()"
+                    <input
+                           x-data
+                           x-model="$store.search.search"
+                           oninput="filterText()"
                            id="search"
                            type="text"
                            class="form-control border-0 shadow-none"

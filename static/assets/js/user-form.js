@@ -15,6 +15,7 @@ const refs = [];
 roles.forEach((r) => {
     r.setAttribute("x-model", `model.role_${r.value}`);
     r.classList.add("checkboxinput");
+    r.setAttribute("x-show", "() => match($el)");
 });
 
 function initPerms(perms, model) {
@@ -24,6 +25,7 @@ function initPerms(perms, model) {
         refs.push(ref);
         e.setAttribute("x-ref", ref);
         e.setAttribute("x-model", xmodel);
+        e.parentNode.setAttribute("x-show", "() => match($el)");
     });
 }
 
@@ -212,6 +214,18 @@ document.addEventListener("alpine:init", () => {
                 for (let k in this.extra) {
                     this.extra[k] = state;
                 }
+            },
+
+            match(element) {
+                const etext = element.innerText.toLowerCase();
+                const text = Alpine.store("search").search;
+                const fields = text.toLowerCase().split(" ");
+                for (let f of fields) {
+                    if (etext.indexOf(f) == -1) {
+                        return false;
+                    }
+                }
+                return true;
             },
         };
     });
