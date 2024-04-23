@@ -150,8 +150,8 @@
                     {% endif %}
                 <!-- </div> -->
             </div>
-            <div class="card-body" x-data="UserRolesPerms">
-                <form enctype="multipart/form-data" method="post" id="user-form">
+            <div class="card-body" x-data="RBACSearch">
+                <form enctype="multipart/form-data" method="post" id="user-form" x-data="UserRolesPerms">
                     {% csrf_token %}
                     {% crispy form %}
                     {% if pwf is not None %}
@@ -222,4 +222,5 @@
     <!-- <script src='{%static 'assets/js/role-form.js'%}'></script> -->
     <script src='{%static 'assets/js/user-pass.js'%}'></script>
     <script src='{%static 'assets/js/user-form.js'%}'></script>
+    <script src='{%static 'assets/js/rbac-form-search.js'%}'></script>
 {% endblock content %}
