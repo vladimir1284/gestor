@@ -10,11 +10,26 @@ const dash = document.querySelectorAll(
 );
 const extra = document.querySelectorAll('#extra_perms input[type="checkbox"]');
 
+const accordionCollapse = document.querySelectorAll(
+    ".accordion-collapse.collapse",
+);
+const accordionButton = document.querySelectorAll(
+    ".accordion-button.collapsed",
+);
+
+accordionCollapse.forEach((ac) => {
+    ac.setAttribute(":class", '{show: $store.search.search != ""}');
+});
+accordionButton.forEach((ac) => {
+    ac.setAttribute(":class", '{collapsed: $store.search.search == ""}');
+});
+
 const refs = [];
 
 roles.forEach((r) => {
     r.setAttribute("x-model", `model.role_${r.value}`);
     r.classList.add("checkboxinput");
+    r.parentNode.setAttribute("x-show", "() => match($el)");
 });
 
 function initPerms(perms, model) {
@@ -24,6 +39,7 @@ function initPerms(perms, model) {
         refs.push(ref);
         e.setAttribute("x-ref", ref);
         e.setAttribute("x-model", xmodel);
+        e.parentNode.setAttribute("x-show", "() => match($el)");
     });
 }
 
@@ -212,6 +228,18 @@ document.addEventListener("alpine:init", () => {
                 for (let k in this.extra) {
                     this.extra[k] = state;
                 }
+            },
+
+            match(element) {
+                const etext = element.innerText.toLowerCase();
+                const text = Alpine.store("search").search;
+                const fields = text.toLowerCase().split(" ");
+                for (let f of fields) {
+                    if (etext.indexOf(f) == -1) {
+                        return false;
+                    }
+                }
+                return true;
             },
         };
     });
