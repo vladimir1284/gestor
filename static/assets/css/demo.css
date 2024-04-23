@@ -4,11 +4,15 @@
 ******************************************************************************/
 
 body {
-  animation: playAnimationBG 1s ease-in-out infinite alternate;
+  background: #ffcc88;
+  /* animation: playAnimationBG 1s ease-in-out infinite alternate; */
 
   .card,
   .layout-menu {
-    animation: playCardAnimationBG 0.3s ease-in-out infinite alternate;
+    box-shadow:
+      inset 0 0 20px 5px #ffee88,
+      0 3px 5px rgba(0, 0, 0, 0.1);
+    /* animation: playCardAnimationBG 0.3s ease-in-out infinite alternate; */
   }
 }
 
