@@ -14,6 +14,7 @@ def fast_order_create(request, id):
     order = Order(
         concept=preorder.concept,
         quotation=preorder.concept == QUOTATION,
+        parts_sale=preorder.concept == PARTS_SALE,
         created_by=request.user,
         associated=preorder.associated,
         type="sell",
