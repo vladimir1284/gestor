@@ -156,14 +156,14 @@
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false">{{ order.get_status_display }}</button>
                         <ul class="dropdown-menu">
-                            {% if order.status != 'pending' %}
-                                <li>
-                                    <button class="dropdown-item badge bg-warning"
-                                            onclick="updateStatus('{% url 'update-service-order-status' order.id 'pending' %}', 'pending')">
-                                        Pending
-                                    </button>
-                                </li>
-                            {% endif %}
+                            <!-- {% if order.status != 'pending' %} -->
+                            <!--     <li> -->
+                            <!--         <button class="dropdown-item badge bg-warning" -->
+                            <!--                 onclick="updateStatus('{% url 'update-service-order-status' order.id 'pending' %}', 'pending')"> -->
+                            <!--             Pending -->
+                            <!--         </button> -->
+                            <!--     </li> -->
+                            <!-- {% endif %} -->
                             {% if order.status != 'processing' %}
                                 <li>
                                     <button class="dropdown-item badge bg-primary"
@@ -255,7 +255,7 @@
                 {%endif%}
 
 
-                {% if order.status != 'decline' and order.status != 'complete' and order.status != 'payment_pending' %}
+                {% if order.status != 'decline' and order.status != 'complete' and order.status != 'payment_pending' and order.status != 'processing' %}
                     <!-- <a onclick="updateStatus('{% url 'update-service-order-status' order.id 'decline' %}', 'decline')" -->
                     <a onclick="updateStatus('{% url 'order-decline-reazon' order.id %}', 'decline')"
                        type="button"
