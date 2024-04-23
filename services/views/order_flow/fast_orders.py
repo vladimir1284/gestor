@@ -37,4 +37,4 @@ def order_quotation(request):
     preorder = Preorder()
     preorder.concept = QUOTATION
     preorder.save()
-    return redirect("fast-order-create", preorder.id)
+    return redirect("select-service-client", preorder.id)
