@@ -7,7 +7,7 @@
 {% block content %}
     <!-- Basic with Icons -->
     <div class="col-xxl">
-        <div class="card mb-4">
+        <div class="card mb-4" x-data="payment">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">
                     {{ title }}  <b>$<span id="order_total">{{ order.total|floatformat:"-2" }}</span></b>
@@ -61,6 +61,7 @@
         </div>
     </div>
     <script>
+        window.totalAmount = {{order.total|floatformat:"-2"}}
         let payment_inputs, total, submit;
         let payment, extra_charge;
         let total_value, diff_value, extra_value;
@@ -148,4 +149,5 @@
             }
         }
     </script>
+    <script src="{% static "assets/js/payment.js" %}"></script>
 {% endblock content %}
