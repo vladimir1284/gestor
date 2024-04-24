@@ -228,8 +228,8 @@ def prepareListOrder(
 
     # List orders
     orders = Order.objects.filter(
-        type="sell",
         status__in=status_list,
+        type="sell",
         # position__in=positions,
     ).order_by("-created_date")
 
@@ -243,7 +243,8 @@ def prepareListOrder(
     if not pos_null:
         orders = orders.exclude(
             # ~Q(concept=PARTS_SALE),
-            # quotation=False,
+            parts_sale=False,
+            quotation=False,
             position=None,
         )
 
