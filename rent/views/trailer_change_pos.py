@@ -29,7 +29,8 @@ def trailer_change_position(
             trailer.position_note = note
             trailer.position_date = datetime.now()
             trailer.save()
-            return redirect("list-service-order")
+            # return redirect("list-service-order")
+            return redirect("detail-trailer", id)
     else:
         form = TrailerChangePosForm(trailer=trailer)
 
