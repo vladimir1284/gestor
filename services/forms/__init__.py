@@ -344,6 +344,12 @@ class ServiceCreateForm(forms.ModelForm):
             ),
         )
 
+    def clean_suggested_price(self):
+        price = self.cleaned_data["suggested_price"]
+        if price is None or price == "":
+            price = 0
+        return price
+
 
 class DiscountForm(BaseForm):
     round_to = forms.FloatField()
