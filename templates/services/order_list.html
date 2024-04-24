@@ -30,6 +30,18 @@
 {% block Ttitle %}
     <h5 class="card-header">
         Service Orders <spam id="filter_tag"></spam>
+        <a href="{% url 'select-service-order-flow' %}">
+            <button type="button"
+                    class="btn rounded-pill btn-primary btn-icon"
+                    data-bs-toggle="tooltip"
+                    data-bs-offset="0,4"
+                    data-bs-placement="top"
+                    data-bs-html="true"
+                    title=""
+                    data-bs-original-title="New order">
+                <i class='bx bx-plus'></i>
+            </button>
+        </a>
         <div class="float-end">
             {% for av in alternative_views %}
                 <a href="{% url av.view %}"
@@ -39,11 +51,11 @@
                 </a>
             {% endfor %}
             {%comment%}
-                                    <a href="{% url alternative_view %}"
-                                       type="button"
-                                       class="btn btn-outline-primary">
-                                        <span class="tf-icons bx bx-repost"></span>&nbsp;{{ stage }}
-                            </a>
+                                                                                                                                    <a href="{% url alternative_view %}"
+                                                                                                                                       type="button"
+                                                                                                                                       class="btn btn-outline-primary">
+                                                                                                                                        <span class="tf-icons bx bx-repost"></span>&nbsp;{{ stage }}
+                                                                                            </a>
         {% endcomment %}
     </div>
 </h5>
@@ -76,9 +88,13 @@
         {% include "services/order_item.html" with order=order %}
     {% endfor %}
 {% endblock Tbody %}
+{%comment%}
 {% block createUrl %}
-    {% url 'select-service-order-flow' %}
+                                    {% url 'select-service-order-flow' %}
 {% endblock createUrl %}
 {% block help %}
-    New order
+                                    New order
 {% endblock help %}
+{% endcomment %}
+{% block addButton %}
+{% endblock %}
