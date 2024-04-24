@@ -126,46 +126,48 @@
             </h5>
 
             {%if equipment.position or equipment.position == 0 or equipment.position is None %}
-                <div class="flex items-center flex-wrap justify-center shadow-inner rounded">
-                    <span class="mx-3">
-                        Position: <strong>
-                            {%if equipment.position is None%}
-                                Outside
-                            {%elif equipment.position == 0%}
-                                Storage
-                            {%else%}
-                                {{equipment.position}}
-                            {%endif%}
-                        </strong>
-                    </span>
-                    {%if not equipment.pos_readonly%}
-                        <a class="btn btn-link btn-icon"
-                                   type
-                                   None="button"
-                                   href="{% url 'change-trailer-pos' equipment.id %}">
-                            <i class='bx bx-refresh'></i>
-                        </a>
-                    {%endif%}
-                    {%if equipment.position_note and equipment.position_note != ''%}
-                        <button class="btn btn-link btn-icon" data-bs-toggle="modal" data-bs-target="#posNoteModal">
-                            <i class='bx bx-note' ></i>
-                        </button>
-                        <!-- Modal -->
-                        <div class="modal fade" id="posNoteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Position note</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        {{equipment.position_note}}
+                {%if not equipment.pos_readonly%}
+                    <div class="flex items-center flex-wrap justify-center shadow-inner rounded">
+                        <span class="mx-3">
+                            Position: <strong>
+                                {%if equipment.position is None%}
+                                    Outside
+                                {%elif equipment.position == 0%}
+                                    Storage
+                                {%else%}
+                                    {{equipment.position}}
+                                {%endif%}
+                            </strong>
+                        </span>
+                        {%if not equipment.pos_readonly%}
+                            <a class="btn btn-link btn-icon"
+                                       type
+                                       None="button"
+                                       href="{% url 'change-trailer-pos' equipment.id %}">
+                                <i class='bx bx-refresh'></i>
+                            </a>
+                        {%endif%}
+                        {%if equipment.position_note and equipment.position_note != ''%}
+                            <button class="btn btn-link btn-icon" data-bs-toggle="modal" data-bs-target="#posNoteModal">
+                                <i class='bx bx-note' ></i>
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="posNoteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Position note</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{equipment.position_note}}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    {%endif%}
-                </div>
+                        {%endif%}
+                    </div>
+                {%endif%}
             {%endif%}
         </div>
         <div class="card-body flex justify-center">
