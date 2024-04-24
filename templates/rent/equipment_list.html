@@ -89,24 +89,27 @@
 {% endblock Tbody %}
 {% block TtitleInactive %}
     <div class="flex items-center flex-wrap">
-        <h5 class="card-header">Deactivated Trailers</h5>
-        <span id="filter_tag" class="hidden"></span>
-        <button onClick="filterTag('all')"
-                type="button"
-                class="btn rounded-pill btn-primary relative pr-2">
-            All
+        <h5 class="card-header">
+            Deactivated Trailers
             <span class="badge rounded-pill bg-danger m-0">{{ inactive_trailers|length }}</span>
-        </button>
-        {% for filt, count in inactive_filters.items %}
-            {% if count > 0 %}
-                <button onClick="filterTag('{{ filt }}')"
-                        type="button"
-                        class="relative pr-2 btn rounded-pill btn-outline-{% if filt == 'Available' %}success{% elif filt == 'Reserved' %}info{% elif filt == 'Rented' %}warning{% elif filt == 'LTO' %}danger{% else %}primary{% endif %}">
-                    {{ filt }}
-                    <span class="badge rounded-pill bg-danger m-0">{{ count }}</span>
-                </button>
-            {% endif %}
-        {% endfor %}
+        </h5>
+        <span id="filter_tag" class="hidden"></span>
+        <!-- <button onClick="filterTag('all')" -->
+        <!--         type="button" -->
+        <!--         class="btn rounded-pill btn-primary relative pr-2"> -->
+        <!--     All -->
+        <!--     <span class="badge rounded-pill bg-danger m-0">{{ inactive_trailers|length }}</span> -->
+        <!-- </button> -->
+        <!-- {% for filt, count in inactive_filters.items %} -->
+        <!--     {% if count > 0 %} -->
+        <!--         <button onClick="filterTag('{{ filt }}')" -->
+        <!--                 type="button" -->
+        <!--                 class="relative pr-2 btn rounded-pill btn-outline-{% if filt == 'Available' %}success{% elif filt == 'Reserved' %}info{% elif filt == 'Rented' %}warning{% elif filt == 'LTO' %}danger{% else %}primary{% endif %}"> -->
+        <!--             {{ filt }} -->
+        <!--             <span class="badge rounded-pill bg-danger m-0">{{ count }}</span> -->
+        <!--         </button> -->
+        <!--     {% endif %} -->
+        <!-- {% endfor %} -->
     </div>
 {% endblock TtitleInactive %}
 {% block TheaderInactive %}
