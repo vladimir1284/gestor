@@ -1,0 +1,40 @@
+{% load static %}
+<tr>
+    <td class="chapilla" rowspan="2">
+        <div class="flex justify-center items-center">
+            <div class="w-6 h-6 rounded-full bg-main flex justify-center items-center">
+                <span class="text-white">S</span>
+            </div>
+        </div>
+    </td>
+    <td>
+        <div class="d-flex">{% include "equipment/equipment_line.html" with equipment=order equipment_type="trailer" %}</div>
+    </td>
+    <td>
+        {% if order.position_date %}
+            <div>{{ order.position_date | date:'b. d, Y' | capfirst }}</div>
+            <div>
+                {{ order.time }}
+                {% if order.time == 1 %}
+                    Day
+                {% else %}
+                    Days
+                {% endif %}
+            </div>
+        {% else %}
+            UNKNOWN
+        {% endif %}
+    </td>
+</tr>
+<tr>
+    <td></td>
+    <td>
+        <div class='text-wrap'>
+            {% if order.position_note %}
+                {{ order.position_note }}
+            {% else %}
+                UNKNOWN
+            {% endif %}
+        </div>
+    </td>
+</tr>

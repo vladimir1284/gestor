@@ -5,6 +5,8 @@ from django.utils.timezone import make_aware
 from dashboard.dashboard.dashboard_card import DashboardCard
 from gestor.views.reports import Order
 from rbac.tools.permission_param import PermissionParam
+from rent.models.lease import Contract
+from rent.models.vehicle import Trailer
 
 
 def _resolver():
@@ -42,6 +44,7 @@ def _resolver():
         trailer=None,
     )
     for o in justTriler:
+        o.is_trailer = False
         o.trace = o.storage_traces.order_by("-date").first()
         if o.trace:
             o.trace.time = (make_aware(datetime.now()) - o.trace.date).days
@@ -56,9 +59,42 @@ def _resolver():
         key=lambda x: (x.trace.time if x.trace is not None else -1),
         reverse=True,
     )
+
+    not_ids = [
+        c.trailer.id
+        for c in Contract.objects.filter(
+            stage__in=[
+                "active",
+                "signed",
+                "ready",
+            ]
+        )
+    ] + [
+        o.trailer.id
+        for o in Order.objects.filter(
+            status__in=[
+                "pending",
+                "processing",
+                "payment_pending",
+            ]
+        ).exclude(trailer=None)
+    ]
+    trailers = Trailer.objects.filter(
+        active=True, position=0).exclude(id__in=not_ids)
+    for t in trailers:
+        t.is_trailer = True
+        if t.position_date is not None:
+            t.time = (make_aware(datetime.now()) - t.position_date).days
+
+    justTriler = [t for t in trailers] + [t for t in justTriler]
+
     justTriler = sorted(
         justTriler,
-        key=lambda x: (x.trace.time if x.trace is not None else -1),
+        key=lambda x: (
+            (t.time if t.time is not None else -1)
+            if x.is_trailer
+            else (x.trace.time if x.trace is not None else -1)
+        ),
         reverse=True,
     )
 
