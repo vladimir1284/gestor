@@ -39,8 +39,7 @@ def list_equipment(request):
     trailers = Trailer.objects.filter(active=True)
     for trailer in trailers:
         # Contracts
-        contracts = Contract.objects.filter(
-            trailer=trailer).exclude(stage="ended")
+        contracts = Contract.objects.filter(trailer=trailer).exclude(stage="ended")
         if contracts:
             trailer.current_contract = contracts.last()
             _, trailer.paid = trailer.current_contract.paid()
@@ -52,7 +51,7 @@ def list_equipment(request):
         trailer_deposits = get_current_trailer_deposit(trailer)
         if trailer_deposits:
             trailer.reservation = trailer_deposits
-            if not trailer.filter:
+            if not hasattr(trailer, "filter"):
                 trailer.filter = "Reserved"
 
         if not hasattr(trailer, "filter"):
@@ -79,8 +78,7 @@ def list_equipment(request):
             trailer.doc_color = f"assets/img/icons/doc_{doc_color}.png"
         # Orders
         last_order = (
-            Order.objects.filter(trailer=trailer).order_by(
-                "-created_date").first()
+            Order.objects.filter(trailer=trailer).order_by("-created_date").first()
         )
         if last_order is not None:
             trailer.last_order = last_order
@@ -93,8 +91,7 @@ def list_equipment(request):
     inactive_trailers = Trailer.objects.filter(active=False)
     for trailer in inactive_trailers:
         # Contracts
-        contracts = Contract.objects.filter(
-            trailer=trailer).exclude(stage="ended")
+        contracts = Contract.objects.filter(trailer=trailer).exclude(stage="ended")
         if contracts:
             trailer.current_contract = contracts.last()
             trailer.paid = trailer.current_contract.paid()
@@ -127,8 +124,7 @@ def list_equipment(request):
             trailer.doc_color = f"assets/img/icons/doc_{doc_color}.png"
         # Orders
         last_order = (
-            Order.objects.filter(trailer=trailer).order_by(
-                "-created_date").first()
+            Order.objects.filter(trailer=trailer).order_by("-created_date").first()
         )
         if last_order is not None:
             trailer.last_order = last_order
@@ -293,8 +289,7 @@ def detail_trailer(request, id):
     for document in documents:
         document.is_expired = document.is_expired()
         document.alarm = document.remainder()
-        document.icon = "assets/img/icons/" + \
-            FILES_ICONS[document.document_type]
+        document.icon = "assets/img/icons/" + FILES_ICONS[document.document_type]
     # Get tracker
     trailer.tracker = Tracker.objects.filter(trailer=trailer).first()
 
@@ -341,8 +336,7 @@ def delete_trailer(request, id):
 def manufacturer_list(request):
     manufacturers = Manufacturer.objects.all()
     return render(
-        request, "rent/manufacturer_list.html", {
-            "manufacturers": manufacturers}
+        request, "rent/manufacturer_list.html", {"manufacturers": manufacturers}
     )
 
 
@@ -365,8 +359,7 @@ def manufacturer_create(request):
 def manufacturer_update(request, pk):
     manufacturer = Manufacturer.objects.get(pk=pk)
     if request.method == "POST":
-        form = ManufacturerForm(
-            request.POST, request.FILES, instance=manufacturer)
+        form = ManufacturerForm(request.POST, request.FILES, instance=manufacturer)
         if form.is_valid():
             form.save()
             return redirect("manufacturer-list")
