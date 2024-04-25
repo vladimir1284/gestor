@@ -21,4 +21,20 @@ def get_conditions(ctx):
     if template is None:
         return None
 
-    return template.render_template(ctx, version=version)
+    cond = template.render_template(
+        ctx,
+        version=version,
+        replaces={
+            "@@signatures_and_date@@": '{% include "rent/contract/signatures_and_date.html" %}',
+            "@@trailer_report@@": '{% include "rent/contract/trailer_condition_report.html" %}',
+        },
+    )
+    if cond is None:
+        cond = template.render_template(
+            ctx,
+            replaces={
+                "@@signatures_and_date@@": '{% include "rent/contract/signatures_and_date.html" %}',
+                "@@trailer_report@@": '{% include "rent/contract/trailer_condition_report.html" %}',
+            },
+        )
+    return cond

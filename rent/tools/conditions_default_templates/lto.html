@@ -2,10 +2,10 @@
 <p class="center"><strong>EQUIPMENT</strong> <strong>LEASE</strong></p>
 <p>
     This Equipment Lease ("this lease") is made effective as of
-    <mark>{{ contract.effective_date|date:'F d, Y' }}</mark> between Towit
+    <mark class="marker-yellow">{{ contract.effective_date|date:'F d, Y' }}</mark> between Towit
     Houston, LLC ("the Lessors"), 6514 Mohave Ln, Richmond, TX 77469, and
-    <mark>{{ contract.lessee.name }}</mark>, ("the Lessee"),
-    <mark>{{ contract.lessee.data.client_address }}</mark> and states the
+    <mark class="marker-yellow">{{ contract.lessee.name }}</mark>, ("the Lessee"),
+    <mark class="marker-yellow">{{ contract.lessee.data.client_address }}</mark> and states the
     agreement of the parties as follows:
 </p>
 <p>
@@ -14,32 +14,32 @@
 </p>
 <p>
     <strong>PAYMENT TERMS</strong>. The Lessee shall make
-    <mark>{{ contract.n_payments }} {{ contract.payment_frequency }}</mark>
-    payments of $<mark>{{ contract.payment_amount }}</mark>. The lease payments
+    <mark class="marker-yellow">{{ contract.n_payments }} {{ contract.payment_frequency }}</mark>
+    payments of $<mark class="marker-yellow">{{ contract.payment_amount }}</mark>. The lease payments
     shall be due whether or not the Lessee has received notice of payment due.
 </p>
 <p>
     <strong>SERVICE CHARGE</strong>. If any lease installment is not paid within 7
     day(s) after the due date, the Lessee shall pay to the Lessor a service charge
-    of $<mark>{{ contract.service_charge }}</mark> for every week the payment is
+    of $<mark class="marker-yellow">{{ contract.service_charge }}</mark> for every week the payment is
     late.
 </p>
 <p>
     <strong>DOWN PAYMENT</strong>. In addition to the Lease payment charge, the
-    Lessee shall pay a down payment of $<mark>{{ contract.security_deposit }}</mark>
+    Lessee shall pay a down payment of $<mark class="marker-yellow">{{ contract.security_deposit }}</mark>
     at the time that this Lease is signed.
 </p>
 <p>
     <strong>LEASE TO OWN TERM</strong>. This Lease shall begin on the above
     effective date and shall terminate on
-    <mark>{{ contract.contract_end_date|date:'F d, Y' }}</mark>, unless otherwise
+    <mark class="marker-yellow">{{ contract.contract_end_date|date:'F d, Y' }}</mark>, unless otherwise
     terminated in a manner consistent with the terms of this Lease. Once the last
     payment is received by the Lessor, the title shall be released and granted to
     the Lease, which will be the new owner of the equipment.
 </p>
 <p>
     <strong>LOCATION OF EQUIPMENT</strong>. The equipment shall be located at
-    <mark>{{ contract.trailer_location }}</mark>, during the Lease term, and shall
+    <mark class="marker-yellow">{{ contract.trailer_location }}</mark>, during the Lease term, and shall
     not be removed from that location without the Lessor prior written consent.
 </p>
 <p>
@@ -217,6 +217,33 @@
 </p>
 <p>
     <strong>SIGNATORIES</strong>. This Lease shall be signed by Towit Houston, LLC
-    and <mark>{{ contract.lessee.name }}</mark> and shall be effective as of the
+    and <mark class="marker-yellow">{{ contract.lessee.name }}</mark> and shall be effective as of the
     date first above written.
 </p>
+
+@@signatures_and_date@@
+
+<div class="break"></div>
+<p class="center">
+    <strong>EXHIBIT A</strong>
+</p>
+<p>
+    <strong>Equipment Schedule</strong>
+</p>
+<p>
+    Equipment Description:
+    <mark class="marker-yellow">{{ contract.trailer.get_year_display }} {{ contract.trailer.manufacturer }} {{ contract.trailer.get_type_display }}
+    </mark>
+    Trailer, VIN:<mark class="marker-yellow">{{ contract.trailer.vin }}</mark>
+</p>
+<p>
+    Plate: <mark class="marker-yellow">{{ contract.trailer.plate }}</mark>
+</p>
+<p>Lease End Purchase Price: Market Price</p>
+<p>
+    Email: <mark class="marker-yellow">{{ contract.lessee.email }}</mark>
+</p>
+
+@@trailer_report@@
+
+@@signatures_and_date@@
