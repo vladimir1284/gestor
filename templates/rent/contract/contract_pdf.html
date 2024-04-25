@@ -1,7 +1,21 @@
 {% load static %}
 <head>
-   <meta charset="utf-8" />
-   <style>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="{% static 'libs/ckeditor/ckeditor.css' %}" />
+    <link rel="stylesheet" href="{% static 'libs/ckeditor/ckeditor.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/editor.css' %}" />
+    <style>
+    @page {
+        @bottom-center{
+            content: "Page " counter(page) " of " counter(pages);
+        }
+        @bottom-right {
+            content: "Lessee's Initials: {{lessee_initials}}";
+        }
+        @bottom-left {
+            content: "Lessor's Initials: DHD";
+        }
+    }
      .bottom-three-left-two {
          margin-left: 3em;
         margin-bottom: 2cm;
@@ -37,6 +51,6 @@
       div.break {
          page-break-before:always;
       }
-   </style>
+    </style>
 </head>
 {% include "./contract_content.html" %}

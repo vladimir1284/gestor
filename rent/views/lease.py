@@ -506,6 +506,9 @@ def generate_pdf(request, id):
     HandWriting.objects.filter(lease=contract)
     context = prepare_contract_view(id)
     context.setdefault("pdf", True)
+
+    context['conditions'] = get_conditions(context)
+
     html_string = render_to_string("rent/contract/contract_pdf.html", context)
     if settings.USE_WEASYPRINT:
         from weasyprint import HTML

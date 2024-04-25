@@ -1,26 +1,33 @@
+{% load static %}
 <div class="card">
     <div class="card-body">
-        {% include "./contract_body.html" %}
-        {% include "./signatures_and_date.html" %}
-        <div class="break"></div>
-        <p class="center">
-            <strong>EXHIBIT A</strong>
-        </p>
-        <p>
-            <strong>Equipment Schedule</strong>
-        </p>
-        <p>
-            Equipment Description: <mark>{{ contract.trailer.get_year_display }}
-        {{ contract.trailer.manufacturer }} {{ contract.trailer.get_type_display }} </mark>
-        Trailer, VIN:<mark>{{ contract.trailer.vin }}</mark>
-    </p>
-    <p>
-        Plate: <mark>{{ contract.trailer.plate }}</mark>
-    </p>
-    <p>Lease End Purchase Price: Market Price</p>
-    <p>
-        Email: <mark>{{ contract.lessee.email }}</mark>
-    </p>
-    {% include "./trailer_condition_report.html" %}
-    {% include "./signatures_and_date.html" %}
+        {% if conditions %}
+            {{ conditions }}
+        {% else %}
+            {% include "./contract_body.html" %}
+            {% include "./signatures_and_date.html" %}
+            <div class="break"></div>
+            <p class="center">
+                <strong>EXHIBIT A</strong>
+            </p>
+            <p>
+                <strong>Equipment Schedule</strong>
+            </p>
+            <p>
+                Equipment Description:
+                <mark>{{ contract.trailer.get_year_display }} {{ contract.trailer.manufacturer }} {{ contract.trailer.get_type_display }}
+                </mark>
+                Trailer, VIN:<mark>{{ contract.trailer.vin }}</mark>
+            </p>
+            <p>
+                Plate: <mark>{{ contract.trailer.plate }}</mark>
+            </p>
+            <p>Lease End Purchase Price: Market Price</p>
+            <p>
+                Email: <mark>{{ contract.lessee.email }}</mark>
+            </p>
+            {% include "./trailer_condition_report.html" %}
+            {% include "./signatures_and_date.html" %}
+        {% endif %}
+    </div>
 </div>
