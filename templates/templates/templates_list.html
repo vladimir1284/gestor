@@ -25,6 +25,19 @@
             </td>
         </tr>
     {% endfor %}
+    {% for template in templates_version %}
+        <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
+            <td data-custom="{{ template.module }}">
+                <a href="{% url 'template-version-edit' template.id %}">{{ template.module }}</a>
+            </td>
+            <td data-custom="{{ template.template }}">
+                <a href="{% url 'template-version-edit' template.id %}">{{ template.template }}</a>
+            </td>
+            <td data-custom="{{ template.language }}">
+                <a href="{% url 'template-version-edit' template.id %}">{{ template.language }}</a>
+            </td>
+        </tr>
+    {% endfor %}
 {% endblock Tbody %}
 {% block addButton %}
 {% endblock addButton %}
