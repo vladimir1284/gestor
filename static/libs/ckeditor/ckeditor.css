@@ -8,6 +8,11 @@ li {
   margin-bottom: 0.7rem;
 }
 
+.table table,
+.table table * {
+  border: none;
+}
+
 :root {
   --ck-color-image-caption-background: hsl(0, 0%, 97%);
   --ck-color-image-caption-text: hsl(0, 0%, 20%);
@@ -63,14 +68,14 @@ li {
   border-spacing: 0;
   width: 100%;
   height: 100%;
-  border: 1px solid hsl(0, 0%, 70%) !important;
+  /* border: 1px solid hsl(0, 0%, 70%) !important; */
 }
 /* @ckeditor/ckeditor5-table/theme/table.css */
 .ck-content .table table td,
 .ck-content .table table th {
   min-width: 2em;
   padding: 0.4em;
-  border: 1px solid hsl(0, 0%, 75%);
+  /* border: 1px solid hsl(0, 0%, 75%); */
 }
 /* @ckeditor/ckeditor5-table/theme/table.css */
 .ck-content .table table th {
