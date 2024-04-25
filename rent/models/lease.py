@@ -69,6 +69,7 @@ class Contract(models.Model):
         default="rent",
     )
     total_amount = models.IntegerField(default=0)
+    template_version = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"({self.id}) {self.trailer} -> {self.lessee}"

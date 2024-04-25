@@ -1,6 +1,6 @@
 from template_admin.models.template import Template
-from template_admin.models.template import TT_LIST
-from template_admin.models.template import TT_TEXT
+from template_admin.tools.templates_tools import TT_LIST
+from template_admin.tools.templates_tools import TT_TEXT
 
 
 DEF_COND_ES = """
