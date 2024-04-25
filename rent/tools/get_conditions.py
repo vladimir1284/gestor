@@ -21,20 +21,19 @@ def get_conditions(ctx):
     if template is None:
         return None
 
+    replaces = {
+        "@@signatures_and_date@@": '{% include "rent/contract/signatures_and_date.html" %}',
+        "@@trailer_report@@": '{% include "rent/contract/trailer_condition_report.html" %}',
+        "@@lessee_signature@@": '<img class="signature" src="{{ signature_lessee.img.url }}">',
+    }
     cond = template.render_template(
         ctx,
         version=version,
-        replaces={
-            "@@signatures_and_date@@": '{% include "rent/contract/signatures_and_date.html" %}',
-            "@@trailer_report@@": '{% include "rent/contract/trailer_condition_report.html" %}',
-        },
+        replaces=replaces,
     )
     if cond is None:
         cond = template.render_template(
             ctx,
-            replaces={
-                "@@signatures_and_date@@": '{% include "rent/contract/signatures_and_date.html" %}',
-                "@@trailer_report@@": '{% include "rent/contract/trailer_condition_report.html" %}',
-            },
+            replaces=replaces,
         )
     return cond
