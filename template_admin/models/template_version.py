@@ -13,12 +13,18 @@ class TemplateVersion(models.Model):
     language = models.CharField(max_length=50)
     tmp_type = models.CharField(max_length=20, default=TT_TEXT)
 
+    @property
+    def last_version(self):
+        last = self.version()
+        if last is None:
+            return 0
+        return last.version
+
     def new_version(self, content: str = ""):
         TCV = apps.get_model("template_admin", "TemplateContentVersion")
-        last = self.version()
         new_version = TCV(
             template=self,
-            version=1 if last is None else int(last.version) + 1,
+            version=self.last_version + 1,
             content=content,
         )
         new_version.save()
