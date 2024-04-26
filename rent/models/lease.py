@@ -20,6 +20,7 @@ from schedule.models import Rule
 from .vehicle import classify_file
 from .vehicle import DOCUMENT_TYPES
 from .vehicle import Trailer
+from rent.tools.get_conditions_last_version import get_conditions_last_version
 from users.models import Associated
 
 
@@ -69,6 +70,7 @@ class Contract(models.Model):
         default="rent",
     )
     total_amount = models.IntegerField(default=0)
+    template_version = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"({self.id}) {self.trailer} -> {self.lessee}"
@@ -94,6 +96,13 @@ class Contract(models.Model):
                 paid_amount += self.security_deposit
 
         return paid_amount, (paid_amount >= self.total_amount)
+
+    def save(self, *args, **kwargs):
+        if self.template_version is None:
+            self.template_version = get_conditions_last_version(
+                self.contract_type,
+            )
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ("-effective_date",)
