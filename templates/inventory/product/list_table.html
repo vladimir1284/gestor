@@ -17,7 +17,7 @@
     {% if product.type == type %}
     <tr data-tag="{{ product.category }}"
         data-stock="{% if product.quantity_min > 0 and product.quantity < product.quantity_min %}low{% else %}ok{% endif %}"
-        data-search="{{ product.name }}">
+        data-search="{{ product.name }} {{ product.description }}">
         <td>
             <a href={% url 'detail-product' product.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
         </td>
