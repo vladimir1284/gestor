@@ -6,7 +6,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("rent", "0061_set_trailers_pos.py"),
+        ("rent", "0061_set_trailers_pos"),
     ]
 
     operations = [
