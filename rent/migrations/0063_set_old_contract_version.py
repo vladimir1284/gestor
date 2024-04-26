@@ -13,7 +13,7 @@ def set_old_versions(apps, schema):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("rent", "0060_contract_template_version"),
+        ("rent", "0062_contract_template_version"),
     ]
 
     operations = [migrations.RunPython(set_old_versions)]
