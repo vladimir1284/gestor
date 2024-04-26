@@ -57,11 +57,35 @@
                class="btn btn-icon btn-outline-primary">
                 <span class="tf-icons bx bx-file"></span>
             </a>
-            <button onClick="validateContract('{% url 'update-contract-stage' contract.id 'active' %}')"
-                    id="submit-id-submit"
-                    class="btn btn-icon btn-outline-primary">
-                <span class="tf-icons bx bx-check"></span>
-            </button>
+            {% if validated %}
+                <button class="btn btn-icon btn-outline-secondary" disabled>
+                    <span class="tf-icons bx bx-check"></span>
+                </button>
+            {% elif signature_lessee.img.url and signature_lessee.img.url != '' %}
+                <button onClick="validateContract('{% url 'update-contract-stage' contract.id 'active' %}')"
+                        id="submit-id-submit"
+                        class="btn btn-icon btn-outline-primary">
+                    <span class="tf-icons bx bx-check"></span>
+                </button>
+            {%else%}
+                <button class="btn btn-icon btn-outline-danger" data-bs-toggle="modal" data-bs-target="#unsignedModal">
+                    <span class="tf-icons bx bx-check"></span>
+                </button>
+
+                <div class="modal fade" id="unsignedModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Unsigned contract</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                This contract has not been signed
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {%endif%}
             {% if contract.stage == 'ended' %}
             <a href="{% url 'adjust-deposit' contract.id %}"
                 type="button"

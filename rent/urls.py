@@ -169,7 +169,11 @@ urlpatterns = [
         lease.contract_create_view,
         name="create-contract",
     ),
-    path("contract/<int:id>", lease.contract_detail, name="detail-contract"),
+    path(
+        "contract/<int:id>",
+        lease.contract_detail,
+        name="detail-contract",
+    ),
     path("contract_signing/<int:id>",
          lease.contract_signing, name="contract-signing"),
     path("contract_pdf/<int:id>", lease.contract_pdf, name="contract-signed"),
