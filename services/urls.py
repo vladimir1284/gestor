@@ -171,6 +171,11 @@ urlpatterns = [
         name="create-service-order-contact",
     ),
     path(
+        "create-order-contact/<id>",
+        create_order_contact,
+        name="create-service-order-contact",
+    ),
+    path(
         "generate-order-contact-url/<id>",
         generate_url,
         name="generate-service-order-contact-url",
