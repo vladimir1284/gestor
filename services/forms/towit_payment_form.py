@@ -15,6 +15,7 @@ class TowitPaymentForm(BaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["amount"].label = "Towit Payment"
+        self.fields["amount"].widget.attrs["x-ref"] = "towit_payment"
         self.fields["note"].label = "Reason"
         self.fields["note"].widget.attrs["rows"] = 2
         # if self.category.extra_charge > 0:
