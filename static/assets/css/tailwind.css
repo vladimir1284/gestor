@@ -9,3 +9,7 @@
 .collapse {
   visibility: unset;
 }
+
+.match {
+  @apply text-main font-bold;
+}

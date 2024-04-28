@@ -1,4 +1,7 @@
+{%load static%}
 {% block navbar %}
+  <script src="{%static 'assets/js/search.js'%}">
+    </script>
     <script>
   function filterText() {
     let i, j;
@@ -17,6 +20,7 @@
     for (j = 0; j < tables.length; j++) {
       tr = tables[j].getElementsByTagName("tr");
       for (i = 0; i < tr.length; i++) {
+          if (!tr[i].dataset['search']) continue
         let data = tr[i].dataset["search"]
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
@@ -44,7 +48,10 @@
             <div class="navbar-nav align-items-center">
                 <div class="nav-item d-flex align-items-center">
                     <i class="bx bx-search fs-4 lh-0"></i>
-                    <input oninput="filterText()"
+                    <input
+                          x-data
+                          x-model="$store.search.search"
+                          oninput="filterText()"
                            id="search"
                            type="text"
                            class="form-control border-0 shadow-none"
