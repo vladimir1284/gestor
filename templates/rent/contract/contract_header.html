@@ -25,7 +25,12 @@
             </div>
         </div>
         <div class="demo-inline-spacing col-md-8">
-            <a href="{% url 'update-lessee-data' contract.lessee.data.id %}"
+            <!-- <a href="{% url 'update-lessee-data' contract.lessee.data.id %}" -->
+            <!--    type="button" -->
+            <!--    class="btn btn-outline-primary"> -->
+            <!--     <span class="tf-icons bx bx-edit"></span>&nbsp; Client data -->
+            <!-- </a> -->
+            <a href="{% url 'update-data-on-contract' contract.id %}"
                type="button"
                class="btn btn-outline-primary">
                 <span class="tf-icons bx bx-edit"></span>&nbsp; Client data
