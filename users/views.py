@@ -5,7 +5,6 @@ from typing import List
 import pytz
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
@@ -25,6 +24,7 @@ from .forms import UserUpdateForm
 from .models import Associated
 from .models import Company
 from .models import UserProfile
+from rbac.decorators.admin_required import admin_required
 from rent.models.lease import Contract
 from rent.models.lease import Due
 from rent.models.lease import Lease
@@ -75,7 +75,8 @@ def get_start_paying_date(lease: Lease):
     return interval_start
 
 
-@permission_required("auth.user.can_add_user")
+# @permission_required("auth.user.can_add_user")
+@admin_required
 def create_user(request):
     form = UserProfileForm()
     userCform = UserCreateForm()
@@ -135,14 +136,16 @@ def create_user_profile(request, id):
     return redirect("update-user", profile.id)
 
 
-@permission_required("auth.user.can_add_user")
+# @permission_required("auth.user.can_add_user")
+@admin_required
 def list_user(request):
     profiles = UserProfile.objects.exclude(user__id=request.user.id)
     print(profiles)
     return render(request, "users/user_list.html", {"profiles": profiles})
 
 
-@permission_required("auth.user.can_add_user")
+# @permission_required("auth.user.can_add_user")
+@admin_required
 def delete_user(request, id):
     # fetch the object related to passed id
     profile = get_object_or_404(UserProfile, id=id)
