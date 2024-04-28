@@ -1,0 +1,42 @@
+{% load static %}
+<tr data-search=" {{ trailer.vin }}{{ trailer.plate }} {{ trailer.get_manufacturer_display }}{{ trailer.get_type_display }}{{ trailer.get_year_display }} {% if trailer.position_date %} {{ trailer.position_date | date:'b. d, Y' | capfirst }} {{ trailer.time }} {% if trailer.time == 1 %} Day {% else %} Days {% endif %} {% endif %} {{ trailer.position_note }} ">
+    <td data-custom="{{ trailer.position }}">
+        <div class="flex justify-center items-center">
+            <div class="w-6 h-6 rounded-full bg-main flex justify-center items-center">
+                <span class="text-white">{{ trailer.position }}</span>
+            </div>
+        </div>
+    </td>
+    <td data-custom=''></td>
+    <td data-custom="{{ trailer.get_manufacturer_display }} {{ trailer.get_type_display }} ({{ trailer.get_year_display }})">
+        <div class="d-flex">{% include "equipment/equipment_line.html" with equipment=trailer equipment_type="trailer" %}</div>
+    </td>
+    <td data-days="{% if trailer.position_date %}{{ trailer.time }}{% else %}-1{% endif %}">
+        {% if trailer.position_date %}
+            <div>{{ trailer.position_date | date:'b. d, Y' | capfirst }}</div>
+            <div>
+                {{ trailer.time }}
+                {% if trailer.time == 1 %}
+                    Day
+                {% else %}
+                    Days
+                {% endif %}
+            </div>
+        {% else %}
+            UNKNOWN
+        {% endif %}
+    </td>
+    <td></td>
+    <td class='text-wrap'>
+        {% if trailer.position_note %}
+            {{ trailer.position_note }}
+        {% else %}
+            UNKNOWN
+        {% endif %}
+    </td>
+    <td>
+        <a class="btn btn-link" href="{% url 'change-trailer-pos' trailer.id %}">
+            <i class='bx bx-refresh'></i>
+        </a>
+    </td>
+</tr>

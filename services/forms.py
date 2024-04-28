@@ -584,27 +584,30 @@ class OrderSignatureForm(ModelForm):
 
 class OrderEndUpdatePositionForm(forms.Form):
     def __init__(self, *args, order: Order, status: str = "", **kwargs):
-        position = order.position
         super().__init__(*args, **kwargs)
 
         if status == "":
             status = str(order.status)
 
+        end = status in ["complete", "decline"]
+        position = order.position
+        if end and order.trailer is not None:
+            position = order.trailer.position
+
         reason = order.storage_reason
 
-        end = status in ["complete", "decline"]
         if order.quotation:
             positions = [(None, "Null")]
             position = None
             readonly = True
         else:
-            if order.trailer is not None and order.associated is None:
-                null = False
-            else:
-                null = True
+            # if order.trailer is not None and order.associated is None:
+            #     null = False
+            # else:
+            #     null = True
             positions, availables = get_available_positions(
                 current_pos=position,
-                null=end and null,
+                null=end,
                 availables=True,
                 just_current_pos=end,
                 invert_order=end,
