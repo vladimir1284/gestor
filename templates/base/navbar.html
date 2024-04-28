@@ -1,4 +1,7 @@
+{%load static%}
 {% block navbar %}
+  <script src="{%static 'assets/js/search.js'%}">
+    </script>
     <script>
   function filterText() {
     let i, j;
@@ -17,6 +20,7 @@
     for (j = 0; j < tables.length; j++) {
       tr = tables[j].getElementsByTagName("tr");
       for (i = 0; i < tr.length; i++) {
+          if (!tr[i].dataset['search']) continue
         let data = tr[i].dataset["search"]
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
@@ -28,12 +32,6 @@
       }
     }
   }
-
-  document.addEventListener('alpine:init', () => {
-      Alpine.store('search', {
-          search: '',
-      })
-  })
     </script>
     <!-- Navbar -->
     <nav class="layout-navbar navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
