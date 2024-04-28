@@ -848,3 +848,9 @@
     padding-right: 30vw;
   }
 }
+
+@media (min-width: 1280px) {
+  .xl\:flex {
+    display: flex;
+  }
+}
