@@ -104,19 +104,18 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h5 class="ps-3 me-2">
-                                    <div class="d-flex mb-4 pb-1">
-                                        <a class="btn btn-icon btn-outline-primary me-1"
+                                    <div class="flex mb-4 pb-1 flex-wrap gap-2">
+                                        <a class="btn btn-outline-primary me-1"
                                         href="{% url 'update-lease' lease.id %}">
                                             <span class="tf-icons bx bx-edit"></span>
+                                            Update terms
                                         </a>
-                                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                            <div class="me-2">
-                                                <h6 class="mb-0">{{ lease.get_payment_frequency_display }} payments</h6>
-                                                <small class="text-muted">{{ lease.event.start|date:"m/d/Y" }}</small>
-                                            </div>
-                                            <div class="user-progress">
-                                                <small class="fw-semibold">${{ lease.payment_amount|floatformat:"0" }}</small>
-                                            </div>
+                                        <div class="me-2">
+                                            <h6 class="mb-0">{{ lease.get_payment_frequency_display }} payments</h6>
+                                            <small class="text-muted">{{ lease.event.start|date:"m/d/Y" }}</small>
+                                        </div>
+                                        <div class="user-progress flex-grow flex justify-end">
+                                            <small class="fw-semibold">${{ lease.payment_amount|floatformat:"0" }}</small>
                                         </div>
                                     </div>
                                 </h5>
