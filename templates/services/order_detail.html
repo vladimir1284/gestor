@@ -115,59 +115,73 @@
                     </div>
                     {%endif%}
                 </p>
-                <p>
-                    <strong>Position:</strong>
-                    {% if order.position == 0 %}
-                        Storage
-                    {% elif order.position is None %}
-                        Null
-                    {% else %}
-                        {{ order.position }}
-                    {% endif %}
+                <div class="flex flex-wrap justify-end">
+                    <p class="flex-grow">
+                        <strong>Position:</strong>
+                        {%if terminated and order.trailer is not None%}
+                            {% if order.trailer.position == 0 %}
+                                Storage
+                            {% elif order.trailer.position is None %}
+                                Null
+                            {% else %}
+                                {{ order.trailer.position }}
+                            {% endif %}
+                        {%else%}
+                            {% if order.position == 0 %}
+                                Storage
+                            {% elif order.position is None %}
+                                Null
+                            {% else %}
+                                {{ order.position }}
+                            {% endif %}
+                        {%endif%}
 
-                    <a class="btn btn-outline-primary" href="{%url 'order-position-change' order.id%}">
-                        <i class='bx bx-refresh'></i>
-                    </a>
-                </p>
-                {% if order.quotation %}
-                    <span class="float-end px-3 me-1 badge rounded-pill bg-warning">
-                        <i class='bx bx-error 'style="font-size:1.5em"></i>
-                        quotation
-                    </span>
-                {% elif terminated or empty or order.status == 'payment_pending' %}
-                    <span class="float-end me-1 d-flex align-items-center badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' or order.status == 'payment_pending' %}danger{% endif %}">
-                        {{ order.get_status_display }}
-                    </span>
-                {% else %}
-                    <button type="button"
-                            class="btn float-end me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'payment_pending' %}danger{% endif %} dropdown-toggle"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">{{ order.get_status_display }}</button>
-                    <ul class="dropdown-menu">
-                        {% if order.status != 'pending' %}
-                            <li>
-                                <button class="dropdown-item badge bg-warning"
-                                        onclick="updateStatus('{% url 'update-service-order-status' order.id 'pending' %}', 'pending')">
-                                    Pending
-                                </button>
-                            </li>
-                        {% endif %}
-                        {% if order.status != 'processing' %}
-                            <li>
-                                <button class="dropdown-item badge bg-primary"
-                                        onclick="updateStatus('{% url 'update-service-order-status' order.id 'processing' %}', 'processing')">
-                                    Processing
-                                </button>
-                            </li>
-                        {% endif %}
-                        {% if order.status != 'complete' and order.status != 'pending' and order.status != 'payment_pending' and satisfied %}
-                            <li>
-                                <a class="dropdown-item badge bg-success"
-                                   href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                {% endif %}
+                        <a class="btn btn-outline-primary" href="{%url 'order-position-change' order.id%}">
+                            <i class='bx bx-refresh'></i>
+                        </a>
+                    </p>
+                    <div>
+                    {% if order.quotation %}
+                        <span class="px-3 me-1 badge rounded-pill bg-warning">
+                            <i class='bx bx-error 'style="font-size:1.5em"></i>
+                            quotation
+                        </span>
+                    {% elif terminated or empty or order.status == 'payment_pending' %}
+                        <span class="me-1 d-flex align-items-center badge bg-{% if order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'decline' or order.status == 'payment_pending' %}danger{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    {% else %}
+                        <button type="button"
+                                class="btn me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'payment_pending' %}danger{% endif %} dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">{{ order.get_status_display }}</button>
+                        <ul class="dropdown-menu">
+                            {% if order.status != 'pending' %}
+                                <li>
+                                    <button class="dropdown-item badge bg-warning"
+                                            onclick="updateStatus('{% url 'update-service-order-status' order.id 'pending' %}', 'pending')">
+                                        Pending
+                                    </button>
+                                </li>
+                            {% endif %}
+                            {% if order.status != 'processing' %}
+                                <li>
+                                    <button class="dropdown-item badge bg-primary"
+                                            onclick="updateStatus('{% url 'update-service-order-status' order.id 'processing' %}', 'processing')">
+                                        Processing
+                                    </button>
+                                </li>
+                            {% endif %}
+                            {% if order.status != 'complete' and order.status != 'pending' and order.status != 'payment_pending' and satisfied %}
+                                <li>
+                                    <a class="dropdown-item badge bg-success"
+                                       href="{% url 'update-service-order-status' order.id 'complete' %}">Complete</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    {% endif %}
+                    </div>
+                </div>
             </h5>
             {% include "services/order_header.html" %}
             <div class="demo-inline-spacing">

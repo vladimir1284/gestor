@@ -49,7 +49,7 @@
                                 aria-selected="false">
                             <i class='bx bx-meh-blank'></i>
                             Trailer de renta sin cliente
-                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{ just_trailers | length }}</span>
+                            <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-secondary">{{on_storage_count}}</span>
                         </button>
                     </li>
                     <li class="nav-item">
@@ -142,6 +142,9 @@
                         {% for order in just_trailers %}
                             {% include 'services/storage/storage_order.html' %}
                         {% endfor %}
+                        {% for trailer in available_trailers %}
+                            {% include 'services/storage/storage_trailer.html' %}
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -163,8 +166,8 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
-                        {% for pos, orders in workshop.items %}
-                            {%if orders|length == 0 %}
+                        {% for pos, ws in workshop.items %}
+                            {%if ws.total == 0 %}
                                 <tr class="bg-mainBG">
                                     <td class="text-main text-center" data-custom="{{pos}}">
                                         <strong>{{pos}}</strong>
@@ -177,8 +180,11 @@
                                     <td data-custom="FREE-{{pos}}"></td>
                                 </tr>
                             {%else%}
-                                {%for order in orders%}
+                                {%for order in ws.orders%}
                                     {% include 'services/storage/workshop_order.html' %}
+                                {% endfor %}
+                                {%for trailer in ws.trailers%}
+                                    {% include 'services/storage/workshop_trailer.html' %}
                                 {% endfor %}
                             {%endif%}
                         {% endfor %}

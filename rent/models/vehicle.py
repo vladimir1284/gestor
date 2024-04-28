@@ -1,11 +1,15 @@
 import datetime
 import os
 
+from django.apps import apps
 from django.db import models
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
+
+from utils.tools.pos_tools import getPosValidator
 
 
 def year_choices():
@@ -73,9 +77,62 @@ class Trailer(Equipment):
     load = models.IntegerField(_("Axle load capacity"), choices=LOAD_CHOICE)
     active = models.BooleanField(default=True)
     lease_to_own = models.BooleanField(default=False)
+    position = models.IntegerField(
+        blank=True,
+        null=True,
+        validators=getPosValidator(),
+    )
+    position_date = models.DateTimeField(null=True, blank=True)
+    position_note = models.TextField(null=True, blank=True)
+
+    def get_active_order(self):
+        Order = apps.get_model("utils", "Order")
+        return Order.objects.filter(
+            trailer=self,
+            status__in=["pending", "processing", "payment_pending"],
+        )
+
+    def get_unended_contracts(self):
+        Contract = apps.get_model("rent", "Contract")
+        return Contract.objects.filter(
+            trailer=self,
+            stage__in=["active", "signed", "ready"],
+        )
+
+    def get_active_contracts(self):
+        Contract = apps.get_model("rent", "Contract")
+        return Contract.objects.filter(
+            trailer=self,
+            stage="active",
+        )
+
+    @property
+    def pos_readonly(self):
+        return self.get_active_order().exists() or self.get_active_contracts().exists()
+
+    def update_active_order_pos(self, order, force=False):
+        if force or (
+            order.status in ["pending", "processing", "payment_pending"]
+            and self.position != order.position
+        ):
+            self.position = order.position
+            if order.position == 0:
+                self.position_note = "Order position: " + order.storage_reason
+            else:
+                self.position_note = "Order position"
+            self.position_date = datetime.datetime.now()
+            self.save()
 
     def __str__(self):
         return f"{self.year} {self.manufacturer} {self.get_type_display()} - {self.vin[-5:]}"
+
+
+@receiver(models.signals.pre_save, sender=Trailer)
+def on_field_change(sender, instance, **kwargs):
+    old_trailer = Trailer.objects.filter(id=instance.id).last()
+
+    if old_trailer is None or old_trailer.position != instance.position:
+        instance.position_date = datetime.datetime.now()
 
 
 class TrailerPicture(models.Model):
