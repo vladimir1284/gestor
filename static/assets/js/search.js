@@ -48,7 +48,7 @@ function highlightMatch(text, query) {
     const a = idxs[i];
     const b = idxs[i + 1];
     if (b.start < a.end) {
-      a.end = b.end;
+      if (a.end < b.end) a.end = b.end;
       idxs.splice(i + 1, 1);
       i--;
     }
