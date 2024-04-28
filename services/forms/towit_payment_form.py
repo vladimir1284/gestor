@@ -1,4 +1,4 @@
-from crispy_forms.bootstrap import PrependedText
+from crispy_forms.bootstrap import PrependedAppendedText, PrependedText
 from crispy_forms.helper import mark_safe
 from crispy_forms.layout import Div
 from crispy_forms.layout import Layout
@@ -25,7 +25,13 @@ class TowitPaymentForm(BaseForm):
 
         self.helper.layout = Layout(
             Div(
-                Div(PrependedText("amount", "$")),
+                Div(
+                    PrependedAppendedText(
+                        "amount",
+                        "$",
+                        mark_safe("<div id='towitRemainder'></div>"),
+                    )
+                ),
             ),
             Div(
                 Div(
