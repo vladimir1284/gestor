@@ -132,7 +132,7 @@ def list_order(request):
     context = prepareListOrder(
         request,
         ("processing", "pending"),
-        pos_null=False,
+        pos_null=True,
         pos_storate=False,
     )
     context.setdefault(

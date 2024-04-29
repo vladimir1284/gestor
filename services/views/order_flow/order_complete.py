@@ -21,6 +21,9 @@ def order_complete(request: HttpRequest, id: int):
     elif order.rent_without_client:
         otype = "rent"
 
+    request.session["new_position"] = None
+    request.session["new_position_reason"] = None
+
     form = OrderEndUpdatePositionForm(
         request.POST if request.method == "POST" else None,
         order=order,
@@ -40,14 +43,21 @@ def order_complete(request: HttpRequest, id: int):
             reason = form.cleaned_data["reason"]
             if pos == "":
                 pos = None
+
+            if flow == "processPay" and not order.rent_without_client:
+                request.session["new_position"] = pos if pos is not None else -1
+                request.session["new_position_reason"] = reason
+                return redirect("process-payment", id)
+
             order.position = pos
             order.storage_reason = reason
             order.save()
 
             if flow == "processPay":
-                if order.rent_without_client:
-                    return redirect("service-order-payment-trailer-without-client", id)
-                return redirect("process-payment", id)
+                # if order.rent_without_client:
+                #     return redirect("service-order-payment-trailer-without-client", id)
+                # return redirect("process-payment", id)
+                return redirect("service-order-payment-trailer-without-client", id)
 
             if flow == "pendingPay":
                 if pos is not None:
