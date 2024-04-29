@@ -3,16 +3,11 @@
     <table class="table">
         <thead>
             <tr>
+                <th>Invoice</th>
                 <th>VIN</th>
                 <th>Status</th>
-                <th>date</th>
-                <th>Gross</th>
-                <th>Net</th>
-                <th>Parts</th>
-                <th>Supplies</th>
-                <th>3d pty</th>
-                <th>Discnt</th>
-                <th>Tax</th>
+                <th>Date</th>
+                <th>Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -20,12 +15,20 @@
                 {% if order.is_initial == initial %}
                     <tr data-search="{{ order.trailer.vin }}">
                         <td>
+                            <a href="{% url 'detail-service-order' order.id %}">
+                                {{ order.concept|upper|slice:3 }}{{ order.associated.id }}-{{ order.id|stringformat:"04i" }}
+                            </td>
+                        </a>
+                        <td>
                             <a href={% url 'detail-trailer' order.trailer.id %}>{{ order.trailer.vin }}</a>
                         </td>
                         <td>
                             {% if order.associated %}
-                                <span class="text-main cursor-pointer"
-                                      @click="() => showRepStatus({{ order.js }})">Rented</span>
+                                <div>
+                                    <span class="text-main cursor-pointer"
+                                          @click="() => showRepStatus({{ order.js }})">Rented</span>
+                                </div>
+                                <div>{{ order.associated.name|truncatewords:'1' }}</div>
                             {% else %}
                                 -
                             {% endif %}
@@ -33,26 +36,6 @@
                         <td>{{ order.terminated_date|date:"D, d" }}</td>
                         <td>
                             <div class="float-end">${{ order.amount|floatformat:"2" }}</div>
-                        </td>
-                        <td>
-                            <div class="float-end">
-                                <strong>${{ order.net|floatformat:"2" }}</strong>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="float-end">${{ order.parts|floatformat:"2" }}</div>
-                        </td>
-                        <td>
-                            <div class="float-end">${{ order.consumable|floatformat:"2" }}</div>
-                        </td>
-                        <td>
-                            <div class="float-end">${{ order.third_party|floatformat:"2" }}</div>
-                        </td>
-                        <td>
-                            <div class="float-end">${{ order.discount|floatformat:"2" }}</div>
-                        </td>
-                        <td>
-                            <div class="float-end">${{ order.tax|floatformat:"2" }}</div>
                         </td>
                     </tr>
                 {% endif %}
@@ -65,26 +48,9 @@
                 </th>
                 <th></th>
                 <th></th>
+                <th></th>
                 <th>
                     <div class="float-end">${{ total.gross|floatformat:"2" }}</div>
-                </th>
-                <th>
-                    <div class="float-end">${{ total.net|floatformat:"2" }}</div>
-                </th>
-                <th>
-                    <div class="float-end">${{ total.parts|floatformat:"2" }}</div>
-                </th>
-                <th>
-                    <div class="float-end">${{ total.consumable|floatformat:"2" }}</div>
-                </th>
-                <th>
-                    <div class="float-end">${{ total.third_party|floatformat:"2" }}</div>
-                </th>
-                <th>
-                    <div class="float-end">${{ total.discount|floatformat:"2" }}</div>
-                </th>
-                <th>
-                    <div class="float-end">${{ total.tax|floatformat:"2" }}</div>
                 </th>
             </tr>
         </tfoot>
