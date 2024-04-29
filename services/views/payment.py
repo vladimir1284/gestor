@@ -187,6 +187,17 @@ def process_payment(request, order_id):
             order.terminated_date = timezone.now()
             order.terminated_user = request.user
             order.status = "complete"
+            if (
+                "new_position" in request.session
+                and request.session["new_position"] is not None
+            ):
+                pos = request.session["new_position"]
+                order.position = pos if pos >= 0 and pos <= 8 else None
+                if pos == 0:
+                    if "new_position_reason" in request.session:
+                        order.storage_reason = request.session["new_position_reason"]
+                    else:
+                        order.storage_reason = None
             order.save()
             twilioSendSMS(order, order.status)
             return redirect("detail-service-order", order_id)
