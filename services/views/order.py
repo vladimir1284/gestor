@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -61,6 +62,7 @@ def update_order(request, id):
 
 
 @login_required
+@atomic
 def update_order_status(request, id, status):
     order = get_object_or_404(Order, id=id)
 
@@ -286,6 +288,7 @@ def detail_order(request, id, msg=None):
 
     # Get data for the given order
     context = getOrderContext(id)
+    print(context)
     if msg or msg != "":
         context["mensaje"] = msg
 

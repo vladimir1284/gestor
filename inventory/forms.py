@@ -136,19 +136,19 @@ class TransactionCreateForm(forms.ModelForm):
 
     def clean_quantity(self):
         quantity = self.cleaned_data["quantity"]
-        if self.order.type == "sell" and not self.order.quotation:
-            error_msg = ""
-            unit = Unit.objects.get(id=int(self.data["unit"]))
-            available = self.product.computeAvailable(self.id)
-            # Compute the available quantity in transaction unit
-            available = convertUnit(self.product.unit, unit, available)
-            if available < quantity:
-                if int(available) == float(available):
-                    decimals = 0
-                else:
-                    decimals = 2  # Assumes 2 decimal places
-                error_msg += f"The quantity cannot be higher than {available:.{decimals}f}{unit}."
-                raise ValidationError(error_msg)
+        # if self.order.type == "sell" and not self.order.quotation:
+        #     error_msg = ""
+        #     unit = Unit.objects.get(id=int(self.data["unit"]))
+        #     available = self.product.computeAvailable(self.id)
+        #     # Compute the available quantity in transaction unit
+        #     available = convertUnit(self.product.unit, unit, available)
+        #     if available < quantity:
+        #         if int(available) == float(available):
+        #             decimals = 0
+        #         else:
+        #             decimals = 2  # Assumes 2 decimal places
+        #         error_msg += f"The quantity cannot be higher than {available:.{decimals}f}{unit}."
+        #         raise ValidationError(error_msg)
         return quantity
 
     def clean_price(self):
@@ -216,9 +216,9 @@ class TransactionCreateForm(forms.ModelForm):
             decimals = 0
         else:
             decimals = 2  # Assumes 2 decimal places for money
-        self.fields[
-            "quantity"
-        ].help_text = f"Available: {available:.{decimals}f}{self.product.unit}."
+        self.fields["quantity"].help_text = (
+            f"Available: {available:.{decimals}f}{self.product.unit}."
+        )
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
@@ -301,8 +301,7 @@ class UnitCreateForm(forms.ModelForm):
             Div(Div(Field("name")), css_class="mb-3"),
             Div(Div(Field("factor")), css_class="mb-3"),
             Div(Div(Field("magnitude")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
 
 
@@ -327,8 +326,7 @@ class PriceReferenceCreateForm(forms.ModelForm):
             Div(Div(Field("store")), css_class="mb-3"),
             Div(Div(Field("url")), css_class="mb-3"),
             Div(Div(Field(PrependedText("price", "$")), css_class="mb-3")),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
 
 
@@ -426,8 +424,7 @@ class ProductCreateForm(forms.ModelForm):
                             Div(Field(AppendedText("sell_tax", "%"))), css_class="mb-3"
                         ),
                         ButtonHolder(
-                            Submit("submit", "Enviar",
-                                   css_class="btn btn-success")
+                            Submit("submit", "Enviar", css_class="btn btn-success")
                         ),
                         css_class="card-body",
                     ),
@@ -452,8 +449,7 @@ class KitCreateForm(BaseForm):
         self.helper.layout = Layout(
             Div(Div(Field("name")), css_class="mb-3"),
             Div(Div(Field("category", css_class="form-select")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
 
 
@@ -468,6 +464,5 @@ class KitElementCreateForm(BaseForm):
         self.helper.layout = Layout(
             Div(Div(Field("quantity")), css_class="mb-3"),
             Div(Div(Field("unit", css_class="form-select")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )

@@ -73,12 +73,10 @@ def service_list_metadata(services: List[Service]):
 
 def prepare_service_list(order_id=None):
     services = (
-        Service.objects.annotate(total_quantity=Sum(
-            "servicetransaction__quantity"))
+        Service.objects.annotate(total_quantity=Sum("servicetransaction__quantity"))
         .annotate(
             total_income=Sum(
-                F("servicetransaction__quantity") *
-                F("servicetransaction__price")
+                F("servicetransaction__quantity") * F("servicetransaction__price")
             )
         )
         .order_by("-total_income")
@@ -91,29 +89,39 @@ def prepare_service_list(order_id=None):
             accumulated += service.total_income
             if accumulated / total_income_sum["total_income_sum"] < 0.8:
                 service.pareto = True
-    products = Product.objects.filter(active=True).order_by("name")
-    products_in_order = []
 
-    # Don't include products in the current order
-    if order_id is not None:
-        transactions = ProductTransaction.objects.filter(order__id=order_id)
-        products_in_order = [trans.product for trans in transactions]
+    products_in_order = [
+        trans.product.id
+        for trans in ProductTransaction.objects.filter(order__id=order_id)
+    ]
+    # products = Product.objects.filter(active=True).order_by("name")
+    product_list = (
+        Product.objects.filter(active=True)
+        .exclude(id__in=products_in_order)
+        .order_by("name")
+    )
+    for product in product_list:
+        product.available = product.computeAvailable()
 
-    product_list = []
-    for product in products:
-        if product not in products_in_order:
-            product.available = product.computeAvailable()
-            if product.available > 0:
-                product_list.append(product)
-            elif order_id is not None:
-                order = get_object_or_404(Order, pk=order_id)
-                if order.quotation:
-                    product_list.append(product)
+    # # Don't include products in the current order
+    # if order_id is not None:
+    #     transactions = ProductTransaction.objects.filter(order__id=order_id)
+    #     products_in_order = [trans.product for trans in transactions]
+    #
+    # product_list = []
+    # for product in products:
+    #     if product not in products_in_order:
+    #         product.available = product.computeAvailable()
+    #         if product.available > 0:
+    #             product_list.append(product)
+    #         elif order_id is not None:
+    #             order = get_object_or_404(Order, pk=order_id)
+    #             if order.quotation:
+    #                 product_list.append(product)
 
     context = prepare_product_list(product_list)
     context.setdefault("services", services)
-    context.setdefault("total_income_sum",
-                       total_income_sum["total_income_sum"])
+    context.setdefault("total_income_sum", total_income_sum["total_income_sum"])
     context.setdefault("categories", service_list_metadata(services))
 
     kits = ProductKit.objects.all()
