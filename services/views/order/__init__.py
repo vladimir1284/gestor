@@ -3,17 +3,13 @@ from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from gestor.views.utils import getMonthYear
-from inventory.models import ProductTransaction
-from inventory.views.transaction import NotEnoughStockError
 from services.forms import DiscountForm
 from services.forms import OrderCreateForm
 from services.forms import OrderDeclineReazon
@@ -28,10 +24,8 @@ from services.tools.order_history import order_history
 from services.tools.order_position import order_update_position
 from services.tools.trailer_identification_to_pdf import \
     trailer_identification_to_pdf
-from services.tools.transaction import reverse_transaction
 from services.views.invoice import get_invoice_context
 from services.views.invoice import sendMail
-from services.views.sms import twilioSendSMS
 
 
 @login_required
@@ -244,7 +238,6 @@ def detail_order(request, id, msg=None):
 
     # Get data for the given order
     context = getOrderContext(id)
-    print(context)
     if msg or msg != "":
         context["mensaje"] = msg
 

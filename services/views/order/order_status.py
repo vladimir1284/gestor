@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from inventory.views.transaction import NotEnoughStockError
+from inventory.tools.transaction import NotEnoughStockError
 from services.models import Order
 from services.tools.transaction import handle_order_transactions
 from services.tools.transaction import reverse_order_transactions
