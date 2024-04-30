@@ -1,12 +1,13 @@
 {% extends 'base/base_form.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 {% block title %}
     {{ title }}
 {% endblock title %}
 {% block content %}
     <!-- Basic with Icons -->
     <div class="col-xxl">
-        <div class="card mb-4">
+        <div class="card mb-4" x-data="payment">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">
                     {{ title }}  <b>$<span id="order_total">{{ order.total|floatformat:"-2" }}</span></b>
@@ -17,124 +18,80 @@
                 <form enctype="multipart/form-data" method="post" id="update-form">
                     {% csrf_token %}
                     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                        <div class="me-2">
-                            <h6 class="mb-0">
-                                <span id="total_value"></span> <span id="diff_value"></span>
-                            </h6>
-                            <small id="extra_value" class="text-muted"></small>
-                        </div>
                         <div>
-                            {% if order.status != 'payment_pending' %}
-                                <a class="btn btn-danger me-2"
-                                   href="{% url 'update-service-order-status' order.id 'payment_pending' %}">
-                                    Pasar a pendiente por cobrar
-                                </a>
-                            {% endif %}
-                            <input disabled
+                            <table>
+                                <tr>
+                                    <td>Total value:</td>
+                                    <td>
+                                        $<span x-text="totalValue.toFixed(2)"></span>
+                                    </td>
+                                </tr>
+                                <tr x-show="remainder != 0">
+                                    <td>Pending value:</td>
+                                    <td :class="{'text-danger': remainder>0, 'text-success': remainder<0}">
+                                        $<span x-text="remainder.toFixed(2)"></span>
+                                    </td>
+                                </tr>
+                                <tr x-show="totalCharge != 0">
+                                    <td>Extra charge:</td>
+                                    <td>
+                                        $<span x-text="totalCharge.toFixed(2)"></span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!-- <div class="me-2"> -->
+                        <!--     <h6 class="mb-0"> -->
+                        <!--         <span id="total_value"></span> <span id="diff_value"></span> -->
+                        <!--     </h6> -->
+                        <!--     <small id="extra_value" class="text-muted"></small> -->
+                        <!-- </div> -->
+                        <div>
+                            <!-- {% if order.status != 'payment_pending' %} -->
+                            <!--     <a class="btn btn-danger me-2" -->
+                            <!--        href="{% url 'update-service-order-status' order.id 'payment_pending' %}"> -->
+                            <!--         Pasar a pendiente por cobrar -->
+                            <!--     </a> -->
+                            <!-- {% endif %} -->
+                            <input :disabled="remainder != 0"
+                                   x-cloak
                                    class="btn btn-primary btn btn-success float-end"
                                    type="submit"
                                    id="summit_btn"
                                    value="Process">
                         </div>
                     </div>
-                    {% for form in forms %}
-                        <div class="d-flex pb-1">
-                            <div class="flex-shrink-0 me-3">
-                                {% if form.category.icon %}<img src="{{ form.category.icon.url }}" alt="" class="w-px-75 h-auto" />{% endif %}
-                            </div>
-                            <div class="w-100">{% crispy form %}</div>
+                    <div class="xl:flex">
+                        <div class="flex-grow mb-4">
+                            {% for form in forms %}
+                                <div class="d-flex pb-1">
+                                    <div class="flex-shrink-0 me-3">
+                                        {% if form.category.icon %}<img src="{{ form.category.icon.url }}" alt="" class="w-px-75 h-auto" />{% endif %}
+                                    </div>
+                                    <div class="w-100">{% crispy form %}</div>
+                                </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
+                        <div class="flex-grow">
+                            {% if towitForm %}
+                                <div class="d-flex pb-1">
+                                    <div class="flex-shrink-0 me-3">
+                                        <!-- <img src="{% static 'assets/img/icons/company.png' %}" -->
+                                        <!--      alt="" -->
+                                        <!--      class="w-px-75 h-auto" /> -->
+                                    </div>
+                                    <div class="w-100">{% crispy towitForm %}</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
     <script>
-        let payment_inputs, total, submit;
-        let payment, extra_charge;
-        let total_value, diff_value, extra_value;
-        
-        window.onload = function(){  
-            const urlParams = new URLSearchParams(window.location.search);
-            var message = document.getElementById('message-note');
-            var debtAmountInput = document.getElementById('debt_debt-amount');
-            // Inputs 
-            payment_inputs = Array.from(
-                document.getElementsByClassName("numberinput")).
-                filter(element => !element.name.includes("week"));
-
-            // Report
-            total_value = document.getElementById("total_value");
-            diff_value = document.getElementById("diff_value");
-            extra_value = document.getElementById("extra_value");
-
-            // Charge
-            total = parseFloat(document.getElementById("order_total").innerHTML.replace(',', '.'));
-
-            for (var i in payment_inputs) {
-                if (urlParams.toString() != ''){
-                    const paramValue = urlParams.get(payment_inputs[i].name);
-                    payment_inputs[i].value = paramValue !== null ? paramValue : '0';
-                }
-                else payment_inputs[i].onclick = selectPaymentType;              
-                payment_inputs[i].oninput = updateValues;
-            }
-            submit = document.getElementById("summit_btn");
-            updateValues()
-
-            // message if the client has profile pic
-            const updateMessage = () => {
-                const inputValue = parseFloat(debtAmountInput.value);
-                if (!{{ order.associated.avatar|yesno:"true,false" }} && inputValue !== 0 && !isNaN(inputValue)){
-                    message.innerHTML = '<strong class="text-danger">!! NOTE:</strong> For security reasons, you will now be redirected to update a photo for the client to help remember their debt :)'
-                }
-                else message.innerHTML = '';
-            };
-            debtAmountInput.addEventListener('input', updateMessage);
-            debtAmountInput.addEventListener('click', updateMessage);
-
-        }  
-        function selectPaymentType(){            
-            event.srcElement.value = total;
-            for (var i in payment_inputs) {
-                if (payment_inputs[i].id != event.srcElement.id){
-                    payment_inputs[i].value = 0;
-                }
-
-                payment_inputs[i].onclick = null;
-            }
-            updateValues();
-        }
-        function updateValues(){
-            payment = 0;
-            extra_charge = 0;
-            for (var i in payment_inputs) {
-                let data = Number(payment_inputs[i].value);
-                if (data > 0){
-                    payment += data;
-                }
-                let extra = document.getElementById("hint_"+payment_inputs[i].id)
-                if (extra != undefined){
-                    let b = extra.innerHTML.split(":");
-                    extra_charge += Number(payment_inputs[i].value)/100*parseFloat(b[b.length -1].split("%")[0].replace(',', '.'));
-                }
-            }
-            total_value.innerHTML = `$${(payment+extra_charge).toFixed(2)}`;
-            extra_value.innerHTML = `$${extra_charge.toFixed(2)}`;
-
-            let diff = payment - total;             
-            if (diff != 0){
-                submit.disabled=true;
-                diff_value.innerHTML = `($${diff.toFixed(2)})`;
-                if (diff < 0){
-                    diff_value.style.color = "red";
-                } else {
-                    diff_value.style.color = "green";
-                }
-            } else {
-                diff_value.innerHTML = "";
-                submit.disabled=false;
-            }
-        }
+    window.totalAmount = {{order.total|floatformat:"-2"}};
+    window.associatedAvatar = {{ order.associated.avatar|yesno:"true,false" }};
     </script>
+    <script src="{% static "assets/js/payment.js" %}"></script>
 {% endblock content %}

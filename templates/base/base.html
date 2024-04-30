@@ -90,11 +90,73 @@
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="{% static 'assets/js/config.js' %}"></script>
         <script defer src="{%static 'js/alpine-sort.min.js'%}"></script>
+        <script defer src="{%static 'js/alpine-mask.min.js'%}"></script>
         <script defer src="{%static 'js/alpine-collapse.min.js'%}"></script>
         <script defer src="{%static 'js/alpine-intersect.min.js'%}"></script>
         <script defer src="{%static 'js/alpine.min.js'%}"></script>
     </head>
     <body>
+        <div class="toast-container position-fixed top-0 end-0 p-3 z-[2000]"
+             x-data>
+            <template x-for="not in $store.notifications.nots">
+                <div class="toast z-[2000] show"
+                     x-cloak
+                     role="alert"
+                     aria-live="assertive"
+                     aria-atomic="true">
+                    <div class="toast-header text-main mb-0 pb-2">
+                        <i :class="'bx ' + not.icon"></i>
+                        <strong class="me-auto ml-2" x-text="not.title"></strong>
+                        <button type="button"
+                                class="btn-close"
+                                @click="() => {$store.notifications.remove(not)}"></button>
+                    </div>
+                    <div class="toast-body pt-0 mt-0" x-text="not.msg"></div>
+                </div>
+            </template>
+        </div>
+        <script>
+            const _nots = []
+
+            function notify(title, msg, icon='bxs-info-circle') {
+                const nots = Alpine.store('notifications')
+                if (nots) {
+                    nots.notify(title, msg, icon)
+                } else {
+                    _nots.push({
+                        title,
+                        msg,
+                        icon,
+                    })
+                }
+            }
+
+            document.addEventListener('alpine:init', () => {
+                Alpine.store('notifications', {
+                    nots: [],
+
+                    init() {
+                        _nots.forEach(e => {
+                            this.notify(e.title, e.msg, e.icon)
+                        })
+                    },
+
+                    remove(not) {
+                        const idx = this.nots.indexOf(not)
+                        if (idx != -1)
+                            this.nots.splice(idx, 1)
+                    },
+
+                    notify(title, msg, icon='bxs-info-circle') {
+                        const not = { title, msg, icon }
+                        this.nots.push(not)
+                        setTimeout(() =>{
+                            this.remove(not)
+                        }, 5000)
+                    },
+                })
+            })
+        </script>
         {% block body %}
             <!-- Layout wrapper -->
             <div class="layout-wrapper layout-content-navbar">
