@@ -98,28 +98,3 @@ def delete_transaction(request, id):
     transaction = get_object_or_404(ServiceTransaction, id=id)
     transaction.delete()
     return redirect("detail-service-order", id=transaction.order.id)
-
-
-def reverse_transaction(transaction: Transaction):
-    #  To be performed on complete orders
-    if isinstance(transaction, ProductTransaction):
-        product = transaction.product
-        # To be used in the rest of the system
-        product = Product.objects.get(id=product.id)
-        product_quantity = convertUnit(
-            input_unit=transaction.unit,
-            output_unit=product.unit,
-            value=transaction.quantity,
-        )
-
-        stock_cost = transaction.cost
-
-        product.quantity += product_quantity
-        product.stock_price += stock_cost
-        product.save()
-
-        Stock.objects.create(
-            product=product,
-            quantity=product_quantity,
-            cost=stock_cost / product_quantity,
-        )
