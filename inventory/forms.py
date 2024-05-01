@@ -1,31 +1,31 @@
+from crispy_forms.bootstrap import AppendedText
+from crispy_forms.bootstrap import PrependedText
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import ButtonHolder
+from crispy_forms.layout import Div
+from crispy_forms.layout import Field
+from crispy_forms.layout import Fieldset
+from crispy_forms.layout import HTML
+from crispy_forms.layout import Layout
+from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils.safestring import mark_safe
-
-from .models import (
-    KitElement,
-    Product,
-    convertUnit,
-    Unit,
-    ProductTransaction,
-    PriceReference,
-    ProductCategory,
-    ProductKit,
-)
-from utils.forms import (
-    CategoryCreateForm as BaseCategoryCreateForm,
-    OrderCreateForm as BaseOrderCreateForm,
-    BaseForm,
-)
 from django.forms import HiddenInput
-
-from users.models import (
-    Associated,
-)
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
-from crispy_forms.bootstrap import PrependedText, AppendedText
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
+from .models import convertUnit
+from .models import KitElement
+from .models import PriceReference
+from .models import Product
+from .models import ProductCategory
+from .models import ProductKit
+from .models import ProductTransaction
+from .models import Unit
+from users.models import Associated
+from utils.forms import BaseForm
+from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
+from utils.forms import OrderCreateForm as BaseOrderCreateForm
 
 
 class OrderCreateForm(BaseOrderCreateForm):
@@ -136,19 +136,24 @@ class TransactionCreateForm(forms.ModelForm):
 
     def clean_quantity(self):
         quantity = self.cleaned_data["quantity"]
-        # if self.order.type == "sell" and not self.order.quotation:
-        #     error_msg = ""
-        #     unit = Unit.objects.get(id=int(self.data["unit"]))
-        #     available = self.product.computeAvailable(self.id)
-        #     # Compute the available quantity in transaction unit
-        #     available = convertUnit(self.product.unit, unit, available)
-        #     if available < quantity:
-        #         if int(available) == float(available):
-        #             decimals = 0
-        #         else:
-        #             decimals = 2  # Assumes 2 decimal places
-        #         error_msg += f"The quantity cannot be higher than {available:.{decimals}f}{unit}."
-        #         raise ValidationError(error_msg)
+        if (
+            self.order.type == "sell"
+            and not self.order.quotation
+            and self.order.status != "pending"
+            and self.order.status != "decline"
+        ):
+            error_msg = ""
+            unit = Unit.objects.get(id=int(self.data["unit"]))
+            available = self.product.computeAvailable(self.id)
+            # Compute the available quantity in transaction unit
+            available = convertUnit(self.product.unit, unit, available)
+            if available < quantity:
+                if int(available) == float(available):
+                    decimals = 0
+                else:
+                    decimals = 2  # Assumes 2 decimal places
+                error_msg += f"The quantity cannot be higher than {available:.{decimals}f}{unit}."
+                raise ValidationError(error_msg)
         return quantity
 
     def clean_price(self):
