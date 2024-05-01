@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -30,8 +31,7 @@ def create_order(request, product_id=None):
     if product_id:
         product = get_object_or_404(Product, id=product_id)
         last_purchase = (
-            ProductTransaction.objects.filter(
-                order__type="purchase", product=product)
+            ProductTransaction.objects.filter(order__type="purchase", product=product)
             .order_by("-id")
             .first()
         )
@@ -127,8 +127,7 @@ def undo_transaction(transaction: ProductTransaction):
     )
 
     if stock is not None:
-        cost = transaction.price * \
-            (1 + transaction.tax / 100.0)  # Add on taxes
+        cost = transaction.price * (1 + transaction.tax / 100.0)  # Add on taxes
         product.quantity -= product_quantity
         product.stock_price -= transaction.quantity * cost
         product.save()
@@ -136,6 +135,7 @@ def undo_transaction(transaction: ProductTransaction):
 
 
 @login_required
+@atomic
 def update_order_status(request, id, status):
     order = get_object_or_404(Order, id=id)
     if status == "complete":
@@ -200,8 +200,7 @@ def detail_order(request, id):
     amount = 0
     for transaction in transactions:
         transaction.amount = (
-            transaction.quantity * transaction.price *
-            (1 + transaction.tax / 100.0)
+            transaction.quantity * transaction.price * (1 + transaction.tax / 100.0)
         )
         amount += transaction.amount
     order.amount = amount

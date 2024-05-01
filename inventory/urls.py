@@ -1,6 +1,16 @@
 from django.urls import path
-from .views import category, kit, order, product, transaction, unit
 
+from .views import category
+from .views import kit
+from .views import order
+from .views import product
+from .views import transaction
+from .views import unit
+from inventory.views.transaction.create_service_transaction import \
+    create_transaction
+from inventory.views.transaction.delete_transaction import delete_transaction
+from inventory.views.transaction.update_service_transaction import \
+    update_transaction
 
 urlpatterns = [
     # -------------------- Category ----------------------------
@@ -40,7 +50,7 @@ urlpatterns = [
     # -------------------- Transaction ----------------------------
     path(
         "create-transaction/<order_id>/<product_id>",
-        transaction.create_transaction,
+        create_transaction,
         name="create-transaction",
     ),
     path(
@@ -50,7 +60,7 @@ urlpatterns = [
     ),
     path(
         "update-transaction/<id>",
-        transaction.update_transaction,
+        update_transaction,
         name="update-transaction",
     ),
     path(
@@ -60,7 +70,7 @@ urlpatterns = [
     ),
     path(
         "delete-transaction/<id>",
-        transaction.delete_transaction,
+        delete_transaction,
         name="delete-transaction",
     ),
     # -------------------- Unit ----------------------------
@@ -73,8 +83,7 @@ urlpatterns = [
     path("create-product/", product.create_product, name="create-product"),
     path("update-product/<id>", product.update_product, name="update-product"),
     path("detail-product/<id>", product.detail_product, name="detail-product"),
-    path("duplicate-product/<id>", product.duplicate_product,
-         name="duplicate-product"),
+    path("duplicate-product/<id>", product.duplicate_product, name="duplicate-product"),
     path("list-product/", product.list_product, name="list-product"),
     path(
         "deactivated-product-list/",
@@ -105,18 +114,15 @@ urlpatterns = [
     path("create-kit/", kit.create_kit, name="create-kit"),
     path("update-kit/<id>", kit.update_kit, name="update-kit"),
     path("delete-kit/<id>", kit.delete_kit, name="delete-kit"),
-    path("select_kit_product/<kit_id>",
-         kit.select_kit_product, name="add-kit-product"),
+    path("select_kit_product/<kit_id>", kit.select_kit_product, name="add-kit-product"),
     # --------------------- Kit Elements ------------------------
     path(
         "create-kit-element/<kit_id>/<product_id>",
         kit.create_kit_element,
         name="create-kit-element",
     ),
-    path("delete-kit-element/<id>", kit.delete_kit_element,
-         name="delete-kit-element"),
-    path("update-kit-element/<id>", kit.update_kit_element,
-         name="update-kit-element"),
+    path("delete-kit-element/<id>", kit.delete_kit_element, name="delete-kit-element"),
+    path("update-kit-element/<id>", kit.update_kit_element, name="update-kit-element"),
     path(
         "create-kit-transaction/<order_id>/<kit_id>",
         transaction.create_kit_transaction,
@@ -128,6 +134,5 @@ urlpatterns = [
         kit.create_kit_service,
         name="create-kit-service",
     ),
-    path("delete-kit-service/<id>", kit.delete_kit_service,
-         name="delete-kit-service"),
+    path("delete-kit-service/<id>", kit.delete_kit_service, name="delete-kit-service"),
 ]

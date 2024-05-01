@@ -39,9 +39,9 @@ def process_payment_rent_without_client(request, order_id):
     )
     payment.save()
 
-    transactions = ProductTransaction.objects.filter(order=order)
-    for transaction in transactions:
-        handle_transaction(transaction)
+    # transactions = ProductTransaction.objects.filter(order=order)
+    # for transaction in transactions:
+    #     handle_transaction(transaction)
     order.terminated_date = timezone.now()
     order.terminated_user = request.user
     order.status = "complete"
