@@ -7,18 +7,9 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from .sms import twilioSendSMS
-from .transaction import reverse_transaction
 from gestor.views.utils import getMonthYear
-from inventory.models import (
-    ProductTransaction,
-)
-from inventory.views.transaction import (
-    NotEnoughStockError,
-)
 from services.forms import DiscountForm
 from services.forms import OrderCreateForm
 from services.forms import OrderDeclineReazon
@@ -26,14 +17,13 @@ from services.models import Order
 from services.models import Payment
 from services.models import ServicePicture
 from services.models.towit_payment import TowitPayment
-from services.tools.conditios_to_pdf import (
-    conditions_to_pdf,
-)
+from services.tools.conditios_to_pdf import conditions_to_pdf
 from services.tools.order import computeOrderAmount
 from services.tools.order import getOrderContext
 from services.tools.order_history import order_history
 from services.tools.order_position import order_update_position
-from services.tools.trailer_identification_to_pdf import trailer_identification_to_pdf
+from services.tools.trailer_identification_to_pdf import \
+    trailer_identification_to_pdf
 from services.views.invoice import get_invoice_context
 from services.views.invoice import sendMail
 
@@ -59,45 +49,6 @@ def update_order(request, id):
     context = {"form": form, "order": order, "title": _("Update service order")}
 
     return render(request, "services/order_create.html", context)
-
-
-@login_required
-def update_order_status(request, id, status):
-    order = get_object_or_404(Order, id=id)
-
-    try:
-        if status == "complete":
-            return redirect("update-order-position", id, status)
-
-        elif order.status == "complete":
-            if status == "decline":
-                # Reverse stock
-                transactions = ProductTransaction.objects.filter(order=order)
-                for transaction in transactions:
-                    reverse_transaction(transaction)
-
-        if order.status == "pending":
-            if status == "processing" and (not order.company and not order.associated):
-                return redirect(
-                    "detail-service-order", id, "Please add a client or a company"
-                )
-
-        if status == "processing":
-            # Send SMS
-            order.processing_date = timezone.localtime(timezone.now())
-            order.processing_user = request.user
-            twilioSendSMS(order, status)
-
-        order.status = status
-        order.save()
-    except NotEnoughStockError as error:
-        print(error)
-
-    if status == "processing":
-        return redirect("service-labor", id)
-    if status == "decline":
-        return redirect("update-order-position", id, status)
-    return redirect("list-service-order")
 
 
 @login_required

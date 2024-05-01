@@ -58,7 +58,9 @@ def computeOrderAmount(order: Order):
     parts_amount = 0
     service_amount = 0
     for transaction in transactions:
-        transaction.satisfied = transaction.product.computeAvailable() >= 0
+        # count = transaction.product.computeAvailable()
+        # transaction.satisfied = count >= 0
+        transaction.satisfied = transaction.quantity <= transaction.product.quantity
         if not transaction.satisfied:
             transactions.satisfied = False
 
