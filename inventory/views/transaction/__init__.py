@@ -218,14 +218,3 @@ def handle_transaction(transaction: ProductTransaction):
         quantity=product_quantity,
         cost=(transaction.quantity * cost) / product_quantity,
     )
-
-
-@login_required
-def delete_transaction(request, id):
-    # fetch the object related to passed id
-    transaction = get_object_or_404(ProductTransaction, id=id)
-    transaction.delete()
-    if transaction.order.type == "sell":
-        return redirect("detail-service-order", id=transaction.order_id)
-    if transaction.order.type == "purchase":
-        return redirect("detail-order", id=transaction.order_id)

@@ -8,6 +8,7 @@ from .views import transaction
 from .views import unit
 from inventory.views.transaction.create_service_transaction import \
     create_transaction
+from inventory.views.transaction.delete_transaction import delete_transaction
 from inventory.views.transaction.update_service_transaction import \
     update_transaction
 
@@ -69,7 +70,7 @@ urlpatterns = [
     ),
     path(
         "delete-transaction/<id>",
-        transaction.delete_transaction,
+        delete_transaction,
         name="delete-transaction",
     ),
     # -------------------- Unit ----------------------------
