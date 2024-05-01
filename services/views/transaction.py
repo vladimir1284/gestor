@@ -4,25 +4,11 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
-from inventory.models import (
-    convertUnit,
-)
-from inventory.models import Product
-from inventory.models import ProductTransaction
-from inventory.models import Stock
-from inventory.views.transaction import (
-    getTransactionAmount,
-)
-from services.forms import (
-    TransactionCreateForm,
-)
+from inventory.views.transaction import getTransactionAmount
+from services.forms import TransactionCreateForm
 from services.models import Order
 from services.models import Service
 from services.models import ServiceTransaction
-from utils.models import (
-    Transaction,
-)
-
 
 # -------------------- Transaction ----------------------------
 
