@@ -373,7 +373,7 @@
                                         </td>
                                         <td {% if order.status == 'pending' and not trans.satisfied %}class="text-danger"{% endif %}>
                                             {{ trans.quantity|floatformat:"-2" }}
-                                            {%if trans.product.quantity > 0%}
+                                            {%if not trans.satisfied and trans.product.quantity > 0%}
                                                 ({{trans.product.quantity|floatformat:"-2"}})
                                             {%endif%}
                                         </td>
