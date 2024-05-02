@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 
 from inventory.tools.transaction import NotEnoughStockError
 from services.models import Order
+from services.tools.transaction import check_order_transactions
+from services.tools.transaction import decline_order_transaction
 from services.tools.transaction import handle_order_transactions
 from services.tools.transaction import reverse_order_transactions
 from services.views.sms import twilioSendSMS
@@ -19,6 +21,12 @@ def update_order_status(request, id, status):
     try:
         with transaction.atomic():
             if status == "complete":
+                if not check_order_transactions(order):
+                    return redirect(
+                        "detail-service-order",
+                        id,
+                        "This order is not satisfied",
+                    )
                 return redirect("update-order-position", id, status)
 
             elif status == "decline":

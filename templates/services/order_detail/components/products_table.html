@@ -18,7 +18,7 @@
             {%if order.status == 'processing'%}
                 {% for trans in transactions %}
                     {% if trans.satisfied and trans.product.type == type %}
-                        {%include 'services/order_detail/components/product_table_item_processing.html'%}
+                        {%include 'services/order_detail/components/product_table_item.html'%}
                     {% endif %}
                 {% endfor %}
                 {%if showOStock%}
@@ -52,7 +52,7 @@
                     </tr>
                     {% for trans in transactions %}
                         {% if not trans.satisfied and trans.product.type == type %}
-                            {%include 'services/order_detail/components/product_table_item_processing.html'%}
+                            {%include 'services/order_detail/components/product_table_item.html'%}
                         {% endif %}
                     {% endfor %}
                 {%endif%}
