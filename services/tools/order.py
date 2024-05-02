@@ -3,14 +3,13 @@ from datetime import timedelta
 
 import pytz
 
-from inventory.models import (
-    ProductTransaction,
-)
+from inventory.models import ProductTransaction
 from services.models import DebtStatus
 from services.models import Expense
 from services.models import Order
 from services.models import Payment
 from services.models import ServiceTransaction
+from services.tools.transaction import check_transaction
 from utils.models import Associated
 
 
@@ -51,6 +50,8 @@ def getRepairDebt(client: Associated):
 def computeOrderAmount(order: Order):
     transactions = ProductTransaction.objects.filter(order=order)
     transactions.satisfied = True
+    transactions.usParts = False
+    transactions.usConsumable = False
     services = ServiceTransaction.objects.filter(order=order)
     expenses = Expense.objects.filter(order=order)
     # Compute amount
@@ -60,9 +61,13 @@ def computeOrderAmount(order: Order):
     for transaction in transactions:
         # count = transaction.product.computeAvailable()
         # transaction.satisfied = count >= 0
-        transaction.satisfied = transaction.quantity <= transaction.product.quantity
+        transaction.satisfied = check_transaction(transaction)
         if not transaction.satisfied:
             transactions.satisfied = False
+            if transaction.product.type == "consumable":
+                transactions.usConsumable = True
+            else:
+                transactions.usParts = True
 
         transaction.amount = transaction.getAmount()
         parts_amount += transaction.amount
@@ -88,6 +93,8 @@ def getOrderContext(order_id):
     order = Order.objects.get(id=order_id)
     (transactions, services, expenses) = computeOrderAmount(order)
     satisfied = transactions.satisfied
+    unsatisfiedParts = transactions.usParts
+    unsatisfiedConsumable = transactions.usConsumable
     # Order by amount
     transactions = list(transactions)
     # Costs
@@ -99,18 +106,37 @@ def getOrderContext(order_id):
     consumable_tax = 0
     parts_tax = 0
     consumables = False
+    # Costs
+    uparts_cost = 0
+    uconsumable_cost = 0
+    # Count consumables and parts
+    uconsumable_amount = 0
+    uparts_amount = 0
+    uconsumable_tax = 0
+    uparts_tax = 0
 
     for trans in transactions:
         if trans.product.type == "part":
-            parts_amount += trans.amount
-            parts_tax += trans.total_tax
-            parts_cost += trans.getMinCost()
+            if trans.satisfied:
+                parts_amount += trans.amount
+                parts_tax += trans.total_tax
+                parts_cost += trans.getMinCost()
+            else:
+                uparts_amount += trans.amount
+                uparts_tax += trans.total_tax
+                uparts_cost += trans.getMinCost()
         elif trans.product.type == "consumable":
             consumables = True
-            consumable_amount += trans.amount
-            consumable_tax += trans.total_tax
-            if trans.cost is not None:
-                consumable_cost += trans.cost
+            if trans.satisfied:
+                consumable_amount += trans.amount
+                consumable_tax += trans.total_tax
+                if trans.cost is not None:
+                    consumable_cost += trans.cost
+            else:
+                uconsumable_amount += trans.amount
+                uconsumable_tax += trans.total_tax
+                if trans.cost is not None:
+                    uconsumable_cost += trans.cost
     # Account services
     service_amount = 0
     service_tax = 0
@@ -125,6 +151,8 @@ def getOrderContext(order_id):
     consumable_total = consumable_tax + consumable_amount
     parts_total = parts_amount + parts_tax
     service_total = service_amount + service_tax
+    uparts_total = uparts_amount + uparts_tax
+    uconsumable_total = uconsumable_tax + uconsumable_amount
     # Compute tax percent
     tax_percent = 8.25
 
@@ -144,6 +172,8 @@ def getOrderContext(order_id):
         "order": order,
         "services": services,
         "satisfied": satisfied,
+        "unsatisfiedParts": unsatisfiedParts,
+        "unsatisfiedConsumable": unsatisfiedConsumable,
         "service_amount": service_amount,
         "service_total": service_total,
         "service_tax": service_tax,
@@ -156,6 +186,12 @@ def getOrderContext(order_id):
         "parts_amount": parts_amount,
         "parts_total": parts_total,
         "parts_tax": parts_tax,
+        "uconsumable_amount": uconsumable_amount,
+        "uconsumable_total": uconsumable_total,
+        "uconsumable_tax": uconsumable_tax,
+        "uparts_amount": uparts_amount,
+        "uparts_total": uparts_total,
+        "uparts_tax": uparts_tax,
         "terminated": terminated,
         "empty": empty,
         "tax_percent": tax_percent,

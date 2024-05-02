@@ -1,0 +1,58 @@
+{%load static%}
+<div class="card mb-3">
+    <div class="card-header flex items-center">
+        <h5 class="flex-grow m-0 p-0">
+            Services
+            {% if service_amount %}
+                <b>${{ service_total|floatformat:"-2" }}</b>
+                {% if service_tax > 0 %}= ${{ service_amount|floatformat:"-2" }}+${{ service_tax|floatformat:"-2" }}{% endif %}
+            {% endif %}
+        </h5>
+        <div>
+            {%if not terminated%}
+                <a href="{% url 'select-service' 'create-service-transaction' order.id 'services' %}"
+                   type="button"
+                   data-bs-toggle="tooltip"
+                   data-bs-offset="0,4"
+                   data-bs-placement="left"
+                   data-bs-html="true"
+                   data-bs-original-title="Add part or service"
+                   class="btn btn-icon btn-outline-info float-end">
+                    <span class="tf-icons bx bx-plus"></span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>
+                        <i class="bx bx-cog"></i>
+                    </th>
+                    <th>Service</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th>Tax</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                {% for service in services %}
+                    <tr data-tag="{{ service.product.name }}">
+                        <td>
+                            <a href="{% if terminated %} {% url 'detail-service-transaction' service.id %} {% else %} {% url 'update-service-transaction' service.id %} {% endif %}">${{ service.amount|floatformat:"0" }}</a>
+                        </td>
+                        <td>
+                            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ service.service.name }}</strong>
+                        </td>
+                        <td>{{ service.quantity|floatformat:"-2" }}</td>
+                        <td>${{ service.price|floatformat:"2" }}</td>
+                        <td>${{ service.amount|floatformat:"2" }}</td>
+                        <td>${{ service.total_tax|floatformat:"2" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

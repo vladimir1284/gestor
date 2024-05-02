@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from inventory.forms import TransactionCreateForm
 from inventory.models import ProductTransaction
 from inventory.tools.transaction import renderCreateTransaction
+from services.tools.transaction import check_transaction
 from services.tools.transaction import handle_transaction
 from services.tools.transaction import reverse_transaction
 from utils.models import Order
@@ -40,7 +41,8 @@ def update_transaction(request, id):
             transaction = form.save()
 
             if order.status != "pending" and order.status != "decline":
-                handle_transaction(transaction)
+                if check_transaction(transaction):
+                    handle_transaction(transaction)
 
             return redirect("detail-service-order", id=transaction.order.id)
 

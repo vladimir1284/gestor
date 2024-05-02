@@ -7,11 +7,13 @@ from django.utils.translation import gettext_lazy as _
 from inventory.forms import TransactionCreateForm
 from inventory.models import Product
 from inventory.views.transaction import renderCreateTransaction
+from services.tools.order import check_transaction
 from services.tools.transaction import handle_transaction
 from utils.models import Order
 
 
 @login_required
+@transaction.atomic
 def create_transaction(request, order_id, product_id):
     order = Order.objects.get(id=order_id)
     product = Product.objects.get(id=product_id)
@@ -30,7 +32,11 @@ def create_transaction(request, order_id, product_id):
                 trans.product = product
                 trans.save()
                 if order.type == "sell":
-                    if order.status != "pending" and order.status != "decline":
+                    if (
+                        order.status != "pending"
+                        and order.status != "decline"
+                        and check_transaction(trans)
+                    ):
                         handle_transaction(trans)
                     return redirect("detail-service-order", id=order_id)
                 if order.type == "purchase":
