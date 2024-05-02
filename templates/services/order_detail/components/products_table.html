@@ -24,18 +24,30 @@
                 {%if showOStock%}
                     <tr class="bg-mainBG">
                         <th colspan="100%">
-                            <span class="text-danger mr-2">
-                                Out Stock
-                            </span>
-                            {%if type == 'part'%}
-                                ${{uparts_total|floatformat:'-2'}} =
-                                ${{uparts_amount|floatformat:'-2'}} +
-                                ${{uparts_tax|floatformat:'-2'}}
-                            {%else%}
-                                ${{uconsumable_total|floatformat:'-2'}} =
-                                ${{uconsumable_amount|floatformat:'-2'}} +
-                                ${{uconsumable_tax|floatformat:'-2'}}
-                            {%endif%}
+                            <div class="flex items-center">
+                                <div class="flex-grow">
+                                    <span class="text-danger mr-2">
+                                        Out Stock
+                                    </span>
+                                    {%if type == 'part'%}
+                                        ${{uparts_total|floatformat:'-2'}} =
+                                        ${{uparts_amount|floatformat:'-2'}} +
+                                        ${{uparts_tax|floatformat:'-2'}}
+                                    {%else%}
+                                        ${{uconsumable_total|floatformat:'-2'}} =
+                                        ${{uconsumable_amount|floatformat:'-2'}} +
+                                        ${{uconsumable_tax|floatformat:'-2'}}
+                                    {%endif%}
+                                </div>
+                                <div>
+                                    <a
+                                        class="btn btn-link btn-icon"
+                                        href="{%url 'service-order-out-stock-print' order.id%}"
+                                    >
+                                        <i class='bx bx-printer'></i>
+                                    </a>
+                                </div>
+                            </div>
                         </th>
                     </tr>
                     {% for trans in transactions %}
