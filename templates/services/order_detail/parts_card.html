@@ -1,0 +1,31 @@
+{%load static%}
+<div class="card mb-3">
+    <div class="card-header flex items-center">
+        <h5 class="flex-grow m-0 p-0">
+            Parts
+            {% if parts_amount %}
+                <b>${{ parts_total|floatformat:"-2" }}</b>
+                {% if parts_tax > 0 %}
+                    = ${{ parts_amount|floatformat:"-2"}}+${{parts_tax|floatformat:"-2" }}
+                {% endif %}
+            {% endif %}
+        </h5>
+        <div>
+            {%if not terminated%}
+                <a
+                    href="{% url 'select-service' 'create-service-transaction' order.id 'parts' %}"
+                    type="button"
+                    data-bs-toggle="tooltip"
+                    data-bs-offset="0,4"
+                    data-bs-placement="left"
+                    data-bs-html="true"
+                    data-bs-original-title="Add part or service"
+                    class="btn btn-icon btn-outline-info float-end"
+                >
+                    <span class="tf-icons bx bx-plus"></span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {%include 'services/order_detail/components/products_table.html' with type="part" showOStock=unsatisfiedParts%}
+</div>

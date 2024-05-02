@@ -1,10 +1,12 @@
-from django.db import models
 import math
 
-from utils.models import Category, Transaction
-from services.models import Service
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
+
+from services.models import Service
+from utils.models import Category
+from utils.models import Transaction
 
 
 class DifferentMagnitudeUnitsError(BaseException):
@@ -127,6 +129,7 @@ class ProductTransaction(Transaction):
     cost = models.FloatField(blank=True, null=True)
     # As used in the transaction
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+    done = models.BooleanField(null=True, blank=True)
 
     def __str__(self):
         return "{} product: {}".format(
