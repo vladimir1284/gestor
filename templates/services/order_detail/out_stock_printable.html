@@ -1,0 +1,95 @@
+{%load static%}
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <!-- Fonts -->
+        <!-- <link rel="preconnect" href="https://fonts.googleapis.com" /> -->
+        <!-- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /> -->
+        <!-- <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" -->
+        <!--       rel="stylesheet" /> -->
+        <!-- Icons. Uncomment required icon fonts -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+        <!-- Core CSS -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/css/core.css' %}"
+              class="template-customizer-core-css" />
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/css/theme-default.css' %}"
+              class="template-customizer-theme-css" />
+        <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+        <!-- Vendors CSS -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/libs/apex-charts/apex-charts.css' %}" />
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+        <style>
+            html, body {
+                background: #ffffff;
+            }
+        </style>
+    </head>
+    <body>
+        <h5 class="mb-4">
+            <span style="color:red"><b>Out Stock Parts:</b></span>
+            ${{uparts_total|floatformat:'-2'}} =
+            ${{uparts_amount|floatformat:'-2'}} +
+            ${{uparts_tax|floatformat:'-2'}}
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>
+                            <i class="bx bx-cog"></i>
+                        </th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Unit</th>
+                        <th>Price</th>
+                        <th>Amount</th>
+                        <th>Tax</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for trans in transactions %}
+                        {% if not trans.satisfied and trans.product.type == 'part' %}
+                            {%include 'services/order_detail/components/product_table_item_processing.html'%}
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <h5 class="mb-4 mt-8">
+            <span style="color:red"><b>Out Stock Consumables:</b></span>
+            ${{uconsumable_total|floatformat:'-2'}} =
+            ${{uconsumable_amount|floatformat:'-2'}} +
+            ${{uconsumable_tax|floatformat:'-2'}}
+        </h5>
+        <div class="table-responsive text-nowrap">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>
+                            <i class="bx bx-cog"></i>
+                        </th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Unit</th>
+                        <th>Price</th>
+                        <th>Amount</th>
+                        <th>Tax</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for trans in transactions %}
+                        {% if not trans.satisfied and trans.product.type == 'consumable' %}
+                            {%include 'services/order_detail/components/product_table_item_processing.html'%}
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
