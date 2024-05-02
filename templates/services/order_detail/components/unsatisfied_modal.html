@@ -1,0 +1,54 @@
+{%load static%}
+<div class="modal fade" id="unsatisfiedModal" tabindex="-1" aria-labelledby="unsatisfiedModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title text-danger" id="exampleModalLabel">Not satisfied</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body mt-0">
+                <div class="shadow-inner mb-2 p-2 rounded">
+                    <strong>Parts:</strong>
+                    <ul class="m-1">
+                        {% for trans in transactions %}
+                            {% if trans.product.type == 'part' and not trans.satisfied %}
+                                <li>
+                                    {{ trans.product.name }}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="shadow-inner p-2 rounded">
+                    <strong>Consumables:</strong>
+                    <ul class="m-1">
+                        {% for trans in transactions %}
+                            {% if trans.product.type == 'consumable' and not trans.satisfied %}
+                                <li>
+                                    {{ trans.product.name }}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {%if decline%}
+                    <div class="mt-4 border-top py-4">
+                        This operation will decline the unsatisfied <strong>parts</strong> and <strong>consumables</strong>.
+                    </div>
+                    <div>
+                        Do you really want to continue?
+                    </div>
+                {%endif%}
+            </div>
+            {%if decline%}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+                    <a
+                        class="btn btn-outline-danger"
+                        href="{% url "service-order-complete-forced" order.id %}"
+                    >Continue</a>
+                </div>
+            {%endif%}
+        </div>
+    </div>
+</div>

@@ -13,13 +13,15 @@ from services.tools.transaction import reverse_transaction
 def delete_transaction(request, id):
     # fetch the object related to passed id
     transaction: ProductTransaction = get_object_or_404(ProductTransaction, id=id)
-    transaction.delete()
     if transaction.order.type == "sell":
         if (
             transaction.order.status != "pending"
             and transaction.order.status != "decline"
         ):
             reverse_transaction(transaction)
+        transaction.delete()  # must be after reverse_transaction
         return redirect("detail-service-order", id=transaction.order_id)
+
     if transaction.order.type == "purchase":
+        transaction.delete()
         return redirect("detail-order", id=transaction.order_id)

@@ -20,7 +20,7 @@ from services.tools.transaction import handle_order_transactions
 
 @login_required
 @atomic
-def process_order_payment(request, order_id):
+def process_order_payment(request, order_id, decline_unsatisfied: bool = False):
     categories = PaymentCategory.objects.all().exclude(name="debt")
 
     # Create the debt category if it doesn't exists
@@ -133,7 +133,7 @@ def process_order_payment(request, order_id):
             # transactions = ProductTransaction.objects.filter(order=order)
             # for transaction in transactions:
             #     handle_transaction(transaction)
-            handle_order_transactions(order)
+            handle_order_transactions(order, decline_unsatisfied=decline_unsatisfied)
             order.terminated_date = timezone.now()
             order.terminated_user = request.user
             order.status = "complete"

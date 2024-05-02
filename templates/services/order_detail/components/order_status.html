@@ -1,0 +1,100 @@
+{%load static%}
+<div>
+    {% if order.quotation %}
+        <span class="px-3 me-1 badge rounded-pill bg-warning">
+            <i class='bx bx-error 'style="font-size:1.5em"></i>
+            quotation
+        </span>
+    {% elif terminated or empty or order.status == 'payment_pending' %}
+        {%if order.status == 'pending'%}
+            <span class="me-1 d-flex align-items-center badge bg-warning">
+                Cotizando
+            </span>
+        {%elif order.status == 'processing'%}
+            <span class="me-1 d-flex align-items-center badge bg-primary">
+                Trabajando
+            </span>
+        {%elif order.status == 'complete'%}
+            <span class="me-1 d-flex align-items-center badge bg-success">
+                Finalizado
+            </span>
+        {%elif order.status == 'payment_pending'%}
+            <span class="me-1 d-flex align-items-center badge bg-danger">
+                Pendiente por cobrar
+            </span>
+        {%elif order.status == 'decline'%}
+            <span class="me-1 d-flex align-items-center badge bg-danger">
+                Eliminado
+            </span>
+        {%else%}
+            <span class="me-1 d-flex align-items-center badge bg-secondary">
+                {{ order.get_status_display }}
+            </span>
+        {%endif%}
+    {% else %}
+        <button type="button"
+                class="btn me-1 btn-{% if order.status == 'processing' %}primary{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'payment_pending' %}danger{% endif %} dropdown-toggle"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+            {%if order.status == 'pending'%}
+                Cotizando
+            {%elif order.status == 'processing'%}
+                Trabajando
+            {%elif order.status == 'complete'%}
+                Finalizado
+            {%elif order.status == 'payment_pending'%}
+                Pendiente por cobrar
+            {%elif order.status == 'decline'%}
+                Eliminado
+            {%else%}
+                {{ order.get_status_display }}
+            {%endif%}
+        </button>
+        <ul class="dropdown-menu">
+            {% if order.status != 'processing' %}
+                <li>
+                    {%if satisfied%}
+                        <button class="dropdown-item badge bg-primary"
+                                onclick="updateStatus('{% url 'update-service-order-status' order.id 'processing' %}', 'processing')">
+                            Trabajando
+                        </button>
+                    {%else%}
+                        <button class="dropdown-item badge bg-primary"
+                                data-bs-toggle='modal'
+                                data-bs-target='#unsatisfiedModal'
+                        >
+                            Trabajando
+                        </button>
+                    {% endif %}
+                </li>
+            {% endif %}
+            {% if order.status != 'complete' and order.status != 'pending' and order.status != 'payment_pending' %}
+                <li>
+                    {%if satisfied%}
+                        <button class="dropdown-item badge bg-success"
+                                onclick="updateStatus('{% url 'service-order-complete' order.id %}', 'complete')">
+                            Finalizado
+                        </button>
+                    {%else%}
+                        <button class="dropdown-item badge bg-success"
+                                data-bs-toggle='modal'
+                                data-bs-target='#unsatisfiedModal'
+                        >
+                            Finalizado
+                        </button>
+                    {% endif %}
+                                                <!-- <a class="dropdown-item badge bg-success" -->
+                                                <!--    href="{% url 'service-order-complete' order.id %}">Finalizado</a> -->
+                </li>
+            {% endif %}
+        </ul>
+
+        {%if not satisfied%}
+            {%if order.status == 'processing'%}
+                {% include "services/order_detail/components/unsatisfied_modal.html" with decline=True %}
+            {%else%}
+                {% include "services/order_detail/components/unsatisfied_modal.html" %}
+            {%endif%}
+        {%endif%}
+    {% endif %}
+</div>
