@@ -10,27 +10,34 @@ from utils.models import Transaction
 
 def reverse_transaction(transaction: Transaction):
     #  To be performed on complete orders
-    if isinstance(transaction, ProductTransaction):
-        product = transaction.product
-        # To be used in the rest of the system
-        # product = Product.objects.get(id=product.id)
-        product_quantity = convertUnit(
-            input_unit=transaction.unit,
-            output_unit=product.unit,
-            value=transaction.quantity,
-        )
+    if not isinstance(transaction, ProductTransaction):
+        return
+    if not transaction.done:
+        return
 
-        stock_cost = transaction.cost
+    product = transaction.product
+    # To be used in the rest of the system
+    # product = Product.objects.get(id=product.id)
+    product_quantity = convertUnit(
+        input_unit=transaction.unit,
+        output_unit=product.unit,
+        value=transaction.quantity,
+    )
 
-        product.quantity += product_quantity
-        product.stock_price += stock_cost
-        product.save()
+    stock_cost = transaction.cost
 
-        Stock.objects.create(
-            product=product,
-            quantity=product_quantity,
-            cost=stock_cost / product_quantity,
-        )
+    product.quantity += product_quantity
+    product.stock_price += stock_cost
+    product.save()
+
+    Stock.objects.create(
+        product=product,
+        quantity=product_quantity,
+        cost=stock_cost / product_quantity,
+    )
+
+    transaction.done = False
+    transaction.save()
 
 
 def reverse_order_transactions(order: Order):
@@ -41,26 +48,31 @@ def reverse_order_transactions(order: Order):
 
 def handle_transaction(transaction: Transaction):
     #  To be performed on complete orders
-    if isinstance(transaction, ProductTransaction):
-        product = transaction.product
-        # To be used in the rest of the system
-        product = Product.objects.get(id=product.id)
-        product_quantity = convertUnit(
-            input_unit=transaction.unit,
-            output_unit=product.unit,
-            value=transaction.quantity,
-        )
+    if not isinstance(transaction, ProductTransaction):
+        return
+    if transaction.done:
+        return
 
-        if product_quantity > product.quantity:
-            raise NotEnoughStockError
+    product = transaction.product
+    # To be used in the rest of the system
+    product = Product.objects.get(id=product.id)
+    product_quantity = convertUnit(
+        input_unit=transaction.unit,
+        output_unit=product.unit,
+        value=transaction.quantity,
+    )
 
-        stock_cost = discountStockFIFO(product, product_quantity)
-        transaction.cost = stock_cost
-        transaction.save()
+    if product_quantity > product.quantity:
+        raise NotEnoughStockError
 
-        product.quantity -= product_quantity
-        product.stock_price -= stock_cost
-        product.save()
+    stock_cost = discountStockFIFO(product, product_quantity)
+    transaction.cost = stock_cost
+    transaction.done = True
+    transaction.save()
+
+    product.quantity -= product_quantity
+    product.stock_price -= stock_cost
+    product.save()
 
 
 def handle_order_transactions(order: Order):
@@ -72,6 +84,9 @@ def handle_order_transactions(order: Order):
 def check_transaction(transaction: Transaction) -> bool | None:
     if not isinstance(transaction, ProductTransaction):
         return None
+
+    if transaction.done:
+        return True
 
     product: Product = transaction.product
 

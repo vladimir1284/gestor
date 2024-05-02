@@ -136,24 +136,24 @@ class TransactionCreateForm(forms.ModelForm):
 
     def clean_quantity(self):
         quantity = self.cleaned_data["quantity"]
-        if (
-            self.order.type == "sell"
-            and not self.order.quotation
-            and self.order.status != "pending"
-            and self.order.status != "decline"
-        ):
-            error_msg = ""
-            unit = Unit.objects.get(id=int(self.data["unit"]))
-            available = self.product.computeAvailable(self.id)
-            # Compute the available quantity in transaction unit
-            available = convertUnit(self.product.unit, unit, available)
-            if available < quantity:
-                if int(available) == float(available):
-                    decimals = 0
-                else:
-                    decimals = 2  # Assumes 2 decimal places
-                error_msg += f"The quantity cannot be higher than {available:.{decimals}f}{unit}."
-                raise ValidationError(error_msg)
+        # if (
+        #     self.order.type == "sell"
+        #     and not self.order.quotation
+        #     and self.order.status != "pending"
+        #     and self.order.status != "decline"
+        # ):
+        #     error_msg = ""
+        #     unit = Unit.objects.get(id=int(self.data["unit"]))
+        #     available = self.product.computeAvailable(self.id)
+        #     # Compute the available quantity in transaction unit
+        #     available = convertUnit(self.product.unit, unit, available)
+        #     if available < quantity:
+        #         if int(available) == float(available):
+        #             decimals = 0
+        #         else:
+        #             decimals = 2  # Assumes 2 decimal places
+        #         error_msg += f"The quantity cannot be higher than {available:.{decimals}f}{unit}."
+        #         raise ValidationError(error_msg)
         return quantity
 
     def clean_price(self):

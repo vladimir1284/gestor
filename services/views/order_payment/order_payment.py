@@ -7,19 +7,15 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from inventory.models import ProductTransaction
-from services.forms import PaymentCategoryCreateForm
 from services.forms import PaymentCreateForm
 from services.forms.towit_payment_form import TowitPaymentForm
 from services.models import DebtStatus
 from services.models import Order
 from services.models import Payment
 from services.models import PaymentCategory
-from services.models import PendingPayment
 from services.tools.order import getOrderContext
 from services.tools.sms import twilioSendSMS
-from services.tools.transaction import handle_transaction
-from users.models import Associated
+from services.tools.transaction import handle_order_transactions
 
 
 @login_required
@@ -137,6 +133,7 @@ def process_order_payment(request, order_id):
             # transactions = ProductTransaction.objects.filter(order=order)
             # for transaction in transactions:
             #     handle_transaction(transaction)
+            handle_order_transactions(order)
             order.terminated_date = timezone.now()
             order.terminated_user = request.user
             order.status = "complete"
