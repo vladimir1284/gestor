@@ -10,9 +10,11 @@ from utils.models import Transaction
 
 def reverse_transaction(transaction: Transaction):
     #  To be performed on complete orders
-    if not isinstance(transaction, ProductTransaction):
-        return
-    if not transaction.done:
+    if (
+        not isinstance(transaction, ProductTransaction)
+        or not transaction.done
+        or transaction.decline
+    ):
         return
 
     product = transaction.product
@@ -48,9 +50,11 @@ def reverse_order_transactions(order: Order):
 
 def handle_transaction(transaction: Transaction):
     #  To be performed on complete orders
-    if not isinstance(transaction, ProductTransaction):
-        return
-    if transaction.done:
+    if (
+        not isinstance(transaction, ProductTransaction)
+        or transaction.done
+        or transaction.decline
+    ):
         return
 
     product = transaction.product
@@ -75,14 +79,42 @@ def handle_transaction(transaction: Transaction):
     product.save()
 
 
-def handle_order_transactions(order: Order):
+def handle_order_transactions(order: Order, decline_unsatisfied: bool = False):
     transactions = ProductTransaction.objects.filter(order=order)
     for transaction in transactions:
-        handle_transaction(transaction)
+        if decline_unsatisfied and not check_transaction(transaction):
+            decline_transaction(transaction)
+        else:
+            handle_transaction(transaction)
+
+
+def decline_transaction(transaction: Transaction):
+    if not isinstance(transaction, ProductTransaction) or transaction.decline:
+        return None
+
+    if transaction.done:
+        reverse_transaction(transaction)
+
+    transaction.decline = True
+    transaction.save()
+
+
+def decline_order_transaction(
+    order: Order,
+    done: bool = False,
+    satisfied: bool = False,
+):
+    transactions = ProductTransaction.objects.filter(order=order)
+    for transaction in transactions:
+        if not done and transaction.done:
+            continue
+        if not satisfied and check_transaction(transaction):
+            continue
+        decline_transaction(transaction)
 
 
 def check_transaction(transaction: Transaction) -> bool | None:
-    if not isinstance(transaction, ProductTransaction):
+    if not isinstance(transaction, ProductTransaction) or transaction.decline:
         return None
 
     if transaction.done:

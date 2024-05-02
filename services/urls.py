@@ -28,6 +28,7 @@ from services.views.order_flow.fast_orders import order_quotation
 from services.views.order_flow.fast_orders import parts_sale
 from services.views.order_flow.generate_url import generate_url
 from services.views.order_flow.get_preorder_state import preorder_state
+from services.views.order_flow.order_complete import force_order_complete
 from services.views.order_flow.order_complete import order_complete
 from services.views.order_flow.order_create import create_order
 from services.views.order_flow.select_client import select_client
@@ -337,6 +338,11 @@ urlpatterns = [
         process_order_payment,
         name="process-payment",
     ),
+    path(
+        "process-payment/<int:order_id>/<decline_unsatisfied>",
+        process_order_payment,
+        name="process-payment",
+    ),
     path("pay-debt/<int:client_id>", payment.pay_debt, name="pay-debt"),
     path(
         "update-debt-status/<int:client_id>/<status>",
@@ -351,8 +357,23 @@ urlpatterns = [
         name="service-order-complete",
     ),
     path(
+        "service-order-complete/<id>/<decline_unsatisfied>",
+        order_complete,
+        name="service-order-complete",
+    ),
+    path(
         "service-order-payment-trailer-without-client/<order_id>",
         process_payment_rent_without_client,
         name="service-order-payment-trailer-without-client",
+    ),
+    path(
+        "service-order-payment-trailer-without-client/<order_id>/<decline_unsatisfied>",
+        process_payment_rent_without_client,
+        name="service-order-payment-trailer-without-client",
+    ),
+    path(
+        "service-order-complete-forced/<id>",
+        force_order_complete,
+        name="service-order-complete-forced",
     ),
 ]

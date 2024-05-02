@@ -130,6 +130,7 @@ class ProductTransaction(Transaction):
     # As used in the transaction
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     done = models.BooleanField(null=True, blank=True)
+    decline = models.BooleanField(null=True, blank=True)
 
     def __str__(self):
         return "{} product: {}".format(

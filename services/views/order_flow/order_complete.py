@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.transaction import atomic
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -6,11 +7,12 @@ from django.shortcuts import render
 
 from services.forms import OrderEndUpdatePositionForm
 from services.tools.order import getOrderContext
+from services.tools.transaction import decline_order_transaction
 from utils.models import Order
 
 
 @login_required
-def order_complete(request: HttpRequest, id: int):
+def order_complete(request: HttpRequest, id: int, decline_unsatisfied: bool = False):
     order: Order = get_object_or_404(Order, id=id)
 
     otype = ""
@@ -47,7 +49,7 @@ def order_complete(request: HttpRequest, id: int):
             if flow == "processPay" and not order.rent_without_client:
                 request.session["new_position"] = pos if pos is not None else -1
                 request.session["new_position_reason"] = reason
-                return redirect("process-payment", id)
+                return redirect("process-payment", id, decline_unsatisfied)
 
             order.position = pos
             order.storage_reason = reason
@@ -57,7 +59,11 @@ def order_complete(request: HttpRequest, id: int):
                 # if order.rent_without_client:
                 #     return redirect("service-order-payment-trailer-without-client", id)
                 # return redirect("process-payment", id)
-                return redirect("service-order-payment-trailer-without-client", id)
+                return redirect(
+                    "service-order-payment-trailer-without-client",
+                    id,
+                    decline_unsatisfied,
+                )
 
             if flow == "pendingPay":
                 if pos is not None:
@@ -76,3 +82,8 @@ def order_complete(request: HttpRequest, id: int):
         "errs": errs,
     }
     return render(request, "services/complete/view.html", ctx)
+
+
+@login_required
+def force_order_complete(request: HttpRequest, id):
+    return redirect("service-order-complete", id, True)

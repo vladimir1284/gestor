@@ -14,7 +14,7 @@ from services.tools.transaction import handle_order_transactions
 
 @login_required()
 @atomic()
-def process_payment_rent_without_client(request, order_id):
+def process_payment_rent_without_client(request, order_id, decline_unsatisfied=False):
     order: Order = get_object_or_404(Order, id=order_id)
     context = getOrderContext(order_id)
     total = context["order"].total
@@ -25,7 +25,7 @@ def process_payment_rent_without_client(request, order_id):
     )
     payment.save()
 
-    handle_order_transactions(order)
+    handle_order_transactions(order, decline_unsatisfied=decline_unsatisfied)
     order.terminated_date = timezone.now()
     order.terminated_user = request.user
     order.status = "complete"

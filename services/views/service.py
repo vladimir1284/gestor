@@ -13,12 +13,8 @@ from inventory.models import KitElement
 from inventory.models import Product
 from inventory.models import ProductKit
 from inventory.models import ProductTransaction
-from inventory.views.product import (
-    prepare_product_list,
-)
-from services.forms import (
-    ServiceCreateForm,
-)
+from inventory.views.product import prepare_product_list
+from services.forms import ServiceCreateForm
 from services.models import Service
 from services.models import ServiceTransaction
 from utils.models import Order
@@ -101,7 +97,7 @@ def prepare_service_list(order_id=None):
         .order_by("name")
     )
     for product in product_list:
-        product.available = product.computeAvailable()
+        product.available = product.quantity  # product.computeAvailable()
 
     # # Don't include products in the current order
     # if order_id is not None:

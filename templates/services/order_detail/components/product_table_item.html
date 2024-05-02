@@ -1,5 +1,8 @@
 {%load static%}
-<tr data-tag="{{ trans.product.name }}">
+<tr data-tag="{{ trans.product.name }}"
+    {% if trans.decline %}
+        class="bg-red-100"
+    {% endif %}>
     <td>
         <a
             href="{% if terminated %}{% url 'detail-transaction' trans.id %}{% else %}{% url 'update-transaction' trans.id %}{% endif %}"

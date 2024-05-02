@@ -1,0 +1,20 @@
+{%load static%}
+<div class="card mb-3">
+    <h5 class="card-header text-danger">
+        DECLINE
+    </h5>
+    <div class="card-body">
+        <table class="table">
+            <tbody class="table-border-bottom-0">
+                <tr>
+                    <td>REAZON:</td>
+                    <td>{{order.decline_reazon.get_decline_reazon}}</td>
+                </tr>
+                <tr>
+                    <td>NOTE:</td>
+                    <td>{{order.decline_reazon.note}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
