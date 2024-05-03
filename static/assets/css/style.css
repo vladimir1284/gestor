@@ -82,6 +82,10 @@
   bottom: 0px;
 }
 
+.bottom-4 {
+  bottom: 1rem;
+}
+
 .end-0 {
   inset-inline-end: 0px;
 }
@@ -128,6 +132,10 @@
 
 .z-0 {
   z-index: 0;
+}
+
+.z-30 {
+  z-index: 30;
 }
 
 .z-50 {
@@ -239,6 +247,10 @@
 
 .mr-2 {
   margin-right: 0.5rem;
+}
+
+.mr-4 {
+  margin-right: 1rem;
 }
 
 .ms-2 {
@@ -373,8 +385,16 @@
   width: auto;
 }
 
+.w-full {
+  width: 100%;
+}
+
 .min-w-\[30\%\] {
   min-width: 30%;
+}
+
+.max-w-\[10cm\] {
+  max-width: 10cm;
 }
 
 .max-w-full {

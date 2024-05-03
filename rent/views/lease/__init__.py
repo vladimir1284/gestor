@@ -1,10 +1,8 @@
 import base64
 import re
 import tempfile
-from collections import defaultdict
 from datetime import datetime
 from datetime import timedelta
-from math import ceil
 
 import jwt
 import qrcode
@@ -53,6 +51,9 @@ from rent.models.lease import SecurityDepositDevolution
 from rent.models.lease import Tire
 from rent.models.vehicle import Trailer
 from rent.permissions import staff_required
+from rent.tools.contract_ctx import get_contract
+from rent.tools.contract_ctx import get_contract_token
+from rent.tools.contract_ctx import prepare_contract_view
 from rent.tools.get_conditions import get_conditions
 from rent.tools.get_missing_handwriting import get_missing_handwriting
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
@@ -62,7 +63,25 @@ from users.models import Associated
 from users.views import addStateCity
 
 
-def create_handwriting(request, lease_id, position, external=False):
+def create_handwriting(request, token, position, external=False):
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        lease_id = info["contract"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_inf.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_inf.html", context)
+
     contract = get_object_or_404(Contract, pk=lease_id)
     # Cannot edit active contract
     if contract.stage == "active":
@@ -108,20 +127,19 @@ def create_handwriting(request, lease_id, position, external=False):
             if mhw is not None and mhw != "date_daniel":
                 if external:
                     return redirect(
-                        "capture-signature",
-                        contract.id,
+                        "ext-capture-signature",
                         mhw,
-                        external == "True",
+                        token,
                     )
                 else:
                     return redirect(
                         "capture-signature",
-                        contract.id,
                         mhw,
+                        token,
                     )
 
             if external:
-                return redirect("contract-signing", contract.id)
+                return redirect("contract-signature", token)
             return redirect("detail-contract", contract.id)
     else:
         form = HandWritingForm()
@@ -131,51 +149,11 @@ def create_handwriting(request, lease_id, position, external=False):
         "date": position.startswith("date"),
         "contract": contract,
         "form": form,
+        "token": token,
     }
     if external:
-        context["back"] = reverse("contract-signing", args=[contract.id])
+        context["back"] = reverse("contract-signature", args=[token])
     return render(request, "rent/contract/signature.html", context)
-
-
-def get_contract(id):
-    contract = Contract.objects.get(id=id)
-    try:
-        contract.inspection = Inspection.objects.get(lease=contract)
-    except Inspection.DoesNotExist:
-        contract.inspection = None
-    if contract.contract_type == "lto":
-        contract.n_payments = ceil(
-            (contract.total_amount - contract.security_deposit)
-            / contract.payment_amount
-        )
-        contract.contract_end_date = contract.effective_date + timedelta(
-            days=contract.contract_term * 30
-        )
-    else:
-        contract.contract_end_date = contract.effective_date + timedelta(
-            days=contract.contract_term * 30
-        )
-    contract.lessee.data = LesseeData.objects.filter(associated=contract.lessee).last()
-    return contract
-
-
-def prepare_contract_view(id):
-    contract = get_contract(id)
-    signatures = HandWriting.objects.filter(lease=contract)
-    context = {"contract": contract}
-    for sign in signatures:
-        context.setdefault(sign.position, sign)
-    # Inspection tires sumamry
-    tires = Tire.objects.filter(inspection=contract.inspection)
-    # Create a defaultdict to store the count of tires for each remaining life
-    remaining_life_counts = defaultdict(int)
-
-    # Iterate over the tires queryset and count the remaining life for each group
-    for tire in tires:
-        remaining_life_counts[tire.remaining_life] += 1
-
-    context.setdefault("remaining_life_counts", dict(remaining_life_counts))
-    return context
 
 
 @login_required
@@ -186,10 +164,13 @@ def contract_detail(request, id):
 
     phone = context["contract"].lessee.phone_number
 
+    token = get_contract_token(id)
+
     url_base = "{}://{}".format(request.scheme, request.get_host())
-    url = url_base + reverse("contract-signing", args=[id])
+    url = url_base + reverse("contract-signature", args=[token])
     context["url"] = url
     context["phone"] = phone
+    context["token"] = token
 
     sendSMSLesseeContactURL(phone, url)
 
@@ -205,19 +186,6 @@ def contract_detail(request, id):
     context["conditions"] = get_conditions(context)
 
     return render(request, "rent/contract/contract_detail.html", context)
-
-
-def contract_signing(request, id):
-    contract = get_object_or_404(Contract, pk=id)
-    # Cannot edit active contract
-    if contract.stage == "active":
-        return redirect("https://towithouston.com/")
-    context = prepare_contract_view(id)
-    context.setdefault("external", True)
-
-    context["conditions"] = get_conditions(context)
-
-    return render(request, "rent/contract/contract_signing.html", context)
 
 
 @login_required
