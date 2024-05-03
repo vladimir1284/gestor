@@ -11,7 +11,7 @@
                     {% else %}
                         {% if not external %}
                             <a class="date_btn"
-                               href="{% url 'capture-signature' contract.id 'date_daniel' %}">
+                               href="{% url 'capture-signature' 'date_daniel' token %}">
                                 <button type="button" class="btn btn-icon btn-primary">
                                     <span class="tf-icons bx bx-edit"></span>
                                 </button>
@@ -26,14 +26,14 @@
                     {% else %}
                         {% if external %}
                             <a class="date_btn"
-                               href="{% url 'capture-signature' contract.id 'date_lessee' True %}">
+                               href="{% url 'ext-capture-signature' 'date_lessee' token %}">
                                 <button type="button" class="btn btn-icon btn-primary">
                                     <span class="tf-icons bx bx-edit"></span>
                                 </button>
                             </a>
                         {% else %}
                             <a class="date_btn"
-                                href="{% url 'capture-signature' contract.id 'date_lessee' %}">
+                               href="{% url 'capture-signature' 'date_lessee' token %}">
                                 <button type="button" class="btn btn-icon btn-primary">
                                     <span class="tf-icons bx bx-edit"></span>
                                 </button>
@@ -66,14 +66,14 @@
                     {% else %}
                         {% if external %}
                             <a class="signature_btn"
-                               href="{% url 'capture-signature' contract.id 'signature_lessee' True %}">
+                               href="{% url 'ext-capture-signature' 'signature_lessee' token %}">
                                 <button type="button" class="btn btn-icon btn-primary">
                                     <span class="tf-icons bx bx-edit"></span>
                                 </button>
                             </a>
                         {% else %}
                             <a class="signature_btn"
-                                href="{% url 'capture-signature' contract.id 'signature_lessee' %}">
+                               href="{% url 'capture-signature' 'signature_lessee' token %}">
                                 <button type="button" class="btn btn-icon btn-primary">
                                     <span class="tf-icons bx bx-edit"></span>
                                 </button>
