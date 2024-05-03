@@ -2,43 +2,64 @@
 {% block page %}
     <meta charset="utf-8" />
     <style>
-    {% block mark %}    
-      mark { 
-         background-color: yellow;
-         color: black;
-      }
-    {% endblock %}
-     .bottom-three-left-two {
-         margin-left: 3em;
-         margin-top: -4em;
-         z-index:-1;
-     }
-     
-    .date {
-        margin-bottom: 2em;
-        max-width: 300px;
-    }
-     
-	.signature {
-        min-width: 300px;
-        max-width: 300px;
-        z-index:1;
-	}
-     .center {
-	      text-align: center;
-      }
-      p, li {
-	      text-align: justify;
-      }
-      div.break {
-         page-break-before:always;
-      }
-    .left-space {
-        margin-left: 1em;
-        margin-right: 0.5em;
-    }
+        {% block mark %}
+            mark {
+                background-color: yellow;
+                color: black;
+            }
+        {% endblock %}
+        .bottom-three-left-two {
+            margin-left: 3em;
+            margin-top: -4em;
+            z-index:-1;
+        }
+
+        .date {
+            margin-bottom: 2em;
+            max-width: 300px;
+        }
+
+        .signature {
+            min-width: 300px;
+            max-width: 300px;
+            z-index:1;
+        }
+        .center {
+            text-align: center;
+        }
+        p, li {
+            text-align: justify;
+        }
+        div.break {
+            page-break-before:always;
+        }
+        .left-space {
+            margin-left: 1em;
+            margin-right: 0.5em;
+        }
     </style>
 {% endblock page %}
 {% block content %}
+    {% if signature_lessee.img.url and date_lessee.img.url and signature_lessee.img.url != '' and date_lessee.img.url != '' %}
+        <div class="flex justify-end">
+            <form method='post' x-data="{finishFix: false}" class="relative">
+                {% csrf_token %}
+                <button id="complete1"
+                        type="submit"
+                        x-intersect:enter="finishFix = false"
+                        x-intersect:leave="finishFix = true"
+                        class="btn btn-primary absolute right-0 z-30">
+                    Finalizar
+                </button>
+                <button id="complete2"
+                        type="submit"
+                        class="btn btn-primary fixed right-4 bottom-4 z-50"
+                        x-transition.duration.300ms
+                        x-show="finishFix">
+                    Finalizar
+                </button>
+            </form>
+        </div>
+    {% endif %}
     {% include "./contract_content.html" %}
 {% endblock content %}
