@@ -27,9 +27,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import UpdateView
 
-from rent.forms.trailer_deposit import TrailerDeposit
-from rent.tools.get_conditions import get_conditions
-
+from rent.forms.hand_writing import HandWritingForm
 from rent.forms.lease import AssociatedCreateForm
 from rent.forms.lease import ContractForm
 from rent.forms.lease import DueForm
@@ -40,6 +38,8 @@ from rent.forms.lease import LeaseUpdateForm
 from rent.forms.lease import LesseeDataForm
 from rent.forms.lease import SecurityDepositDevolutionForm
 from rent.forms.lease import TireFormSet
+from rent.forms.lessee_contact import LesseeContactForm
+from rent.forms.trailer_deposit import TrailerDeposit
 from rent.models.lease import Contract
 from rent.models.lease import Due
 from rent.models.lease import HandWriting
@@ -52,13 +52,11 @@ from rent.models.lease import Payment
 from rent.models.lease import SecurityDepositDevolution
 from rent.models.lease import Tire
 from rent.models.vehicle import Trailer
-from rent.views.vehicle import FILES_ICONS
-from rent.forms.hand_writing import HandWritingForm
-from rent.forms.lessee_contact import LesseeContactForm
-from rent.forms.trailer_deposit import TrailerDeposit
 from rent.permissions import staff_required
+from rent.tools.get_conditions import get_conditions
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
+from rent.views.vehicle import FILES_ICONS
 from users.models import Associated
 from users.views import addStateCity
 
@@ -187,6 +185,8 @@ def contract_signing(request, id):
         return redirect("https://towithouston.com/")
     context = prepare_contract_view(id)
     context.setdefault("external", True)
+
+    context["conditions"] = get_conditions(context)
 
     return render(request, "rent/contract/contract_signing.html", context)
 
