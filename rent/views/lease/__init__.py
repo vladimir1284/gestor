@@ -366,7 +366,20 @@ def update_contract_stage(request, id, stage):
     contract.user = request.user
     contract.stage = stage
     if stage == "active":
-        if not HandWriting.objects.filter(lease=contract).exists():
+        if (
+            not HandWriting.objects.filter(
+                lease=contract,
+                position="signature_lessee",
+            ).exists()
+            or not HandWriting.objects.filter(
+                lease=contract,
+                position="date_lessee",
+            ).exists()
+            or not HandWriting.objects.filter(
+                lease=contract,
+                position="date_daniel",
+            ).exists()
+        ):
             return redirect("detail-contract", id)
         Lease.objects.create(
             contract=contract,
