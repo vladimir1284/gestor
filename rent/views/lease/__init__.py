@@ -54,6 +54,7 @@ from rent.models.lease import Tire
 from rent.models.vehicle import Trailer
 from rent.permissions import staff_required
 from rent.tools.get_conditions import get_conditions
+from rent.tools.get_missing_handwriting import get_missing_handwriting
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
 from rent.views.vehicle import FILES_ICONS
@@ -94,6 +95,19 @@ def create_handwriting(request, lease_id, position, external=False):
                     form.instance.img.save(name, temp_file, True)
 
             handwriting.save()
+
+            # Get missing hand writings
+            missing_hws = get_missing_handwriting(contract)
+            mhw = None
+
+            # Get the first valid to change
+            while len(missing_hws) > 0 and (mhw is None or mhw == "date_daniel"):
+                mhw = missing_hws.pop(0)
+
+            # if exists capture
+            if mhw is not None and mhw != "date_daniel":
+                return redirect("capture-signature", contract.id, mhw, external)
+
             if external:
                 return redirect("contract-signing", contract.id)
             return redirect("detail-contract", contract.id)
@@ -369,20 +383,8 @@ def update_contract_stage(request, id, stage):
     contract.user = request.user
     contract.stage = stage
     if stage == "active":
-        if (
-            not HandWriting.objects.filter(
-                lease=contract,
-                position="signature_lessee",
-            ).exists()
-            or not HandWriting.objects.filter(
-                lease=contract,
-                position="date_lessee",
-            ).exists()
-            or not HandWriting.objects.filter(
-                lease=contract,
-                position="date_daniel",
-            ).exists()
-        ):
+        missing_handws = get_missing_handwriting(contract)
+        if len(missing_handws) > 0:
             return redirect("detail-contract", id)
         Lease.objects.create(
             contract=contract,
