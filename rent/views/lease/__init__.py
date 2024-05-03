@@ -102,9 +102,12 @@ def create_handwriting(request, lease_id, position, external=False):
 
     context = {
         "position": position,
+        "date": position.startswith("date"),
         "contract": contract,
         "form": form,
     }
+    if external:
+        context["back"] = reverse("contract-signing", args=[contract.id])
     return render(request, "rent/contract/signature.html", context)
 
 
