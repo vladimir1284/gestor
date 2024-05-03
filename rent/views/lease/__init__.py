@@ -106,7 +106,19 @@ def create_handwriting(request, lease_id, position, external=False):
 
             # if exists capture
             if mhw is not None and mhw != "date_daniel":
-                return redirect("capture-signature", contract.id, mhw, external)
+                if external:
+                    return redirect(
+                        "capture-signature",
+                        contract.id,
+                        mhw,
+                        external == "True",
+                    )
+                else:
+                    return redirect(
+                        "capture-signature",
+                        contract.id,
+                        mhw,
+                    )
 
             if external:
                 return redirect("contract-signing", contract.id)
