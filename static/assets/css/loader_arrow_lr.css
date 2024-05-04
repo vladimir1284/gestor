@@ -1,0 +1,31 @@
+.loader {
+  width: 20px;
+  height: 15px;
+  background: #08f;
+  margin-left: 15px;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: bump 0.4s linear infinite alternate;
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 20px);
+}
+.loader::after {
+  content: "";
+  box-sizing: border-box;
+  top: 50%;
+  left: 100%;
+  transform: translate(0, -50%);
+  position: absolute;
+  border: 15px solid transparent;
+  border-left-color: #08f;
+}
+
+@keyframes bump {
+  0% {
+    transform: translate(5px, -50%);
+  }
+  100% {
+    transform: translate(-5px, -50%);
+  }
+}
