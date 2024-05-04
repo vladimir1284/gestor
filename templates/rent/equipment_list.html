@@ -7,7 +7,8 @@
     <div class="flex items-center flex-wrap">
         <h5 class="card-header">Trailers</h5>
         <span id="filter_tag" class="hidden"></span>
-        <button onClick="filterTag('all')"
+        <!-- <button onClick="filterTag('all')" -->
+        <button @click="tag = ''"
                 type="button"
                 class="btn rounded-pill btn-primary relative pr-2">
             All
@@ -15,9 +16,14 @@
         </button>
         {% for filt, count in active_filters.items %}
             {% if count > 0 %}
-                <button onClick="filterTag('{{ filt }}')"
+                <!-- <button onClick="filterTag('{{ filt }}')" -->
+                <button @click="tag = '{{ filt }}'"
                         type="button"
-                        class="relative pr-2 btn rounded-pill btn-outline-{% if filt == 'Available' %}success{% elif filt == 'Reserved' %}info{% elif filt == 'Rented' %}warning{% elif filt == 'LTO' %}danger{% else %}primary{% endif %}">
+                        :class="{
+                                'btn-{% if filt == 'Available' %}success{% elif filt == 'Reserved' %}info{% elif filt == 'Rented' %}warning{% elif filt == 'LTO' %}danger{% else %}primary{% endif %}': tag == '{{filt}}',
+                                'btn-outline-{% if filt == 'Available' %}success{% elif filt == 'Reserved' %}info{% elif filt == 'Rented' %}warning{% elif filt == 'LTO' %}danger{% else %}primary{% endif %}': tag != '{{filt}}',
+                                }"
+                        class="relative pr-2 btn rounded-pill ">
                     {{ filt }}
                     <span class="badge rounded-pill bg-danger m-0">{{ count }}</span>
                 </button>
@@ -36,8 +42,12 @@
 {% endblock Theader %}
 {% block Tbody %}
     {% for equipment in trailers %}
-        <tr data-search="{{ equipment.vin }}{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}"
-            data-tag="{{ equipment.filter }}">
+        <!-- <tr data-search="{{ equipment.vin }}{{ equipment.year }}{{ equipment.model }}{{ equipment.manufacturer }}" -->
+        <!--     data-tag="{{ equipment.filter }}"> -->
+        <tr x-show="
+                    (tag == '' || tag == '{{equipment.filter}}') &&
+                    match('{{ equipment.vin }} {{ equipment.year }} {{ equipment.model }} {{ equipment.manufacturer }}', $store.search.search)
+                   ">
             <td>
                 <a href={% url 'detail-trailer' equipment.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
