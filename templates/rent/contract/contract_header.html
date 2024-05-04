@@ -92,9 +92,46 @@
         {% elif signature_lessee.img.url and date_daniel.img.url and date_lessee.img.url and signature_lessee.img.url != '' and date_daniel.img.url != '' and date_lessee.img.url != '' %}
             <button onClick="validateContract('{% url 'update-contract-stage' contract.id 'active' %}')"
                     id="submit-id-submit"
-                    class="btn btn-outline-primary">
+                    class="btn btn-outline-primary relative">
                 <span class="tf-icons bx bx-check"></span>
                 Activate contract
+                {%if contract.client_complete%}
+                    <style>
+                        .loader {
+                            width: 15px;
+                            height: 20px;
+                            background: #08f;
+                            margin-left: 15px;
+                            margin-top: 15px;
+                            display: inline-block;
+                            box-sizing: border-box;
+                            animation: bump 0.4s linear infinite alternate;
+                            position: absolute;
+                            bottom: -100%;
+                            left: 50%;
+                        }
+                        .loader::after {
+                            content: '';
+                            box-sizing: border-box;
+                            left: 50%;
+                            bottom: 100%;
+                            transform: translate(-50%, 0);
+                            position: absolute;
+                            border: 15px solid transparent;
+                            border-bottom-color: #08f;
+                        }
+
+                        @keyframes bump {
+                            0% {
+                                transform: translate(-50%, 5px);
+                            }
+                            100% {
+                                transform: translate(-50%, -5px);
+                            }
+                        }
+                    </style>
+                    <span class="loader"></span>
+                {%endif%}
             </button>
         {%else%}
             <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#unsignedModal">
@@ -115,6 +152,28 @@
                     </div>
                 </div>
             </div>
+
+            <form id="reloadForm" method='GET'></form>
+            {%if date_daniel.img.url and date_daniel.img.url != '' %}
+                <script>
+                    const URL = "{%url 'contract-cli-completed' contract.id%}"
+                    const next = document.getElementById('reloadForm')
+
+                    async function getState() {
+                        const response = await fetch(URL)
+                        try {
+                            const json = await response.json()
+                            if (json.completed) {
+                                next.submit()
+                            }
+                        } catch (err) {
+                            console.error(err)
+                        }
+                    }
+
+                    setInterval(getState, 5000)
+                </script>
+            {%endif%}
         {%endif%}
         {% if contract.stage == 'ended' %}
             <a href="{% url 'adjust-deposit' contract.id %}"

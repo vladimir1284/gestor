@@ -359,9 +359,10 @@ def update_due(request, id):
 @staff_required
 @transaction.atomic
 def update_contract_stage(request, id, stage):
-    contract = get_object_or_404(Contract, id=id)
+    contract: Contract = get_object_or_404(Contract, id=id)
     contract.user = request.user
     contract.stage = stage
+    contract.client_complete = False
     if stage == "active":
         missing_handws = get_missing_handwriting(contract)
         if len(missing_handws) > 0:
@@ -556,7 +557,8 @@ def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
             lease.lessee = lessee
             lease.trailer = trailer
             lease.save()
-            return redirect("create-inspection", lease_id=lease.id)
+            return redirect("detail-contract", lease.id)
+            # return redirect("create-inspection", lease_id=lease.id)
     elif deposit_id is not None:
         deposit: TrailerDeposit = get_object_or_404(TrailerDeposit, pk=deposit_id)
         form = ContractForm(
