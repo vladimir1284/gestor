@@ -96,40 +96,7 @@
                 <span class="tf-icons bx bx-check"></span>
                 Activate contract
                 {%if contract.client_complete%}
-                    <style>
-                        .loader {
-                            width: 15px;
-                            height: 20px;
-                            background: #08f;
-                            margin-left: 15px;
-                            margin-top: 15px;
-                            display: inline-block;
-                            box-sizing: border-box;
-                            animation: bump 0.4s linear infinite alternate;
-                            position: absolute;
-                            bottom: -100%;
-                            left: 50%;
-                        }
-                        .loader::after {
-                            content: '';
-                            box-sizing: border-box;
-                            left: 50%;
-                            bottom: 100%;
-                            transform: translate(-50%, 0);
-                            position: absolute;
-                            border: 15px solid transparent;
-                            border-bottom-color: #08f;
-                        }
-
-                        @keyframes bump {
-                            0% {
-                                transform: translate(-50%, 5px);
-                            }
-                            100% {
-                                transform: translate(-50%, -5px);
-                            }
-                        }
-                    </style>
+                    <link rel='stylesheet' href='{% static "assets/css/loader_arrow_lr.css" %}'>
                     <span class="loader"></span>
                 {%endif%}
             </button>
