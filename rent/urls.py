@@ -25,6 +25,7 @@ from rent.views.deposit import trailer_deposit_details
 from rent.views.deposit import trailer_deposit_pdf
 from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
+from rent.views.lease.contract_signing import is_contract_cli_complete
 from rent.views.lease.update_data_on_contract import update_data_on_contract
 
 try:
@@ -168,6 +169,11 @@ urlpatterns = [
         "create_contract/<int:lessee_id>/<int:trailer_id>/<int:deposit_id>",
         lease.contract_create_view,
         name="create-contract",
+    ),
+    path(
+        "contract-cli-completed/<int:id>",
+        is_contract_cli_complete,
+        name="contract-cli-completed",
     ),
     path(
         "contract/<int:id>",

@@ -359,9 +359,10 @@ def update_due(request, id):
 @staff_required
 @transaction.atomic
 def update_contract_stage(request, id, stage):
-    contract = get_object_or_404(Contract, id=id)
+    contract: Contract = get_object_or_404(Contract, id=id)
     contract.user = request.user
     contract.stage = stage
+    contract.client_complete = False
     if stage == "active":
         missing_handws = get_missing_handwriting(contract)
         if len(missing_handws) > 0:
