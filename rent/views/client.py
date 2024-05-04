@@ -89,15 +89,13 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
                     event=None,
                 )
             client.lease = lease
-            client.debt, last_payment, client.unpaid_dues = compute_client_debt(
-                lease)
+            client.debt, last_payment, client.unpaid_dues = compute_client_debt(lease)
             if client.debt > 0:
                 # Discount remaining from debt
                 client.debt -= lease.remaining
                 client.last_payment = client.unpaid_dues[0].start
                 rental_debt += client.debt
-                client.overdue_days = (
-                    timezone.now() - client.last_payment).days
+                client.overdue_days = (timezone.now() - client.last_payment).days
             else:
                 client.last_payment = timezone.now()
             payment_dates[client.id] = client.last_payment
@@ -108,8 +106,7 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
     sorted_clients = clients
     # Sorted by most overdue first
     if order_by == "date":
-        sorted_clients = sorted(
-            clients, key=lambda client: payment_dates[client.id])
+        sorted_clients = sorted(clients, key=lambda client: payment_dates[client.id])
     # Sorted by most debt amount first
     if order_by == "amount":
         sorted_clients = sorted(
@@ -156,10 +153,10 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 lease=lease,
             )
             # Send invoice by email
-            mail_send_invoice(request, lease.id,
-                              due_date.strftime("%m%d%Y"), "true")
+            mail_send_invoice(request, lease.id, due_date.strftime("%m%d%Y"), "true")
     # Pay dues in the future
-    if amount >= lease.payment_amount:
+    # If lease payment_amount is 0 will create an infinite loop
+    if amount >= lease.payment_amount and lease.payment_amount > 0:
         start_time = timezone.now()
         if due is not None:
             start_time = timezone.make_aware(
@@ -167,8 +164,10 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 pytz.timezone(settings.TIME_ZONE),
             ) + timedelta(days=1)
         occurrences = (
-            [] if lease.event is None else lease.event.occurrences_after(
-                start_time)
+            []
+            if lease.event is None
+            # else lease.event.get_occurrences(start_time, timezone.now())
+            else lease.event.occurrences_after(start_time)
         )
         for occurrence in occurrences:
             amount -= lease.payment_amount
@@ -180,8 +179,7 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 lease=lease,
             )
             # Send invoice by email
-            mail_send_invoice(request, lease.id,
-                              due_date.strftime("%m%d%Y"), "true")
+            mail_send_invoice(request, lease.id, due_date.strftime("%m%d%Y"), "true")
             if amount < lease.payment_amount:
                 break
 
@@ -229,19 +227,17 @@ def client_detail(request, id):
     client = get_object_or_404(Associated, id=id)
     client.contract = Contract.objects.filter(stage="active").last()
     client.data = LesseeData.objects.filter(associated=client).last()
-    leases = Lease.objects.filter(
-        contract__lessee=client, contract__stage="active")
+    leases = Lease.objects.filter(contract__lessee=client, contract__stage="active")
 
     dues = None
     for lease in leases:
         # Debt associated with this lease
         base_process_payment(request, lease)
+
         lease.debt, last_date, lease.unpaid_dues = compute_client_debt(lease)
         # Payments for thi lease
-        payments = Payment.objects.filter(
-            lease=lease).order_by("-date_of_payment")
-        lease.total_payment = payments.aggregate(
-            sum_amount=Sum("amount"))["sum_amount"]
+        payments = Payment.objects.filter(lease=lease).order_by("-date_of_payment")
+        lease.total_payment = payments.aggregate(sum_amount=Sum("amount"))["sum_amount"]
         for i, payment in enumerate(reversed(payments)):
             # Dues paid by this lease
             dues = Due.objects.filter(
@@ -259,8 +255,9 @@ def client_detail(request, id):
             lease.paid, done = lease.contract.paid()
             lease.debt = lease.contract.total_amount - lease.paid
         else:
-            lease.paid_dues = Due.objects.filter(
-                lease=lease).order_by("-due_date")
+            lease.paid_dues = Due.objects.filter(lease=lease, amount__gt=0).order_by(
+                "-due_date"
+            )
             lease.paid = lease.paid_dues.aggregate(sum_amount=Sum("amount"))[
                 "sum_amount"
             ]
@@ -272,15 +269,13 @@ def client_detail(request, id):
 
         for note in lease.notes:
             if note.file:
-                note.icon = "assets/img/icons/" + \
-                    FILES_ICONS[note.document_type]
+                note.icon = "assets/img/icons/" + FILES_ICONS[note.document_type]
 
         # Documents
         lease.documents = LeaseDocument.objects.filter(lease=lease)
         # Check for document expiration
         for document in lease.documents:
-            document.icon = "assets/img/icons/" + \
-                FILES_ICONS[document.document_type]
+            document.icon = "assets/img/icons/" + FILES_ICONS[document.document_type]
 
         # Deposits
         lease.total_deposit = 0
@@ -297,6 +292,7 @@ def client_detail(request, id):
                 lease.contract.toll_totalpaid += toll.amount
             else:
                 lease.contract.toll_totalunpaid += toll.amount
+    print("Completed @@@@")
 
     context = {"client": client, "leases": leases, "dues": dues}
 

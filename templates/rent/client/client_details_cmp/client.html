@@ -1,0 +1,19 @@
+{%load static%}
+<div class="col-md-6">{% include "users/associated_line.html" with associated=client %}</div>
+<div class="col-md-6">
+    <h5>Emergency contact:</h5>
+    <div class="d-flex pb-1">
+        <a class="btn btn-icon btn-outline-primary me-3"
+           type
+           None="button"
+           href="tel:{{ client.data.contact_phone }}">
+            <span class="tf-icons bx bx-phone-call"></span>
+        </a>
+        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+            <div class="me-2  associated-data">
+                <h6 class="mb-0">{{ client.data.contact_name }}</h6>
+                <small class="text-muted">{{ client.data.contact_phone }}</small>
+            </div>
+        </div>
+    </div>
+</div>
