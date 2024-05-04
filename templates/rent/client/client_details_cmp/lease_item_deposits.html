@@ -1,0 +1,22 @@
+{%load static%}
+
+<div class="card-header">
+    <strong>Deposits (${{ lease.total_deposit|floatformat:"0" }}/${{ lease.contract.security_deposit|floatformat:"0" }}):</strong>
+    <a class="btn btn-icon btn-outline-primary ms-3"
+       type="button"
+       href="{% url 'lease-deposit-create' lease.id %}">
+        <span class="tf-icons bx bx-plus"></span>
+    </a>
+    <ul class="pt-2">
+        {% for deposit in lease.deposits %}
+            <li>
+                <i class="tf-icons bx bx-calendar"></i>{{ deposit.date|date:"m/d/Y" }} - <strong>${{ deposit.amount|floatformat:"0" }}</strong>
+                <a class="btn btn-icon btn-outline-primary ms-3"
+                   type="button"
+                   onclick="deleteDeposit('{{ deposit.amount }}', {{ deposit.id }})">
+                    <span class="tf-icons bx bx-trash text-danger"></span>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
