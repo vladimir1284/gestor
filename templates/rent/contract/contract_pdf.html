@@ -4,53 +4,54 @@
     <link rel="stylesheet" href="{% static 'libs/ckeditor/ckeditor.css' %}" />
     <link rel="stylesheet" href="{% static 'libs/ckeditor/ckeditor.css' %}" />
     <link rel="stylesheet" href="{% static 'assets/css/editor.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
     <style>
-    @page {
-        @bottom-center{
-            content: "Page " counter(page) " of " counter(pages);
+        @page {
+            @bottom-center{
+                content: "Page " counter(page) " of " counter(pages);
+            }
+            @bottom-right {
+                content: "Lessee's Initials: {{lessee_initials}}";
+            }
+            @bottom-left {
+                content: "Lessor's Initials: DHD";
+            }
         }
-        @bottom-right {
-            content: "Lessee's Initials: {{lessee_initials}}";
+        .bottom-three-left-two {
+            margin-left: 3em;
+            margin-bottom: 2cm;
+            margin-top: 0em;
         }
-        @bottom-left {
-            content: "Lessor's Initials: DHD";
+        .date {
+            margin-bottom: -3em;
+            margin-left: 0em;
+            min-width: 250px;
+            max-width: 250px;
         }
-    }
-     .bottom-three-left-two {
-         margin-left: 3em;
-        margin-bottom: 2cm;
-        margin-top: 0em;
-     }
-   .date {
-         margin-bottom: -3em;
-         margin-left: 0em;
-         min-width: 250px;
-         max-width: 250px;
-     }
-	.signature {
-       position: relative;
-       z-index: 1;
-	    margin-bottom: -3em;
-	    margin-left: 0em;
-       min-width: 250px;
-       max-width: 250px;
-	}
-     .bottom-three {	
-        margin-bottom: 2cm;
-     }
-     .center {
-	      text-align: center;
-      }
-      p, li {
-	      text-align: justify;
-      }
-      mark { 
-         background-color: white;
-         color: black;
-      }
-      div.break {
-         page-break-before:always;
-      }
+        .signature {
+            position: relative;
+            z-index: 1;
+            margin-bottom: -3em;
+            margin-left: 0em;
+            min-width: 250px;
+            max-width: 250px;
+        }
+        .bottom-three {
+            margin-bottom: 2cm;
+        }
+        .center {
+            text-align: center;
+        }
+        p, li {
+            text-align: justify;
+        }
+        mark {
+            background-color: white;
+            color: black;
+        }
+        div.break {
+            page-break-before:always;
+        }
     </style>
 </head>
 {% include "./contract_content.html" %}
