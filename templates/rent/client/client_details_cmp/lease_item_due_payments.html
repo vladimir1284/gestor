@@ -1,0 +1,110 @@
+{%load static%}
+{% load debug %}
+<div class="row">
+    <div class="col-md-4">
+        <strong>Due payments: $
+            {% if lease.debt %}
+                {{ lease.debt|floatformat:"0" }}
+            {% else %}
+                0.00
+            {% endif %}
+        </strong>
+        <div class="table-container">
+            <table class="table">
+                <tbody>
+                    {% for due in lease.unpaid_dues %}
+                        <tr>
+                            <td>
+                                {% if forloop.first %}
+                                    <a href={% url 'create-due' lease.id due.start|date:"mdY" %}>
+                                        <i class="tf-icons bx bx-calendar text-danger"></i></a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'rental-invoice' lease.id due.start|date:"mdY" 'false' %}">{{ due.start|date:"m/d/Y" }}</a>
+                            </td>
+                            <td>
+                                <strong>${{ lease.payment_amount|floatformat:"0" }}</strong>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <strong>Payment history: $
+            {% if lease.total_payment %}
+                {{ lease.total_payment|floatformat:"0" }}
+            {% else %}
+                0.00
+            {% endif %}
+        </strong>
+        <div class="table-container">
+            <table class="table">
+                <tbody>
+                    {% for payment in lease.payments %}
+                        <tr>
+                            <td>
+                                <a href={% url 'detail-payment' payment.id %}>{{ payment.date_of_payment|date:"m/d/Y" }}</a>
+                            </td>
+                            <td>
+                                <strong>${{ payment.amount|floatformat:"0" }}</strong>
+                            </td>
+                            <td>
+                                {% if forloop.first %}
+                                    <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
+                                        <span class="tf-icons bx bx-trash text-danger"></span>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr style='border-top-style:hidden;'>
+                            <td>
+                                {% if payment.user %}
+                                    <div class="avatar avatar-online">
+                                        {% if payment.user.profile_user.avatar %}
+                                            <img src="{{ payment.user.profile_user.avatar.url }}"
+                                                 alt=""
+                                                 class="w-px-40 rounded-circle" />
+                                        {% else %}
+                                            <span style="font-size:1.5em"
+                                                  class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                                {{ payment.user.first_name|first }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td colspan='2'>
+                                <span>   <strong>{{ payment.date|timesince }}</strong> ago</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <strong>Invoices: $
+            {% if lease.paid %}
+                {{ lease.paid|floatformat:"0" }}
+            {% else %}
+                0.00
+            {% endif %}
+        </strong>
+        <div class="table-container">
+            <table class="table">
+                <tbody>
+                    {%msg 'invoices'%}
+                    {% for due in lease.paid_dues %}
+                        {%msg 'due' due%}
+                        {% include "../due_line.html" %}
+                        {%msg 'end due'%}
+                    {% endfor %}
+                    {%msg 'completed'%}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
