@@ -115,30 +115,23 @@ def create_handwriting(request, token, position, external=False):
 
             handwriting.save()
 
-            # Get missing hand writings
-            missing_hws = get_missing_handwriting(contract)
-            mhw = None
+            if external:
+                # Get missing hand writings
+                missing_hws = get_missing_handwriting(contract)
+                mhw = None
 
-            # Get the first valid to change
-            while len(missing_hws) > 0 and (mhw is None or mhw == "date_daniel"):
-                mhw = missing_hws.pop(0)
+                # Get the first valid to change
+                while len(missing_hws) > 0 and (mhw is None or mhw == "date_daniel"):
+                    mhw = missing_hws.pop(0)
 
-            # if exists capture
-            if mhw is not None and mhw != "date_daniel":
-                if external:
+                # if exists capture
+                if mhw is not None and mhw != "date_daniel":
                     return redirect(
                         "ext-capture-signature",
                         mhw,
                         token,
                     )
-                else:
-                    return redirect(
-                        "capture-signature",
-                        mhw,
-                        token,
-                    )
 
-            if external:
                 return redirect("contract-signature", token)
             return redirect("detail-contract", contract.id)
     else:
