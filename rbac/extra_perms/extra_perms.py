@@ -18,13 +18,23 @@ EXTRA_PERMS = [
         name="Descuentos en ordenes",
     ),
     PermissionParam(
+        code="rental_debts_total",
+        app="extra_perm",
+        name="Mostrar el valor total de la deuda de alquiler",
+    ),
+    PermissionParam(
         code="inventary_product_cost",
         app="extra_perm",
         name="Costos de productos en inventario",
     ),
     PermissionParam(
-        code="rental_debts_total",
+        code="costs_access",
         app="extra_perm",
-        name="Mostrar el valor total de la deuda de alquiler",
+        name="Acceso a costos",
+    ),
+    PermissionParam(
+        code="costs_edit",
+        app="extra_perm",
+        name="Modificación de costos",
     ),
 ]

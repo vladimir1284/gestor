@@ -1,5 +1,3 @@
-from django.core.validators import MaxValueValidator
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.functions.datetime import datetime
 from django.dispatch import receiver
@@ -13,6 +11,7 @@ from services.tools.storage_reazon import getStorageReazons
 from users.models import Associated
 from users.models import Company
 from users.models import User
+from utils.tools.pos_tools import getPosValidator
 
 
 def thumbnailField(image_field: models.ImageField, icon_size: int):
@@ -52,8 +51,7 @@ class Category(models.Model):
         ("#03c3ec", "blue"),
         ("#233446", "black"),
     )
-    chartColor = models.CharField(
-        max_length=7, default="#8592a3", choices=COLOR_CHOICE)
+    chartColor = models.CharField(max_length=7, default="#8592a3", choices=COLOR_CHOICE)
 
     ICON_SIZE = 64
     icon = models.ImageField(upload_to="images/icons", blank=True)
@@ -80,16 +78,14 @@ class Order(models.Model):
         ("sell", _("Sell")),
         ("purchase", _("Purchase")),
     )
-    type = models.CharField(
-        max_length=20, choices=TYPE_CHOICE, default="purchase")
-    status = models.CharField(
-        max_length=20, choices=STATUS_CHOICE, default="pending")
+    type = models.CharField(max_length=20, choices=TYPE_CHOICE, default="purchase")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICE, default="pending")
     concept = models.CharField(max_length=120, default="Initial")
     note = models.TextField(blank=True)
     position = models.IntegerField(
         blank=True,
         null=True,
-        validators=[MinValueValidator(0), MaxValueValidator(8)],
+        validators=getPosValidator(),
     )
     position_date = models.DateTimeField(null=True)
     invoice_data = models.TextField(blank=True)
@@ -137,6 +133,7 @@ class Order(models.Model):
 
     discount = models.FloatField(default=0)
     quotation = models.BooleanField(default=False)
+    parts_sale = models.BooleanField(default=False)
     invoice_sended = models.BooleanField(default=False)
     is_initial = False
     storage_reason = models.CharField(
@@ -194,6 +191,9 @@ def on_create(sender, instance, created, **kwargs):
 def on_field_change(sender, instance, **kwargs):
     old_order = Order.objects.filter(id=instance.id).last()
     if old_order is None:
+        if instance.trailer is not None:
+            instance.trailer.update_active_order_pos(instance)
+
         return
 
     if old_order.position != instance.position:
@@ -224,6 +224,11 @@ def on_field_change(sender, instance, **kwargs):
             reason=instance.storage_reason,
         )
         trace.save()
+
+    if instance.trailer is not None:
+        instance.trailer.update_active_order_pos(instance, force=True)
+        if instance.status in ["complete", "decline"]:
+            instance.position = None
 
 
 class OrderDeclineReazon(models.Model):

@@ -307,6 +307,10 @@
   height: 0.25rem;
 }
 
+.h-6 {
+  height: 1.5rem;
+}
+
 .h-72 {
   height: 18rem;
 }
@@ -321,6 +325,10 @@
 
 .w-3 {
   width: 0.75rem;
+}
+
+.w-6 {
+  width: 1.5rem;
 }
 
 .w-8 {
@@ -458,6 +466,11 @@
   background-color: rgb(0 0 0 / var(--tw-bg-opacity));
 }
 
+.bg-main {
+  --tw-bg-opacity: 1;
+  background-color: rgb(105 108 255 / var(--tw-bg-opacity));
+}
+
 .bg-mainBG {
   background-color: rgba(105, 108, 255, 0.16);
 }
@@ -519,21 +532,6 @@
   padding-bottom: 0.5rem;
 }
 
-.px-1 {
-  padding-left: 0.25rem;
-  padding-right: 0.25rem;
-}
-
-.py-0 {
-  padding-top: 0px;
-  padding-bottom: 0px;
-}
-
-.px-2 {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
 .pb-0 {
   padding-bottom: 0px;
 }
@@ -574,6 +572,10 @@
   padding-left: 0px;
 }
 
+.pr-2 {
+  padding-right: 0.5rem;
+}
+
 .ps-0 {
   padding-inline-start: 0px;
 }
@@ -606,10 +608,6 @@
   padding-top: 1.25rem;
 }
 
-.pr-2 {
-  padding-right: 0.5rem;
-}
-
 .text-left {
   text-align: left;
 }
@@ -636,9 +634,9 @@
   line-height: 1;
 }
 
-.text-sm {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .uppercase {
@@ -756,6 +754,12 @@
 
 .collapse {
   visibility: unset;
+}
+
+.match {
+  font-weight: 700;
+  --tw-text-opacity: 1;
+  color: rgb(105 108 255 / var(--tw-text-opacity));
 }
 
 .hover\:right-\[-0\.5rem\]:hover {

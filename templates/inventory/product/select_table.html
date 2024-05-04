@@ -1,3 +1,4 @@
+{%load static%}
 <thead>
     <tr>
         <th>
@@ -6,19 +7,28 @@
         <th>Name</th>
         <th>Available</th>
         <th>Unit</th>
-        {% if type == 'part' %}<th>Price</th>{% endif %}
+        {% if type == 'part' %}
+            <th>Price</th>
+        {% endif %}
         <th>Cost</th>
     </tr>
 </thead>
 <tbody class="table-border-bottom-0">
     {% for product in products %}
         {% if product.type == type %}
-            <tr data-tag="{{ product.category }}" data-search="{{ product.name }}">
+            <tr data-tag="{{ product.category }}"
+                x-show='match("{{product.name|escapejs}}", $store.search.search) || match("{{product.description|escapejs}}", $store.search.search)'
+            >
                 <td>
-                    <a href={% url 'create-transaction' order_id product.id %}><i class="bx bx-plus"></i></a>
+                    <a href="{% url 'create-transaction' order_id product.id %}"><i class="bx bx-plus"></i></a>
                 </td>
                 <td class="pl-0">
-                    <strong>{{ product.name }}</strong>
+                    <strong x-html='highlightMatch("{{product.name|escapejs}}", $store.search.search)'>{{ product.name }}</strong>
+                    <div class="text-xs italic"
+                         x-show='$store.search.search != "" && match("{{product.description|escapejs}}", $store.search.search)'
+                         x-html='highlightMatch("{{product.description|escapejs}}", $store.search.search)'
+                    >
+                    </div>
                 </td>
                 <td>
                     {% if product.quantity_min > 0 and product.available < product.quantity_min %}
@@ -27,8 +37,12 @@
                         {{ product.available|floatformat:"-2" }}
                     {% endif %}
                 </td>
-                <td>{{ product.unit }}</td>
-                {% if type == 'part' %}<td>${{ product.sell_price|floatformat:"-2" }}</td>{% endif %}
+                <td>
+                    {{ product.unit }}
+                </td>
+                {% if type == 'part' %}
+                    <td>${{ product.sell_price|floatformat:"-2" }}</td>
+                {% endif %}
                 <td>${{ product.average_cost|floatformat:"-2" }}</td>
             </tr>
         {% endif %}
