@@ -1,6 +1,4 @@
 {%load static%}
-{%load debug%}
-{%msg 'item'%}
 <div class="tab-pane fade {% if forloop.first %}active show{% endif %}"
      id="navs-pills-justified-{{ lease.id }}"
      role="tabpanel">
@@ -107,21 +105,16 @@
         </div>
     </div>
     <!-- Due Payments -->
-    {%msg 'due payments'%}
     <hr class="mt-0" />
     {% include "./lease_item_due_payments.html" %}
     <!-- Tolls -->
-    {%msg 'tolls'%}
     <hr class="mt-0" />
     {% include "./lease_item_tolls.html" %}
     <!-- Documents -->
-    {%msg 'docs'%}
     <hr class="mt-0" />
     {% include "./lease_item_documents.html" %}
     <!-- Deposits -->
-    {%msg 'deps'%}
     <hr class="mt-0" />
     {% include "./lease_item_deposits.html" %}
 </div>
 
-{%msg 'item_completed'%}
