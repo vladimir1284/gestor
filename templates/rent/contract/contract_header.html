@@ -154,25 +154,26 @@
             </div>
 
             <form id="reloadForm" method='GET'></form>
+            {%if date_daniel.img.url and date_daniel.img.url != '' %}
+                <script>
+                    const URL = "{%url 'contract-cli-completed' contract.id%}"
+                    const next = document.getElementById('reloadForm')
 
-            <script>
-                const URL = "{%url 'contract-cli-completed' contract.id%}"
-                const next = document.getElementById('reloadForm')
-
-                async function getState() {
-                    const response = await fetch(URL)
-                    try {
-                        const json = await response.json()
-                        if (json.completed) {
-                            next.submit()
+                    async function getState() {
+                        const response = await fetch(URL)
+                        try {
+                            const json = await response.json()
+                            if (json.completed) {
+                                next.submit()
+                            }
+                        } catch (err) {
+                            console.error(err)
                         }
-                    } catch (err) {
-                        console.error(err)
                     }
-                }
 
-                setInterval(getState, 5000)
-            </script>
+                    setInterval(getState, 5000)
+                </script>
+            {%endif%}
         {%endif%}
         {% if contract.stage == 'ended' %}
             <a href="{% url 'adjust-deposit' contract.id %}"
