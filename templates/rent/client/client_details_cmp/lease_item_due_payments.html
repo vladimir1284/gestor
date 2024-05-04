@@ -96,13 +96,9 @@
         <div class="table-container">
             <table class="table">
                 <tbody>
-                    {%msg 'invoices'%}
                     {% for due in lease.paid_dues %}
-                        {%msg 'due' due%}
                         {% include "../due_line.html" %}
-                        {%msg 'end due'%}
                     {% endfor %}
-                    {%msg 'completed'%}
                 </tbody>
             </table>
         </div>
