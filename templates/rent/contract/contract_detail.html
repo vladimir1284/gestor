@@ -14,14 +14,11 @@
             z-index:-1;
         }
 
-        .date {
-            margin-bottom: 2em;
-            max-width: 300px;
-        }
-
+        .date,
         .signature {
-            min-width: 300px;
-            max-width: 300px;
+            min-width: 2rem;
+            max-width: 100%;
+            width: 15rem;
             z-index:1;
         }
         .center {
@@ -40,6 +37,14 @@
         svg {
             width: 100%;
             height: auto;
+        }
+        @media screen and (max-width: 600px) {
+            .ck-content {
+                font-size: 0.75rem;
+                table {
+                    max-width: 100%;
+                }
+            }
         }
     </style>
 {% endblock page %}
