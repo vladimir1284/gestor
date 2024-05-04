@@ -64,18 +64,18 @@
     <div class="card">
         {% block card %}
             <div class="card-header">
-            <ul class="nav nav-pills card-header-pills" role="tablist">
-                <li class="nav-item">
-                    <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#navs-trailer-active" role="tab">Active Trailers</button>
-                </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#navs-trailer-inactive" role="tab">Inactive Trailers</button>
-                </li>
-            </ul>
+                <ul class="nav nav-pills card-header-pills" role="tablist">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#navs-trailer-active" role="tab">Active Trailers</button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#navs-trailer-inactive" role="tab">Inactive Trailers</button>
+                    </li>
+                </ul>
             </div>
-            
+
             <div class="tab-content p-0">
-                <div class="tab-pane fade show active" id="navs-trailer-active" role="tabpanel">
+                <div class="tab-pane fade show active" id="navs-trailer-active" role="tabpanel" x-data="{tag: ''}">
                     <div class="list-head">
                         {% block Ttitle %}
                         {% endblock Ttitle %}
@@ -84,13 +84,13 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                {% block Theader %}
-                                {% endblock Theader %}
+                                    {% block Theader %}
+                                    {% endblock Theader %}
                                 </tr>
                             </thead>
                             <tbody class="table-border-bottom-0">
-                            {% block Tbody %}
-                            {% endblock Tbody %}
+                                {% block Tbody %}
+                                {% endblock Tbody %}
                             </tbody>
                         </table>
                     </div>
@@ -104,13 +104,13 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                {% block TheaderInactive %}
-                                {% endblock TheaderInactive %}
+                                    {% block TheaderInactive %}
+                                    {% endblock TheaderInactive %}
                                 </tr>
                             </thead>
                             <tbody class="table-border-bottom-0">
-                            {% block TbodyInactive %}
-                            {% endblock TbodyInactive %}
+                                {% block TbodyInactive %}
+                                {% endblock TbodyInactive %}
                             </tbody>
                         </table>
                     </div>
@@ -136,35 +136,35 @@
 {% endblock content %}
 {% block scripts %}
     <script>
-    window.onload = function(){  
-            add = document.getElementsByClassName("add")[0];  
+        window.onload = function(){
+            add = document.getElementsByClassName("add")[0];
             if (add.style.visibility != "hidden"){
-                $(add).tooltip('show'); 
-            }  
-    }
-    function filterTag(tagName) {
-        let i, j;
-
-        let title_tag = document.getElementById("filter_tag");
-        if(tagName == 'all'){
-            title_tag.innerHTML = "";
-                search = document.getElementById("search");
-                search.value="";
-        } else {
-            title_tag.innerHTML = "("+tagName+")";
-        }
-
-        let tables = document.getElementsByTagName("tbody");
-        for (j = 0; j < tables.length; j++) {
-            tr = tables[j].getElementsByTagName("tr");
-            for (i = 0; i < tr.length; i++) {
-                if (tr[i].dataset['tag'] == tagName || tagName == 'all') {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }                    
+                $(add).tooltip('show');
             }
         }
-    }
+        function filterTag(tagName) {
+            let i, j;
+
+            let title_tag = document.getElementById("filter_tag");
+            if(tagName == 'all'){
+                title_tag.innerHTML = "";
+                search = document.getElementById("search");
+                search.value="";
+            } else {
+                title_tag.innerHTML = "("+tagName+")";
+            }
+
+            let tables = document.getElementsByTagName("tbody");
+            for (j = 0; j < tables.length; j++) {
+                tr = tables[j].getElementsByTagName("tr");
+                for (i = 0; i < tr.length; i++) {
+                    if (tr[i].dataset['tag'] == tagName || tagName == 'all') {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
     </script>
 {% endblock scripts %}
