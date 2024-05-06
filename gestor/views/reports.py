@@ -1,7 +1,7 @@
+import json
 from datetime import datetime
 from datetime import timedelta
 from itertools import chain
-import json
 from typing import List
 
 import pytz
@@ -20,9 +20,7 @@ from costs.models import Cost
 from gestor.views.utils import getMonthYear
 from gestor.views.utils import getWeek
 from inventory.models import ProductTransaction
-from rent.models.cost import (
-    RentalCost,
-)
+from rent.models.cost import RentalCost
 from rent.models.lease import Due
 from rent.models.lease import Lease
 from rent.models.lease import Payment as RentalPayment
@@ -35,9 +33,7 @@ from services.models import Payment
 from services.models import PaymentCategory
 from services.models import PendingPayment
 from services.models.towit_payment import TowitPayment
-from services.views.order import (
-    computeOrderAmount,
-)
+from services.views.order import computeOrderAmount
 from utils.models import Order
 
 
@@ -93,6 +89,8 @@ def getOrderBalance(order: Order, products: dict):
     parts_cost = 0
     consumable_expenses = 0
     for trans in transactions:
+        if trans.decline:
+            continue
         product = trans.product
         if product in products.keys():
             products[product]["quantity"] += trans.quantity
@@ -221,8 +219,7 @@ def monthly_report(request, year=None, month=None):
 
     context.setdefault(
         "membership",
-        getMonthlyMembership(currentYear, currentMonth, all=True)[
-            "total"]["gross"],
+        getMonthlyMembership(currentYear, currentMonth, all=True)["total"]["gross"],
     )
 
     return render(request, "monthly.html", context)
@@ -246,8 +243,7 @@ def getRentalReport(currentYear, currentMonth):
             timezone.datetime(currentYear, currentMonth, 1),
             pytz.timezone(settings.TIME_ZONE),
         )
-        first_day_of_next_month = first_day_of_this_month + \
-            relativedelta(months=1)
+        first_day_of_next_month = first_day_of_this_month + relativedelta(months=1)
 
         interval_start = max(first_day_of_this_month, interval_start)
         interval_end = min(first_day_of_next_month, timezone.now())
@@ -259,8 +255,7 @@ def getRentalReport(currentYear, currentMonth):
         lease.unpaid_dues = []
         unpaid_lease = False
         for occurrence in occurrences:
-            paid_due = Due.objects.filter(
-                due_date=occurrence.start.date(), lease=lease)
+            paid_due = Due.objects.filter(due_date=occurrence.start.date(), lease=lease)
             if len(paid_due) == 0:
                 unpaid_amount += lease.payment_amount
                 lease.unpaid_dues.append(occurrence)
@@ -366,8 +361,7 @@ def getWeekMembership(start_date, end_date):
         .exclude(company=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -388,8 +382,7 @@ def monthly_membership_report(request, year=None, month=None):
 
     context = getMonthlyMembership(currentYear, currentMonth)
 
-    done_deposits, done_amount = get_done_trailer_deposits(
-        currentYear, currentMonth)
+    done_deposits, done_amount = get_done_trailer_deposits(currentYear, currentMonth)
     cancelled_deposits, cancelled_amount = get_cancelled_trailer_deposits(
         currentYear, currentMonth
     )
@@ -402,8 +395,7 @@ def monthly_membership_report(request, year=None, month=None):
     context.setdefault("done_deposits_amount", done_amount)
     context.setdefault("cancelled_deposits_amount", cancelled_amount)
     context.setdefault("expirated_deposits_amount", expirated_amount)
-    context.setdefault("total_deposits_amount",
-                       expirated_amount + cancelled_amount)
+    context.setdefault("total_deposits_amount", expirated_amount + cancelled_amount)
 
     context.setdefault("previousMonth", previousMonth)
     context.setdefault("currentMonth", currentMonth)
@@ -473,12 +465,20 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
     for o in rep["orders"]:
         o.amount = o.towit_payment
         data = {
-            'towit_payment': o.towit_payment,
+            "towit_payment": o.towit_payment,
             "notes": o.towit_payment_notes,
-            'client_payment': o.client_payment,
-            "client_name": o.associated.name if o.associated is not None else '',
-            "client_phone": str(o.associated.phone_number) if o.associated is not None else '',
-            "client_avatar": o.associated.avatar.url if o.associated is not None and o.associated.avatar and bool(o.associated.avatar) else '',
+            "client_payment": o.client_payment,
+            "client_name": o.associated.name if o.associated is not None else "",
+            "client_phone": (
+                str(o.associated.phone_number) if o.associated is not None else ""
+            ),
+            "client_avatar": (
+                o.associated.avatar.url
+                if o.associated is not None
+                and o.associated.avatar
+                and bool(o.associated.avatar)
+                else ""
+            ),
         }
         o.js = json.dumps(data)
     return rep
@@ -501,8 +501,7 @@ def weekly_report(request, date=None):
         .exclude(company__membership=True, associated=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -781,8 +780,7 @@ def computeReport(orders, costs, pending_payments):
             payment_cats[category][2] += payment.amount
             payment_cats[category][5] += 1
 
-    towit_payments = TowitPayment.objects.filter(
-        order__in=orders)  # Order payments
+    towit_payments = TowitPayment.objects.filter(order__in=orders)  # Order payments
     towit_payment_total = 0
     towit_payment_count = towit_payments.count()
     for tp in towit_payments:
