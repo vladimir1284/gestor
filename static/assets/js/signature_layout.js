@@ -343,6 +343,8 @@ document.addEventListener("alpine:init", () => {
         this.hwCtl.initCanvas(this.$refs.canvas);
 
         window.addEventListener("resize", () => this.resize());
+        window.addEventListener("orientationchange", () => this.resize());
+
         this.resize();
         setTimeout(() => this.resizeCanvas(), 100);
       },
@@ -350,14 +352,16 @@ document.addEventListener("alpine:init", () => {
       resize() {
         const mainC = this.$refs.mainContainer;
         const exBox = this.$refs.exampleBox;
+        const title = this.$refs.title;
 
         this.W = mainC.offsetWidth;
         this.H = mainC.offsetHeight;
         this.landscape = this.W > this.H;
 
-        this.left = exBox.offsetWidth + 20;
+        this.left = Math.max(exBox.offsetWidth + 20, title.offsetWidth + 10);
 
         this.resizeCanvas();
+        setTimeout(() => this.resizeCanvas(), 100);
       },
 
       async resizeCanvas() {
@@ -365,7 +369,9 @@ document.addEventListener("alpine:init", () => {
         const W = canvasBox.offsetWidth;
         const H = canvasBox.offsetHeight;
         const RH = (W * this.CH) / this.CW;
+
         this.canvasMaxHeight = this.landscape && RH > H;
+
         if (this.canvasMaxHeight) {
           this.CanvH = H;
           this.CanvW = (H * this.CW) / this.CH;
