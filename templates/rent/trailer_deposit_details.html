@@ -69,7 +69,7 @@
                                        href="{% url 'trailer-deposit-conditions-pdf' deposit.id %}">
                                         <i class='bx bxs-file-pdf'></i>
                                     </a>
-                                    {%if not deposit.done and not deposit.cancelled and deposit.date|date:"Y-m-d" >= fecha_actual %}
+                                    {%if not deposit.done and not deposit.cancelled and not deposit.expirated %}
                                         <a class="btn btn-outline-primary"
                                            href="{% url 'update-lessee' equipment.id deposit.client.id deposit.id %}">
                                             <i class='bx bx-key' ></i>
@@ -94,24 +94,20 @@
                             <div>
                                 {% if deposit.client.phone_number %}
                                     <a href="tel:{{ deposit.client.phone_number }}">
-                                        <button class="btn btn-success data-toggle="
-                                                tooltip
-                                                 "
-                                                 data-placement="left"
-                                                                     title="Call contact"
-                                                                   ">
+                                        <button class="btn btn-success"
+                                                data-toggle="tooltip"
+                                                data-placement="left"
+                                                title="Call contact">
                                             <i class='bx bxs-phone'></i>
                                         </button>
                                     </a>
                                 {% endif %}
                                 {% if deposit.client.email %}
                                     <a href="sendto:{{ deposit.client.email }}">
-                                        <button class="btn btn-success data-toggle="
-                                                tooltip
-                                                 "
-                                                 data-placement="left"
-                                                                     title="send email to contact"
-                                                                            ">
+                                        <button class="btn btn-success"
+                                                data-toggle="tooltip"
+                                                data-placement="left"
+                                                title="Send email to contact">
                                             <i class='bx bxs-envelope'></i>
                                         </button>
                                     </a>

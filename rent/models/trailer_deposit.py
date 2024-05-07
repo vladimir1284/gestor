@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.timezone import datetime
 from django.utils.timezone import timedelta
 
+from rent.models.lease import Contract
 from rent.models.vehicle import Trailer
 from users.models import Associated
 
@@ -20,10 +21,21 @@ class TrailerDepositTrace(models.Model):
 
 class TrailerDeposit(models.Model):
     client = models.ForeignKey(
-        Associated, on_delete=models.CASCADE, related_name="trailer_deposit"
+        Associated,
+        on_delete=models.CASCADE,
+        related_name="trailer_deposit",
     )
     trailer = models.ForeignKey(
-        Trailer, on_delete=models.CASCADE, related_name="trailer_deposit"
+        Trailer,
+        on_delete=models.CASCADE,
+        related_name="trailer_deposit",
+    )
+    contract = models.ForeignKey(
+        Contract,
+        on_delete=models.CASCADE,
+        related_name="deposits",
+        null=True,
+        blank=True,
     )
     date = models.DateField()
     days = models.IntegerField(default=7)
