@@ -307,16 +307,12 @@
   height: 0.25rem;
 }
 
-.h-4 {
-  height: 1rem;
+.h-6 {
+  height: 1.5rem;
 }
 
 .h-72 {
   height: 18rem;
-}
-
-.h-8 {
-  height: 2rem;
 }
 
 .h-\[100px\] {
@@ -327,16 +323,12 @@
   height: auto;
 }
 
-.h-6 {
-  height: 1.5rem;
-}
-
 .w-3 {
   width: 0.75rem;
 }
 
-.w-4 {
-  width: 1rem;
+.w-6 {
+  width: 1.5rem;
 }
 
 .w-8 {
@@ -353,10 +345,6 @@
 
 .w-auto {
   width: auto;
-}
-
-.w-6 {
-  width: 1.5rem;
 }
 
 .max-w-full {
@@ -584,6 +572,10 @@
   padding-left: 0px;
 }
 
+.pr-2 {
+  padding-right: 0.5rem;
+}
+
 .ps-0 {
   padding-inline-start: 0px;
 }
@@ -640,6 +632,11 @@
 .text-6xl {
   font-size: 3.75rem;
   line-height: 1;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .uppercase {
@@ -757,6 +754,12 @@
 
 .collapse {
   visibility: unset;
+}
+
+.match {
+  font-weight: 700;
+  --tw-text-opacity: 1;
+  color: rgb(105 108 255 / var(--tw-text-opacity));
 }
 
 .hover\:right-\[-0\.5rem\]:hover {

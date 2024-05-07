@@ -11,10 +11,10 @@
     {% endif %}
     {% if create != 'order' %}
         {%comment%}
-                <a href="{% url 'create-service-order-contact' %}"
-                   type="button"
-                   class="btn btn-outline-primary float-end">New client</a>
-            {% elif create %}
+                        <a href="{% url 'create-service-order-contact' %}"
+                           type="button"
+                           class="btn btn-outline-primary float-end">New client</a>
+                    {% elif create %}
     {% endcomment %}
     <!-- <a href="{% url 'create-lessee-contact' trailer_id %}" -->
     <a href="{% url 'create-lessee' trailer_id %}"
@@ -29,7 +29,11 @@
 {% endblock Cards %}
 {% block createUrl %}
     {% if create == 'order' %}
-        {% url 'create-service-order-contact' %}
+        {% if preorder %}
+            {% url 'create-service-order-contact' preorder.id %}
+        {% else %}
+            {% url 'create-service-order-contact' %}
+        {% endif %}
     {% else %}
         {% url 'create-client' %}?next={{ request.path|urlencode }}
     {% endif %}

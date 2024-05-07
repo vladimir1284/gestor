@@ -28,7 +28,8 @@
 {% endblock Theader %}
 {% block Tbody %}
     {% for associated in associates %}
-        <tr data-search="{{ associated.name }}{{ associated.phone_number }}">
+        <tr x-show='match("{{ associated.name|escapejs }}", $store.search.search) || match("{{ associated.phone_number|escapejs }}", $store.search.search)'>
+            <!-- data-search="{{ associated.name }}{{ associated.phone_number }}"> -->
             <td>
                 <a href={% url 'update-associated' associated.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
@@ -48,8 +49,16 @@
                     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                         <div data-tag="{{ associated.name }}{{ associated.phone_number }}"
                              class="me-2  associated-data">
-                            <h6 class="mb-0">{{ associated.name }}</h6>
-                            <small class="text-muted">{{ associated.phone_number }}</small>
+                            <h6 class="mb-0"
+                                x-html='highlightMatch("{{ associated.name|escapejs }}", $store.search.search)'>
+                                {{ associated.name }}
+                            </h6>
+                            {% if associated.phone_number %}
+                                <small class="text-muted"
+                                       x-html='highlightMatch("{{ associated.phone_number|escapejs }}", $store.search.search)'>{{ associated.phone_number }}</small>
+                            {% else %}
+                                <small class="text-muted">-</small>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

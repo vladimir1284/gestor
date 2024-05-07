@@ -12,17 +12,25 @@
         {%endif%}
     </tr>
 </thead>
-<tbody class="table-border-bottom-0">
+<tbody class="table-border-bottom-0" x-data>
     {% for product in products %}
     {% if product.type == type %}
     <tr data-tag="{{ product.category }}"
         data-stock="{% if product.quantity_min > 0 and product.quantity < product.quantity_min %}low{% else %}ok{% endif %}"
-        data-search="{{ product.name }}">
+        x-show='match("{{product.name|escapejs}}", $store.search.search) || match("{{product.description|escapejs}}", $store.search.search)'
+        >
+        <!-- data-search="{{ product.name }} {{ product.description }}"> -->
         <td>
             <a href={% url 'detail-product' product.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
         </td>
         <td>
-            <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ product.name }}</strong>
+            <i class="fab fa-angular fa-lg text-danger"></i> <strong x-html='highlightMatch("{{product.name|escapejs}}", $store.search.search)'>{{ product.name }}</strong>
+            <div class="text-xs italic"
+              x-show='$store.search.search != "" && match("{{product.description|escapejs}}", $store.search.search)'
+              x-html='highlightMatch("{{product.description|escapejs}}", $store.search.search)'
+            >
+              <!-- {{product.description}} -->
+            </div>
         </td>
         <td>
             <ul class="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
