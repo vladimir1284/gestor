@@ -92,11 +92,24 @@
                         {% if signature and signature.img %}
                             <form method='post'>
                                 {% csrf_token %}
-                                <button id="complete1" type="submit" x-intersect:enter="finishFix = false" x-intersect:leave="finishFix = true" class="float-right btn btn-outline-primary">Finalizar</button>
-                                <button id="complete2" type="submit" class="btn btn-primary" x-show="finishFix" :class="{
-                                            absolute: sign,
-                                            fixed: !sign,
-                                            }" :style="{bottom: sign ? bottom : '15px'}">Finalizar</button>
+                                <button id="complete1"
+                                        type="submit"
+                                        x-intersect:enter="finishFix = false"
+                                        x-intersect:leave="finishFix = true"
+                                        class="float-right btn btn-outline-primary">
+                                    Finalizar
+                                </button>
+                                <button id="complete2"
+                                        type="submit"
+                                        class="btn btn-primary"
+                                        x-show="finishFix"
+                                        :class="{
+                                                absolute: sign,
+                                                fixed: !sign,
+                                                }"
+                                        :style="{bottom: sign ? bottom : '15px'}">
+                                    Finalizar
+                                </button>
                             </form>
                         {% endif %}
                     </div>
@@ -143,20 +156,20 @@
                                         <img class="signature max-w-full" src="{% static 'images/signs/empty.png' %}" :style="height && `height: ${height}px`">
                                     {% endif %}
                                 </section>
-                                <div 
+                                <div
                                     {% if signature.img %}
                                         class="text-left"
                                     {% else %}
                                         class="text-center"
                                     {% endif %}
-                                    >
+                                >
                                     <a class="signature_btn"
-                                        href="{% url 'contact-client-service-order-signature' token %}">
+                                       href="{% url 'contact-client-service-order-signature' token %}">
                                         <button type="button" class="btn btn-outline-primary"
-                                            x-init="bottom = $refs.card.offsetHeight - $el.offsetTop - $el.offsetHeight"
-                                            x-intersect:enter.full.margin.-15px = "sign = true"
-                                            x-intersect:leave.full.margin.-15px = "sign = false"
-                                            >
+                                                x-init="bottom = $refs.card.offsetHeight - $el.offsetTop - $el.offsetHeight"
+                                                x-intersect:enter.full.margin.-15px = "sign = true"
+                                                x-intersect:leave.full.margin.-15px = "sign = false"
+                                        >
                                             <span class="tf-icons bx bx-edit"></span>
                                             {% if signature.img %}
                                                 Recapture

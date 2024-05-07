@@ -1,0 +1,120 @@
+{%load static%}
+<div class="tab-pane fade {% if forloop.first %}active show{% endif %}"
+     id="navs-pills-justified-{{ lease.id }}"
+     role="tabpanel">
+    {% if lease.contract.contract_type == 'lto' %}
+        <h5 class="ps-3 me-2">
+            <div id="payment_progress_{{ lease.id }}"></div>
+        </h5>
+    {% endif %}
+    <div class="row">
+        <div class="col-md-6">
+            <h5 class="ps-3 me-2">
+                <div class="flex mb-4 pb-1 flex-wrap gap-2">
+                    <a class="btn btn-outline-primary me-1"
+                       href="{% url 'update-lease' lease.id %}">
+                        <span class="tf-icons bx bx-edit"></span>
+                        Update terms
+                    </a>
+                    <div class="me-2">
+                        <h6 class="mb-0">{{ lease.get_payment_frequency_display }} payments</h6>
+                        <small class="text-muted">{{ lease.event.start|date:"m/d/Y" }}</small>
+                    </div>
+                    <div class="user-progress flex-grow flex justify-end">
+                        <small class="fw-semibold">${{ lease.payment_amount|floatformat:"0" }}</small>
+                    </div>
+                </div>
+            </h5>
+            <h5 class="ps-3 me-2">
+                Remaining: $
+                {% if lease.remaining %}
+                    {{ lease.remaining|floatformat:"0" }}
+                {% else %}
+                    0.00
+                {% endif %}
+                <a href="{% url 'rental-payment' client.id %}"
+                   type="button"
+                   class="btn btn-icon btn-outline-primary">
+                    <span class="tf-icons bx bx-dollar"></span>
+                </a>
+            </h5>
+        </div>
+        <div class="col-md-6">
+            <strong>Notes</strong>
+            <a class="btn btn-icon btn-outline-primary ms-2"
+               type="button"
+               href="{% url 'create-note' lease.contract.id %}">
+                <span class="tf-icons bx bx-plus"></span>
+            </a>
+            <div class="table-container">
+                <table class="table">
+                    <tbody>
+                        {% for note in lease.notes %}
+                            <tr>
+                                <td>
+                                    {% if note.created_by %}
+                                        <div class="avatar avatar-online">
+                                            {% if note.created_by.profile_user.avatar %}
+                                                <img src="{{ note.created_by.profile_user.avatar.url }}"
+                                                     alt=""
+                                                     class="w-px-40 rounded-circle" />
+                                            {% else %}
+                                                <span style="font-size:1.5em"
+                                                      class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                                    {{ note.created_by.first_name|first }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <span>   <strong>{{ note.created_at|timesince }}</strong> ago</span>
+                                </td>
+                                <td>
+                                    <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deleteNote({{ note.id }},'{{ note.text }}')">
+                                        <span class="tf-icons bx bx-trash text-danger"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr style='border-top-style:hidden;'>
+                                <td colspan='2' class="pt-0 pb-0 mb-0">
+                                    <p class="mb-0">{{ note.text }}</p>
+                                </td>
+                            </tr>
+                            <tr style='border-top-style:hidden;'>
+                                <td>
+                                    {% if note.has_reminder %}
+                                        <a class="btn btn-icon btn-outline-primary" type="button" onclick="deactivateReminder({{ note.id }})">
+                                            <span class="tf-icons bx bx-bell"></span>
+                                        </a>
+                                        {{ note.reminder_date|date:"d M" }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if note.icon %}
+                                        <div class="avatar flex-shrink-0 me-3">
+                                            <a href="{{ note.file.url }}">
+                                                <img src="{% static note.icon %}" alt="" />
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Due Payments -->
+    <hr class="mt-0" />
+    {% include "./lease_item_due_payments.html" %}
+    <!-- Tolls -->
+    <hr class="mt-0" />
+    {% include "./lease_item_tolls.html" %}
+    <!-- Documents -->
+    <hr class="mt-0" />
+    {% include "./lease_item_documents.html" %}
+    <!-- Deposits -->
+    <hr class="mt-0" />
+    {% include "./lease_item_deposits.html" %}
+</div>
+

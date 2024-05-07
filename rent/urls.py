@@ -24,6 +24,10 @@ from rent.views.deposit import trailer_deposit_cancel
 from rent.views.deposit import trailer_deposit_conditions
 from rent.views.deposit import trailer_deposit_details
 from rent.views.deposit import trailer_deposit_pdf
+from rent.views.lease.contract_signing import contract_signing
+from rent.views.lease.contract_signing import contract_signing_id
+from rent.views.lease.contract_signing import is_contract_cli_complete
+from rent.views.lease.update_data_on_contract import update_data_on_contract
 from rent.views.trailer_change_pos import trailer_change_position
 
 try:
@@ -173,8 +177,18 @@ urlpatterns = [
         lease.contract_create_view,
         name="create-contract",
     ),
-    path("contract/<int:id>", lease.contract_detail, name="detail-contract"),
-    path("contract_signing/<int:id>", lease.contract_signing, name="contract-signing"),
+    path(
+        "contract-cli-completed/<int:id>",
+        is_contract_cli_complete,
+        name="contract-cli-completed",
+    ),
+    path(
+        "contract/<int:id>",
+        lease.contract_detail,
+        name="detail-contract",
+    ),
+    path("contract_signing/<id>", contract_signing_id, name="contract-signing"),
+    path("contract_signature/<token>", contract_signing, name="contract-signature"),
     path("contract_pdf/<int:id>", lease.contract_pdf, name="contract-signed"),
     path("contracts/", lease.contracts, name="contracts"),
     path(
@@ -188,14 +202,17 @@ urlpatterns = [
         name="update-contract-stage",
     ),
     path(
-        "capture_signature/<lease_id>/<position>",
+        "capture_signature/<str:position>/<str:token>",
         lease.create_handwriting,
         name="capture-signature",
     ),
     path(
-        "capture_signature/<lease_id>/<position>/<external>",
+        "ext_capture_signature/<str:position>/<str:token>",
         lease.create_handwriting,
-        name="capture-signature",
+        {
+            "external": True,
+        },
+        name="ext-capture-signature",
     ),
     path("adjust_deposit/<id>/", lease.adjust_end_deposit, name="adjust-deposit"),
     path(
@@ -260,6 +277,11 @@ urlpatterns = [
         "update_lessee_data/<slug:pk>",
         lease.LeseeDataUpdateView.as_view(),
         name="update-lessee-data",
+    ),
+    path(
+        "update_data_on_contract/<id>",
+        update_data_on_contract,
+        name="update-data-on-contract",
     ),
     # -------------------- Inspection ----------------------------
     path(

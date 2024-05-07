@@ -1,0 +1,9 @@
+@font-face {
+  font-family: "OverTheRainbow";
+  src: url("/static/fonts/over_the_rainbow/OvertheRainbow-Regular.ttf")
+    format("truetype");
+}
+
+.over-the-rainbow {
+  font-family: "OverTheRainbow", cursive;
+}
