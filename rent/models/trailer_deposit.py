@@ -6,6 +6,18 @@ from rent.models.vehicle import Trailer
 from users.models import Associated
 
 
+class TrailerDepositTrace(models.Model):
+    trailer_deposit = models.ForeignKey(
+        "TrailerDeposit", on_delete=models.CASCADE, related_name="traces"
+    )
+    status = models.CharField(max_length=50, blank=True, null=True)
+    amount = models.FloatField()
+    days = models.IntegerField(default=7)
+    note = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class TrailerDeposit(models.Model):
     client = models.ForeignKey(
         Associated, on_delete=models.CASCADE, related_name="trailer_deposit"
@@ -30,7 +42,11 @@ class TrailerDeposit(models.Model):
 
     @property
     def expirated(self):
-        return (self.date + timedelta(days=self.days)) < datetime.now().date()
+        return self.valid_until < datetime.now().date()
+
+    @property
+    def traces_rev_date(self) -> list[TrailerDepositTrace]:
+        return self.traces.all().order_by("-created_at")
 
 
 def get_active_trailers_deposit(trailer: Trailer):

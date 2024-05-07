@@ -13,142 +13,196 @@
     </style>
 {% endblock page %}
 {% block content %}
-    <div class="container">
-        <div class="row mb-3">
-            <div class="col">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="float-end">
-                            {% now "Y-m-d" as fecha_actual %}
-                            {% if deposit.cancelled %}
-                                <div class="text-danger">Cancelled</div>
-                            {% elif deposit.done %}
-                                <div class="text-success">Done</div>
-                            {% elif deposit.date|date:"Y-m-d" < fecha_actual %}
-                                <div class="text-danger">Expirated</div>
-                            {% else %}
-                                <a href="{% url 'trailer-deposit-cancel' deposit.id %}">
-                                    <button class="btn btn-outline-danger">Cancel</button>
-                                </a>
-                            {% endif %}
-                        </div>
-                        <h2 class="mb-0">Deposit</h2>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Amount: ${{ deposit.amount | floatformat:'-2' }}</li>
-                                <li class="list-group-item">
-                                    Valid from
-                                    <strong>{{ deposit.date }}</strong>
-                                    to
-                                    <strong>{{ deposit.valid_until }}</strong>
-                                </li>
-                                <li class="list-group-item">
-                                    <strong>{{ deposit.days }}</strong>
-                                    {%if deposit.days == 1%}
-                                        day
-                                    {%else%}
-                                        days
-                                    {%endif%}
-                                    validity.
-                                </li>
-                                <li class="list-group-item">Note:    {{ deposit.note }}</li>
-                            </ul>
-                            <div class="m-3">
-                                <a class="btn btn-outline-primary" href="{{ url }}">
-                                    <i class='bx bxs-file'></i></a>
-                                <a class="btn btn-outline-primary"
-                                   href="{% url 'trailer-deposit-conditions-pdf' deposit.id %}">
-                                    <i class='bx bxs-file-pdf'></i>
-                                </a>
-                                {%if not deposit.done and not deposit.cancelled and deposit.date|date:"Y-m-d" >= fecha_actual %}
-                                    <a class="btn btn-outline-primary"
-                                       href="{% url 'update-lessee' equipment.id deposit.client.id deposit.id %}">
-                                        <i class='bx bxs-edit'></i>
+    <div>
+        <div class="2xl:pr-96">
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header flex items-center justify-end flex-wrap gap-2">
+                            <h2 class="mb-0 flex-grow">Deposit</h2>
+                            <div class="flex flex-wrap gap-2 items-center justify-end">
+                                {% if deposit.cancelled %}
+                                    <div class="text-danger">Cancelled</div>
+                                {% elif deposit.done %}
+                                    <div class="text-success">Done</div>
+                                {% elif deposit.expirated %}
+                                    <div class="text-danger">
+                                        <i class='bx bx-calendar-exclamation' ></i>
+                                        Expirated:
+                                    </div>
+                                    <a href="{% url 'renovate-trailer-reservation' deposit.id %}" class="btn btn-outline-primary">
+                                        <i class='bx bx-calendar-plus' ></i>
+                                        Renovate
                                     </a>
-                                {%endif%}
+                                    <a href="{% url 'trailer-deposit-cancel' deposit.id %}" class="btn btn-outline-danger">
+                                        <i class='bx bx-calendar-x' ></i>
+                                        Finish
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="col text-center p-0 m-0 pe-3 mb-3" id="qrcode">{{ qr_url | safe }}</div>
+                        <div class="row">
+                            <div class="col">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Amount: ${{ deposit.amount | floatformat:'-2' }}</li>
+                                    <li class="list-group-item">
+                                        Valid from
+                                        <strong>{{ deposit.date }}</strong>
+                                        to
+                                        <strong>{{ deposit.valid_until }}</strong>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>{{ deposit.days }}</strong>
+                                        {%if deposit.days == 1%}
+                                            day
+                                        {%else%}
+                                            days
+                                        {%endif%}
+                                        validity.
+                                    </li>
+                                    <li class="list-group-item">Note:    {{ deposit.note }}</li>
+                                </ul>
+                                <div class="m-3">
+                                    <a class="btn btn-outline-primary" href="{{ url }}">
+                                        <i class='bx bxs-file'></i></a>
+                                    <a class="btn btn-outline-primary"
+                                       href="{% url 'trailer-deposit-conditions-pdf' deposit.id %}">
+                                        <i class='bx bxs-file-pdf'></i>
+                                    </a>
+                                    {%if not deposit.done and not deposit.cancelled and deposit.date|date:"Y-m-d" >= fecha_actual %}
+                                        <a class="btn btn-outline-primary"
+                                           href="{% url 'update-lessee' equipment.id deposit.client.id deposit.id %}">
+                                            <i class='bx bx-key' ></i>
+                                        </a>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="col text-center p-0 m-0 pe-3 mb-3" id="qrcode">{{ qr_url | safe }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="card" style='height:100%'>
+                        <div class="card-header">
+                            <a href={% url 'detail-associated' deposit.client.id %}>
+                                <h2>
+                                    Lessee: <b> {{ deposit.client.name }}</b>
+                                </h2>
+                            </a>
+                            <div>
+                                {% if deposit.client.phone_number %}
+                                    <a href="tel:{{ deposit.client.phone_number }}">
+                                        <button class="btn btn-success data-toggle="
+                                                tooltip
+                                                 "
+                                                 data-placement="left"
+                                                                     title="Call contact"
+                                                                   ">
+                                            <i class='bx bxs-phone'></i>
+                                        </button>
+                                    </a>
+                                {% endif %}
+                                {% if deposit.client.email %}
+                                    <a href="sendto:{{ deposit.client.email }}">
+                                        <button class="btn btn-success data-toggle="
+                                                tooltip
+                                                 "
+                                                 data-placement="left"
+                                                                     title="send email to contact"
+                                                                            ">
+                                            <i class='bx bxs-envelope'></i>
+                                        </button>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% if deposit.client.phone_number %}
+                                <li class="list-group-item">Phone number:    {{ deposit.client.phone_number }}</li>
+                            {% endif %}
+                            {% if deposit.client.email %}<li class="list-group-item">Email:    {{ deposit.client.email }}</li>{% endif %}
+                            {% if deposit.client.state %}<li class="list-group-item">State:    {{ deposit.client.state }}</li>{% endif %}
+                            {% if deposit.client.other_state %}
+                                <li class="list-group-item">Other state:    {{ deposit.client.other_state }}</li>
+                            {% endif %}
+                            {% if deposit.client.city %}<li class="list-group-item">City:    {{ deposit.client.city }}</li>{% endif %}
+                            {% if deposit.client.other_city %}
+                                <li class="list-group-item">Other city:    {{ deposit.client.other_city }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="card" style='height:100%'>
+                        <div class="card-header">
+                            <h2 class='mb-0'>Trailer</h2>
+                        </div>
+                        <a href="{% url 'detail-trailer' equipment.id %}" class="mb-4">
+                            <div class="text-center">
+                                <div class="mb-2 associated-pic">
+                                    <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'assets/img/icons/trailer.png' %}" {% endif %}
+                                         alt="image"
+                                         height="100px"
+                                         width="100px"
+                                         class="w-px-100 h-px-100 rounded-circle card-img-top" />
+                                </div>
+                                <h5 class="card-title">
+                                    {{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}
+                                </h5>
+                                <div class="card-subtitle text-muted mb-3">{{ equipment.vin }}</div>
+                                <p class="card-text">{{ equipment.note }}</p>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-6">
-                <div class="card" style='height:100%'>
-                    <div class="card-header">
-                        <a href={% url 'detail-associated' deposit.client.id %}>
-                            <h2>
-                                Lessee: <b> {{ deposit.client.name }}</b>
-                            </h2>
-                        </a>
-                        <div>
-                            {% if deposit.client.phone_number %}
-                                <a href="tel:{{ deposit.client.phone_number }}">
-                                    <button class="btn btn-success data-toggle="
-                                            tooltip
-                                             "
-                                             data-placement="left"
-                                                                 title="Call contact"
-                                                               ">
-                                        <i class='bx bxs-phone'></i>
-                                    </button>
-                                </a>
-                            {% endif %}
-                            {% if deposit.client.email %}
-                                <a href="sendto:{{ deposit.client.email }}">
-                                    <button class="btn btn-success data-toggle="
-                                            tooltip
-                                             "
-                                             data-placement="left"
-                                                                 title="send email to contact"
-                                                                        ">
-                                        <i class='bx bxs-envelope'></i>
-                                    </button>
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        {% if deposit.client.phone_number %}
-                            <li class="list-group-item">Phone number:    {{ deposit.client.phone_number }}</li>
-                        {% endif %}
-                        {% if deposit.client.email %}<li class="list-group-item">Email:    {{ deposit.client.email }}</li>{% endif %}
-                        {% if deposit.client.state %}<li class="list-group-item">State:    {{ deposit.client.state }}</li>{% endif %}
-                        {% if deposit.client.other_state %}
-                            <li class="list-group-item">Other state:    {{ deposit.client.other_state }}</li>
-                        {% endif %}
-                        {% if deposit.client.city %}<li class="list-group-item">City:    {{ deposit.client.city }}</li>{% endif %}
-                        {% if deposit.client.other_city %}
-                            <li class="list-group-item">Other city:    {{ deposit.client.other_city }}</li>
-                        {% endif %}
-                    </ul>
-                </div>
+        <div class="card 2xl:fixed 2xl:top-24 2xl:right-3 2xl:bottom-2 2xl:w-96">
+            <div class="card-header">
+                <h2 class='mb-0'>Deposit Traces:</h2>
             </div>
-            <div class="col-6">
-                <div class="card" style='height:100%'>
-                    <div class="card-header">
-                        <h2 class='mb-0'>Trailer</h2>
-                    </div>
-                    <a href="{% url 'detail-trailer' equipment.id %}" class="mb-4">
-                        <div class="text-center">
-                            <div class="mb-2 associated-pic">
-                                <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'assets/img/icons/trailer.png' %}" {% endif %}
-                                     alt="image"
-                                     height="100px"
-                                     width="100px"
-                                     class="w-px-100 h-px-100 rounded-circle card-img-top" />
-                            </div>
-                            <h5 class="card-title">
-                                {{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}
-                            </h5>
-                            <div class="card-subtitle text-muted mb-3">{{ equipment.vin }}</div>
-                            <p class="card-text">{{ equipment.note }}</p>
-                        </div>
-                    </a>
-                </div>
+            <div class="table-responsive text-nowrap 2xl:overflow-auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                Operation
+                            </th>
+                            <th>
+                                Date
+                            </th>
+                            <th>
+                                Days
+                            </th>
+                            <th>
+                                Amount
+                            </th>
+                            <th>
+                                Note
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for trace in deposit.traces_rev_date%}
+                            <tr>
+                                <td>{{trace.status}}</td>
+                                <td>{{trace.created_at|date}}</td>
+                                <td>
+                                    {{trace.days}}
+                                    {%if trace.days == 1%}
+                                        day
+                                    {%else%}
+                                        days
+                                    {%endif%}
+                                </td>
+                                <td>{{trace.amount|floatformat:'-2'}}</td>
+                                <td>{{trace.note}}</td>
+                            </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
