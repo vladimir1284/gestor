@@ -70,6 +70,12 @@ class ContractForm(ModelForm):
             ),
         )
 
+    def clean_payment_amount(self):
+        pay = self.cleaned_data["payment_amount"]
+        if pay > 0:
+            return pay
+        raise forms.ValidationError("Payment amount must be greater than zero")
+
 
 class InspectionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
