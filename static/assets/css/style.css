@@ -506,6 +506,10 @@
   justify-content: center;
 }
 
+.justify-between {
+  justify-content: space-between;
+}
+
 .gap-0 {
   gap: 0px;
 }
@@ -554,6 +558,10 @@
 
 .rounded-lg {
   border-radius: 0.5rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
 }
 
 .border {
@@ -955,8 +963,38 @@
   }
 }
 
+<<<<<<< HEAD
 @media (min-width: 1280px) {
   .xl\:flex {
     display: flex;
+=======
+@media (min-width: 1536px) {
+  .\32xl\:fixed {
+    position: fixed;
+  }
+
+  .\32xl\:bottom-2 {
+    bottom: 0.5rem;
+  }
+
+  .\32xl\:right-3 {
+    right: 0.75rem;
+  }
+
+  .\32xl\:top-24 {
+    top: 6rem;
+  }
+
+  .\32xl\:w-96 {
+    width: 24rem;
+  }
+
+  .\32xl\:overflow-auto {
+    overflow: auto;
+  }
+
+  .\32xl\:pr-96 {
+    padding-right: 24rem;
+>>>>>>> dev/deposits
   }
 }

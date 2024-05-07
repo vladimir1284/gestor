@@ -21,9 +21,7 @@ from rent.models.vehicle import TrailerPlates
 from rent.permissions import staff_required
 from users.models import Company
 from users.views import processOrders
-from utils.models import (
-    Order,
-)
+from utils.models import Order
 
 # -------------------- Equipment ----------------------------
 
@@ -32,7 +30,7 @@ from utils.models import (
 def list_equipment(request):
     active_filters = {
         "Available": 0,
-        "Reserved": 0,
+        "On Hold": 0,
         "Rented": 0,
         "LTO": 0,
     }
@@ -52,7 +50,7 @@ def list_equipment(request):
         if trailer_deposits:
             trailer.reservation = trailer_deposits
             if not hasattr(trailer, "filter"):
-                trailer.filter = "Reserved"
+                trailer.filter = "On Hold"
 
         if not hasattr(trailer, "filter"):
             trailer.filter = "Available"
