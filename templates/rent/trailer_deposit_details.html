@@ -2,14 +2,14 @@
 {% load static %}
 {% block page %}
     <style>
-    #qrcode svg {
-        width: 5cm;
-        height: 5cm;
-        display
-    }
-    #qrcode {
-        max-width: 5.5cm;
-    }
+        #qrcode svg {
+            width: 5cm;
+            height: 5cm;
+            display
+        }
+        #qrcode {
+            max-width: 5.5cm;
+        }
     </style>
 {% endblock page %}
 {% block content %}
@@ -37,8 +37,22 @@
                     <div class="row">
                         <div class="col">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Amount:    {{ deposit.amount }}</li>
-                                <li class="list-group-item">Date:    {{ deposit.date }}</li>
+                                <li class="list-group-item">Amount: ${{ deposit.amount | floatformat:'-2' }}</li>
+                                <li class="list-group-item">
+                                    Valid from
+                                    <strong>{{ deposit.date }}</strong>
+                                    to
+                                    <strong>{{ deposit.valid_until }}</strong>
+                                </li>
+                                <li class="list-group-item">
+                                    <strong>{{ deposit.days }}</strong>
+                                    {%if deposit.days == 1%}
+                                        day
+                                    {%else%}
+                                        days
+                                    {%endif%}
+                                    validity.
+                                </li>
                                 <li class="list-group-item">Note:    {{ deposit.note }}</li>
                             </ul>
                             <div class="m-3">
@@ -49,10 +63,10 @@
                                     <i class='bx bxs-file-pdf'></i>
                                 </a>
                                 {%if not deposit.done and not deposit.cancelled and deposit.date|date:"Y-m-d" >= fecha_actual %}
-                                <a class="btn btn-outline-primary"
-                                   href="{% url 'update-lessee' equipment.id deposit.client.id deposit.id %}">
-                                    <i class='bx bxs-edit'></i>
-                                </a>
+                                    <a class="btn btn-outline-primary"
+                                       href="{% url 'update-lessee' equipment.id deposit.client.id deposit.id %}">
+                                        <i class='bx bxs-edit'></i>
+                                    </a>
                                 {%endif%}
                             </div>
                         </div>
@@ -75,10 +89,10 @@
                                 <a href="tel:{{ deposit.client.phone_number }}">
                                     <button class="btn btn-success data-toggle="
                                             tooltip
-                                            "
-                                            data-placement="left"
-                                            title="Call contact"
-                                            ">
+                                             "
+                                             data-placement="left"
+                                                                 title="Call contact"
+                                                               ">
                                         <i class='bx bxs-phone'></i>
                                     </button>
                                 </a>
@@ -87,10 +101,10 @@
                                 <a href="sendto:{{ deposit.client.email }}">
                                     <button class="btn btn-success data-toggle="
                                             tooltip
-                                            "
-                                            data-placement="left"
-                                            title="send email to contact"
-                                            ">
+                                             "
+                                             data-placement="left"
+                                                                 title="send email to contact"
+                                                                        ">
                                         <i class='bx bxs-envelope'></i>
                                     </button>
                                 </a>

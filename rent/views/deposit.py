@@ -1,10 +1,10 @@
-import qrcode.image.svg
+import jwt
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.shortcuts import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.urls import reverse
 
 from rent.forms.trailer_deposit import TrailerDepositForm
 from rent.models.lease import Associated
@@ -13,7 +13,6 @@ from rent.models.trailer_deposit import TrailerDeposit
 from rent.tools.deposit import send_deposit_pdf
 from rent.tools.deposit import trailer_deposit_conditions_pdf
 from rent.tools.deposit import trailer_deposit_context
-from rent.views.vehicle import getImages
 
 
 @login_required
@@ -65,32 +64,29 @@ def trailer_deposit_cancel(request, id):
 
 @login_required
 def trailer_deposit_details(request, id):
-    deposit = get_object_or_404(TrailerDeposit, id=id)
-    images, pinned_image = getImages(deposit.trailer)
-
-    url_base = "{}://{}".format(request.scheme, request.get_host())
-    url = url_base + reverse("trailer-deposit-conditions", args=[id])
-    factory = qrcode.image.svg.SvgPathImage
-    factory.QR_PATH_STYLE["fill"] = "#455565"
-    img = qrcode.make(
-        url,
-        image_factory=factory,
-        box_size=20,
-    )
-
-    context = {
-        "deposit": deposit,
-        "images": images,
-        "pinned_image": pinned_image,
-        "equipment": deposit.trailer,
-        "qr_url": img.to_string(encoding="unicode"),
-        "url": url,
-    }
+    context = trailer_deposit_context(request, id)
     return render(request, "rent/trailer_deposit_details.html", context)
 
 
 def trailer_deposit_conditions(request, token):
-    id = token
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        id = info["deposit_id"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_inf.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_inf.html", context)
+
     context = trailer_deposit_context(request, id)
     return render(request, "rent/trailer_deposit_conditions.html", context)
 

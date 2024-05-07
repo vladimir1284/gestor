@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.timezone import datetime
+from django.utils.timezone import timedelta
 
 from rent.models.vehicle import Trailer
 from users.models import Associated
@@ -13,6 +14,7 @@ class TrailerDeposit(models.Model):
         Trailer, on_delete=models.CASCADE, related_name="trailer_deposit"
     )
     date = models.DateField()
+    days = models.IntegerField(default=7)
     cancelled = models.BooleanField(default=False)
     done = models.BooleanField(default=False)
     amount = models.FloatField()
@@ -21,6 +23,14 @@ class TrailerDeposit(models.Model):
 
     def __str__(self):
         return f"${self.amount} ({self.lease}) [{self.trailer}]"
+
+    @property
+    def valid_until(self):
+        return self.date + timedelta(days=self.days)
+
+    @property
+    def expirated(self):
+        return (self.date + timedelta(days=self.days)) < datetime.now().date()
 
 
 def get_active_trailers_deposit(trailer: Trailer):
