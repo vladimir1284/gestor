@@ -353,6 +353,11 @@ def update_due(request, id):
 @transaction.atomic
 def update_contract_stage(request, id, stage):
     contract: Contract = get_object_or_404(Contract, id=id)
+    on_hold = 0
+    for td in TrailerDeposit.objects.filter(contract=contract):
+        if td.done:
+            on_hold += td.amount
+
     contract.user = request.user
     contract.stage = stage
     contract.client_complete = False
@@ -365,6 +370,7 @@ def update_contract_stage(request, id, stage):
             payment_amount=contract.payment_amount,
             payment_frequency=contract.payment_frequency,
             event=None,
+            remaining=on_hold,
         )
         mail_send_contract(request, id)
         contract.save()
@@ -535,35 +541,41 @@ class LeseeDataUpdateView(LoginRequiredMixin, UpdateView):
 def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
     lessee = get_object_or_404(Associated, pk=lessee_id)
     trailer = get_object_or_404(Trailer, pk=trailer_id)
+    deposit: TrailerDeposit | None = (
+        None if deposit_id is None else get_object_or_404(TrailerDeposit, pk=deposit_id)
+    )
+
+    initial = {
+        "effective_date": datetime.now(),
+    }
 
     if request.method == "POST":
-        form = ContractForm(request.POST)
-        if form.is_valid():
-            if deposit_id is not None:
-                deposit: TrailerDeposit = get_object_or_404(
-                    TrailerDeposit, pk=deposit_id
-                )
-                deposit.done = True
-                deposit.save()
-            lease = form.save(commit=False)
-            lease.stage = "missing"
-            lease.lessee = lessee
-            lease.trailer = trailer
-            lease.save()
-            return redirect("detail-contract", lease.id)
-            # return redirect("create-inspection", lease_id=lease.id)
-    elif deposit_id is not None:
-        deposit: TrailerDeposit = get_object_or_404(TrailerDeposit, pk=deposit_id)
         form = ContractForm(
-            initial={
-                "effective_date": deposit.date,
-                "security_deposit": deposit.amount,
-            }
+            request.POST,
+            initial=initial,
         )
+        if form.is_valid():
+            with transaction.atomic():
+                lease = form.save(commit=False)
+                lease.stage = "missing"
+                lease.lessee = lessee
+                lease.trailer = trailer
+                lease.save()
+                if deposit is not None:
+                    deposit.done = True
+                    deposit.contract = lease
+                    deposit.save()
+                return redirect("detail-contract", lease.id)
     else:
-        form = ContractForm()
+        form = ContractForm(
+            initial=initial,
+        )
 
-    context = {"form": form, "title": _("Create new contract")}
+    context = {
+        "form": form,
+        "title": _("Create new contract"),
+        "on_hold": deposit,
+    }
     return render(request, "rent/contract/contract_create.html", context)
 
 

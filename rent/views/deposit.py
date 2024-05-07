@@ -1,19 +1,21 @@
-import qrcode.image.svg
+import jwt
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.shortcuts import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.urls import reverse
 
 from rent.forms.trailer_deposit import TrailerDepositForm
+from rent.forms.trailer_deposit import TrailerDepositRenovationForm
+from rent.forms.trailer_deposit import TrailerDepositTrace
 from rent.models.lease import Associated
 from rent.models.lease import Trailer
 from rent.models.trailer_deposit import TrailerDeposit
 from rent.tools.deposit import send_deposit_pdf
 from rent.tools.deposit import trailer_deposit_conditions_pdf
 from rent.tools.deposit import trailer_deposit_context
-from rent.views.vehicle import getImages
 
 
 @login_required
@@ -39,12 +41,20 @@ def create_trailer_reservation(request, trailer_id, lessee_id):
     if request.method == "POST":
         form = TrailerDepositForm(request.POST)
         if form.is_valid():
-            deposit: TrailerDeposit = form.save(commit=False)
-            deposit.client = get_object_or_404(Associated, id=lessee_id)
-            deposit.trailer = get_object_or_404(Trailer, id=trailer_id)
-            deposit.save()
-            send_deposit_pdf(request, deposit)
-            return redirect("trailer-deposit-details", deposit.id)
+            with atomic():
+                deposit: TrailerDeposit = form.save(commit=False)
+                deposit.client = get_object_or_404(Associated, id=lessee_id)
+                deposit.trailer = get_object_or_404(Trailer, id=trailer_id)
+                deposit.save()
+                TrailerDepositTrace.objects.create(
+                    status="created",
+                    days=deposit.days,
+                    amount=deposit.amount,
+                    note=deposit.note,
+                    trailer_deposit=deposit,
+                )
+                send_deposit_pdf(request, deposit)
+                return redirect("trailer-deposit-details", deposit.id)
 
     form = TrailerDepositForm()
     context = {
@@ -55,42 +65,71 @@ def create_trailer_reservation(request, trailer_id, lessee_id):
 
 
 @login_required
+def renovate_trailer_reservation(request, deposit_id):
+    deposit: TrailerDeposit = get_object_or_404(TrailerDeposit, id=deposit_id)
+
+    if request.method == "POST":
+        form = TrailerDepositRenovationForm(request.POST)
+        if form.is_valid():
+            with atomic():
+                renovation: TrailerDepositTrace = form.save(commit=False)
+                renovation.status = "renovated"
+                renovation.trailer_deposit = deposit
+                renovation.save()
+                deposit.days = deposit.days + renovation.days
+                deposit.save()
+                send_deposit_pdf(request, deposit)
+                return redirect("trailer-deposit-details", deposit.id)
+
+    form = TrailerDepositRenovationForm()
+    context = {
+        "form": form,
+        "title": "Renovate deposit",
+    }
+    return render(request, "rent/trailer_deposit_create.html", context)
+
+
+@login_required
+@atomic
 def trailer_deposit_cancel(request, id):
     deposit: TrailerDeposit = get_object_or_404(TrailerDeposit, id=id)
     deposit.cancelled = True
     deposit.save()
+    TrailerDepositTrace.objects.create(
+        status="finished",
+        days=0,
+        amount=0,
+        trailer_deposit=deposit,
+    )
 
     return redirect("trailer-deposit-details", id)
 
 
 @login_required
 def trailer_deposit_details(request, id):
-    deposit = get_object_or_404(TrailerDeposit, id=id)
-    images, pinned_image = getImages(deposit.trailer)
-
-    url_base = "{}://{}".format(request.scheme, request.get_host())
-    url = url_base + reverse("trailer-deposit-conditions", args=[id])
-    factory = qrcode.image.svg.SvgPathImage
-    factory.QR_PATH_STYLE["fill"] = "#455565"
-    img = qrcode.make(
-        url,
-        image_factory=factory,
-        box_size=20,
-    )
-
-    context = {
-        "deposit": deposit,
-        "images": images,
-        "pinned_image": pinned_image,
-        "equipment": deposit.trailer,
-        "qr_url": img.to_string(encoding="unicode"),
-        "url": url,
-    }
+    context = trailer_deposit_context(request, id)
     return render(request, "rent/trailer_deposit_details.html", context)
 
 
 def trailer_deposit_conditions(request, token):
-    id = token
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        id = info["deposit_id"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_inf.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_inf.html", context)
+
     context = trailer_deposit_context(request, id)
     return render(request, "rent/trailer_deposit_conditions.html", context)
 

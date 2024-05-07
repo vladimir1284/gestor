@@ -40,8 +40,8 @@
 <body>
     <div class="container">
         <div class="row mb-3">
-            <div class="col">
-                <div class="card">
+            <div class="col-12 col-xl-8 col-xxl-7 mb-2">
+                <div class="card pb-2">
                     <div class="row">
                         <div class="col text-center p-3 m-0 mb-3" id="qrcode">{{ qr_url | safe }}</div>
                         <div class="col">
@@ -55,9 +55,39 @@
                                         <td>{{ deposit.amount }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Date:</td>
-                                        <td>{{ deposit.date }}</td>
+                                        <td>Validity:</td>
+                                        <td>
+                                            From
+                                            <strong>{{ deposit.date }}</strong>
+                                            to
+                                            <strong>{{ deposit.valid_until }}</strong>
+                                        </td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            Validity days:
+                                        </td>
+                                        <td>
+                                            <strong>{{ deposit.days }}</strong>
+                                            {%if deposit.days == 1%}
+                                                day
+                                            {%else%}
+                                                days
+                                            {%endif%}
+                                        </td>
+                                    </tr>
+                                    {%if equipment.vin and equipment.vin != ''%}
+                                        <tr>
+                                            <td>Vin:</td>
+                                            <td>{{ equipment.vin }}</td>
+                                        </tr>
+                                    {%endif%}
+                                    {%if equipment.plate and equipment.plate != ''%}
+                                        <tr>
+                                            <td>Plate:</td>
+                                            <td>{{ equipment.plate }}</td>
+                                        </tr>
+                                    {%endif%}
                                     <tr>
                                         <td>Note:</td>
                                         <td>{{ deposit.note }}</td>
@@ -66,17 +96,9 @@
                             </table>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col m-3">
-                            <h4>Condiciones:</h4>
-                            Mis condiciones...
-                        </div>
-                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-6">
+            <div class="col mb-2">
                 <div class="card" style='height:100%'>
                     <div class="card-header lessee">
                         <h2>
@@ -127,24 +149,16 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6">
-                <div class="card" style='height:100%'>
+        </div>
+        <div class="row mt-4">
+            <div class="col">
+                <div class="card">
                     <div class="card-header">
-                        <h2 class='mb-0'>Trailer</h2>
+                        <h2>Conditions:</h2>
                     </div>
-                    <div class="text-center mb-4">
-                        <div class="mb-2 associated-pic">
-                            <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'assets/img/icons/trailer.png' %}" {% endif %}
-                                 alt="image"
-                                 height="100px"
-                                 width="100px"
-                                 class="w-px-100 h-px-100 rounded-circle card-img-top" />
-                        </div>
-                        <h5 class="card-title">
-                            {{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}
-                        </h5>
-                        <div class="card-subtitle text-muted mb-3">{{ equipment.vin }}</div>
-                        <p class="card-text">{{ equipment.note }}</p>
+
+                    <div class="card-body">
+                        Conditions...
                     </div>
                 </div>
             </div>
