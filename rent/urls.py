@@ -24,6 +24,7 @@ from rent.views.deposit import trailer_deposit_cancel
 from rent.views.deposit import trailer_deposit_conditions
 from rent.views.deposit import trailer_deposit_details
 from rent.views.deposit import trailer_deposit_pdf
+from rent.views.deposit import update_lessee_for_reservation
 from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
@@ -70,6 +71,11 @@ urlpatterns = [
         "reserve-trailer/<trailer_id>",
         reserve_trailer,
         name="reserve-trailer",
+    ),
+    path(
+        "reserve-trailer-update-lessee/<trailer_id>/<lessee_id>",
+        update_lessee_for_reservation,
+        name="reserve-trailer-update-lessee",
     ),
     path(
         "create-trailer-reservation/<trailer_id>/<lessee_id>",

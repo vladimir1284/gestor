@@ -1,30 +1,35 @@
 import jwt
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.shortcuts import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 
+from rent.forms.lease import AssociatedCreateForm
+from rent.forms.lease import LesseeDataForm
 from rent.forms.trailer_deposit import TrailerDepositForm
 from rent.forms.trailer_deposit import TrailerDepositRenovationForm
 from rent.forms.trailer_deposit import TrailerDepositTrace
 from rent.models.lease import Associated
+from rent.models.lease import LesseeData
 from rent.models.lease import Trailer
 from rent.models.trailer_deposit import TrailerDeposit
 from rent.tools.deposit import send_deposit_pdf
 from rent.tools.deposit import trailer_deposit_conditions_pdf
 from rent.tools.deposit import trailer_deposit_context
+from rent.views.lease import addStateCity
 
 
 @login_required
 def reserve_trailer(request, trailer_id):
     if request.method == "POST":
         lessee = get_object_or_404(Associated, id=request.POST.get("id"))
-        return redirect("create-trailer-reservation", trailer_id, lessee.id)
+        return redirect("reserve-trailer-update-lessee", trailer_id, lessee.id)
+        # return redirect("create-trailer-reservation", trailer_id, lessee.id)
 
-    # add form dictionary to context
     associates = Associated.objects.filter(type="client", active=True).order_by(
         "name", "alias"
     )
@@ -34,6 +39,45 @@ def reserve_trailer(request, trailer_id):
         "create": True,
     }
     return render(request, "services/client_list.html", context)
+
+
+@login_required
+def update_lessee_for_reservation(request, trailer_id, lessee_id):
+    lessee: Associated = get_object_or_404(Associated, id=lessee_id)
+    lessee_data = LesseeData.objects.filter(associated=lessee).last()
+
+    if request.method == "POST":
+        form = AssociatedCreateForm(
+            request.POST,
+            request.FILES,
+            instance=lessee,
+        )
+        ldform = LesseeDataForm(
+            request.POST or None,
+            request.FILES or None,
+            instance=lessee_data,
+        )
+        if form.is_valid() and ldform.is_valid():
+            lessee = form.save()
+            data = form.save(commit=False)
+            data.associated = lessee
+            data.save()
+            return redirect("create-trailer-reservation", trailer_id, lessee.id)
+    else:
+        form = AssociatedCreateForm(instance=lessee)
+        ldform = LesseeDataForm(instance=lessee_data)
+
+    title = "Update client"
+    context = {
+        "title": title,
+        "formAssociated": form,
+        "formLesseeData": ldform,
+    }
+    addStateCity(context)
+
+    return render(
+        request, "rent/contract/contract_lesseedata_associated_edit.html", context
+    )
 
 
 @login_required
