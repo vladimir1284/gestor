@@ -969,8 +969,20 @@
 }
 
 @media (min-width: 1280px) {
+  .xl\:ml-2 {
+    margin-left: 0.5rem;
+  }
+
+  .xl\:mr-2 {
+    margin-right: 0.5rem;
+  }
+
   .xl\:flex {
     display: flex;
+  }
+
+  .xl\:flex-grow {
+    flex-grow: 1;
   }
 }
 
