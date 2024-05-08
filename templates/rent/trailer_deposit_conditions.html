@@ -8,6 +8,8 @@
           class="template-customizer-core-css" />
     <link rel="stylesheet"
           href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'assets/css/style.css' %}"/>
     <style>
         @page {
             size: A3;
@@ -35,131 +37,152 @@
             max-width: 5.5cm;
             width: 5.5cm !important;
         }
+
+        #logo {
+            width: 100px;
+            z-index: 100;
+        }
+
+        {%if pdf%}
+            #logo {
+                position: absolute;
+                top: 10px;
+                right: 40px;
+            }
+        {%else%}
+            .card {
+                margin-bottom: 1rem;
+            }
+        {%endif%}
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="row mb-3">
-            <div class="col-12 col-xl-8 col-xxl-7 mb-2">
-                <div class="card pb-2">
-                    <div class="row">
-                        <div class="col text-center p-3 m-0 mb-3" id="qrcode">{{ qr_url | safe }}</div>
-                        <div class="col">
-                            <div class="card-header">
-                                <h2 class="mb-0">Deposit</h2>
-                            </div>
-                            <table class='ms-4'>
-                                <tbody>
-                                    <tr>
-                                        <td>Amount:</td>
-                                        <td>{{ deposit.amount }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Validity:</td>
-                                        <td>
-                                            From
-                                            <strong>{{ deposit.date }}</strong>
-                                            to
-                                            <strong>{{ deposit.valid_until }}</strong>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            Validity days:
-                                        </td>
-                                        <td>
-                                            <strong>{{ deposit.days }}</strong>
-                                            {%if deposit.days == 1%}
-                                                day
-                                            {%else%}
-                                                days
-                                            {%endif%}
-                                        </td>
-                                    </tr>
-                                    {%if equipment.vin and equipment.vin != ''%}
-                                        <tr>
-                                            <td>Vin:</td>
-                                            <td>{{ equipment.vin }}</td>
-                                        </tr>
-                                    {%endif%}
-                                    {%if equipment.plate and equipment.plate != ''%}
-                                        <tr>
-                                            <td>Plate:</td>
-                                            <td>{{ equipment.plate }}</td>
-                                        </tr>
-                                    {%endif%}
-                                    <tr>
-                                        <td>Note:</td>
-                                        <td>{{ deposit.note }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        <div class="card">
+            <div class="card-header mb-2 flex">
+                <div class="flex-grow">
+                    <h1>Invoice:</h1>
+                    <table class="mx-4">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Date</strong>
+                                </td>
+                                <td>
+                                    {% now "E, d Y" %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Invoice number</strong>
+                                </td>
+                                <td>{{ deposit.invoice_num }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <img id="logo"
+                         src="{% static 'assets/img/icons/TOWIT.png' %}"
+                         alt=""/>
                 </div>
             </div>
-            <div class="col mb-2">
-                <div class="card" style='height:100%'>
-                    <div class="card-header lessee">
-                        <h2>
-                            Lessee: <b> {{ deposit.client.name }}</b>
-                        </h2>
-                    </div>
-                    <div class="mt-4 ms-4">
-                        <table>
-                            <tbody>
-                                {% if deposit.client.phone_number %}
-                                    <tr>
-                                        <td>Phone number:</td>
-                                        <td>{{ deposit.client.phone_number }}</td>
-                                    </tr>
-                                {% endif %}
-                                {% if deposit.client.email %}
-                                    <tr>
-                                        <td>Email:</td>
-                                        <td>{{ deposit.client.email }}</td>
-                                    </tr>
-                                {% endif %}
-                                {% if deposit.client.state %}
-                                    <tr>
-                                        <td>State:</td>
-                                        <td>{{ deposit.client.state }}</td>
-                                    </tr>
-                                {% endif %}
-                                {% if deposit.client.other_state %}
-                                    <tr>
-                                        <td>Other state:</td>
-                                        <td>{{ deposit.client.other_state }}</td>
-                                    </tr>
-                                {% endif %}
-                                {% if deposit.client.city %}
-                                    <tr>
-                                        <td>City:</td>
-                                        <td>{{ deposit.client.city }}</td>
-                                    </tr>
-                                {% endif %}
-                                {% if deposit.client.other_city %}
-                                    <tr>
-                                        <td>Other city:</td>
-                                        <td>{{ deposit.client.other_city }}</td>
-                                    </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+
+            <div class="card-body pb-0 mb-0">
+                <table class="mx-4">
+                    <tbody>
+                        <tr>
+                            <td class="pt-0 pb-1 invoice-descrpition">
+                                <strong>TOWIT HOUSTON LLC</strong>
+                            </td>
+                            <td>
+                                <strong>BILL TO</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>6011 Liberty Rd</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Houston, TX 77026</td>
+                            <td>
+                                {{ deposit.client.name|nbsp }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>(832) 963-5145 / (305) 833-6144</td>
+                            <td>{{ deposit.client.phone_number|nbsp }}</td>
+                        </tr>
+                        <tr>
+                            <td>info@towithouston.com</td>
+                            <td>{{ deposit.client.email|nbsp }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class="row mt-4">
-            <div class="col">
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Conditions:</h2>
-                    </div>
 
-                    <div class="card-body">
-                        Conditions...
-                    </div>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Deposit On Hold:</h2>
+            </div>
+            <div class="card-body pb-0 mb-0">
+                <table class='m-auto'>
+                    <tbody>
+                        <tr>
+                            <td>Amount:</td>
+                            <td>{{ deposit.amount }}</td>
+                        </tr>
+                        <tr>
+                            <td>Validity:</td>
+                            <td>
+                                From
+                                <strong>{{ deposit.date }}</strong>
+                                to
+                                <strong>{{ deposit.valid_until }}</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Validity days:
+                            </td>
+                            <td>
+                                <strong>{{ deposit.days }}</strong>
+                                {%if deposit.days == 1%}
+                                    day
+                                {%else%}
+                                    days
+                                {%endif%}
+                            </td>
+                        </tr>
+                        {%if equipment.vin and equipment.vin != ''%}
+                            <tr>
+                                <td>Vin:</td>
+                                <td>{{ equipment.vin }}</td>
+                            </tr>
+                        {%endif%}
+                        {%if equipment.plate and equipment.plate != ''%}
+                            <tr>
+                                <td>Plate:</td>
+                                <td>{{ equipment.plate }}</td>
+                            </tr>
+                        {%endif%}
+                        <tr>
+                            <td>Note:</td>
+                            <td>{{ deposit.note }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Conditions:</h2>
+            </div>
+            <div class="card-body">
+                <div class="mx-4">
+                    Conditions...
                 </div>
             </div>
         </div>

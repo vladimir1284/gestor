@@ -206,6 +206,10 @@
   margin: 1rem;
 }
 
+.m-auto {
+  margin: auto;
+}
+
 .my-1 {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
@@ -214,6 +218,16 @@
 .my-2 {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.mx-2 {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.mx-4 {
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .mb-0 {
@@ -306,6 +320,10 @@
 
 .mt-4 {
   margin-top: 1rem;
+}
+
+.mt-\[20px\] {
+  margin-top: 20px;
 }
 
 .box-border {
@@ -415,6 +433,10 @@
 .w-min {
   width: -moz-min-content;
   width: min-content;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .max-w-\[10cm\] {
