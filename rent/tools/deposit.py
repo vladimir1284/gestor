@@ -37,7 +37,7 @@ Gracias""",
 
 
 def trailer_deposit_context(request, id):
-    deposit = get_object_or_404(TrailerDeposit, id=id)
+    deposit: TrailerDeposit = get_object_or_404(TrailerDeposit, id=id)
     images, pinned_image = getImages(deposit.trailer)
 
     exp = datetime.now(timezone.utc) + timedelta(hours=2)
@@ -72,6 +72,7 @@ def trailer_deposit_context(request, id):
 
 def trailer_deposit_conditions_pdf(request, id):
     context = trailer_deposit_context(request, id)
+    context["pdf"] = True
     html_string = render_to_string(
         "rent/trailer_deposit_conditions.html",
         context,

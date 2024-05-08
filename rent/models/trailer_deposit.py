@@ -60,6 +60,16 @@ class TrailerDeposit(models.Model):
     def traces_rev_date(self) -> list[TrailerDepositTrace]:
         return self.traces.all().order_by("-created_at")
 
+    @property
+    def invoice_num(self) -> str:
+        cli_id = str(self.client.id)
+        tra_id = str(self.trailer.id)
+        if len(cli_id) < 6:
+            cli_id = f"{self.client.id:06d}"
+        if len(tra_id) < 6:
+            tra_id = f"{self.trailer.id:06d}"
+        return f"DOH{cli_id}-{tra_id}"
+
 
 def get_active_trailers_deposit(trailer: Trailer):
     now = datetime.now()

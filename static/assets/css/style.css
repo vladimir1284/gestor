@@ -206,9 +206,18 @@
   margin: 1rem;
 }
 
+.m-auto {
+  margin: auto;
+}
+
 .mx-3 {
   margin-left: 0.75rem;
   margin-right: 0.75rem;
+}
+
+.mx-4 {
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .my-1 {
@@ -291,10 +300,6 @@
 
 .ms-3 {
   margin-inline-start: 0.75rem;
-}
-
-.ms-4 {
-  margin-inline-start: 1rem;
 }
 
 .ms-auto {
@@ -963,11 +968,12 @@
   }
 }
 
-<<<<<<< HEAD
 @media (min-width: 1280px) {
   .xl\:flex {
     display: flex;
-=======
+  }
+}
+
 @media (min-width: 1536px) {
   .\32xl\:fixed {
     position: fixed;
@@ -995,6 +1001,5 @@
 
   .\32xl\:pr-96 {
     padding-right: 24rem;
->>>>>>> dev/deposits
   }
 }
