@@ -24,6 +24,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import UpdateView
+from schedule.models import date
 
 from rent.forms.hand_writing import HandWritingForm
 from rent.forms.lease import AssociatedCreateForm
@@ -58,6 +59,7 @@ from rent.tools.get_conditions import get_conditions
 from rent.tools.get_missing_handwriting import get_missing_handwriting
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
+from rent.views.client import Note
 from rent.views.vehicle import FILES_ICONS
 from users.models import Associated
 from users.views import addStateCity
@@ -353,10 +355,7 @@ def update_due(request, id):
 @transaction.atomic
 def update_contract_stage(request, id, stage):
     contract: Contract = get_object_or_404(Contract, id=id)
-    on_hold = 0
-    for td in TrailerDeposit.objects.filter(contract=contract):
-        if td.done:
-            on_hold += td.amount
+    on_hold = TrailerDeposit.objects.filter(contract=contract).first()
 
     contract.user = request.user
     contract.stage = stage
@@ -365,13 +364,23 @@ def update_contract_stage(request, id, stage):
         missing_handws = get_missing_handwriting(contract)
         if len(missing_handws) > 0:
             return redirect("detail-contract", id)
-        Lease.objects.create(
+        lease = Lease.objects.create(
             contract=contract,
             payment_amount=contract.payment_amount,
             payment_frequency=contract.payment_frequency,
             event=None,
-            remaining=on_hold,
         )
+        if on_hold is not None:
+            LeaseDeposit.objects.create(
+                lease=lease,
+                date=on_hold.date,
+                amount=on_hold.amount,
+                note=on_hold.note,
+            )
+            SecurityDepositDevolution.objects.create(
+                contract=contract,
+                total_deposited_amount=on_hold.amount,
+            )
         mail_send_contract(request, id)
         contract.save()
         return redirect("client-detail", contract.lessee.id)
