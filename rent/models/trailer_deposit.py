@@ -18,6 +18,10 @@ class TrailerDepositTrace(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def valid_until(self):
+        return self.created_at + timedelta(days=self.days)
+
 
 class TrailerDeposit(models.Model):
     client = models.ForeignKey(

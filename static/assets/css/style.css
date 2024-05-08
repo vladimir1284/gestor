@@ -394,6 +394,10 @@
   height: auto;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .w-11\/12 {
   width: 91.666667%;
 }
@@ -601,6 +605,11 @@
   background-color: rgb(254 226 226 / var(--tw-bg-opacity));
 }
 
+.bg-red-50 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 242 242 / var(--tw-bg-opacity));
+}
+
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
@@ -646,6 +655,11 @@
 .px-1 {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
+}
+
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .px-3 {
@@ -753,10 +767,6 @@
   padding-top: 1rem;
 }
 
-.pt-5 {
-  padding-top: 1.25rem;
-}
-
 .text-left {
   text-align: left;
 }
@@ -767,6 +777,10 @@
 
 .text-end {
   text-align: end;
+}
+
+.align-top {
+  vertical-align: top;
 }
 
 .align-middle {

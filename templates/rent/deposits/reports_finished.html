@@ -1,0 +1,57 @@
+{% load static %}
+{% load humanize %}
+<div class="col-md-6 px-2 pb-3">
+    <div class="card h-full">
+        <div class="card-header">
+            <h4>Deposits Finished</h4>
+        </div>
+        <div class="card-body">
+            <table>
+                <tr>
+                    <td>
+                        <strong>Quantity:</strong>
+                    </td>
+                    <td>{{deposits_finished_count}}</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Total income:</strong>
+                    </td>
+                    <td>${{deposits_finished_total}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-responsive text-nowrap">
+            <div class="container ps-0" style="height: 500px; overflow-y: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Invoice</th>
+                            <th>Client</th>
+                            <th class="text-end">Amount</th>
+                            <th>Days</th>
+                            <th>From</th>
+                            <th>To</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for deposit in deposits_finished %}
+                            <tr>
+                                <td>
+                                    <a href="{%url 'trailer-deposit-details' deposit.id %}">
+                                        {{deposit.invoice_num}}
+                                    </a>
+                                </td>
+                                <td>{{ deposit.client.name|slice:":20" }}</td>
+                                <td class="text-end">${{ deposit.amount|floatformat:"2" }}</td>
+                                <td>{{ deposit.days }}</td>
+                                <td>{{ deposit.date|date:"E, d Y" }}</td>
+                                <td>{{ deposit.valid_until|date:"E, d Y" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
