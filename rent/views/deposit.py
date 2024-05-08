@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.urls import reverse
 
 from rent.forms.lease import AssociatedCreateForm
 from rent.forms.lease import LesseeDataForm
@@ -20,6 +21,8 @@ from rent.models.trailer_deposit import TrailerDeposit
 from rent.tools.deposit import send_deposit_pdf
 from rent.tools.deposit import trailer_deposit_conditions_pdf
 from rent.tools.deposit import trailer_deposit_context
+from rent.views.create_lessee_with_data import create_lessee_with_data
+from rent.views.create_lessee_with_data import update_lessee_with_data
 from rent.views.lease import addStateCity
 
 
@@ -37,46 +40,27 @@ def reserve_trailer(request, trailer_id):
         "associates": associates,
         "trailer_id": trailer_id,
         "create": True,
+        "createUrl": reverse("reserve-trailer-create-lessee", args=[trailer_id]),
     }
     return render(request, "services/client_list.html", context)
 
 
 @login_required
 def update_lessee_for_reservation(request, trailer_id, lessee_id):
-    lessee: Associated = get_object_or_404(Associated, id=lessee_id)
-    lessee_data = LesseeData.objects.filter(associated=lessee).last()
+    return update_lessee_with_data(
+        request,
+        lessee_id,
+        "create-trailer-reservation",
+        [trailer_id, lessee_id],
+    )
 
-    if request.method == "POST":
-        form = AssociatedCreateForm(
-            request.POST,
-            request.FILES,
-            instance=lessee,
-        )
-        ldform = LesseeDataForm(
-            request.POST or None,
-            request.FILES or None,
-            instance=lessee_data,
-        )
-        if form.is_valid() and ldform.is_valid():
-            lessee = form.save()
-            data = form.save(commit=False)
-            data.associated = lessee
-            data.save()
-            return redirect("create-trailer-reservation", trailer_id, lessee.id)
-    else:
-        form = AssociatedCreateForm(instance=lessee)
-        ldform = LesseeDataForm(instance=lessee_data)
 
-    title = "Update client"
-    context = {
-        "title": title,
-        "formAssociated": form,
-        "formLesseeData": ldform,
-    }
-    addStateCity(context)
-
-    return render(
-        request, "rent/contract/contract_lesseedata_associated_edit.html", context
+@login_required
+def create_lessee_for_reservation(request, trailer_id):
+    return create_lessee_with_data(
+        request,
+        "create-trailer-reservation",
+        [trailer_id, "{lessee_id}"],
     )
 
 

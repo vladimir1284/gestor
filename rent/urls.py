@@ -17,6 +17,7 @@ from .views.cost import detail_cost
 from .views.cost import list_cost
 from .views.cost import update_cost
 from rent.tools.init_conditions import init_conditions
+from rent.views.deposit import create_lessee_for_reservation
 from rent.views.deposit import create_trailer_reservation
 from rent.views.deposit import renovate_trailer_reservation
 from rent.views.deposit import reserve_trailer
@@ -76,6 +77,11 @@ urlpatterns = [
         "reserve-trailer-update-lessee/<trailer_id>/<lessee_id>",
         update_lessee_for_reservation,
         name="reserve-trailer-update-lessee",
+    ),
+    path(
+        "reserve-trailer-create-lessee/<trailer_id>",
+        create_lessee_for_reservation,
+        name="reserve-trailer-create-lessee",
     ),
     path(
         "create-trailer-reservation/<trailer_id>/<lessee_id>",

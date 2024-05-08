@@ -283,6 +283,8 @@ class AssociatedCreateForm(BaseContactForm):
     def __init__(self, *args, only_fields=None, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["type"].widget = HiddenInput()
+        self.fields["phone_number"].required = True
         self.fields["email"].required = True
 
         if only_fields is not None and len(only_fields) != 0 and only_fields[0] != "":
@@ -299,7 +301,7 @@ class AssociatedCreateForm(BaseContactForm):
 
 class ProviderCreateForm(AssociatedCreateForm):
     class Meta(AssociatedCreateForm.Meta):
-        fields = AssociatedCreateForm.Meta.fields + ["outsource"]
+        fields = AssociatedCreateForm.Meta.fields + ["outsource", "alias", "membership"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -310,6 +312,8 @@ class ProviderCreateForm(AssociatedCreateForm):
 
         self.helper.layout = Layout(
             CommonContactLayout(),
+            Field("alias"),
+            Field("membership"),
             Field("type"),
             Div(Field("outsource"), css_class="mb-3"),
             ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),

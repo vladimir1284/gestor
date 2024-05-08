@@ -9,7 +9,7 @@
         <!--    type="button" -->
         <!--    class="btn btn-outline-primary float-end">Skip</a> -->
     {% endif %}
-    {% if create != 'order' %}
+    {% if create != 'order' and not createUrl %}
         {%comment%}
                         <a href="{% url 'create-service-order-contact' %}"
                            type="button"
@@ -17,10 +17,10 @@
                     {% elif create %}
     {% endcomment %}
     <!-- <a href="{% url 'create-lessee-contact' trailer_id %}" -->
-    <a href="{% url 'create-lessee' trailer_id %}"
-       type="button"
-       class="btn btn-outline-primary float-end">New client</a>
-{% endif %}
+        <a href="{% url 'create-lessee' trailer_id %}"
+           type="button"
+           class="btn btn-outline-primary float-end">New client</a>
+    {% endif %}
 {% endblock Ctitle %}
 {% block Cards %}
     {% for associated in associates %}
@@ -34,6 +34,8 @@
         {% else %}
             {% url 'create-service-order-contact' %}
         {% endif %}
+    {%elif createUrl%}
+        {{createUrl}}
     {% else %}
         {% url 'create-client' %}?next={{ request.path|urlencode }}
     {% endif %}
