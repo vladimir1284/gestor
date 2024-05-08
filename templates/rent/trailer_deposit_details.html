@@ -64,10 +64,11 @@
                                 </ul>
                                 <div class="m-3">
                                     <a class="btn btn-outline-primary" href="{{ url }}">
-                                        <i class='bx bxs-file'></i></a>
+                                        <i class='bx bx-wrench'></i>
+                                    </a>
                                     <a class="btn btn-outline-primary"
                                        href="{% url 'trailer-deposit-conditions-pdf' deposit.id %}">
-                                        <i class='bx bxs-file-pdf'></i>
+                                        <i class='bx bx-printer' ></i>
                                     </a>
                                     {%if not deposit.done and not deposit.cancelled and not deposit.expirated %}
                                         <a class="btn btn-outline-primary"
