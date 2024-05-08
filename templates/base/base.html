@@ -54,35 +54,35 @@
         <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
         <!-- Page CSS -->
         <style>
-      .input-group-addon {
-        display: flex;
-        align-items: center;
-        padding: 0.4375rem 0.875rem;
-        font-size: 0.9375rem;
-        font-weight: 400;
-        line-height: 1.53;
-        color: #697a8d;
-        text-align: center;
-        white-space: nowrap;
-        background-color: #fff;
-        border: 1px solid #d9dee3;
-        border-radius: 0.375rem;
-      }
-      .help-block {
-        margin-top: 0.3rem;
-        font-size: 85%;
-        color: #b4bdc6;
-      }
-      span[id^="error_"] {
-        width: 100%;
-        margin-top: 0.3rem;
-        font-size: 85%;
-        color: #ff3e1d;
-      }
-      .was-validated .form-control:invalid,
-      .form-control.is-invalid {
-        border-color: #ff3e1d;
-      }
+            .input-group-addon {
+                display: flex;
+                align-items: center;
+                padding: 0.4375rem 0.875rem;
+                font-size: 0.9375rem;
+                font-weight: 400;
+                line-height: 1.53;
+                color: #697a8d;
+                text-align: center;
+                white-space: nowrap;
+                background-color: #fff;
+                border: 1px solid #d9dee3;
+                border-radius: 0.375rem;
+            }
+            .help-block {
+                margin-top: 0.3rem;
+                font-size: 85%;
+                color: #b4bdc6;
+            }
+            span[id^="error_"] {
+                width: 100%;
+                margin-top: 0.3rem;
+                font-size: 85%;
+                color: #ff3e1d;
+            }
+            .was-validated .form-control:invalid,
+            .form-control.is-invalid {
+                border-color: #ff3e1d;
+            }
         </style>
         {% block page %}
         {% endblock page %}
@@ -169,25 +169,25 @@
                     <div class="layout-page">
                         {% block containerFull %}
                             <div class="container-xxl">
-                            {% endblock containerFull %}
-                            {% block navbar %}
-                                {% include "base/navbar.html" %}
-                            {% endblock navbar %}
+                        {% endblock containerFull %}
+                        {% block navbar %}
+                            {% include "base/navbar.html" %}
+                        {% endblock navbar %}
                             <!-- Content wrapper -->
-                            <div class="content-wrapper">
-                                <div class="flex-grow-1 container-p-y">
-                                    {% block content %}
-                                    {% endblock content %}
-                                </div>
-                                <div class="content-backdrop fade"></div>
+                        <div class="content-wrapper">
+                            <div class="flex-grow-1 container-p-y">
+                                {% block content %}
+                                {% endblock content %}
                             </div>
-                            <!-- Content wrapper -->
+                            <div class="content-backdrop fade"></div>
                         </div>
+                            <!-- Content wrapper -->
                     </div>
-                    <!-- / Layout page -->
                 </div>
+                    <!-- / Layout page -->
+            </div>
                 <!-- Overlay -->
-                <div class="layout-overlay layout-menu-toggle"></div>
+            <div class="layout-overlay layout-menu-toggle"></div>
             </div>
             <!-- / Layout wrapper -->
             <!-- Core JS -->
