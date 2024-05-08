@@ -163,26 +163,32 @@ def create_provider(request):
 
 @login_required
 def create_client(request):
-    if request.method == "POST":
-        form = AssociatedCreateForm(request.POST, request.FILES)
-        if form.is_valid():
-            client = form.save()
-
-            order_data = request.session.get("creating_order")
-            if order_data is not None:
-                request.session["client_id"] = client.id
-
-                if "next" in request.session and request.session["next"] is not None:
-                    return redirect(request.session["next"])
-
-                return redirect("select-company")
-            # else:
-            #     order_id = request.session.get('order_detail')
-            #     if order_id is not None:
-            #         order = get_object_or_404(Order, id=order_id)
-            #         order.associated = client
-            #         order.save()
-            #         return redirect('detail-service-order', id=order_id)
+    # if request.method == "POST":
+    #     form = AssociatedCreateForm(request.POST, request.FILES)
+    #     if form.is_valid():
+    #         client = form.save()
+    #
+    #         order_data = request.session.get("creating_order")
+    #         if order_data is not None:
+    #             request.session["client_id"] = client.id
+    #
+    #             if "next" in request.session and request.session["next"] is not None:
+    #                 return redirect(request.session["next"])
+    #
+    #             return redirect("select-company")
+    #         else:
+    #             if "next" in request.GET and request.GET["next"] is not None:
+    #                 return redirect(request.GET["next"])
+    #             if "next" in request.session and request.session["next"] is not None:
+    #                 return redirect(request.session["next"])
+    #             return redirect("list-client")
+    # else:
+    #     order_id = request.session.get('order_detail')
+    #     if order_id is not None:
+    #         order = get_object_or_404(Order, id=order_id)
+    #         order.associated = client
+    #         order.save()
+    #         return redirect('detail-service-order', id=order_id)
 
     return create_associated(request, "client")
 
@@ -209,14 +215,22 @@ def create_associated(request, type):
     initial = {"type": type}
     form = FORMS[type](initial=initial)
     next = request.GET.get("next", "list-{}".format(type))
+    print(next)
     if request.method == "POST":
+        print(1)
         form = FORMS[type](request.POST, request.FILES, initial=initial)
+        print(2)
         if form.is_valid():
+            print(3)
             associated: Associated = form.save()
+            print(4)
             request.session["associated_id"] = associated.id
+            print(6)
             if associated.outsource:
+                print(7)
                 order_id = request.session.get("order_detail")
                 return redirect("create-expense", order_id)
+            print(next)
             return redirect(next)
     title = {"client": _("Create client"), "provider": _("Create Provider")}[type]
     context = {"form": form, "title": title}
