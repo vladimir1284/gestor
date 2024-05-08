@@ -203,8 +203,15 @@ def contracts(request):
 @login_required
 def adjust_end_deposit(request, id):
     closing = request.GET.get("closing", False)
-    contract = get_object_or_404(Contract, id=id)
+    contract: Contract = get_object_or_404(Contract, id=id)
     deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=contract)
+
+    if (
+        contract.stage == "missing"
+        and closing != False
+        and (c or deposit.total_deposited_amount == 0)
+    ):
+        return redirect("update-contract-stage", id, "ended")
 
     if c:
         total_amount = sum(
