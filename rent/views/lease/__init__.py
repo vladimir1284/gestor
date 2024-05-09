@@ -206,11 +206,12 @@ def adjust_end_deposit(request, id):
     closing = request.GET.get("closing", False)
     contract: Contract = get_object_or_404(Contract, id=id)
     deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=contract)
+    on_hold = TrailerDeposit.objects.filter(done=True, contract=contract).last()
 
     if (
         contract.stage == "missing"
-        and closing != False
         and (c or deposit.total_deposited_amount == 0)
+        and (on_hold is None or on_hold.amount == 0)
     ):
         return redirect("update-contract-stage", id, "ended")
 
@@ -222,6 +223,8 @@ def adjust_end_deposit(request, id):
                 for lease_deposit in lease.lease_deposit.all()
             ]
         )
+        if on_hold is not None:
+            total_amount += on_hold.amount
 
         deposit.total_deposited_amount = total_amount
         deposit.save()
