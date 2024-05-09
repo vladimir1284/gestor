@@ -387,6 +387,7 @@ def update_contract_stage(request, id, stage):
                 date=on_hold.date,
                 amount=on_hold.amount,
                 note=on_hold.note,
+                on_hold=True,
             )
             SecurityDepositDevolution.objects.create(
                 contract=contract,

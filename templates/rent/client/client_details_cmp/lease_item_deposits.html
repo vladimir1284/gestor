@@ -11,6 +11,9 @@
         {% for deposit in lease.deposits %}
             <li>
                 <i class="tf-icons bx bx-calendar"></i>{{ deposit.date|date:"m/d/Y" }} - <strong>${{ deposit.amount|floatformat:"0" }}</strong>
+                {%if deposit.on_hold%}
+                    <span>(ON HOLD)</span>
+                {%endif%}
                 <a class="btn btn-icon btn-outline-primary ms-3"
                    type="button"
                    onclick="deleteDeposit('{{ deposit.amount }}', {{ deposit.id }})">
