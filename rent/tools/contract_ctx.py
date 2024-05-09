@@ -11,6 +11,7 @@ from rent.models.lease import HandWriting
 from rent.models.lease import Inspection
 from rent.models.lease import LesseeData
 from rent.models.lease import Tire
+from rent.models.trailer_deposit import TrailerDeposit
 from rent.views.calendar import datetime
 
 
@@ -38,8 +39,12 @@ def get_contract(id):
 
 def prepare_contract_view(id):
     contract = get_contract(id)
+    on_hold = TrailerDeposit.objects.filter(contract=contract).last()
     signatures = HandWriting.objects.filter(lease=contract)
-    context = {"contract": contract}
+    context = {
+        "contract": contract,
+        "on_hold": on_hold,
+    }
     for sign in signatures:
         context.setdefault(sign.position, sign)
     # Inspection tires sumamry
