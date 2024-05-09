@@ -17,6 +17,7 @@ from .views.cost import detail_cost
 from .views.cost import list_cost
 from .views.cost import update_cost
 from rent.tools.init_conditions import init_conditions
+from rent.views.create_lessee_with_data import create_update_lessee_data
 from rent.views.deposit import create_lessee_for_reservation
 from rent.views.deposit import create_trailer_reservation
 from rent.views.deposit import renovate_trailer_reservation
@@ -269,6 +270,11 @@ urlpatterns = [
         "create_lessee_contact/<int:trailer_id>/",
         lease.create_lessee_contact,
         name="create-lessee-contact",
+    ),
+    path(
+        "lessee_data_form/<str:token>/",
+        create_update_lessee_data,
+        name="lessee_data_form",
     ),
     path(
         "generate_lessee_url/<trailer_id>/<associated_id>/",

@@ -21,7 +21,9 @@ from rent.models.trailer_deposit import TrailerDeposit
 from rent.tools.deposit import send_deposit_pdf
 from rent.tools.deposit import trailer_deposit_conditions_pdf
 from rent.tools.deposit import trailer_deposit_context
+from rent.views.create_lessee_with_data import create_lessee
 from rent.views.create_lessee_with_data import create_lessee_with_data
+from rent.views.create_lessee_with_data import update_lessee
 from rent.views.create_lessee_with_data import update_lessee_with_data
 from rent.views.lease import addStateCity
 
@@ -47,7 +49,7 @@ def reserve_trailer(request, trailer_id):
 
 @login_required
 def update_lessee_for_reservation(request, trailer_id, lessee_id):
-    return update_lessee_with_data(
+    return update_lessee(
         request,
         lessee_id,
         "create-trailer-reservation",
@@ -57,7 +59,7 @@ def update_lessee_for_reservation(request, trailer_id, lessee_id):
 
 @login_required
 def create_lessee_for_reservation(request, trailer_id):
-    return create_lessee_with_data(
+    return create_lessee(
         request,
         "create-trailer-reservation",
         [trailer_id, "{lessee_id}"],
