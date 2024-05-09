@@ -60,6 +60,7 @@ from rent.tools.get_missing_handwriting import get_missing_handwriting
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
 from rent.views.client import Note
+from rent.views.create_lessee_with_data import create_lessee
 from rent.views.vehicle import FILES_ICONS
 from users.models import Associated
 from users.views import addStateCity
@@ -617,6 +618,9 @@ def select_lessee(request, trailer_id):
 @login_required
 @staff_required
 def update_lessee(request, trailer_id, lessee_id=None, deposit_id=None):
+    if lessee_id is None:
+        return create_lessee(request, "create-contract", ["{lessee_id}", trailer_id])
+
     if lessee_id is not None:
         # fetch the object related to passed id
         lessee = get_object_or_404(Associated, id=lessee_id)
