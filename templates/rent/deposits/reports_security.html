@@ -1,19 +1,19 @@
 {% load static %}
 {% load humanize %}
 <div class="card-body pt-0">
-    <strong class='text-main'>FINISHED</strong>
+    <strong class='text-main'>ON SECURITY</strong>
     <table>
         <tr>
             <td>
                 <strong>Quantity:</strong>
             </td>
-            <td>{{deposits_finished_count}}</td>
+            <td>{{deposits_security_count}}</td>
         </tr>
         <tr>
             <td>
-                <strong>Total income:</strong>
+                <strong>Total on security:</strong>
             </td>
-            <td>${{deposits_finished_total}}</td>
+            <td>${{deposits_security_total}}</td>
         </tr>
     </table>
 </div>
@@ -31,7 +31,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for deposit in deposits_finished %}
+                {% for deposit in deposits_security %}
                     <tr>
                         <td>
                             <a href="{%url 'trailer-deposit-details' deposit.id %}">

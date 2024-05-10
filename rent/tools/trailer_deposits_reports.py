@@ -18,6 +18,22 @@ def deposits_on_hold_reports(ctx: dict, year: int, month: int):
     ctx["deposits_on_hold_total"] = sum
 
 
+def deposits_security_reports(ctx: dict, year: int, month: int):
+    security = TrailerDeposit.objects.filter(
+        cancelled=False,
+        done=True,
+        date__year=year,
+        date__month=month,
+    )
+    ctx["deposits_security"] = security
+    ctx["deposits_security_count"] = security.count()
+
+    sum = 0
+    for d in security:
+        sum += d.amount
+    ctx["deposits_security_total"] = sum
+
+
 def deposits_renovations_reports(ctx: dict, year: int, month: int):
     renovations = TrailerDepositTrace.objects.filter(
         status="renovated",
@@ -59,5 +75,13 @@ def deposits_finished_reports(ctx: dict, year: int, month: int):
 
 def deposits_reports(ctx: dict, year: int, month: int):
     deposits_on_hold_reports(ctx, year, month)
+    deposits_security_reports(ctx, year, month)
     deposits_renovations_reports(ctx, year, month)
     deposits_finished_reports(ctx, year, month)
+
+    ctx["deposits_total"] = (
+        ctx["deposits_on_hold_total"]
+        + ctx["deposits_security_total"]
+        + ctx["deposits_renovations_total"]
+        + ctx["deposits_finished_total"]
+    )
