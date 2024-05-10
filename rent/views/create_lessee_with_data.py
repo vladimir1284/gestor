@@ -5,6 +5,7 @@ from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.timezone import datetime
 from django.utils.timezone import timedelta
 from django.utils.timezone import timezone
@@ -20,11 +21,17 @@ from users.views import addStateCity
 
 @login_required
 @atomic
-def create_lessee_with_data(request, next, args: list):
+def create_lessee_with_data(
+    request,
+    next,
+    args: list,
+    use_client_url: dict | None = None,
+):
     if request.method == "POST":
         formLessee = AssociatedCreateForm(
             request.POST,
             request.FILES,
+            use_client_url=use_client_url,
         )
         formLesseeData = LesseeDataForm(
             request.POST or None,
@@ -115,11 +122,17 @@ def update_lessee_with_data(request, lessee_id, next, args):
 
 @login_required
 @atomic
-def create_lessee(request, next, args: list):
+def create_lessee(
+    request,
+    next,
+    args: list,
+    use_client_url: dict | None = None,
+):
     if request.method == "POST":
         form = AssociatedCreateForm(
             request.POST,
             request.FILES,
+            use_client_url=use_client_url,
         )
         if form.is_valid():
             lessee = form.save()
@@ -136,7 +149,7 @@ def create_lessee(request, next, args: list):
 
             return redirect("lessee_data_form", token)
     else:
-        form = AssociatedCreateForm()
+        form = AssociatedCreateForm(use_client_url=use_client_url)
 
     title = "Create client"
     context = {
