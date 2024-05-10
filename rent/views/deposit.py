@@ -171,7 +171,25 @@ def trailer_deposit_conditions(request, token):
     return render(request, "rent/trailer_deposit_conditions.html", context)
 
 
-def trailer_deposit_pdf(request, id):
+def trailer_deposit_pdf(request, token):
+    try:
+        info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        id = info["deposit_id"]
+    except jwt.ExpiredSignatureError:
+        context = {
+            "title": "Error",
+            "msg": "Expirated token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_inf.html", context)
+    except jwt.InvalidTokenError:
+        context = {
+            "title": "Error",
+            "msg": "Invalid token",
+            "err": True,
+        }
+        return render(request, "rent/client/lessee_form_inf.html", context)
+
     result = trailer_deposit_conditions_pdf(request, id)
     if result is not None:
         response = HttpResponse(content_type="application/pdf;")
