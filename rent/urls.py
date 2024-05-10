@@ -110,7 +110,7 @@ urlpatterns = [
         name="trailer-deposit-conditions",
     ),
     path(
-        "trailer-deposit-conditions-pdf/<id>",
+        "trailer-deposit-conditions-pdf/<token>",
         trailer_deposit_pdf,
         name="trailer-deposit-conditions-pdf",
     ),
