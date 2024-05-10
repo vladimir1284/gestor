@@ -60,7 +60,7 @@
                 {% if equipment.current_contract %}
                     {% include "rent/contract_icon.html" with contract=equipment.current_contract equipment=equipment %}
                 {% elif equipment.reservation %}
-                    <a class="btn btn-icon btn-outline-primary"
+                    <a class="btn btn-icon btn-outline-{%if equipment.reservation.expirated%}danger{%else%}primary{%endif%}"
                        type
                        None="button"
                        href="{% url 'trailer-deposit-details' equipment.reservation.id %}">

@@ -76,9 +76,12 @@ class TrailerDeposit(models.Model):
 
 
 def get_active_trailers_deposit(trailer: Trailer):
-    now = datetime.now()
+    # now = datetime.now()
     return TrailerDeposit.objects.filter(
-        trailer=trailer, date__gte=now, cancelled=False, done=False
+        trailer=trailer,
+        # date__gte=now,
+        cancelled=False,
+        done=False,
     )
 
 

@@ -89,7 +89,7 @@ class TrailerDepositForm(forms.ModelForm):
 
     def clean_date(self):
         date = self.cleaned_data["date"]
-        if date < make_aware(datetime.now()):
+        if date.date() < datetime.now().date():
             raise forms.ValidationError("Insert a valid date")
         return date
 
