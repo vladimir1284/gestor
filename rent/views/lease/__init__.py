@@ -629,8 +629,6 @@ def update_lessee(request, trailer_id, lessee_id=None, deposit_id=None):
         args.append(deposit_id)
         cli_args.append(deposit_id)
 
-    if deposit_id is not None:
-        args.append(deposit_id)
     if lessee_id is None:
         return create_lessee(
             request,

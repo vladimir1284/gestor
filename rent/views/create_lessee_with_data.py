@@ -246,6 +246,7 @@ def create_update_lessee_data(request, token: str):
                     args[idx] = lessee.id
             except Exception:
                 pass
+
             return redirect(next, *args)
     else:
         form = LesseeDataForm(instance=lessee_data)
