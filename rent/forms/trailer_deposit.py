@@ -7,6 +7,7 @@ from crispy_forms.layout import Layout
 from crispy_forms.layout import Submit
 from django import forms
 from django.utils.timezone import datetime
+from django.utils.timezone import make_aware
 from django.utils.translation.trans_real import mark_safe
 
 from rent.models.trailer_deposit import TrailerDeposit
@@ -85,6 +86,12 @@ class TrailerDepositForm(forms.ModelForm):
                 ),
             ),
         )
+
+    def clean_date(self):
+        date = self.cleaned_data["date"]
+        if date < make_aware(datetime.now()):
+            raise forms.ValidationError("Insert a valid date")
+        return date
 
 
 class TrailerDepositRenovationForm(forms.ModelForm):

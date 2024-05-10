@@ -61,6 +61,7 @@ from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
 from rent.views.client import Note
 from rent.views.create_lessee_with_data import create_lessee
+from rent.views.create_lessee_with_data import update_lessee as updateLessee
 from rent.views.vehicle import FILES_ICONS
 from users.models import Associated
 from users.views import addStateCity
@@ -622,50 +623,68 @@ def select_lessee(request, trailer_id):
 @login_required
 @staff_required
 def update_lessee(request, trailer_id, lessee_id=None, deposit_id=None):
+    args = ["{lessee_id}", trailer_id]
+    cli_args = [trailer_id, "{client_id}"]
+    if deposit_id is not None:
+        args.append(deposit_id)
+        cli_args.append(deposit_id)
+
+    if deposit_id is not None:
+        args.append(deposit_id)
     if lessee_id is None:
-        return create_lessee(request, "create-contract", ["{lessee_id}", trailer_id])
+        return create_lessee(
+            request,
+            "create-contract",
+            args,
+            use_client_url={
+                "url": "update-lessee",
+                "args": cli_args,
+            },
+        )
 
-    if lessee_id is not None:
-        # fetch the object related to passed id
-        lessee = get_object_or_404(Associated, id=lessee_id)
+    return updateLessee(request, lessee_id, "create-contract", args)
 
-        if request.method == "POST":
-            # pass the object as instance in form
-            form = AssociatedCreateForm(request.POST, request.FILES, instance=lessee)
-
-            # save the data from the form and
-            # redirect to update lessee data view
-            if form.is_valid():
-                form.save()
-                if deposit_id is None:
-                    return redirect("update-lessee-data", trailer_id, lessee.id)
-                return redirect("update-lessee-data", trailer_id, lessee.id, deposit_id)
-
-        # pass the object as instance in form
-        form = AssociatedCreateForm(instance=lessee)
-        title = _("Update client")
-    else:
-        if request.method == "POST":
-            # pass the object as instance in form
-            form = AssociatedCreateForm(request.POST, request.FILES)
-
-            # save the data from the form and
-            # redirect to update lessee data view
-            if form.is_valid():
-                lessee = form.save()
-                return redirect("update-lessee-data", trailer_id, lessee.id)
-
-        form = AssociatedCreateForm()
-        title = _("Create client")
-
-    # add form dictionary to context
-
-    context = {
-        "form": form,
-        "title": title,
-    }
-    addStateCity(context)
-    return render(request, "users/contact_create.html", context)
+    # if lessee_id is not None:
+    #     # fetch the object related to passed id
+    #     lessee = get_object_or_404(Associated, id=lessee_id)
+    #
+    #     if request.method == "POST":
+    #         # pass the object as instance in form
+    #         form = AssociatedCreateForm(request.POST, request.FILES, instance=lessee)
+    #
+    #         # save the data from the form and
+    #         # redirect to update lessee data view
+    #         if form.is_valid():
+    #             form.save()
+    #             if deposit_id is None:
+    #                 return redirect("update-lessee-data", trailer_id, lessee.id)
+    #             return redirect("update-lessee-data", trailer_id, lessee.id, deposit_id)
+    #
+    #     # pass the object as instance in form
+    #     form = AssociatedCreateForm(instance=lessee)
+    #     title = _("Update client")
+    # else:
+    #     if request.method == "POST":
+    #         # pass the object as instance in form
+    #         form = AssociatedCreateForm(request.POST, request.FILES)
+    #
+    #         # save the data from the form and
+    #         # redirect to update lessee data view
+    #         if form.is_valid():
+    #             lessee = form.save()
+    #             return redirect("update-lessee-data", trailer_id, lessee.id)
+    #
+    #     form = AssociatedCreateForm()
+    #     title = _("Create client")
+    #
+    # # add form dictionary to context
+    #
+    # context = {
+    #     "form": form,
+    #     "title": title,
+    # }
+    # addStateCity(context)
+    # return render(request, "users/contact_create.html", context)
 
 
 @login_required
