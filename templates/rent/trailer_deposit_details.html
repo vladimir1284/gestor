@@ -63,11 +63,11 @@
                                     <li class="list-group-item">Note:    {{ deposit.note }}</li>
                                 </ul>
                                 <div class="m-3">
-                                    <a class="btn btn-outline-primary" href="{{ url }}">
+                                    <a class="btn btn-outline-primary" href="{%url 'trailer-deposit-conditions' token%}">
                                         <i class='bx bx-wrench'></i>
                                     </a>
                                     <a class="btn btn-outline-primary"
-                                       href="{% url 'trailer-deposit-conditions-pdf' deposit.id %}">
+                                       href="{% url 'trailer-deposit-conditions-pdf' token %}">
                                         <i class='bx bx-printer' ></i>
                                     </a>
                                     {%if not deposit.done and not deposit.cancelled and not deposit.expirated %}

@@ -49,7 +49,7 @@ def trailer_deposit_context(request, id):
     token = jwt.encode(tokCtx, settings.SECRET_KEY, algorithm="HS256")
 
     url_base = "{}://{}".format(request.scheme, request.get_host())
-    url = url_base + reverse("trailer-deposit-conditions", args=[token])
+    url = url_base + reverse("trailer-deposit-conditions-pdf", args=[token])
     factory = qrcode.image.svg.SvgPathImage
     factory.QR_PATH_STYLE["fill"] = "#455565"
     img = qrcode.make(

@@ -127,52 +127,57 @@
                 <h2 class="mb-0">Deposit On Hold:</h2>
             </div>
             <div class="card-body pb-0 mb-0">
-                <table class='m-auto'>
-                    <tbody>
-                        <tr>
-                            <td>Amount:</td>
-                            <td>{{ deposit.amount }}</td>
-                        </tr>
-                        <tr>
-                            <td>Validity:</td>
-                            <td>
-                                From
-                                <strong>{{ deposit.date }}</strong>
-                                to
-                                <strong>{{ deposit.valid_until }}</strong>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Validity days:
-                            </td>
-                            <td>
-                                <strong>{{ deposit.days }}</strong>
-                                {%if deposit.days == 1%}
-                                    day
-                                {%else%}
-                                    days
-                                {%endif%}
-                            </td>
-                        </tr>
-                        {%if equipment.vin and equipment.vin != ''%}
+                <div class="m-auto flex flex-wrap">
+                    {%if not pdf%}
+                        <div class="text-center p-0 m-0 pe-3 mb-3" id="qrcode">{{ qr_url | safe }}</div>
+                    {%endif%}
+                    <table class="{%if pdf%}m-auto{%endif%}">
+                        <tbody>
                             <tr>
-                                <td>Vin:</td>
-                                <td>{{ equipment.vin }}</td>
+                                <td>Amount:</td>
+                                <td>{{ deposit.amount }}</td>
                             </tr>
-                        {%endif%}
-                        {%if equipment.plate and equipment.plate != ''%}
                             <tr>
-                                <td>Plate:</td>
-                                <td>{{ equipment.plate }}</td>
+                                <td>Validity:</td>
+                                <td>
+                                    From
+                                    <strong>{{ deposit.date }}</strong>
+                                    to
+                                    <strong>{{ deposit.valid_until }}</strong>
+                                </td>
                             </tr>
-                        {%endif%}
-                        <tr>
-                            <td>Note:</td>
-                            <td>{{ deposit.note }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                            <tr>
+                                <td>
+                                    Validity days:
+                                </td>
+                                <td>
+                                    <strong>{{ deposit.days }}</strong>
+                                    {%if deposit.days == 1%}
+                                        day
+                                    {%else%}
+                                        days
+                                    {%endif%}
+                                </td>
+                            </tr>
+                            {%if equipment.vin and equipment.vin != ''%}
+                                <tr>
+                                    <td>Vin:</td>
+                                    <td>{{ equipment.vin }}</td>
+                                </tr>
+                            {%endif%}
+                            {%if equipment.plate and equipment.plate != ''%}
+                                <tr>
+                                    <td>Plate:</td>
+                                    <td>{{ equipment.plate }}</td>
+                                </tr>
+                            {%endif%}
+                            <tr>
+                                <td>Note:</td>
+                                <td>{{ deposit.note }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
