@@ -63,6 +63,13 @@ def create_lessee_for_reservation(request, trailer_id):
         request,
         "create-trailer-reservation",
         [trailer_id, "{lessee_id}"],
+        use_client_url={
+            "url": "reserve-trailer-update-lessee",
+            "args": [
+                trailer_id,
+                "{client_id}",
+            ],
+        },
     )
 
 
@@ -85,8 +92,8 @@ def create_trailer_reservation(request, trailer_id, lessee_id):
                 )
                 send_deposit_pdf(request, deposit)
                 return redirect("trailer-deposit-details", deposit.id)
-
-    form = TrailerDepositForm()
+    else:
+        form = TrailerDepositForm()
     context = {
         "form": form,
         "title": "Crear deposito",
