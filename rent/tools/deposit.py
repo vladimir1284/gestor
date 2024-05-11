@@ -19,7 +19,7 @@ Due: ${}
 Check the file attached to this email.
 You can make your payment using Zelle by registering the e-mail: towitrepairs@gmail.com owned by Towit Repairs LLC
 For Cash App, please register the user $towithouston owned by Daniel Hernández
-You can also pay with credit or debit card with an extra fee of 3% for the Square platform
+You can also pay with credit or debit card with an extra fee of 3.5% for the Square platform
 We also accept cash
 Thanks""",
     "spanish": """Estimado {}, su vehículo en TOWITHOUSTON está reservado!
@@ -27,7 +27,7 @@ Total a pagar: ${}
 Ver detalles en el adjunto de este correo
 Para realizar el pago a través de Zelle registre el correo: towitrepairs@gmail.com le aparecerá la cuenta a nombre de Towit Repairs LLC
 Para realizar el pago via Cash App registre el usuario $towithouston le aparecerá la cuenta a nombre de Daniel Hernández
-Puede pagar con targeta de credito o debito con un recargo del 3% de la plataforma Square
+Puede pagar con targeta de credito o debito con un recargo del 3.5% de la plataforma Square
 Además aceptamos efectivo
 Gracias""",
 }
