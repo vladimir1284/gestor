@@ -127,6 +127,7 @@ def create_lessee(
     next,
     args: list,
     use_client_url: dict | None = None,
+    update_data: bool = True,
 ):
     if request.method == "POST":
         form = AssociatedCreateForm(
@@ -136,6 +137,16 @@ def create_lessee(
         )
         if form.is_valid():
             lessee = form.save()
+
+            if not update_data:
+                try:
+                    idx = args.index("{lessee_id}")
+                    if idx != -1:
+                        args[idx] = lessee.id
+                except Exception:
+                    pass
+
+                return redirect(next, *args)
 
             exp = datetime.now(timezone.utc) + timedelta(days=1)
             tokCtx = {
@@ -163,7 +174,13 @@ def create_lessee(
 
 @login_required
 @atomic
-def update_lessee(request, lessee_id, next, args):
+def update_lessee(
+    request,
+    lessee_id,
+    next,
+    args,
+    update_data: bool = True,
+):
     lessee: Associated = get_object_or_404(Associated, id=lessee_id)
 
     if request.method == "POST":
@@ -174,6 +191,16 @@ def update_lessee(request, lessee_id, next, args):
         )
         if form.is_valid():
             form.save()
+
+            if not update_data:
+                try:
+                    idx = args.index("{lessee_id}")
+                    if idx != -1:
+                        args[idx] = lessee.id
+                except Exception:
+                    pass
+
+                return redirect(next, *args)
 
             exp = datetime.now(timezone.utc) + timedelta(days=1)
             tokCtx = {

@@ -54,6 +54,7 @@ def update_lessee_for_reservation(request, trailer_id, lessee_id):
         lessee_id,
         "create-trailer-reservation",
         [trailer_id, "{lessee_id}"],
+        update_data=False,
     )
 
 
@@ -70,6 +71,7 @@ def create_lessee_for_reservation(request, trailer_id):
                 "{client_id}",
             ],
         },
+        update_data=False,
     )
 
 
