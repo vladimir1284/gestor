@@ -215,6 +215,8 @@ def adjust_end_deposit(request, id):
         and (on_hold is None or on_hold.amount == 0)
     ):
         return redirect("update-contract-stage", id, "ended")
+    elif contract.stage == "missing":
+        return redirect("adjust-deposit-on-hold-from-contract", id)
 
     if c:
         total_amount = sum(

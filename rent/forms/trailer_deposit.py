@@ -10,6 +10,7 @@ from django.utils.timezone import datetime
 from django.utils.timezone import make_aware
 from django.utils.translation.trans_real import mark_safe
 
+from rent.models.lease import SecurityDepositDevolution
 from rent.models.trailer_deposit import TrailerDeposit
 from rent.models.trailer_deposit import TrailerDepositTrace
 
@@ -143,4 +144,29 @@ class TrailerDepositRenovationForm(forms.ModelForm):
                     css_class="btn btn-success",
                 ),
             ),
+        )
+
+
+class OnHoldDepositDevolutionForm(forms.ModelForm):
+    class Meta:
+        model = SecurityDepositDevolution
+        fields = ["amount"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = kwargs.get("instance", None)
+
+        if instance:
+            self.fields["amount"].initial = instance.total_deposited_amount
+
+        self.fields["amount"].widget.attrs["x-model"] = "retAmount"
+        self.fields["amount"].widget.attrs["x-ref"] = "retAmountField"
+        self.fields["amount"].label = "Amount to return"
+
+        self.helper = FormHelper()
+        self.helper.field_class = "mb-3"
+        self.helper.form_method = "post"
+        self.helper.layout = Layout(
+            PrependedText("amount", "$"),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )

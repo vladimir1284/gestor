@@ -18,15 +18,17 @@ from .views.cost import list_cost
 from .views.cost import update_cost
 from rent.tools.init_conditions import init_conditions
 from rent.views.create_lessee_with_data import create_update_lessee_data
-from rent.views.deposit import create_lessee_for_reservation
-from rent.views.deposit import create_trailer_reservation
-from rent.views.deposit import renovate_trailer_reservation
-from rent.views.deposit import reserve_trailer
-from rent.views.deposit import trailer_deposit_cancel
-from rent.views.deposit import trailer_deposit_conditions
-from rent.views.deposit import trailer_deposit_details
-from rent.views.deposit import trailer_deposit_pdf
-from rent.views.deposit import update_lessee_for_reservation
+from rent.views.deposit.adjust_deposit import \
+    adjust_deposit_on_hold_from_contract
+from rent.views.deposit.conditions import trailer_deposit_conditions
+from rent.views.deposit.conditions import trailer_deposit_pdf
+from rent.views.deposit.details import trailer_deposit_details
+from rent.views.deposit.on_expiration import renovate_trailer_reservation
+from rent.views.deposit.on_expiration import trailer_deposit_cancel
+from rent.views.deposit.reservation import create_lessee_for_reservation
+from rent.views.deposit.reservation import create_trailer_reservation
+from rent.views.deposit.reservation import reserve_trailer
+from rent.views.deposit.reservation import update_lessee_for_reservation
 from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
@@ -228,6 +230,11 @@ urlpatterns = [
         name="ext-capture-signature",
     ),
     path("adjust_deposit/<id>/", lease.adjust_end_deposit, name="adjust-deposit"),
+    path(
+        "adjust_deposit_on_hold_from_contract/<id>/",
+        adjust_deposit_on_hold_from_contract,
+        name="adjust-deposit-on-hold-from-contract",
+    ),
     path(
         "create_document_on_ended_contract/<id>/",
         lease.create_document_on_ended_contract,
