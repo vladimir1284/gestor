@@ -206,31 +206,39 @@ def contracts(request):
 def adjust_end_deposit(request, id):
     closing = request.GET.get("closing", False)
     contract: Contract = get_object_or_404(Contract, id=id)
-    deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=contract)
     on_hold = TrailerDeposit.objects.filter(done=True, contract=contract).last()
+
+    deposits = SecurityDepositDevolution.objects.filter(contract=contract)
+    with transaction.atomic():
+        if deposits.count() != 1:
+            total_amount = sum(
+                [
+                    lease_deposit.amount
+                    for lease in contract.lease_set.all()
+                    for lease_deposit in lease.lease_deposit.all()
+                ]
+            )
+            if on_hold is not None:
+                total_amount += on_hold.amount
+
+            for dep in deposits:
+                dep.delete()
+
+            deposit = SecurityDepositDevolution.objects.create(
+                contract=contract,
+                total_deposited_amount=total_amount,
+            )
+        else:
+            deposit = deposits.last()
 
     if (
         contract.stage == "missing"
-        and (c or deposit.total_deposited_amount == 0)
+        and deposit.total_deposited_amount == 0
         and (on_hold is None or on_hold.amount == 0)
     ):
         return redirect("update-contract-stage", id, "ended")
     elif contract.stage == "missing":
         return redirect("adjust-deposit-on-hold-from-contract", id)
-
-    if c:
-        total_amount = sum(
-            [
-                lease_deposit.amount
-                for lease in contract.lease_set.all()
-                for lease_deposit in lease.lease_deposit.all()
-            ]
-        )
-        if on_hold is not None:
-            total_amount += on_hold.amount
-
-        deposit.total_deposited_amount = total_amount
-        deposit.save()
 
     if request.method == "POST":
         form = SecurityDepositDevolutionForm(request.POST, instance=deposit)
