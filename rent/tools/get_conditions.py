@@ -8,6 +8,14 @@ from rent.tools.init_conditions import TEMPLATE_RENT
 from template_admin.models.template_version import TemplateVersion
 
 
+def get_rent_conditions_template() -> TemplateVersion:
+    return TemplateVersion.objects.filter(
+        module=MODULE,
+        template=TEMPLATE_RENT,
+        language=LANG_EN,
+    ).last()
+
+
 def get_conditions(ctx):
     contract: Contract = ctx["contract"]
 
