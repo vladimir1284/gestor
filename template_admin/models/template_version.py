@@ -12,6 +12,7 @@ class TemplateVersion(models.Model):
     template = models.CharField(max_length=100)
     language = models.CharField(max_length=50)
     tmp_type = models.CharField(max_length=20, default=TT_TEXT)
+    custom = models.BooleanField(default=False)
 
     @property
     def last_version(self) -> int:
