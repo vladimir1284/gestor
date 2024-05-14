@@ -99,7 +99,7 @@ class Contract(models.Model):
         return paid_amount, (paid_amount >= self.total_amount)
 
     def save(self, *args, **kwargs):
-        if self.template_version is None:
+        if self.template_version is None or self.template_version <= 0:
             self.template_version = get_conditions_last_version(
                 self.contract_type,
             )

@@ -1,0 +1,88 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<link rel="stylesheet" href="{% static "assets/css/loader_options.css" %}">
+
+<div id="csrf_token">
+  {% csrf_token %}
+</div>
+<script>
+  window.tv_options_url = "{% url 'template-version-options' template.id version.version %}"
+</script>
+
+<button type="button" class="btn btn-link btn-icon" data-bs-toggle="modal" data-bs-target="#OptionsModal">
+  <i class='bx bx-cog'></i>
+</button>
+
+
+<div class="modal fade" id="OptionsModal" tabindex="-1" aria-labelledby="OptionsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content relative" x-data="templateVersionOptions">
+      <div class="modal-header flex items-center">
+        <h1 class="modal-title fs-5" id="OptionsModalLabel">Options</h1>
+        <button type="button" class="btn btn-icon btn-link" @click="add()"><i class='bx bx-plus'></i></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="w-full flex justify-center items-center" x-show='loading' x-cloak>
+          <div class="loader-box">
+            <span class="loader"></span>
+          </div>
+        </div>
+
+        <div x-show='!loading'>
+          <table class="table">
+            <thead>
+              <tr>
+                <td>Option</td>
+                <td>Value</td>
+                <td></td>
+              </tr>
+            </thead>
+            <tbody @click.outside="unselect()">
+              <template x-for="(opt, idx) in options">
+                <tr>
+                  <td @click="editOption(idx)">
+                    <template x-if="isActive(idx, false)">
+                      <div class="input-group">
+                        <span class="input-group-text">
+                          <i class='bx bx-cog' ></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Option name" x-model="options[idx].option">
+                      </div>
+                    </template>
+                    <template x-if="!isActive(idx, false)">
+                      <span x-text="opt.option"></span>
+                    </template>
+                  </td>
+                  <td @click="editValue(idx)">
+                    <template x-if="isActive(idx, true)">
+                      <div class="input-group">
+                        <span class="input-group-text">
+                          <i class='bx bx-edit-alt' ></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Option value" x-model="options[idx].value">
+                      </div>
+                    </template>
+                    <template x-if="!isActive(idx, true)">
+                      <span x-text="opt.value"></span>
+                    </template>
+                  </td>
+                  <td class="flex justify-end">
+                    <button class="btn btn-icon btn-outline-danger" @click="remove(idx)"><i class='bx bx-trash' ></i></button>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" @click="save()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="{% static "assets/js/template_version/options.js" %}">
+</script>

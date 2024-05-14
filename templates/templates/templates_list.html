@@ -3,41 +3,149 @@
 {% block title %}
     Templates
 {% endblock title %}
-{% block Ttitle %}
-    <h5 class="card-header">Templates</h5>
-{% endblock Ttitle %}
-{% block Theader %}
-    <th data-type="custom-string" data-defsort="+">Module</th>
-    <th data-type="custom-string">Template</th>
-    <th data-type="custom-string">Language</th>
-{% endblock Theader %}
-{% block Tbody %}
-    {% for template in templates %}
-        <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
-            <td data-custom="{{ template.module }}">
-                <a href="{% url 'template-edit' template.id %}">{{ template.module }}</a>
-            </td>
-            <td data-custom="{{ template.template }}">
-                <a href="{% url 'template-edit' template.id %}">{{ template.template }}</a>
-            </td>
-            <td data-custom="{{ template.language }}">
-                <a href="{% url 'template-edit' template.id %}">{{ template.language }}</a>
-            </td>
-        </tr>
-    {% endfor %}
-    {% for template in templates_version %}
-        <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
-            <td data-custom="{{ template.module }}">
-                <a href="{% url 'template-version-edit' template.id %}">{{ template.module }}</a>
-            </td>
-            <td data-custom="{{ template.template }}">
-                <a href="{% url 'template-version-edit' template.id %}">{{ template.template }}</a>
-            </td>
-            <td data-custom="{{ template.language }}">
-                <a href="{% url 'template-version-edit' template.id %}">{{ template.language }}</a>
-            </td>
-        </tr>
-    {% endfor %}
-{% endblock Tbody %}
-{% block addButton %}
-{% endblock addButton %}
+{% block content %}
+    {% block nav %}
+    {% endblock nav %}
+    <!-- Basic with Icons -->
+    <div class="card" x-data="{custom: {%if custom == True %}true{%else%}false{%endif%}, remove: '', removing: false}">
+        <div class="card-header flex justify-between items-center">
+            <h5 class="card-header flex-grow">
+                <span x-text="custom? 'Custom templates': 'System templates'">Templates</span>
+                <a class="btn btn-icon btn-outline-primary"
+                   href="{% url 'template-version-create' %}"
+                   x-show="custom"
+                   x-cloak>
+                    <i class='bx bx-plus'></i>
+                </a>
+            </h5>
+            <div class="btn-group">
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    :class="custom || 'active'"
+                    @click="custom = false"
+                >
+                    System
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    :class="custom && 'active'"
+                    @click="custom = true"
+                >
+                    Custom
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive text-nowrap" x-show="!custom">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th data-type="custom-string" data-defsort="+">Module</th>
+                        <th data-type="custom-string">Template</th>
+                        <th data-type="custom-string">Language</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for template in templates %}
+                        <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
+                            <td data-custom="{{ template.module }}">
+                                <a href="{% url 'template-edit' template.id %}">{{ template.module }}</a>
+                            </td>
+                            <td data-custom="{{ template.template }}">
+                                <a href="{% url 'template-edit' template.id %}">{{ template.template }}</a>
+                            </td>
+                            <td data-custom="{{ template.language }}">
+                                <a href="{% url 'template-edit' template.id %}">{{ template.language }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% for template in templates_version %}
+                        {%if not template.custom%}
+                            <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
+                                <td data-custom="{{ template.module }}">
+                                    <a href="{% url 'template-version-edit' template.id %}">{{ template.module }}</a>
+                                </td>
+                                <td data-custom="{{ template.template }}">
+                                    <a href="{% url 'template-version-edit' template.id %}">{{ template.template }}</a>
+                                </td>
+                                <td data-custom="{{ template.language }}">
+                                    <a href="{% url 'template-version-edit' template.id %}">{{ template.language }}</a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="table-responsive text-nowrap" x-show="custom">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th data-type="custom-string" data-defsort="+">Module</th>
+                        <th data-type="custom-string">Template</th>
+                        <th data-type="custom-string">Language</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for template in templates_version %}
+                        {%if template.custom%}
+                            <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
+                                <td data-custom="{{ template.module }}">
+                                    <a href="{% url 'template-version-edit' template.id %}">{{ template.module }}</a>
+                                </td>
+                                <td data-custom="{{ template.template }}">
+                                    <a href="{% url 'template-version-edit' template.id %}">{{ template.template }}</a>
+                                </td>
+                                <td data-custom="{{ template.language }}">
+                                    <a href="{% url 'template-version-edit' template.id %}">{{ template.language }}</a>
+                                </td>
+                                <td class="flex justify-end">
+                                    <a href="{% url 'template-version-create' template.id %}"
+                                       class="btn btn-link btn-icon">
+                                        <i class='bx bx-cog' ></i>
+                                    </a>
+                                    <button
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        class="btn btn-link btn-icon text-danger"
+                                        @click = "removing = false; remove = '{% url 'template-version-remove' template.id %}'"
+                                    >
+                                        <i class='bx bx-trash' ></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="deleteModalLabel">Remove template</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to remove this template?
+                        </div>
+                        <div class="modal-footer" x-show="!removing">
+                            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+                            <a type="button" class="btn btn-danger" :href="remove" @click="removing = true">
+                                Remove
+                            </a>
+                        </div>
+                        <div class="modal-footer" x-show="removing">
+                            <div class="spinner-border text-danger" role="status">
+                                <span class="visually-hidden">Removing...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
