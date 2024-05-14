@@ -1,6 +1,7 @@
 from django.db import models
 
 from template_admin.models.template_content_version import TemplateContentVersion
+from template_admin.models.template_version_configs import TemplateVersionConfig
 from template_admin.tools.templates_tools import TT_TEXT
 
 
@@ -9,6 +10,7 @@ class TemplateVersion(models.Model):
     template = models.CharField(max_length=100)
     language = models.CharField(max_length=50)
     tmp_type = models.CharField(max_length=20, default=TT_TEXT)
+    custom = models.BooleanField(default=False)
 
     @property
     def last_version(self) -> int:
@@ -46,6 +48,50 @@ class TemplateVersion(models.Model):
         if version is None:
             return self.versions.order_by("-version").first()
         return self.versions.filter(version=version).first()
+
+    def options(self, version: int | None) -> list[TemplateVersionConfig] | None:
+        version = self.version(version)
+        if version is None:
+            return None
+        return version.get_options()
+
+    def option_obj(self, version: int | None, opt: str) -> TemplateVersionConfig | None:
+        version = self.version(version)
+        if version is None:
+            return None
+        return version.get_option_object(opt)
+
+    def option(self, version: int | None, opt: str) -> str | None:
+        version = self.version(version)
+        if version is None:
+            return None
+        return version.get_option(opt)
+
+    def option_list_obj(
+        self, version: int | None, opt: str
+    ) -> list[TemplateVersionConfig] | None:
+        version = self.version(version)
+        if version is None:
+            return None
+        return version.get_option_list_object(opt)
+
+    def option_list(self, version: int | None, opt: str) -> list[str] | None:
+        version = self.version(version)
+        if version is None:
+            return None
+        return version.get_option_list(opt)
+
+    def get_mapped_options(self, version: int | None) -> list[dict[str, str]]:
+        version = self.version(version)
+        if version is None:
+            return None
+        return version.get_mapped_options()
+
+    def set_mapped_options(self, version: int | None, opts: list[dict[str, str]]):
+        version = self.version(version)
+        if version is None:
+            return None
+        return version.set_mapped_options(opts)
 
     def render_template(
         self,

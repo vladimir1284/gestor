@@ -28,6 +28,8 @@ from ..models.lease import Note
 from ..models.lease import Payment
 from ..models.lease import SecurityDepositDevolution
 from ..models.lease import Tire
+from rent.tools.get_conditions import get_rent_conditions_template
+from template_admin.models.template_version import TemplateVersion
 from users.forms import BaseContactForm
 from users.forms import CommonContactLayout
 from users.models import Associated
@@ -46,6 +48,7 @@ class ContractForm(ModelForm):
             "service_charge",
             "contract_type",
             "total_amount",
+            "template_version",
         )
 
     def __init__(self, *args, **kwargs):
@@ -56,6 +59,16 @@ class ContractForm(ModelForm):
                 attrs={"type": "date"},
             ),
         )
+
+        templates_versions = [
+            (
+                v["version"],
+                f"V-{v['version']} ({v['date'].strftime('%b %d, %Y')})",
+            )
+            for v in get_rent_conditions_template().versions_list_date
+        ]
+        self.fields["template_version"] = forms.ChoiceField(choices=templates_versions)
+
         self.helper = FormHelper()
         self.helper.field_class = "mb-3"
         self.helper.layout = Layout(
@@ -68,6 +81,9 @@ class ContractForm(ModelForm):
             PrependedText("security_deposit", "$"),
             Field("contract_type"),
             PrependedText("total_amount", "$"),
+            PrependedText(
+                "template_version", mark_safe("<i class='bx bx-layout'></i>")
+            ),
             ButtonHolder(
                 Submit("submit", "Create contract", css_class="btn btn-success")
             ),

@@ -14,7 +14,13 @@
                     <div class="flex flex-wrap justify-end items-center">
                         <div class="flex flex-grow items-center flex-wrap">
                             <h5 class="card-title p-2 m-0">
-                                <a href="{% url 'template-list' %}">
+                                <a
+                                    {%if template.custom%}
+                                        href="{% url 'template-list' template.custom %}"
+                                    {%else%}
+                                        href="{% url 'template-list'%}"
+                                    {%endif%}
+                                >
                                     <i class='bx bx-left-arrow-alt'></i>
                                 </a>
                                 {{ template.module|upper }} /
@@ -42,6 +48,19 @@
                             <a href="{% url 'template-version-new' template.id %}"
                                class="btn btn-link btn-icon">
                                 <i class='bx bxs-file-plus'></i>
+                            </a>
+                            {% include './options_editor.html' %}
+                            <a href="{% url 'template-version-export' template.id %}"
+                               class="btn btn-link btn-icon">
+                                <i class='bx bx-export' ></i>
+                            </a>
+                            <a {%if template.custom%}
+                                   href="{% url 'template-version-import' template.id template.custom %}"
+                               {%else%}
+                                   href="{% url 'template-version-import' template.id %}"
+                               {%endif%}
+                               class="btn btn-link btn-icon">
+                                <i class='bx bx-import' ></i>
                             </a>
                         {% endif %}
                         <div>
