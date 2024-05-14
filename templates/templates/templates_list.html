@@ -3,41 +3,86 @@
 {% block title %}
     Templates
 {% endblock title %}
-{% block Ttitle %}
-    <h5 class="card-header">Templates</h5>
-{% endblock Ttitle %}
-{% block Theader %}
-    <th data-type="custom-string" data-defsort="+">Module</th>
-    <th data-type="custom-string">Template</th>
-    <th data-type="custom-string">Language</th>
-{% endblock Theader %}
-{% block Tbody %}
-    {% for template in templates %}
-        <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
-            <td data-custom="{{ template.module }}">
-                <a href="{% url 'template-edit' template.id %}">{{ template.module }}</a>
-            </td>
-            <td data-custom="{{ template.template }}">
-                <a href="{% url 'template-edit' template.id %}">{{ template.template }}</a>
-            </td>
-            <td data-custom="{{ template.language }}">
-                <a href="{% url 'template-edit' template.id %}">{{ template.language }}</a>
-            </td>
-        </tr>
-    {% endfor %}
-    {% for template in templates_version %}
-        <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
-            <td data-custom="{{ template.module }}">
-                <a href="{% url 'template-version-edit' template.id %}">{{ template.module }}</a>
-            </td>
-            <td data-custom="{{ template.template }}">
-                <a href="{% url 'template-version-edit' template.id %}">{{ template.template }}</a>
-            </td>
-            <td data-custom="{{ template.language }}">
-                <a href="{% url 'template-version-edit' template.id %}">{{ template.language }}</a>
-            </td>
-        </tr>
-    {% endfor %}
-{% endblock Tbody %}
-{% block addButton %}
-{% endblock addButton %}
+{% block content %}
+    {% block nav %}
+    {% endblock nav %}
+    <!-- Basic with Icons -->
+    <div class="card" x-data="{custom: false}">
+        <div class="card-header flex justify-between items-center">
+            <h5 class="card-header flex-grow">Templates</h5>
+            <div class="btn-group">
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    :class="custom || 'active'"
+                    @click="custom = false"
+                >
+                    System
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    :class="custom && 'active'"
+                    @click="custom = true"
+                >
+                    Custom
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive text-nowrap" x-show="!custom">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th data-type="custom-string" data-defsort="+">Module</th>
+                        <th data-type="custom-string">Template</th>
+                        <th data-type="custom-string">Language</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for template in templates %}
+                        <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
+                            <td data-custom="{{ template.module }}">
+                                <a href="{% url 'template-edit' template.id %}">{{ template.module }}</a>
+                            </td>
+                            <td data-custom="{{ template.template }}">
+                                <a href="{% url 'template-edit' template.id %}">{{ template.template }}</a>
+                            </td>
+                            <td data-custom="{{ template.language }}">
+                                <a href="{% url 'template-edit' template.id %}">{{ template.language }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% for template in templates_version %}
+                        <tr data-search="{{ template.module }}{{ template.template }}{{ template.language }}">
+                            <td data-custom="{{ template.module }}">
+                                <a href="{% url 'template-version-edit' template.id %}">{{ template.module }}</a>
+                            </td>
+                            <td data-custom="{{ template.template }}">
+                                <a href="{% url 'template-version-edit' template.id %}">{{ template.template }}</a>
+                            </td>
+                            <td data-custom="{{ template.language }}">
+                                <a href="{% url 'template-version-edit' template.id %}">{{ template.language }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="table-responsive text-nowrap" x-show="custom">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th data-type="custom-string" data-defsort="+">Module</th>
+                        <th data-type="custom-string">Template</th>
+                        <th data-type="custom-string">Language</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% block TbodyInactive %}
+                    {% endblock TbodyInactive %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}

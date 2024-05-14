@@ -38,27 +38,39 @@ class TemplateContentVersion(models.Model):
             return None
         return option.value
 
-    def get_mapped_options(self) -> dict[str, str]:
+    def get_option_list_object(self, opt: str) -> list[TemplateVersionConfig] | None:
+        options = self.options.filter(option=opt)
+        if options is None:
+            return None
+        return options
+
+    def get_option_list(self, opt: str) -> list[str] | None:
+        options = self.get_option_list_object(opt)
+        if options is None:
+            return None
+        return [option.value for option in options]
+
+    def get_mapped_options(self) -> list[dict[str, str]]:
         options = self.get_options()
-        map = {}
+        opt_list = []
         for o in options:
-            map[o.option] = o.value
-        return map
+            opt_list.append(
+                {
+                    "option": str(o.option),
+                    "value": str(o.value),
+                }
+            )
+        return opt_list
 
-    def set_mapped_options(self, map: dict[str, str]):
-        self.options.exclude(option__in=map.keys()).delete()
+    def set_mapped_options(self, opts: list[dict[str, str]]):
+        self.options.all().delete()
 
-        for k, v in map.items():
-            option = self.get_option_object(k)
-            if option is not None:
-                option.value = v
-                option.save()
-            else:
-                TemplateVersionConfig.objects.create(
-                    template=self,
-                    option=k,
-                    value=v,
-                )
+        for o in opts:
+            TemplateVersionConfig.objects.create(
+                template=self,
+                option=o["option"],
+                value=o["value"],
+            )
 
     def render_template(
         self,

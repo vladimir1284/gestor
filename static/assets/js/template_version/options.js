@@ -2,6 +2,9 @@
 /** @type {import('alpinejs').default} */
 var Alpine;
 
+/** @typedef {{option: string, value: string}} Option */
+/** @typedef {Array<Option>} Options */
+
 /**
  * @returns {{name: string, value: string}}
  * */
@@ -15,7 +18,7 @@ function getToken() {
 }
 
 /**
- * @returns {Promise<Map<string, string>>}
+ * @returns {Promise<Options>}
  * */
 async function getOptions() {
   const resp = await fetch(window.tv_options_url);
@@ -31,16 +34,17 @@ async function getOptions() {
 }
 
 /**
- * @param {Map<string, string>} options
- * @returns {Promise<Map<string, string>>}
+ * @param {Options} options
+ * @returns {Promise<Options>}
  * */
 async function saveOptions(options) {
   const csrf = getToken();
-  const opts = Object.fromEntries(options);
+
+  const jsonOpts = JSON.stringify(options);
 
   const body = new FormData();
   body.set(csrf.name, csrf.value);
-  body.set("data", JSON.stringify(opts));
+  body.set("data", jsonOpts);
 
   const resp = await fetch(window.tv_options_url, {
     method: "POST",
@@ -56,41 +60,6 @@ async function saveOptions(options) {
   }
   const data = await resp.json();
   return data;
-}
-
-/** @typedef {{option: string, value: string}} Option */
-/** @typedef {Array<Option>} Options */
-
-/**
- * @param {Map<string, string> | null} map
- * @returns {Options}
- * */
-function fromMap(map) {
-  if (!map) {
-    return [];
-  }
-  /** @type {Options}*/
-  const opts = [];
-  for (let k in map) {
-    opts.push({
-      option: k,
-      value: map[k],
-    });
-  }
-  return opts;
-}
-
-/**
- * @param {Options} opt
- * @returns {Map<string, string>}
- * */
-function toMap(opt) {
-  /** @type {Map<string, string>}*/
-  const map = new Map();
-  for (let o of opt) {
-    map.set(o.option, o.value);
-  }
-  return map;
 }
 
 document.addEventListener("alpine:init", () => {
@@ -110,8 +79,7 @@ document.addEventListener("alpine:init", () => {
       async load() {
         this.loading = true;
         try {
-          const data = await getOptions();
-          this.options = fromMap(data);
+          this.options = await getOptions();
         } catch (e) {
           console.log(e);
         }
@@ -122,9 +90,7 @@ document.addEventListener("alpine:init", () => {
         this.loading = true;
         if (this.options == null) return;
         try {
-          const map = toMap(this.options);
-          const data = await saveOptions(map);
-          this.options = fromMap(data);
+          this.options = await saveOptions(this.options);
         } catch (e) {
           console.log(e);
         }

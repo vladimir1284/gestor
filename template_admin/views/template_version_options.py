@@ -12,13 +12,12 @@ def template_version_options(request: HttpRequest, id: int, version: int):
 
     if request.method == "POST":
         data = request.POST.get("data", None)
-        print(data)
         if data:
             data = json.loads(data)
-            print(data)
             template.set_mapped_options(version, data)
 
     options = template.get_mapped_options(version)
     if options is None:
         return JsonResponse({})
-    return JsonResponse(options)
+
+    return JsonResponse(options, safe=False)

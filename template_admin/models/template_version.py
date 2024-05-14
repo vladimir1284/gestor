@@ -68,17 +68,29 @@ class TemplateVersion(models.Model):
             return None
         return version.get_option(opt)
 
-    def get_mapped_options(self, version: int | None) -> dict[str, str]:
+    def option_list_obj(self, version: int | None, opt: str) -> str | None:
+        version = self.version(version)
+        if version is None:
+            return None
+        return version.get_option_list_object(opt)
+
+    def option_list(self, version: int | None, opt: str) -> str | None:
+        version = self.version(version)
+        if version is None:
+            return None
+        return version.get_option_list(opt)
+
+    def get_mapped_options(self, version: int | None) -> list[dict[str, str]]:
         version = self.version(version)
         if version is None:
             return None
         return version.get_mapped_options()
 
-    def set_mapped_options(self, version: int | None, map: dict[str, str]):
+    def set_mapped_options(self, version: int | None, opts: list[dict[str, str]]):
         version = self.version(version)
         if version is None:
             return None
-        return version.set_mapped_options(map)
+        return version.set_mapped_options(opts)
 
     def render_template(
         self,
