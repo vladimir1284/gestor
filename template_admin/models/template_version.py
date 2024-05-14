@@ -1,9 +1,7 @@
 from django.db import models
 
-from template_admin.models.template_content_version import \
-    TemplateContentVersion
-from template_admin.models.template_version_configs import \
-    TemplateVersionConfig
+from template_admin.models.template_content_version import TemplateContentVersion
+from template_admin.models.template_version_configs import TemplateVersionConfig
 from template_admin.tools.templates_tools import TT_TEXT
 
 
@@ -57,7 +55,7 @@ class TemplateVersion(models.Model):
             return None
         return version.get_options()
 
-    def option_obj(self, version: int | None, opt: str) -> str | None:
+    def option_obj(self, version: int | None, opt: str) -> TemplateVersionConfig | None:
         version = self.version(version)
         if version is None:
             return None
@@ -69,13 +67,15 @@ class TemplateVersion(models.Model):
             return None
         return version.get_option(opt)
 
-    def option_list_obj(self, version: int | None, opt: str) -> str | None:
+    def option_list_obj(
+        self, version: int | None, opt: str
+    ) -> list[TemplateVersionConfig] | None:
         version = self.version(version)
         if version is None:
             return None
         return version.get_option_list_object(opt)
 
-    def option_list(self, version: int | None, opt: str) -> str | None:
+    def option_list(self, version: int | None, opt: str) -> list[str] | None:
         version = self.version(version)
         if version is None:
             return None
