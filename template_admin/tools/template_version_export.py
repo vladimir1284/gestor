@@ -11,6 +11,8 @@ def get_tvc_deps(tvc: TemplateContentVersion) -> list[dict]:
     content = tvc.content
     processed = []
 
+    dependencies = {}
+
     start = 0
     while True:
         idx = content.find(SUB_TEMP_OPEN, start)
@@ -36,27 +38,25 @@ def get_tvc_deps(tvc: TemplateContentVersion) -> list[dict]:
         language = match.group("language")
         version = int(match.group("version"))
 
+        if subtemp in dependencies:
+            dependencies[subtemp]["versions"].append(version)
+        else:
+            dependencies[subtemp] = {
+                "module": module,
+                "template": template,
+                "language": language,
+                "versions": [version],
+            }
+
+    for v in dependencies.values():
         template = TemplateVersion.objects.filter(
-            module=module,
-            template=template,
-            language=language,
+            module=v["module"],
+            template=v["template"],
+            language=v["language"],
         ).last()
         if template is None:
             continue
-
-        version = template.version(version)
-        if version is None:
-            continue
-
-        dep = {
-            "module": template.module,
-            "template": template.template,
-            "language": template.language,
-            "tmp_type": template.tmp_type,
-            "custom": template.custom,
-            "versions": [export_template_version_content(version)],
-        }
-        deps.append(dep)
+        deps.append(export_template_version(template, v["versions"]))
 
     return deps
 
@@ -72,16 +72,24 @@ def export_template_version_content(tvc: TemplateContentVersion) -> dict:
     return data
 
 
-def export_template_version(temp: TemplateVersion) -> dict:
+def export_template_version(
+    temp: TemplateVersion,
+    versions: list[int] | None = None,
+) -> dict:
+    if versions is None:
+        versions = [export_template_version_content(tvc) for tvc in temp.versions.all()]
+    else:
+        versions = [
+            export_template_version_content(tvc)
+            for tvc in temp.versions.filter(version__in=versions)
+        ]
     data = {
         "module": temp.module,
         "template": temp.template,
         "language": temp.language,
         "tmp_type": temp.tmp_type,
         "custom": temp.custom,
-        "versions": [
-            export_template_version_content(tvc) for tvc in temp.versions.all()
-        ],
+        "versions": versions,
     }
 
     return data

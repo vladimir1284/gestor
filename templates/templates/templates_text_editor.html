@@ -50,7 +50,7 @@
                                 <i class='bx bxs-file-plus'></i>
                             </a>
                             {% include './options_editor.html' %}
-                            <a href="{% url 'template-version-export' template.id %}"
+                            <a href="{% url 'template-version-export' template.id version.version %}"
                                class="btn btn-link btn-icon">
                                 <i class='bx bx-export' ></i>
                             </a>
