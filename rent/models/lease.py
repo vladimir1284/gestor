@@ -255,6 +255,7 @@ class LeaseDeposit(models.Model):
     date = models.DateField()
     amount = models.FloatField()
     note = models.TextField(blank=True)
+    on_hold = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

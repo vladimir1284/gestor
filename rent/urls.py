@@ -17,17 +17,24 @@ from .views.cost import detail_cost
 from .views.cost import list_cost
 from .views.cost import update_cost
 from rent.tools.init_conditions import init_conditions
-from rent.views.deposit import create_trailer_reservation
-from rent.views.deposit import reserve_trailer
-from rent.views.deposit import trailer_deposit_cancel
-from rent.views.deposit import trailer_deposit_conditions
-from rent.views.deposit import trailer_deposit_details
-from rent.views.deposit import trailer_deposit_pdf
+from rent.views.create_lessee_with_data import create_update_lessee_data
+from rent.views.deposit.adjust_deposit import \
+    adjust_deposit_on_hold_from_contract
+from rent.views.deposit.conditions import trailer_deposit_conditions
+from rent.views.deposit.conditions import trailer_deposit_pdf
+from rent.views.deposit.details import trailer_deposit_details
+from rent.views.deposit.on_expiration import renovate_trailer_reservation
+from rent.views.deposit.on_expiration import trailer_deposit_cancel
+from rent.views.deposit.reservation import create_lessee_for_reservation
+from rent.views.deposit.reservation import create_trailer_reservation
+from rent.views.deposit.reservation import reserve_trailer
+from rent.views.deposit.reservation import update_lessee_for_reservation
 from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
 from rent.views.lease.select_guarantor import select_guarantor
 from rent.views.lease.update_data_on_contract import update_data_on_contract
+from rent.views.trailer_change_pos import trailer_change_position
 
 try:
     init_conditions()
@@ -71,9 +78,24 @@ urlpatterns = [
         name="reserve-trailer",
     ),
     path(
+        "reserve-trailer-update-lessee/<trailer_id>/<lessee_id>",
+        update_lessee_for_reservation,
+        name="reserve-trailer-update-lessee",
+    ),
+    path(
+        "reserve-trailer-create-lessee/<trailer_id>",
+        create_lessee_for_reservation,
+        name="reserve-trailer-create-lessee",
+    ),
+    path(
         "create-trailer-reservation/<trailer_id>/<lessee_id>",
         create_trailer_reservation,
         name="create-trailer-reservation",
+    ),
+    path(
+        "renovate-trailer-reservation/<deposit_id>",
+        renovate_trailer_reservation,
+        name="renovate-trailer-reservation",
     ),
     path(
         "trailer-deposit-details/<id>",
@@ -91,7 +113,7 @@ urlpatterns = [
         name="trailer-deposit-conditions",
     ),
     path(
-        "trailer-deposit-conditions-pdf/<id>",
+        "trailer-deposit-conditions-pdf/<token>",
         trailer_deposit_pdf,
         name="trailer-deposit-conditions-pdf",
     ),
@@ -215,6 +237,11 @@ urlpatterns = [
     ),
     path("adjust_deposit/<id>/", lease.adjust_end_deposit, name="adjust-deposit"),
     path(
+        "adjust_deposit_on_hold_from_contract/<id>/",
+        adjust_deposit_on_hold_from_contract,
+        name="adjust-deposit-on-hold-from-contract",
+    ),
+    path(
         "create_document_on_ended_contract/<id>/",
         lease.create_document_on_ended_contract,
         name="create-document-on-ended-contract",
@@ -256,6 +283,11 @@ urlpatterns = [
         "create_lessee_contact/<int:trailer_id>/",
         lease.create_lessee_contact,
         name="create-lessee-contact",
+    ),
+    path(
+        "lessee_data_form/<str:token>/",
+        create_update_lessee_data,
+        name="lessee_data_form",
     ),
     path(
         "generate_lessee_url/<trailer_id>/<associated_id>/",
@@ -355,4 +387,9 @@ urlpatterns = [
         name="deactivate-reminder",
     ),
     # -------------------- Cost ----------------------------
+    path(
+        "change_trailer_pos/<id>",
+        trailer_change_position,
+        name="change-trailer-pos",
+    ),
 ]

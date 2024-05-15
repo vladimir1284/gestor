@@ -2,23 +2,34 @@ from dashboard.dashboard.dashboard_card import DashboardCard
 from rbac.tools.permission_param import PermissionParam
 from rent.models.lease import Contract
 from rent.models.trailer_deposit import get_current_trailer_deposit
+from rent.models.trailer_deposit import TrailerDeposit
 from rent.models.vehicle import Trailer
 
 
 def _resolver():
+    ids = []
+
     active_contracts = Contract.objects.filter(stage__in=("active", "missing"))
-    rented_ids = []
     for contract in active_contracts:
-        rented_ids.append(contract.trailer.id)
+        ids.append(contract.trailer.id)
+
+    deposits = TrailerDeposit.objects.filter(cancelled=False, done=False)
+    on_hold_trailers = []
+    for dep in deposits:
+        trailer = dep.trailer
+        if trailer.id in ids:
+            continue
+        ids.append(trailer.id)
+        trailer.on_hold = dep
+        on_hold_trailers.append(trailer)
 
     active_trailers = Trailer.objects.filter(
-        active=True).exclude(id__in=rented_ids)
-    available = []
-    for t in active_trailers:
-        if get_current_trailer_deposit(t) is None:
-            available.append(t)
+        active=True,
+    ).exclude(id__in=ids)
+
     return {
-        "available": available,
+        "available": active_trailers,
+        "on_hold": on_hold_trailers,
     }
 
 

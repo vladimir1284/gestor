@@ -24,6 +24,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import UpdateView
+from schedule.models import date
 
 from rent.forms.hand_writing import HandWritingForm
 from rent.forms.lease import AssociatedCreateForm
@@ -60,6 +61,9 @@ from rent.tools.get_missing_handwriting import check_handwriting
 from rent.tools.get_missing_handwriting import get_missing_handwriting
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
+from rent.views.client import Note
+from rent.views.create_lessee_with_data import create_lessee
+from rent.views.create_lessee_with_data import update_lessee as updateLessee
 from rent.views.vehicle import FILES_ICONS
 from users.models import Associated
 from users.views import addStateCity
@@ -204,20 +208,40 @@ def contracts(request):
 @login_required
 def adjust_end_deposit(request, id):
     closing = request.GET.get("closing", False)
-    contract = get_object_or_404(Contract, id=id)
-    deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=contract)
+    contract: Contract = get_object_or_404(Contract, id=id)
+    on_hold = TrailerDeposit.objects.filter(done=True, contract=contract).last()
 
-    if c:
-        total_amount = sum(
-            [
-                lease_deposit.amount
-                for lease in contract.lease_set.all()
-                for lease_deposit in lease.lease_deposit.all()
-            ]
-        )
+    deposits = SecurityDepositDevolution.objects.filter(contract=contract)
+    with transaction.atomic():
+        if deposits.count() != 1:
+            total_amount = sum(
+                [
+                    lease_deposit.amount
+                    for lease in contract.lease_set.all()
+                    for lease_deposit in lease.lease_deposit.all()
+                ]
+            )
+            if on_hold is not None:
+                total_amount += on_hold.amount
 
-        deposit.total_deposited_amount = total_amount
-        deposit.save()
+            for dep in deposits:
+                dep.delete()
+
+            deposit = SecurityDepositDevolution.objects.create(
+                contract=contract,
+                total_deposited_amount=total_amount,
+            )
+        else:
+            deposit = deposits.last()
+
+    if (
+        contract.stage == "missing"
+        and deposit.total_deposited_amount == 0
+        and (on_hold is None or on_hold.amount == 0)
+    ):
+        return redirect("update-contract-stage", id, "ended")
+    elif contract.stage == "missing":
+        return redirect("adjust-deposit-on-hold-from-contract", id)
 
     if request.method == "POST":
         form = SecurityDepositDevolutionForm(request.POST, instance=deposit)
@@ -356,6 +380,8 @@ def update_due(request, id):
 @transaction.atomic
 def update_contract_stage(request, id, stage):
     contract: Contract = get_object_or_404(Contract, id=id)
+    on_hold = TrailerDeposit.objects.filter(contract=contract).first()
+
     contract.user = request.user
     contract.stage = stage
     contract.client_complete = False
@@ -363,12 +389,24 @@ def update_contract_stage(request, id, stage):
         missing_handws = get_missing_handwriting(contract)
         if len(missing_handws) > 0:
             return redirect("detail-contract", id)
-        Lease.objects.create(
+        lease = Lease.objects.create(
             contract=contract,
             payment_amount=contract.payment_amount,
             payment_frequency=contract.payment_frequency,
             event=None,
         )
+        if on_hold is not None:
+            LeaseDeposit.objects.create(
+                lease=lease,
+                date=on_hold.date,
+                amount=on_hold.amount,
+                note=on_hold.note,
+                on_hold=True,
+            )
+            SecurityDepositDevolution.objects.create(
+                contract=contract,
+                total_deposited_amount=on_hold.amount,
+            )
         mail_send_contract(request, id)
         contract.save()
         return redirect("client-detail", contract.lessee.id)
@@ -538,39 +576,41 @@ class LeseeDataUpdateView(LoginRequiredMixin, UpdateView):
 def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
     lessee = get_object_or_404(Associated, pk=lessee_id)
     trailer = get_object_or_404(Trailer, pk=trailer_id)
+    deposit: TrailerDeposit | None = (
+        None if deposit_id is None else get_object_or_404(TrailerDeposit, pk=deposit_id)
+    )
+
+    initial = {
+        "effective_date": datetime.now(),
+    }
 
     if request.method == "POST":
-        form = ContractForm(request.POST)
-        if form.is_valid():
-            if deposit_id is not None:
-                deposit: TrailerDeposit = get_object_or_404(
-                    TrailerDeposit, pk=deposit_id
-                )
-                deposit.done = True
-                deposit.save()
-            lease = form.save(commit=False)
-            lease.stage = "missing"
-            lease.lessee = lessee
-            lease.trailer = trailer
-            lease.save()
-
-            if contract_guarantor(lease):
-                return redirect("select-contract-guarantor", lease.id)
-
-            return redirect("detail-contract", lease.id)
-            # return redirect("create-inspection", lease_id=lease.id)
-    elif deposit_id is not None:
-        deposit: TrailerDeposit = get_object_or_404(TrailerDeposit, pk=deposit_id)
         form = ContractForm(
-            initial={
-                "effective_date": deposit.date,
-                "security_deposit": deposit.amount,
-            }
+            request.POST,
+            initial=initial,
         )
+        if form.is_valid():
+            with transaction.atomic():
+                lease = form.save(commit=False)
+                lease.stage = "missing"
+                lease.lessee = lessee
+                lease.trailer = trailer
+                lease.save()
+                if deposit is not None:
+                    deposit.done = True
+                    deposit.contract = lease
+                    deposit.save()
+                return redirect("detail-contract", lease.id)
     else:
-        form = ContractForm()
+        form = ContractForm(
+            initial=initial,
+        )
 
-    context = {"form": form, "title": _("Create new contract")}
+    context = {
+        "form": form,
+        "title": _("Create new contract"),
+        "on_hold": deposit,
+    }
     return render(request, "rent/contract/contract_create.html", context)
 
 
@@ -596,47 +636,66 @@ def select_lessee(request, trailer_id):
 @login_required
 @staff_required
 def update_lessee(request, trailer_id, lessee_id=None, deposit_id=None):
-    if lessee_id is not None:
-        # fetch the object related to passed id
-        lessee = get_object_or_404(Associated, id=lessee_id)
+    args = ["{lessee_id}", trailer_id]
+    cli_args = [trailer_id, "{client_id}"]
+    if deposit_id is not None:
+        args.append(deposit_id)
+        cli_args.append(deposit_id)
 
-        if request.method == "POST":
-            # pass the object as instance in form
-            form = AssociatedCreateForm(request.POST, request.FILES, instance=lessee)
+    if lessee_id is None:
+        return create_lessee(
+            request,
+            "create-contract",
+            args,
+            use_client_url={
+                "url": "update-lessee",
+                "args": cli_args,
+            },
+        )
 
-            # save the data from the form and
-            # redirect to update lessee data view
-            if form.is_valid():
-                form.save()
-                if deposit_id is None:
-                    return redirect("update-lessee-data", trailer_id, lessee.id)
-                return redirect("update-lessee-data", trailer_id, lessee.id, deposit_id)
+    return updateLessee(request, lessee_id, "create-contract", args)
 
-        # pass the object as instance in form
-        form = AssociatedCreateForm(instance=lessee)
-        title = _("Update client")
-    else:
-        if request.method == "POST":
-            # pass the object as instance in form
-            form = AssociatedCreateForm(request.POST, request.FILES)
-
-            # save the data from the form and
-            # redirect to update lessee data view
-            if form.is_valid():
-                lessee = form.save()
-                return redirect("update-lessee-data", trailer_id, lessee.id)
-
-        form = AssociatedCreateForm()
-        title = _("Create client")
-
-    # add form dictionary to context
-
-    context = {
-        "form": form,
-        "title": title,
-    }
-    addStateCity(context)
-    return render(request, "users/contact_create.html", context)
+    # if lessee_id is not None:
+    #     # fetch the object related to passed id
+    #     lessee = get_object_or_404(Associated, id=lessee_id)
+    #
+    #     if request.method == "POST":
+    #         # pass the object as instance in form
+    #         form = AssociatedCreateForm(request.POST, request.FILES, instance=lessee)
+    #
+    #         # save the data from the form and
+    #         # redirect to update lessee data view
+    #         if form.is_valid():
+    #             form.save()
+    #             if deposit_id is None:
+    #                 return redirect("update-lessee-data", trailer_id, lessee.id)
+    #             return redirect("update-lessee-data", trailer_id, lessee.id, deposit_id)
+    #
+    #     # pass the object as instance in form
+    #     form = AssociatedCreateForm(instance=lessee)
+    #     title = _("Update client")
+    # else:
+    #     if request.method == "POST":
+    #         # pass the object as instance in form
+    #         form = AssociatedCreateForm(request.POST, request.FILES)
+    #
+    #         # save the data from the form and
+    #         # redirect to update lessee data view
+    #         if form.is_valid():
+    #             lessee = form.save()
+    #             return redirect("update-lessee-data", trailer_id, lessee.id)
+    #
+    #     form = AssociatedCreateForm()
+    #     title = _("Create client")
+    #
+    # # add form dictionary to context
+    #
+    # context = {
+    #     "form": form,
+    #     "title": title,
+    # }
+    # addStateCity(context)
+    # return render(request, "users/contact_create.html", context)
 
 
 @login_required

@@ -1,17 +1,21 @@
 from crispy_forms.bootstrap import AppendedText
+from crispy_forms.bootstrap import PrependedAppendedText
 from crispy_forms.bootstrap import PrependedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.helper import mark_safe
 from crispy_forms.layout import ButtonHolder
 from crispy_forms.layout import Field
 from crispy_forms.layout import Fieldset
+from crispy_forms.layout import HTML
 from crispy_forms.layout import Layout
 from crispy_forms.layout import Submit
 from django import forms
 from django.forms import HiddenInput
 from django.forms import ModelForm
 from django.forms import modelformset_factory
+from django.urls import reverse
 from django.utils import timezone
+from twilio.rest.pricing.v1 import phone_number
 
 from ..models.lease import Contract
 from ..models.lease import Due
@@ -49,6 +53,7 @@ class ContractForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields["effective_date"] = forms.DateTimeField(
             widget=forms.DateInput(
                 attrs={"type": "date"},
@@ -89,6 +94,12 @@ class ContractForm(ModelForm):
         if v == "-":
             raise forms.ValidationError("Select a version")
         return v
+
+    def clean_payment_amount(self):
+        pay = self.cleaned_data["payment_amount"]
+        if pay > 0:
+            return pay
+        raise forms.ValidationError("Payment amount must be greater than zero")
 
 
 class InspectionForm(forms.ModelForm):
@@ -195,7 +206,12 @@ class AssociatedCreateForm(BaseContactForm):
         model = Associated
         fields = BaseContactForm.Meta.fields + ["type"]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, use_client_url: dict | None = None, **kwargs):
+        self.use_client_url = use_client_url
+        self.buttons = ButtonHolder(
+            Submit("submit", "Enviar", css_class="btn btn-success")
+        )
+
         super().__init__(*args, **kwargs)
 
         self.fields["type"].widget = HiddenInput()
@@ -203,11 +219,47 @@ class AssociatedCreateForm(BaseContactForm):
         self.fields["email"].required = True
 
         self.helper.field_class = "mb-3"
+
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field("type"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            self.buttons,
         )
+
+    def validate_client(self):
+        if self.use_client_url is None or "url" not in self.use_client_url:
+            return
+
+        phone = self.cleaned_data["phone_number"]
+        client = Associated.objects.filter(phone_number=phone).last()
+        if client is None:
+            return
+
+        url_name = self.use_client_url["url"]
+        args: list = []
+        if "args" in self.use_client_url:
+            args: list = self.use_client_url["args"]
+            try:
+                idx = args.index("{client_id}")
+                args[idx] = client.id
+            except Exception:
+                pass
+
+        url = reverse(url_name, args=args)
+        self.buttons.append(
+            HTML(
+                f"""<a class='btn btn-outline-primary' href='{url}'>
+                Use client
+                <strong>{client.name}</strong>
+                with phone number
+                <strong>{client.phone_number}</strong>
+                </a>"""
+            )
+        )
+
+    def clean(self):
+        self.validate_client()
+        return super().clean()
 
 
 class PaymentForm(forms.ModelForm):

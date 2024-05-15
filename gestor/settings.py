@@ -21,6 +21,7 @@ PHONE_NUMBER_DEFAULT_REGION = "US"
 
 REDIR_CLIENTS = "https://towithouston.com/"
 
+MAX_POSITION = 8
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/

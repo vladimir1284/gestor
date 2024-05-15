@@ -4,11 +4,13 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 
 from menu.menu.menu_element import HttpRequest
+from rbac.decorators.admin_required import admin_required
 from rbac.forms.role_form import RoleForm
 from rbac.tools.get_role_perms import get_role_perms_all
 
 
 @login_required
+@admin_required
 def role_form(request: HttpRequest, id=None):
     group = Group.objects.filter(id=id).first() if id is not None else None
 

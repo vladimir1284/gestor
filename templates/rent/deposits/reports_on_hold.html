@@ -1,0 +1,55 @@
+{% load static %}
+{% load humanize %}
+<div class="card-body pt-0">
+    <strong class='text-main'>ON HOLD</strong>
+    <table>
+        <tr>
+            <td>
+                <strong>Quantity:</strong>
+            </td>
+            <td>{{deposits_on_hold_count}}</td>
+        </tr>
+        <tr>
+            <td>
+                <strong>Total On Hold:</strong>
+            </td>
+            <td>${{deposits_on_hold_total}}</td>
+        </tr>
+    </table>
+</div>
+<div class="table-responsive text-nowrap">
+    <div class="container ps-0" style="height: 500px; overflow-y: auto;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Invoice</th>
+                    <th>Client</th>
+                    <th class="text-end">Amount</th>
+                    <th>Days</th>
+                    <th>From</th>
+                    <th>To</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for deposit in deposits_on_hold %}
+                    <tr
+                        {%if deposit.expirated%}
+                            class="bg-red-50 text-danger"
+                        {%endif%}
+                    >
+                        <td>
+                            <a href="{%url 'trailer-deposit-details' deposit.id %}">
+                                {{deposit.invoice_num}}
+                            </a>
+                        </td>
+                        <td>{{ deposit.client.name|slice:":20" }}</td>
+                        <td class="text-end">${{ deposit.amount|floatformat:"2" }}</td>
+                        <td>{{ deposit.days }}</td>
+                        <td>{{ deposit.date|date:"E, d Y" }}</td>
+                        <td>{{ deposit.valid_until|date:"E, d Y" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

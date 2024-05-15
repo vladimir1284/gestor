@@ -5,7 +5,6 @@ from typing import List
 import pytz
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
@@ -25,6 +24,7 @@ from .forms import UserUpdateForm
 from .models import Associated
 from .models import Company
 from .models import UserProfile
+from rbac.decorators.admin_required import admin_required
 from rent.models.lease import Contract
 from rent.models.lease import Due
 from rent.models.lease import Lease
@@ -74,7 +74,8 @@ def get_start_paying_date(lease: Lease):
     return interval_start
 
 
-@permission_required("auth.user.can_add_user")
+# @permission_required("auth.user.can_add_user")
+@admin_required
 def create_user(request):
     form = UserProfileForm()
     userCform = UserCreateForm()
@@ -133,14 +134,16 @@ def create_user_profile(request, id):
     return redirect("update-user", profile.id)
 
 
-@permission_required("auth.user.can_add_user")
+# @permission_required("auth.user.can_add_user")
+@admin_required
 def list_user(request):
     profiles = UserProfile.objects.exclude(user__id=request.user.id)
     print(profiles)
     return render(request, "users/user_list.html", {"profiles": profiles})
 
 
-@permission_required("auth.user.can_add_user")
+# @permission_required("auth.user.can_add_user")
+@admin_required
 def delete_user(request, id):
     # fetch the object related to passed id
     profile = get_object_or_404(UserProfile, id=id)
@@ -160,26 +163,32 @@ def create_provider(request):
 
 @login_required
 def create_client(request):
-    if request.method == "POST":
-        form = AssociatedCreateForm(request.POST, request.FILES)
-        if form.is_valid():
-            client = form.save()
-
-            order_data = request.session.get("creating_order")
-            if order_data is not None:
-                request.session["client_id"] = client.id
-
-                if "next" in request.session and request.session["next"] is not None:
-                    return redirect(request.session["next"])
-
-                return redirect("select-company")
-            # else:
-            #     order_id = request.session.get('order_detail')
-            #     if order_id is not None:
-            #         order = get_object_or_404(Order, id=order_id)
-            #         order.associated = client
-            #         order.save()
-            #         return redirect('detail-service-order', id=order_id)
+    # if request.method == "POST":
+    #     form = AssociatedCreateForm(request.POST, request.FILES)
+    #     if form.is_valid():
+    #         client = form.save()
+    #
+    #         order_data = request.session.get("creating_order")
+    #         if order_data is not None:
+    #             request.session["client_id"] = client.id
+    #
+    #             if "next" in request.session and request.session["next"] is not None:
+    #                 return redirect(request.session["next"])
+    #
+    #             return redirect("select-company")
+    #         else:
+    #             if "next" in request.GET and request.GET["next"] is not None:
+    #                 return redirect(request.GET["next"])
+    #             if "next" in request.session and request.session["next"] is not None:
+    #                 return redirect(request.session["next"])
+    #             return redirect("list-client")
+    # else:
+    #     order_id = request.session.get('order_detail')
+    #     if order_id is not None:
+    #         order = get_object_or_404(Order, id=order_id)
+    #         order.associated = client
+    #         order.save()
+    #         return redirect('detail-service-order', id=order_id)
 
     return create_associated(request, "client")
 
@@ -206,14 +215,22 @@ def create_associated(request, type):
     initial = {"type": type}
     form = FORMS[type](initial=initial)
     next = request.GET.get("next", "list-{}".format(type))
+    print(next)
     if request.method == "POST":
+        print(1)
         form = FORMS[type](request.POST, request.FILES, initial=initial)
+        print(2)
         if form.is_valid():
+            print(3)
             associated: Associated = form.save()
+            print(4)
             request.session["associated_id"] = associated.id
+            print(6)
             if associated.outsource:
+                print(7)
                 order_id = request.session.get("order_detail")
                 return redirect("create-expense", order_id)
+            print(next)
             return redirect(next)
     title = {"client": _("Create client"), "provider": _("Create Provider")}[type]
     context = {"form": form, "title": title}

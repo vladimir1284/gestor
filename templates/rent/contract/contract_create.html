@@ -8,8 +8,13 @@
     <!-- Basic with Icons -->
     <div class="col-xxl">
         <div class="card mb-4">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">{{ title }}</h5>
+            <div class="card-header flex items-center justify-between">
+                <h5 class="mb-0 flex-grow">{{ title }}</h5>
+                {%if on_hold%}
+                    <div class="bg-mainBG rounded-xl py-2 px-4 text-main">
+                        ON HOLD: <strong>${{on_hold.amount|floatformat:'-2'}}</strong>
+                    </div>
+                {%endif%}
             </div>
             <div class="card-body" x-data="createContract">
                 <form enctype="multipart/form-data" method="post" id="update-form">

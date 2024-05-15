@@ -18,9 +18,7 @@ from costs.models import Cost
 from gestor.views.utils import getMonthYear
 from gestor.views.utils import getWeek
 from inventory.models import ProductTransaction
-from rent.models.cost import (
-    RentalCost,
-)
+from rent.models.cost import RentalCost
 from rent.models.lease import Due
 from rent.models.lease import Lease
 from rent.models.lease import Payment as RentalPayment
@@ -28,13 +26,12 @@ from rent.models.trailer_deposit import get_cancelled_trailer_deposits
 from rent.models.trailer_deposit import get_done_trailer_deposits
 from rent.models.trailer_deposit import get_expirated_trailer_deposits
 from rent.tools.client import get_start_paying_date
+from rent.tools.trailer_deposits_reports import deposits_reports
 from services.models import Expense
 from services.models import Payment
 from services.models import PaymentCategory
 from services.models import PendingPayment
-from services.views.order import (
-    computeOrderAmount,
-)
+from services.views.order import computeOrderAmount
 from utils.models import Order
 
 
@@ -131,7 +128,7 @@ def getOrderBalance(order: Order, products: dict):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def monthly_report(request, year=None, month=None):
     """
     The function takes optional parameters for the year and month, allowing
@@ -202,8 +199,7 @@ def monthly_report(request, year=None, month=None):
 
     context.setdefault(
         "membership",
-        getMonthlyMembership(currentYear, currentMonth, all=True)[
-            "total"]["gross"],
+        getMonthlyMembership(currentYear, currentMonth, all=True)["total"]["gross"],
     )
 
     return render(request, "monthly.html", context)
@@ -227,8 +223,7 @@ def getRentalReport(currentYear, currentMonth):
             timezone.datetime(currentYear, currentMonth, 1),
             pytz.timezone(settings.TIME_ZONE),
         )
-        first_day_of_next_month = first_day_of_this_month + \
-            relativedelta(months=1)
+        first_day_of_next_month = first_day_of_this_month + relativedelta(months=1)
 
         interval_start = max(first_day_of_this_month, interval_start)
         interval_end = min(first_day_of_next_month, timezone.now())
@@ -240,8 +235,7 @@ def getRentalReport(currentYear, currentMonth):
         lease.unpaid_dues = []
         unpaid_lease = False
         for occurrence in occurrences:
-            paid_due = Due.objects.filter(
-                due_date=occurrence.start.date(), lease=lease)
+            paid_due = Due.objects.filter(due_date=occurrence.start.date(), lease=lease)
             if len(paid_due) == 0:
                 unpaid_amount += lease.payment_amount
                 lease.unpaid_dues.append(occurrence)
@@ -303,7 +297,7 @@ def monthly_payments(request, category_id, year, month):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def weekly_membership_report(request, date=None):
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
 
@@ -347,8 +341,7 @@ def getWeekMembership(start_date, end_date):
         .exclude(company=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -358,7 +351,7 @@ def getWeekMembership(start_date, end_date):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def monthly_membership_report(request, year=None, month=None):
     # Prepare dashboard from last close
     (
@@ -368,23 +361,22 @@ def monthly_membership_report(request, year=None, month=None):
     ) = getMonthYear(month, year)
 
     context = getMonthlyMembership(currentYear, currentMonth)
+    deposits_reports(context, currentYear, currentMonth)
 
-    done_deposits, done_amount = get_done_trailer_deposits(
-        currentYear, currentMonth)
-    cancelled_deposits, cancelled_amount = get_cancelled_trailer_deposits(
-        currentYear, currentMonth
-    )
-    expirated_deposits, expirated_amount = get_expirated_trailer_deposits(
-        currentYear, currentMonth
-    )
-    context.setdefault("done_deposits", done_deposits)
-    context.setdefault("cancelled_deposits", cancelled_deposits)
-    context.setdefault("expirated_deposits", expirated_deposits)
-    context.setdefault("done_deposits_amount", done_amount)
-    context.setdefault("cancelled_deposits_amount", cancelled_amount)
-    context.setdefault("expirated_deposits_amount", expirated_amount)
-    context.setdefault("total_deposits_amount",
-                       expirated_amount + cancelled_amount)
+    # done_deposits, done_amount = get_done_trailer_deposits(currentYear, currentMonth)
+    # cancelled_deposits, cancelled_amount = get_cancelled_trailer_deposits(
+    #     currentYear, currentMonth
+    # )
+    # expirated_deposits, expirated_amount = get_expirated_trailer_deposits(
+    #     currentYear, currentMonth
+    # )
+    # context.setdefault("done_deposits", done_deposits)
+    # context.setdefault("cancelled_deposits", cancelled_deposits)
+    # context.setdefault("expirated_deposits", expirated_deposits)
+    # context.setdefault("done_deposits_amount", done_amount)
+    # context.setdefault("cancelled_deposits_amount", cancelled_amount)
+    # context.setdefault("expirated_deposits_amount", expirated_amount)
+    # context.setdefault("total_deposits_amount", expirated_amount + cancelled_amount)
 
     context.setdefault("previousMonth", previousMonth)
     context.setdefault("currentMonth", currentMonth)
@@ -439,7 +431,7 @@ def getMonthlyMembership(currentYear, currentMonth, all=False):
 
 
 @login_required
-@permission_required("costs.view_cost")
+@permission_required("extra_perm.costs_access")
 def weekly_report(request, date=None):
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)
 
@@ -455,8 +447,7 @@ def weekly_report(request, date=None):
         .exclude(company__membership=True, associated=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
