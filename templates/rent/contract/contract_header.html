@@ -75,6 +75,17 @@
                 <!-- <span class="tf-icons bx bx-edit"></span> -->
             </a>
         {% endif %}
+        {%if guarantor_required %}
+            <a class="btn btn-link btn-icon"
+               href="{% url 'select-contract-guarantor' contract.id %}"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               data-bs-custom-class="custom-tooltip"
+               data-bs-title="Select guarantor"
+            >
+                <i class='bx bx-credit-card-front'></i>
+            </a>
+        {%endif%}
         <a href="{% url 'contract-signing' contract.id %}"
            type="button"
            data-bs-toggle="tooltip"
@@ -180,12 +191,17 @@
     </div>
 
     <div class="flex flex-wrap mt-4 gap-2 justify-center">
-        {% if validated %}
+        {%if guarantor_required and contract.guarantor is None %}
+            <a class="btn btn-outline-success" href="{% url 'select-contract-guarantor' contract.id %}">
+                <span class="tf-icons bx bx-check"></span>
+                Select guarantor
+            </a>
+        {% elif validated %}
             <button class="btn btn-outline-secondary" disabled>
                 <span class="tf-icons bx bx-check"></span>
                 Activate contract
             </button>
-        {% elif signature_lessee.img.url and date_daniel.img.url and date_lessee.img.url and signature_lessee.img.url != '' and date_daniel.img.url != '' and date_lessee.img.url != '' %}
+        {% elif handwriting_ok %}
             <button onClick="validateContract('{% url 'update-contract-stage' contract.id 'active' %}')"
                     id="submit-id-submit"
                     class="btn btn-outline-primary relative">

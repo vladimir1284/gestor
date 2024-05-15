@@ -11,6 +11,7 @@ from rent.models.lease import Contract
 from rent.tools.contract_ctx import get_contract_token
 from rent.tools.contract_ctx import prepare_contract_view
 from rent.tools.get_conditions import get_conditions
+from rent.tools.get_missing_handwriting import check_handwriting
 from rent.views.calendar import login_required
 
 
@@ -59,6 +60,7 @@ def contract_signing(request, token):
     context = prepare_contract_view(contract_id)
     context.setdefault("external", True)
 
+    context["handwriting_ok"] = check_handwriting(context["contract"], daniel=False)
     context["token"] = token
     context["conditions"] = get_conditions(context)
 
