@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("users", "0019_alter_associated_phone_number_and_more"),
-        ("rent", "0069_leasedeposit_on_hold"),
+        ("rent", "0066_leasedeposit_on_hold"),
     ]
 
     operations = [
