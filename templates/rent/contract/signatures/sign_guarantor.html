@@ -1,0 +1,20 @@
+{% load static %}
+{% if pdf %}
+{% else %}
+    {% if external %}
+        <a class="signature_btn"
+           href="{% url 'ext-capture-signature' 'signature_guarantor' token %}">
+            <button type="button" class="btn btn-icon btn-primary">
+                <span class="tf-icons bx bx-edit"></span>
+            </button>
+        </a>
+    {% else %}
+        <a class="signature_btn"
+           href="{% url 'capture-signature' 'signature_guarantor' token %}">
+            <button type="button" class="btn btn-icon btn-primary">
+                <span class="tf-icons bx bx-edit"></span>
+            </button>
+        </a>
+    {% endif %}
+{% endif %}
+<img class="signature" src="{{ signature_guarantor.img.url }}">

@@ -55,7 +55,9 @@ from rent.permissions import staff_required
 from rent.tools.contract_ctx import get_contract
 from rent.tools.contract_ctx import get_contract_token
 from rent.tools.contract_ctx import prepare_contract_view
+from rent.tools.get_conditions import contract_guarantor
 from rent.tools.get_conditions import get_conditions
+from rent.tools.get_missing_handwriting import check_handwriting
 from rent.tools.get_missing_handwriting import get_missing_handwriting
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
@@ -158,6 +160,8 @@ def contract_detail(request, id):
     context = prepare_contract_view(id)
 
     context["validated"] = Lease.objects.filter(contract=context["contract"]).exists()
+    context["guarantor_required"] = contract_guarantor(context["contract"])
+    context["handwriting_ok"] = check_handwriting(context["contract"])
 
     phone = context["contract"].lessee.phone_number
 
@@ -597,6 +601,9 @@ def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
                     deposit.done = True
                     deposit.contract = lease
                     deposit.save()
+
+                if contract_guarantor(lease):
+                    return redirect("select-contract-guarantor", lease.id)
                 return redirect("detail-contract", lease.id)
     else:
         form = ContractForm(

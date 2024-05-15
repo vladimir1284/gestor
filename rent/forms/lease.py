@@ -60,7 +60,7 @@ class ContractForm(ModelForm):
             ),
         )
 
-        templates_versions = [
+        templates_versions = [("-", "---")] + [
             (
                 v["version"],
                 f"V-{v['version']} ({v['date'].strftime('%b %d, %Y')})",
@@ -88,6 +88,12 @@ class ContractForm(ModelForm):
                 Submit("submit", "Create contract", css_class="btn btn-success")
             ),
         )
+
+    def clean_template_version(self):
+        v = self.cleaned_data["template_version"]
+        if v == "-":
+            raise forms.ValidationError("Select a version")
+        return v
 
     def clean_payment_amount(self):
         pay = self.cleaned_data["payment_amount"]
