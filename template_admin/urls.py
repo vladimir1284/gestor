@@ -55,6 +55,11 @@ urlpatterns = [
         name="template-version-export",
     ),
     path(
+        "template-version-export/<id>/<version>",
+        template_version_export,
+        name="template-version-export",
+    ),
+    path(
         "template-version-import/<id>",
         template_version_import,
         name="template-version-import",
