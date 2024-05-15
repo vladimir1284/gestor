@@ -26,6 +26,7 @@ from rent.views.deposit import trailer_deposit_pdf
 from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
+from rent.views.lease.select_guarantor import select_guarantor
 from rent.views.lease.update_data_on_contract import update_data_on_contract
 
 try:
@@ -160,6 +161,11 @@ urlpatterns = [
         name="delete-trailer-document",
     ),
     # -------------------- Contracts ----------------------------
+    path(
+        "select-contract-guarantor/<int:id>",
+        select_guarantor,
+        name="select-contract-guarantor",
+    ),
     path(
         "create_contract/<int:lessee_id>/<int:trailer_id>/",
         lease.contract_create_view,

@@ -26,6 +26,13 @@ from users.models import Associated
 
 class Contract(models.Model):
     lessee = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    guarantor = models.ForeignKey(
+        Associated,
+        on_delete=models.CASCADE,
+        related_name="guaranted_contracts",
+        null=True,
+        blank=True,
+    )
     trailer = models.ForeignKey(Trailer, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 

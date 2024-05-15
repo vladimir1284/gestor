@@ -89,7 +89,7 @@
                 <span class="tf-icons bx bx-check"></span>
                 Activate contract
             </button>
-        {% elif signature_lessee.img.url and date_daniel.img.url and date_lessee.img.url and signature_lessee.img.url != '' and date_daniel.img.url != '' and date_lessee.img.url != '' %}
+        {% elif handwriting_ok %}
             <button onClick="validateContract('{% url 'update-contract-stage' contract.id 'active' %}')"
                     id="submit-id-submit"
                     class="btn btn-outline-primary relative">

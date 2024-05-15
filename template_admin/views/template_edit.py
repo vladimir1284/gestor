@@ -30,7 +30,7 @@ def template_edit(request: HttpRequest, id):
         if form.is_valid():
             template.content = form.cleaned_data["text"]
             template.save()
-            return redirect("template-list")
+            # return redirect("template-list")
     else:
         form = TempForm(initial=initial)
 
