@@ -160,6 +160,7 @@ def contract_detail(request, id):
     context = prepare_contract_view(id)
 
     context["validated"] = Lease.objects.filter(contract=context["contract"]).exists()
+    context["guarantor_required"] = contract_guarantor(context["contract"])
     context["handwriting_ok"] = check_handwriting(context["contract"])
 
     phone = context["contract"].lessee.phone_number
@@ -600,6 +601,9 @@ def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
                     deposit.done = True
                     deposit.contract = lease
                     deposit.save()
+
+                if contract_guarantor(lease):
+                    return redirect("select-contract-guarantor", lease.id)
                 return redirect("detail-contract", lease.id)
     else:
         form = ContractForm(

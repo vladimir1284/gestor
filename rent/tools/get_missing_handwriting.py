@@ -42,8 +42,8 @@ def get_missing_handwriting(contract) -> list[str]:
     return missing
 
 
-def check_handwriting(contract) -> bool:
-    lessee_handwritings = get_handwritings(contract, True)
+def check_handwriting(contract, daniel: bool = True) -> bool:
+    lessee_handwritings = get_handwritings(contract, daniel)
 
     for hw in lessee_handwritings:
         if not HandWriting.objects.filter(
