@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
     "testserver",
     "www.tacocars.com",
     "192.168.43.89",
+    ".ngrok.io",
 ]
 
 
@@ -71,8 +72,10 @@ INSTALLED_APPS = [
     "menu",
     "dashboard",
     "template_admin",
+    "crm",
     # Must be the last one
     "rbac",
+
 ]
 
 MIDDLEWARE = [

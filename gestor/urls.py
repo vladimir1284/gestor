@@ -99,6 +99,7 @@ urlpatterns = [
     path("erp/tolls/", include("tolls.urls")),
     path("erp/template/", include("template_admin.urls")),
     path("erp/rbac/", include("rbac.urls")),
+    path("erp/crm/", include("crm.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

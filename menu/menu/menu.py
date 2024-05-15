@@ -103,6 +103,10 @@ MENU = [
                 extra_match=["rbac-role-form"],
                 admin=True,
             ),
+            MenuItem(
+                name="Registro de llamadas",
+                url="registro",
+            ),
         ],
     ),
     # Services menu
