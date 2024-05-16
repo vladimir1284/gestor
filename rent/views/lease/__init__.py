@@ -39,6 +39,7 @@ from rent.forms.lease import SecurityDepositDevolutionForm
 from rent.forms.lease import TireFormSet
 from rent.forms.lessee_contact import LesseeContactForm
 from rent.forms.trailer_deposit import TrailerDeposit
+from rent.models.guarantor import Guarantor
 from rent.models.lease import Contract
 from rent.models.lease import Due
 from rent.models.lease import HandWriting
@@ -590,20 +591,42 @@ def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
             request.POST,
             initial=initial,
         )
+        print(1)
         if form.is_valid():
+            print(2)
             with transaction.atomic():
-                lease = form.save(commit=False)
+                lease: Contract = form.save(commit=False)
                 lease.stage = "missing"
                 lease.lessee = lessee
                 lease.trailer = trailer
+                print(3)
+
+                if (
+                    "guarantor" in request.session
+                    and request.session["guarantor"] is not None
+                ):
+                    print(4)
+                    guarantor = Guarantor.objects.filter(
+                        id=int(request.session["guarantor"])
+                    ).last()
+                    lease.template_version = 3
+                    lease.guarantor = guarantor
+                    print(5)
+                else:
+                    lease.template_version = 2
+                    print(6)
+
                 lease.save()
+                print(7)
                 if deposit is not None:
                     deposit.done = True
                     deposit.contract = lease
                     deposit.save()
+                    print(8)
 
-                if contract_guarantor(lease):
-                    return redirect("select-contract-guarantor", lease.id)
+                print(9)
+                # if contract_guarantor(lease):
+                #     return redirect("select-contract-guarantor", lease.id)
                 return redirect("detail-contract", lease.id)
     else:
         form = ContractForm(
@@ -655,9 +678,16 @@ def update_lessee(request, trailer_id, lessee_id=None, deposit_id=None):
                 "url": "update-lessee",
                 "args": cli_args,
             },
+            ask_guarantor=True,
         )
 
-    return updateLessee(request, lessee_id, "create-contract", args)
+    return updateLessee(
+        request,
+        lessee_id,
+        "create-contract",
+        args,
+        ask_guarantor=True,
+    )
 
     # if lessee_id is not None:
     #     # fetch the object related to passed id
