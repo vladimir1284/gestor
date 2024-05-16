@@ -20,6 +20,7 @@ from schedule.models import Rule
 from .vehicle import classify_file
 from .vehicle import DOCUMENT_TYPES
 from .vehicle import Trailer
+from rent.models.guarantor import Guarantor
 from rent.tools.get_conditions_last_version import get_conditions_last_version
 from users.models import Associated
 
@@ -27,9 +28,8 @@ from users.models import Associated
 class Contract(models.Model):
     lessee = models.ForeignKey(Associated, on_delete=models.CASCADE)
     guarantor = models.ForeignKey(
-        Associated,
+        Guarantor,
         on_delete=models.CASCADE,
-        related_name="guaranted_contracts",
         null=True,
         blank=True,
     )

@@ -48,7 +48,6 @@ class ContractForm(ModelForm):
             "service_charge",
             "contract_type",
             "total_amount",
-            "template_version",
         )
 
     def __init__(self, *args, **kwargs):
@@ -59,15 +58,6 @@ class ContractForm(ModelForm):
                 attrs={"type": "date"},
             ),
         )
-
-        templates_versions = [("-", "---")] + [
-            (
-                v["version"],
-                f"V-{v['version']} ({v['date'].strftime('%b %d, %Y')})",
-            )
-            for v in get_rent_conditions_template().versions_list_date
-        ]
-        self.fields["template_version"] = forms.ChoiceField(choices=templates_versions)
 
         self.helper = FormHelper()
         self.helper.field_class = "mb-3"
@@ -81,19 +71,10 @@ class ContractForm(ModelForm):
             PrependedText("security_deposit", "$"),
             Field("contract_type"),
             PrependedText("total_amount", "$"),
-            PrependedText(
-                "template_version", mark_safe("<i class='bx bx-layout'></i>")
-            ),
             ButtonHolder(
                 Submit("submit", "Create contract", css_class="btn btn-success")
             ),
         )
-
-    def clean_template_version(self):
-        v = self.cleaned_data["template_version"]
-        if v == "-":
-            raise forms.ValidationError("Select a version")
-        return v
 
     def clean_payment_amount(self):
         pay = self.cleaned_data["payment_amount"]
@@ -202,11 +183,27 @@ class SecurityDepositDevolutionForm(forms.ModelForm):
 
 
 class AssociatedCreateForm(BaseContactForm):
+    has_guarantor = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={
+                "x-model": "has_guarantor",
+                "x-ref": "guarantor",
+            }
+        ),
+    )
+
     class Meta(BaseContactForm.Meta):
         model = Associated
         fields = BaseContactForm.Meta.fields + ["type"]
 
-    def __init__(self, *args, use_client_url: dict | None = None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        use_client_url: dict | None = None,
+        ask_guarantor: bool = False,
+        **kwargs,
+    ):
         self.use_client_url = use_client_url
         self.buttons = ButtonHolder(
             Submit("submit", "Enviar", css_class="btn btn-success")
@@ -223,6 +220,7 @@ class AssociatedCreateForm(BaseContactForm):
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field("type"),
+            Field("has_guarantor") if ask_guarantor else HTML(""),
             self.buttons,
         )
 

@@ -66,9 +66,18 @@ def get_conditions(ctx):
         "@@date_lessee@@": '{% include "rent/contract/signatures/date_lessee.html" %}',
         "@@date_guarantor@@": '{% include "rent/contract/signatures/date_guarantor.html" %}',
         # Sign
-        "@@sign_daniel@@": '{% include "rent/contract/signatures/sign_daniel.html" %}',
         "@@sign_lessee@@": '{% include "rent/contract/signatures/sign_lessee.html" %}',
         "@@sign_guarantor@@": '{% include "rent/contract/signatures/sign_guarantor.html" %}',
+        "@@sign_daniel@@": '{% include "rent/contract/signatures/show_sign_daniel.html" %}',
+        # SHOW
+        # dates
+        "@@show_date_daniel@@": '{% include "rent/contract/signatures/show_date_daniel.html" %}',
+        "@@show_date_lessee@@": '{% include "rent/contract/signatures/show_date_lessee.html" %}',
+        "@@show_date_guarantor@@": '{% include "rent/contract/signatures/show_date_guarantor.html" %}',
+        # Sign
+        "@@show_sign_lessee@@": '{% include "rent/contract/signatures/show_sign_lessee.html" %}',
+        "@@show_sign_guarantor@@": '{% include "rent/contract/signatures/show_sign_guarantor.html" %}',
+        "@@show_sign_daniel@@": '{% include "rent/contract/signatures/show_sign_daniel.html" %}',
     }
     cond = template.render_template(
         ctx,
