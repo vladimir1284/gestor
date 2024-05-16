@@ -1044,6 +1044,18 @@
     top: 1.5rem;
   }
 
+  .lg\:ml-2 {
+    margin-left: 0.5rem;
+  }
+
+  .lg\:mr-2 {
+    margin-right: 0.5rem;
+  }
+
+  .lg\:flex {
+    display: flex;
+  }
+
   .lg\:h-\[45vh\] {
     height: 45vh;
   }
@@ -1054,6 +1066,10 @@
 
   .lg\:w-\[30vw\] {
     width: 30vw;
+  }
+
+  .lg\:flex-grow {
+    flex-grow: 1;
   }
 
   .lg\:pr-\[30vw\] {

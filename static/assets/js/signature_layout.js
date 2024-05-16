@@ -321,6 +321,10 @@ class HandWritingCtl {
 
     return data;
   };
+
+  empty = () => {
+    return this.paths.length == 0;
+  };
 }
 
 document.addEventListener("alpine:init", () => {
@@ -336,6 +340,7 @@ document.addEventListener("alpine:init", () => {
       landscape: true,
       canvasMaxHeight: false,
       canvas: null,
+      emptyCanv: false,
 
       hwCtl: new HandWritingCtl(),
 
@@ -388,6 +393,13 @@ document.addEventListener("alpine:init", () => {
       },
 
       capture() {
+        this.emptyCanv = false;
+        if (this.hwCtl.empty()) {
+          setTimeout(() => {
+            this.emptyCanv = true;
+          }, 300);
+          return;
+        }
         const data = this.hwCtl.capture();
         document.getElementById("id_img").value = data;
         document.getElementById("form1").submit();
