@@ -4,6 +4,8 @@ from menu.menu.menu_element import PermissionParam
 
 
 def is_decorated(func):
+    if getattr(func, "_rbac_ignore", False):
+        return False
     return hasattr(func, "__wrapped__")
 
 
