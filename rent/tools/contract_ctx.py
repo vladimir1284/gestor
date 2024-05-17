@@ -5,6 +5,7 @@ from math import ceil
 import jwt
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from num2words import num2words
 
 from rent.models.lease import Contract
 from rent.models.lease import HandWriting
@@ -45,6 +46,19 @@ def prepare_contract_view(id):
         "contract": contract,
         "on_hold": on_hold,
     }
+    if contract.renovation_term:
+        if contract.renovation_term == 1:
+            context["renovation_term_every"] = "month-to-month"
+            context["renovation_term_num"] = (
+                num2words(contract.renovation_term, lang="en") + " month"
+            )
+        else:
+            context["renovation_term_every"] = (
+                "every " + num2words(contract.renovation_term, lang="en") + " months"
+            )
+            context["renovation_term_num"] = (
+                num2words(contract.renovation_term, lang="en") + " months"
+            )
     for sign in signatures:
         context.setdefault(sign.position, sign)
     # Inspection tires sumamry

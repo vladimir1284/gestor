@@ -45,6 +45,7 @@ class ContractForm(ModelForm):
             "security_deposit",
             "payment_frequency",
             "contract_term",
+            "renovation_term",
             "service_charge",
             "contract_type",
             "total_amount",
@@ -62,15 +63,49 @@ class ContractForm(ModelForm):
         self.helper = FormHelper()
         self.helper.field_class = "mb-3"
         self.helper.layout = Layout(
-            Field("trailer_location", rows="2"),
-            "effective_date",
-            PrependedText("payment_amount", "$"),
-            "payment_frequency",
-            AppendedText("contract_term", "months"),
-            PrependedText("service_charge", "$"),
-            PrependedText("security_deposit", "$"),
-            Field("contract_type"),
-            PrependedText("total_amount", "$"),
+            PrependedText(
+                "trailer_location",
+                mark_safe("<i class='bx bx-current-location'></i>"),
+                rows="2",
+            ),
+            PrependedText(
+                "effective_date",
+                mark_safe("<i class='bx bx-calendar-event' ></i>"),
+            ),
+            PrependedText(
+                "payment_amount",
+                mark_safe("<i class='bx bx-dollar' ></i>"),
+            ),
+            PrependedText(
+                "payment_frequency",
+                mark_safe("<i class='bx bx-calendar-plus' ></i>"),
+            ),
+            PrependedAppendedText(
+                "contract_term",
+                mark_safe("<i class='bx bx-calendar-exclamation' ></i>"),
+                "months",
+            ),
+            PrependedAppendedText(
+                "renovation_term",
+                mark_safe("<i class='bx bx-calendar-check' ></i>"),
+                "months",
+            ),
+            PrependedText(
+                "service_charge",
+                mark_safe("<i class='bx bx-dollar' ></i>"),
+            ),
+            PrependedText(
+                "security_deposit",
+                mark_safe("<i class='bx bx-dollar' ></i>"),
+            ),
+            PrependedText(
+                "contract_type",
+                mark_safe("<i class='bx bx-file' ></i>"),
+            ),
+            PrependedText(
+                "total_amount",
+                mark_safe("<i class='bx bx-dollar' ></i>"),
+            ),
             ButtonHolder(
                 Submit("submit", "Create contract", css_class="btn btn-success")
             ),

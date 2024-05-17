@@ -66,6 +66,7 @@ class Contract(models.Model):
     )
     security_deposit = models.IntegerField()
     contract_term = models.FloatField(default=3)  # Months
+    renovation_term = models.IntegerField(default=3)  # Months
     delayed_payments = models.IntegerField(default=0)
     TYPE_CHOICES = [
         ("lto", "Lease to own"),
