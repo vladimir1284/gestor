@@ -1,7 +1,7 @@
 import requests
 
 # Define the URL of the Django view
-url = "http://localhost:8000/erp/crm/handle-call"
+url = "https://9c53-94-140-11-242.ngrok-free.app/erp/crm/handle-call"
 
 # Define the data to be sent in the POST request
 data = {

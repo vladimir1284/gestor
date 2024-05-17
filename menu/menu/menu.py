@@ -105,7 +105,7 @@ MENU = [
             ),
             MenuItem(
                 name="Registro de llamadas",
-                url="registro",
+                url="registro-llamadas",
             ),
         ],
     ),

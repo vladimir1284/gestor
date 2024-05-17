@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import handle_incoming_call
+from .views import *
 
 urlpatterns = [
-    path("handle-call", handle_incoming_call, name="registro"),
+    path("handle-call", handle_call, name="registro"),
+    path("registro", registro, name="registro-llamadas")
 ]

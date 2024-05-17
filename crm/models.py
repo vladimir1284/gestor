@@ -1,5 +1,3 @@
-# En tu archivo models.py
-
 from django.db import models
 
 class TwilioCall(models.Model):

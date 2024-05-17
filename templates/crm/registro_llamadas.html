@@ -18,8 +18,21 @@
     <th>
         <i class="bx bx-cog"></i>
     </th>
-    <th>Name</th>
-    <th>Contact</th>
-    <th>Last Order</th>
+    <th>Call SID</th>
+    <th>From Phone Number</th>
+    <th>To Phone Number</th>
+    <th>From Country</th>
+    <th>From City</th>
 {% endblock Theader %}
 
+{% block Tbody %}
+    {% for llamada in llamadas %}
+        <tr>
+            <td>{{ llamada.call_sid }}</td>
+            <td>{{ llamada.from_phone_number }}</td>
+            <td>{{ llamada.to_phone_number }}</td>
+            <td>{{ llamada.from_country }}</td>
+            <td>{{ llamada.from_city }}</td>
+        </tr>
+    {% endfor %}
+{% endblock Tbody %}
