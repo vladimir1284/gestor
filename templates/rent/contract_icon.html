@@ -1,5 +1,5 @@
 {% load static %}
-<a {% if contract.stage == 'active' %}href="{% url 'client-detail' contract.lessee.id %}"{% else %} href="{% url 'detail-contract' contract.id %}"{% endif %}>
+<a {% if contract.stage == 'active' %}href="{% url 'client-detail' contract.lessee.id contract.id %}"{% else %} href="{% url 'detail-contract' contract.id %}"{% endif %}>
     {% if contract.contract_type == 'lto' %}
         {% if equipment.paid %}
             <img src="{% static 'assets/img/icons/paid.png' %}"

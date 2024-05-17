@@ -222,7 +222,7 @@ def create_note(request, contract_id):
 
 
 @login_required
-def client_detail(request, id):
+def client_detail(request, id, lease_id: int | None = None):
     # Create leases if needed
     client = get_object_or_404(Associated, id=id)
     client.contract = Contract.objects.filter(stage="active").last()
@@ -294,7 +294,12 @@ def client_detail(request, id):
                 lease.contract.toll_totalunpaid += toll.amount
     print("Completed @@@@")
 
-    context = {"client": client, "leases": leases, "dues": dues}
+    context = {
+        "client": client,
+        "leases": leases,
+        "dues": dues,
+        "lease_id": int(lease_id) if lease_id is not None else None,
+    }
 
     return render(request, "rent/client/client_detail.html", context=context)
 
