@@ -591,40 +591,31 @@ def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
             request.POST,
             initial=initial,
         )
-        print(1)
         if form.is_valid():
-            print(2)
             with transaction.atomic():
                 lease: Contract = form.save(commit=False)
                 lease.stage = "missing"
                 lease.lessee = lessee
                 lease.trailer = trailer
-                print(3)
 
                 if (
                     "guarantor" in request.session
                     and request.session["guarantor"] is not None
                 ):
-                    print(4)
                     guarantor = Guarantor.objects.filter(
                         id=int(request.session["guarantor"])
                     ).last()
                     lease.template_version = 3
                     lease.guarantor = guarantor
-                    print(5)
                 else:
                     lease.template_version = 2
-                    print(6)
 
                 lease.save()
-                print(7)
                 if deposit is not None:
                     deposit.done = True
                     deposit.contract = lease
                     deposit.save()
-                    print(8)
 
-                print(9)
                 # if contract_guarantor(lease):
                 #     return redirect("select-contract-guarantor", lease.id)
                 return redirect("detail-contract", lease.id)
