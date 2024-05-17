@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <!-- =========================================================
 * Sneat - Bootstrap 5 HTML Admin Template - Pro | v1.0.0
@@ -10,7 +11,6 @@
 
 =========================================================
  -->
-{% load static %}
 <!-- beautify ignore:start -->
 <html
   lang="es"
@@ -106,32 +106,32 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{% static 'assets/js/config.js' %}"></script>
-
     <script defer src="{%static 'js/alpine-sort.min.js'%}"></script>
     <script defer src="{%static 'js/alpine-collapse.min.js'%}"></script>
     <script defer src="{%static 'js/alpine-intersect.min.js'%}"></script>
     <script defer src="{%static 'js/alpine.min.js'%}"></script>
   </head>
   <body>
+    {%include 'playground.html'%}
     {% block body %}
     <!-- Layout wrapper -->
-    <div class="content-wrapper">
-      <div class="container-xxl flex-grow-1 container-p-y">
-        {% block content %} {% endblock content %}
+      <div class="content-wrapper">
+        <div class="container-xxl flex-grow-1 container-p-y">
+          {% block content %} {% endblock content %}
+        </div>
+        <div class="content-backdrop fade"></div>
       </div>
-      <div class="content-backdrop fade"></div>
-    </div>
     <!-- / Layout wrapper -->
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
-    <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
-    <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
-    <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
-    <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
-    <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+      <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
+      <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
+      <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
+      <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+      <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
     <!-- endbuild -->
     <!-- Main JS -->
-    <script src="{% static 'assets/js/main.js' %}"></script>
+      <script src="{% static 'assets/js/main.js' %}"></script>
     {% endblock body %} {% block scripts %} {% endblock scripts %}
     <!-- Place this tag in your head or just before your close body tag.
     <script async defer src="https://buttons.github.io/buttons.js"></script>-->

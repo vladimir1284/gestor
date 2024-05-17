@@ -34,7 +34,7 @@ def template_version_edit(request: HttpRequest, id: int, version: int | None = N
         if form.is_valid():
             temp_version.content = form.cleaned_data["text"]
             temp_version.save()
-            return redirect("template-list")
+            # return redirect("template-list")
     else:
         form = TempForm(initial=initial)
 

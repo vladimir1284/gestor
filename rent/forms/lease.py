@@ -28,6 +28,8 @@ from ..models.lease import Note
 from ..models.lease import Payment
 from ..models.lease import SecurityDepositDevolution
 from ..models.lease import Tire
+from rent.tools.get_conditions import get_rent_conditions_template
+from template_admin.models.template_version import TemplateVersion
 from users.forms import BaseContactForm
 from users.forms import CommonContactLayout
 from users.models import Associated
@@ -43,6 +45,7 @@ class ContractForm(ModelForm):
             "security_deposit",
             "payment_frequency",
             "contract_term",
+            "renovation_term",
             "service_charge",
             "contract_type",
             "total_amount",
@@ -56,18 +59,53 @@ class ContractForm(ModelForm):
                 attrs={"type": "date"},
             ),
         )
+
         self.helper = FormHelper()
         self.helper.field_class = "mb-3"
         self.helper.layout = Layout(
-            Field("trailer_location", rows="2"),
-            "effective_date",
-            PrependedText("payment_amount", "$"),
-            "payment_frequency",
-            AppendedText("contract_term", "months"),
-            PrependedText("service_charge", "$"),
-            PrependedText("security_deposit", "$"),
-            Field("contract_type"),
-            PrependedText("total_amount", "$"),
+            PrependedText(
+                "trailer_location",
+                mark_safe("<i class='bx bx-current-location'></i>"),
+                rows="2",
+            ),
+            PrependedText(
+                "effective_date",
+                mark_safe("<i class='bx bx-calendar-event' ></i>"),
+            ),
+            PrependedText(
+                "payment_amount",
+                mark_safe("<i class='bx bx-dollar' ></i>"),
+            ),
+            PrependedText(
+                "payment_frequency",
+                mark_safe("<i class='bx bx-calendar-plus' ></i>"),
+            ),
+            PrependedAppendedText(
+                "contract_term",
+                mark_safe("<i class='bx bx-calendar-exclamation' ></i>"),
+                "months",
+            ),
+            PrependedAppendedText(
+                "renovation_term",
+                mark_safe("<i class='bx bx-calendar-check' ></i>"),
+                "months",
+            ),
+            PrependedText(
+                "service_charge",
+                mark_safe("<i class='bx bx-dollar' ></i>"),
+            ),
+            PrependedText(
+                "security_deposit",
+                mark_safe("<i class='bx bx-dollar' ></i>"),
+            ),
+            PrependedText(
+                "contract_type",
+                mark_safe("<i class='bx bx-file' ></i>"),
+            ),
+            PrependedText(
+                "total_amount",
+                mark_safe("<i class='bx bx-dollar' ></i>"),
+            ),
             ButtonHolder(
                 Submit("submit", "Create contract", css_class="btn btn-success")
             ),
@@ -180,11 +218,27 @@ class SecurityDepositDevolutionForm(forms.ModelForm):
 
 
 class AssociatedCreateForm(BaseContactForm):
+    has_guarantor = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={
+                "x-model": "has_guarantor",
+                "x-ref": "guarantor",
+            }
+        ),
+    )
+
     class Meta(BaseContactForm.Meta):
         model = Associated
         fields = BaseContactForm.Meta.fields + ["type"]
 
-    def __init__(self, *args, use_client_url: dict | None = None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        use_client_url: dict | None = None,
+        ask_guarantor: bool = False,
+        **kwargs,
+    ):
         self.use_client_url = use_client_url
         self.buttons = ButtonHolder(
             Submit("submit", "Enviar", css_class="btn btn-success")
@@ -201,6 +255,7 @@ class AssociatedCreateForm(BaseContactForm):
         self.helper.layout = Layout(
             CommonContactLayout(),
             Field("type"),
+            Field("has_guarantor") if ask_guarantor else HTML(""),
             self.buttons,
         )
 

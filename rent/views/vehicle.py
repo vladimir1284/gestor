@@ -37,7 +37,11 @@ def list_equipment(request):
     trailers = Trailer.objects.filter(active=True)
     for trailer in trailers:
         # Contracts
-        contracts = Contract.objects.filter(trailer=trailer).exclude(stage="ended")
+        contracts = (
+            Contract.objects.filter(trailer=trailer)
+            .exclude(stage="ended")
+            .order_by("created_at")
+        )
         if contracts:
             trailer.current_contract = contracts.last()
             _, trailer.paid = trailer.current_contract.paid()
@@ -89,7 +93,13 @@ def list_equipment(request):
     inactive_trailers = Trailer.objects.filter(active=False)
     for trailer in inactive_trailers:
         # Contracts
-        contracts = Contract.objects.filter(trailer=trailer).exclude(stage="ended")
+        contracts = (
+            Contract.objects.filter(
+                trailer=trailer,  # stage__in=["active", "missing"]
+            )
+            .exclude(stage="ended")
+            .order_by("created_at")
+        )
         if contracts:
             trailer.current_contract = contracts.last()
             trailer.paid = trailer.current_contract.paid()

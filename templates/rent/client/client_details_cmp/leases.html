@@ -7,7 +7,7 @@
         {% for lease in leases %}
             <li class="nav-item">
                 <button type="button"
-                        class="nav-link {% if forloop.first %}active{% endif %}"
+                        class="nav-link {% if lease_id %}{% if lease.contract.id == lease_id %}active{%endif%}{% elif forloop.first %}active{% endif %}"
                         role="tab"
                         data-bs-toggle="tab"
                         data-bs-target="#navs-pills-justified-{{ lease.id }}"

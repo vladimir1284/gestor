@@ -20,12 +20,19 @@ from schedule.models import Rule
 from .vehicle import classify_file
 from .vehicle import DOCUMENT_TYPES
 from .vehicle import Trailer
+from rent.models.guarantor import Guarantor
 from rent.tools.get_conditions_last_version import get_conditions_last_version
 from users.models import Associated
 
 
 class Contract(models.Model):
     lessee = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    guarantor = models.ForeignKey(
+        Guarantor,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
     trailer = models.ForeignKey(Trailer, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
@@ -59,6 +66,7 @@ class Contract(models.Model):
     )
     security_deposit = models.IntegerField()
     contract_term = models.FloatField(default=3)  # Months
+    renovation_term = models.IntegerField(default=3)  # Months
     delayed_payments = models.IntegerField(default=0)
     TYPE_CHOICES = [
         ("lto", "Lease to own"),

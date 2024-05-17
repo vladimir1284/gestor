@@ -39,6 +39,7 @@ from rent.forms.lease import SecurityDepositDevolutionForm
 from rent.forms.lease import TireFormSet
 from rent.forms.lessee_contact import LesseeContactForm
 from rent.forms.trailer_deposit import TrailerDeposit
+from rent.models.guarantor import Guarantor
 from rent.models.lease import Contract
 from rent.models.lease import Due
 from rent.models.lease import HandWriting
@@ -55,7 +56,9 @@ from rent.permissions import staff_required
 from rent.tools.contract_ctx import get_contract
 from rent.tools.contract_ctx import get_contract_token
 from rent.tools.contract_ctx import prepare_contract_view
+from rent.tools.get_conditions import contract_guarantor
 from rent.tools.get_conditions import get_conditions
+from rent.tools.get_missing_handwriting import check_handwriting
 from rent.tools.get_missing_handwriting import get_missing_handwriting
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
@@ -158,6 +161,8 @@ def contract_detail(request, id):
     context = prepare_contract_view(id)
 
     context["validated"] = Lease.objects.filter(contract=context["contract"]).exists()
+    context["guarantor_required"] = contract_guarantor(context["contract"])
+    context["handwriting_ok"] = check_handwriting(context["contract"])
 
     phone = context["contract"].lessee.phone_number
 
@@ -406,7 +411,7 @@ def update_contract_stage(request, id, stage):
             )
         mail_send_contract(request, id)
         contract.save()
-        return redirect("client-detail", contract.lessee.id)
+        return redirect("client-detail", contract.lessee.id, contract.id)
     if stage == "ended":
         contract.ended_date = timezone.now()
         # Compute the final debt
@@ -588,15 +593,31 @@ def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
         )
         if form.is_valid():
             with transaction.atomic():
-                lease = form.save(commit=False)
+                lease: Contract = form.save(commit=False)
                 lease.stage = "missing"
                 lease.lessee = lessee
                 lease.trailer = trailer
+
+                if (
+                    "guarantor" in request.session
+                    and request.session["guarantor"] is not None
+                ):
+                    guarantor = Guarantor.objects.filter(
+                        id=int(request.session["guarantor"])
+                    ).last()
+                    lease.template_version = 3
+                    lease.guarantor = guarantor
+                else:
+                    lease.template_version = 2
+
                 lease.save()
                 if deposit is not None:
                     deposit.done = True
                     deposit.contract = lease
                     deposit.save()
+
+                # if contract_guarantor(lease):
+                #     return redirect("select-contract-guarantor", lease.id)
                 return redirect("detail-contract", lease.id)
     else:
         form = ContractForm(
@@ -648,9 +669,16 @@ def update_lessee(request, trailer_id, lessee_id=None, deposit_id=None):
                 "url": "update-lessee",
                 "args": cli_args,
             },
+            ask_guarantor=True,
         )
 
-    return updateLessee(request, lessee_id, "create-contract", args)
+    return updateLessee(
+        request,
+        lessee_id,
+        "create-contract",
+        args,
+        ask_guarantor=True,
+    )
 
     # if lessee_id is not None:
     #     # fetch the object related to passed id

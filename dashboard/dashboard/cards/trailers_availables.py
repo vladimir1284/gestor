@@ -9,7 +9,9 @@ from rent.models.vehicle import Trailer
 def _resolver():
     ids = []
 
-    active_contracts = Contract.objects.filter(stage__in=("active", "missing"))
+    active_contracts = Contract.objects.exclude(
+        stage="ended"
+    )  # .filter(stage__in=("active", "missing"))
     for contract in active_contracts:
         ids.append(contract.trailer.id)
 

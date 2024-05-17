@@ -18,8 +18,7 @@ from .views.cost import list_cost
 from .views.cost import update_cost
 from rent.tools.init_conditions import init_conditions
 from rent.views.create_lessee_with_data import create_update_lessee_data
-from rent.views.deposit.adjust_deposit import \
-    adjust_deposit_on_hold_from_contract
+from rent.views.deposit.adjust_deposit import adjust_deposit_on_hold_from_contract
 from rent.views.deposit.conditions import trailer_deposit_conditions
 from rent.views.deposit.conditions import trailer_deposit_pdf
 from rent.views.deposit.details import trailer_deposit_details
@@ -32,6 +31,10 @@ from rent.views.deposit.reservation import update_lessee_for_reservation
 from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
+from rent.views.lease.select_guarantor import create_guarantor
+from rent.views.lease.select_guarantor import select_guarantor
+from rent.views.lease.select_guarantor import update_guarantor
+from rent.views.lease.select_guarantor import use_guarantor
 from rent.views.lease.update_data_on_contract import update_data_on_contract
 from rent.views.trailer_change_pos import trailer_change_position
 
@@ -183,6 +186,26 @@ urlpatterns = [
     ),
     # -------------------- Contracts ----------------------------
     path(
+        "select-contract-guarantor/<int:contract_id>",
+        select_guarantor,
+        name="select-contract-guarantor",
+    ),
+    path(
+        "update-contract-guarantor/<int:contract_id>/<int:guarantor_id>",
+        update_guarantor,
+        name="update-contract-guarantor",
+    ),
+    path(
+        "create-contract-guarantor/<int:contract_id>",
+        create_guarantor,
+        name="create-contract-guarantor",
+    ),
+    path(
+        "use-contract-guarantor/<int:contract_id>/<int:guarantor_id>",
+        use_guarantor,
+        name="use-contract-guarantor",
+    ),
+    path(
         "create_contract/<int:lessee_id>/<int:trailer_id>/",
         lease.contract_create_view,
         name="create-contract",
@@ -322,6 +345,7 @@ urlpatterns = [
     # -------------------- Client ----------------------------
     path("toggle_alarm/<lease_id>/", client.toggle_alarm, name="toggle-alarm"),
     path("client_detail/<id>/", client.client_detail, name="client-detail"),
+    path("client_detail/<id>/<lease_id>", client.client_detail, name="client-detail"),
     path("client_list/", client.client_list, name="client-list"),
     path("payment/<client_id>/", client.payment, name="rental-payment"),
     path("detail_payment/<id>/", client.detail_payment, name="detail-payment"),

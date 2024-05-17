@@ -10,10 +10,12 @@ from django.utils.timezone import datetime
 from django.utils.timezone import timedelta
 from django.utils.timezone import timezone
 
+from rent.forms.guarantor import GuarantorForm
 from rent.forms.lease import AssociatedCreateForm
 from rent.forms.lease import LesseeDataForm
 from rent.models.lease import Associated
 from rent.models.lease import LesseeData
+from rent.views.lease.contract_signing import HttpRequest
 from users.views import addStateCity
 
 # Client and its data
@@ -120,6 +122,55 @@ def update_lessee_with_data(request, lessee_id, next, args):
 # Client first and its data faster
 
 
+def save_lessee(
+    request: HttpRequest,
+    form: AssociatedCreateForm,
+    formGuarantor: GuarantorForm,
+    next: str,
+    args: list,
+    update_data: bool = True,
+):
+    if form.is_valid():
+        guarantor = form.cleaned_data["has_guarantor"]
+        if guarantor:
+            if not formGuarantor.is_valid():
+                return None
+            guarantor = formGuarantor.save()
+            request.session["guarantor"] = guarantor.id
+            try:
+                idx = args.index("{guarantor_id}")
+                if idx != -1:
+                    args[idx] = guarantor.id
+            except Exception:
+                pass
+
+        lessee = form.save()
+
+        if not update_data:
+            try:
+                idx = args.index("{lessee_id}")
+                if idx != -1:
+                    args[idx] = lessee.id
+            except Exception:
+                pass
+
+            return redirect(next, *args)
+
+        exp = datetime.now(timezone.utc) + timedelta(days=1)
+        tokCtx = {
+            "exp": exp,
+            "lessee": lessee.id,
+            "next": next,
+            "args": args,
+            "create": True,
+        }
+        token = jwt.encode(tokCtx, settings.SECRET_KEY, algorithm="HS256")
+
+        return redirect("lessee_data_form", token)
+
+    return None
+
+
 @login_required
 @atomic
 def create_lessee(
@@ -128,45 +179,41 @@ def create_lessee(
     args: list,
     use_client_url: dict | None = None,
     update_data: bool = True,
+    ask_guarantor: bool = False,
 ):
+    request.session["guarantor"] = None
     if request.method == "POST":
         form = AssociatedCreateForm(
             request.POST,
             request.FILES,
             use_client_url=use_client_url,
+            ask_guarantor=ask_guarantor,
         )
-        if form.is_valid():
-            lessee = form.save()
-
-            if not update_data:
-                try:
-                    idx = args.index("{lessee_id}")
-                    if idx != -1:
-                        args[idx] = lessee.id
-                except Exception:
-                    pass
-
-                return redirect(next, *args)
-
-            exp = datetime.now(timezone.utc) + timedelta(days=1)
-            tokCtx = {
-                "exp": exp,
-                "lessee": lessee.id,
-                "next": next,
-                "args": args,
-                "create": True,
-            }
-            token = jwt.encode(tokCtx, settings.SECRET_KEY, algorithm="HS256")
-
-            return redirect("lessee_data_form", token)
+        formGuarantor = GuarantorForm(data=request.POST)
+        ret = save_lessee(
+            request,
+            form,
+            formGuarantor,
+            next,
+            args,
+            update_data,
+        )
+        if ret is not None:
+            return ret
     else:
-        form = AssociatedCreateForm(use_client_url=use_client_url)
+        form = AssociatedCreateForm(
+            use_client_url=use_client_url,
+            ask_guarantor=ask_guarantor,
+        )
+        formGuarantor = GuarantorForm()
 
     title = "Create client"
     context = {
         "title": title,
         "form": form,
     }
+    if ask_guarantor:
+        context["formGuarantor"] = formGuarantor
     addStateCity(context)
 
     return render(request, "users/contact_create.html", context)
@@ -180,7 +227,9 @@ def update_lessee(
     next,
     args,
     update_data: bool = True,
+    ask_guarantor: bool = False,
 ):
+    request.session["guarantor"] = None
     lessee: Associated = get_object_or_404(Associated, id=lessee_id)
 
     if request.method == "POST":
@@ -188,39 +237,33 @@ def update_lessee(
             request.POST,
             request.FILES,
             instance=lessee,
+            ask_guarantor=ask_guarantor,
         )
-        if form.is_valid():
-            form.save()
-
-            if not update_data:
-                try:
-                    idx = args.index("{lessee_id}")
-                    if idx != -1:
-                        args[idx] = lessee.id
-                except Exception:
-                    pass
-
-                return redirect(next, *args)
-
-            exp = datetime.now(timezone.utc) + timedelta(days=1)
-            tokCtx = {
-                "exp": exp,
-                "lessee": lessee.id,
-                "next": next,
-                "args": args,
-                "create": False,
-            }
-            token = jwt.encode(tokCtx, settings.SECRET_KEY, algorithm="HS256")
-
-            return redirect("lessee_data_form", token)
+        formGuarantor = GuarantorForm(data=request.POST)
+        ret = save_lessee(
+            request,
+            form,
+            formGuarantor,
+            next,
+            args,
+            update_data,
+        )
+        if ret is not None:
+            return ret
     else:
-        form = AssociatedCreateForm(instance=lessee)
+        form = AssociatedCreateForm(
+            instance=lessee,
+            ask_guarantor=ask_guarantor,
+        )
+        formGuarantor = GuarantorForm()
 
     title = "Update client"
     context = {
         "title": title,
         "form": form,
     }
+    if ask_guarantor:
+        context["formGuarantor"] = formGuarantor
     addStateCity(context)
 
     return render(request, "users/contact_create.html", context)

@@ -3,6 +3,43 @@
 * File include item demo only specific css only
 ******************************************************************************/
 
+body {
+  background: #ffcc88;
+  /* animation: playAnimationBG 1s ease-in-out infinite alternate; */
+
+  .card,
+  .layout-menu {
+    box-shadow:
+      inset 0 0 20px 5px #ffee88,
+      0 3px 5px rgba(0, 0, 0, 0.1);
+    /* animation: playCardAnimationBG 0.3s ease-in-out infinite alternate; */
+  }
+}
+
+@keyframes playCardAnimationBG {
+  from {
+    box-shadow:
+      inset 0 0 20px 5px #ffaa88,
+      0 3px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  to {
+    box-shadow:
+      inset 0 0 20px 5px #ffff88,
+      0 3px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes playAnimationBG {
+  from {
+    background: #ffaa88;
+  }
+
+  to {
+    background: #ffff88;
+  }
+}
+
 .menu .app-brand.demo {
   height: 64px;
   margin-top: 12px;
@@ -21,7 +58,9 @@
 
 /* ! For .layout-navbar-fixed added fix padding top tpo .layout-page */
 /* Detached navbar */
-.layout-navbar-fixed .layout-wrapper:not(.layout-horizontal):not(.layout-without-menu) .layout-page {
+.layout-navbar-fixed
+  .layout-wrapper:not(.layout-horizontal):not(.layout-without-menu)
+  .layout-page {
   padding-top: 76px !important;
 }
 /* Default navbar */
@@ -77,7 +116,7 @@
   direction: ltr !important;
 }
 
-[dir='rtl'] .rtl-only {
+[dir="rtl"] .rtl-only {
   display: block !important;
 }
 
