@@ -411,7 +411,7 @@ def update_contract_stage(request, id, stage):
             )
         mail_send_contract(request, id)
         contract.save()
-        return redirect("client-detail", contract.lessee.id)
+        return redirect("client-detail", contract.lessee.id, contract.id)
     if stage == "ended":
         contract.ended_date = timezone.now()
         # Compute the final debt
