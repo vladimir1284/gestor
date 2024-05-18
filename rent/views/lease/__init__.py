@@ -56,6 +56,7 @@ from rent.permissions import staff_required
 from rent.tools.contract_ctx import get_contract
 from rent.tools.contract_ctx import get_contract_token
 from rent.tools.contract_ctx import prepare_contract_view
+from rent.tools.contract_email_sender import contract_email_send_sign_url
 from rent.tools.get_conditions import contract_guarantor
 from rent.tools.get_conditions import get_conditions
 from rent.tools.get_missing_handwriting import check_handwriting
@@ -164,7 +165,8 @@ def contract_detail(request, id):
     context["guarantor_required"] = contract_guarantor(context["contract"])
     context["handwriting_ok"] = check_handwriting(context["contract"])
 
-    phone = context["contract"].lessee.phone_number
+    contract: Contract = context["contract"]
+    phone = contract.lessee.phone_number
 
     token = get_contract_token(id)
 
@@ -174,7 +176,35 @@ def contract_detail(request, id):
     context["phone"] = phone
     context["token"] = token
 
-    sendSMSLesseeContactURL(phone, url)
+    if contract.stage in ["missing", "garbage"]:
+        if phone is not None and phone != "":
+            sendSMSLesseeContactURL(phone, url)
+
+        client = contract.lessee
+        if client.email is not None and client.email != "":
+            contract_email_send_sign_url(
+                client.email,
+                client.name,
+                url,
+                client.language,
+            )
+
+        guarantor = contract.guarantor
+        if guarantor:
+            if (
+                guarantor.guarantor_phone_number is not None
+                and guarantor.guarantor_phone_number != ""
+            ):
+                sendSMSLesseeContactURL(guarantor.guarantor_phone_number, url)
+            if (
+                guarantor.guarantor_email is not None
+                and guarantor.guarantor_email != ""
+            ):
+                contract_email_send_sign_url(
+                    guarantor.guarantor_email,
+                    guarantor.guarantor_name,
+                    url,
+                )
 
     factory = qrcode.image.svg.SvgPathImage
     factory.QR_PATH_STYLE["fill"] = "#455565"
