@@ -6,6 +6,7 @@ from crispy_forms.layout import Field
 from crispy_forms.layout import Layout
 from crispy_forms.layout import Submit
 from django import forms
+from django.template.defaultfilters import default
 from django.utils.timezone import datetime
 from django.utils.timezone import make_aware
 from django.utils.translation.trans_real import mark_safe
@@ -13,6 +14,7 @@ from django.utils.translation.trans_real import mark_safe
 from rent.models.lease import SecurityDepositDevolution
 from rent.models.trailer_deposit import TrailerDeposit
 from rent.models.trailer_deposit import TrailerDepositTrace
+from rent.tools.get_conditions import get_on_hold_reasons
 
 
 class TrailerDepositForm(forms.ModelForm):
@@ -150,7 +152,7 @@ class TrailerDepositRenovationForm(forms.ModelForm):
 class OnHoldDepositDevolutionForm(forms.ModelForm):
     class Meta:
         model = SecurityDepositDevolution
-        fields = ["amount"]
+        fields = ["amount", "reason", "note"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -163,10 +165,20 @@ class OnHoldDepositDevolutionForm(forms.ModelForm):
         self.fields["amount"].widget.attrs["x-ref"] = "retAmountField"
         self.fields["amount"].label = "Amount to return"
 
+        reasons = get_on_hold_reasons()
+        print(reasons)
+        self.fields["reason"] = forms.ChoiceField(
+            choices=reasons,
+        )
+
+        self.fields["note"].widget.attrs["rows"] = "3"
+
         self.helper = FormHelper()
         self.helper.field_class = "mb-3"
         self.helper.form_method = "post"
         self.helper.layout = Layout(
-            PrependedText("amount", "$"),
+            PrependedText("amount", mark_safe("<i class='bx bx-dollar'></i>")),
+            PrependedText("reason", mark_safe("<i class='bx bx-info-circle' ></i>")),
+            PrependedText("note", mark_safe("<i class='bx bx-edit' ></i>")),
             ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
