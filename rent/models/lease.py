@@ -240,6 +240,9 @@ class SecurityDepositDevolution(models.Model):
     returned = models.BooleanField(default=False)
     returned_date = models.DateField(null=True)
 
+    reason = models.CharField(max_length=300, null=True, blank=True)
+    note = models.TextField(null=True, blank=True)
+
 
 class LeaseDeposit(models.Model):
     lease = models.ForeignKey(
