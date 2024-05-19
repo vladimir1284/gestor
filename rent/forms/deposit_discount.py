@@ -9,6 +9,7 @@ from crispy_forms.layout import Submit
 from django import forms
 
 from rent.forms.lease import HTML
+from rent.forms.lease import PrependedAppendedText
 from rent.models.deposit_discount import DepositDiscount
 
 
@@ -31,6 +32,8 @@ class DepositDiscountForm(forms.ModelForm):
         css_class = (
             "danger" if duration < 0 else "success" if duration > 0 else "primary"
         )
+
+        total_due = self.instance.total_due
 
         self.fields["location_towit"] = forms.BooleanField(
             label="The trailer was returned at Towit Houston",
@@ -85,16 +88,17 @@ class DepositDiscountForm(forms.ModelForm):
                     css_class="mb-4",
                 ),
                 Div(
-                    PrependedText(
-                        "discount_trailer_cond",
-                        mark_safe("<i class='bx bxs-car-mechanic'></i>"),
+                    PrependedAppendedText(
+                        "due",
+                        mark_safe("<i class='bx bx-dollar' ></i>"),
+                        f"$ {total_due}",
                     ),
                     css_class="mb-3",
                 ),
                 Div(
                     PrependedText(
-                        "due",
-                        mark_safe("<i class='bx bx-dollar' ></i>"),
+                        "discount_trailer_cond",
+                        mark_safe("<i class='bx bxs-car-mechanic'></i>"),
                     ),
                     css_class="mb-3",
                 ),
