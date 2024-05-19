@@ -39,6 +39,7 @@ from rent.forms.lease import SecurityDepositDevolutionForm
 from rent.forms.lease import TireFormSet
 from rent.forms.lessee_contact import LesseeContactForm
 from rent.forms.trailer_deposit import TrailerDeposit
+from rent.models.deposit_discount import DepositDiscount
 from rent.models.guarantor import Guarantor
 from rent.models.lease import Contract
 from rent.models.lease import Due
@@ -53,6 +54,7 @@ from rent.models.lease import SecurityDepositDevolution
 from rent.models.lease import Tire
 from rent.models.vehicle import Trailer
 from rent.permissions import staff_required
+from rent.tools.adjust_security_deposit import adjust_security_deposit
 from rent.tools.contract_ctx import get_contract
 from rent.tools.contract_ctx import get_contract_token
 from rent.tools.contract_ctx import prepare_contract_view
@@ -240,31 +242,25 @@ def contracts(request):
 @login_required
 def adjust_end_deposit(request, id):
     closing = request.GET.get("closing", False)
-    contract: Contract = get_object_or_404(Contract, id=id)
-    on_hold = TrailerDeposit.objects.filter(done=True, contract=contract).last()
+    contract, on_hold, deposit = adjust_security_deposit(id)
+    discount = DepositDiscount.objects.filter(contract=contract).last()
+    if discount is None:
+        return redirect("adjust-deposit-discount", contract.id)
 
-    deposits = SecurityDepositDevolution.objects.filter(contract=contract)
-    with transaction.atomic():
-        if deposits.count() != 1:
-            total_amount = sum(
-                [
-                    lease_deposit.amount
-                    for lease in contract.lease_set.all()
-                    for lease_deposit in lease.lease_deposit.all()
-                ]
-            )
-            if on_hold is not None:
-                total_amount += on_hold.amount
+    duration = discount.duration
+    days = "day" if duration == 1 or duration == -1 else "days"
+    sign = "before" if duration < 0 else "after"
+    css_class = "danger" if duration < 0 else "success" if duration > 0 else "primary"
 
-            for dep in deposits:
-                dep.delete()
-
-            deposit = SecurityDepositDevolution.objects.create(
-                contract=contract,
-                total_deposited_amount=total_amount,
-            )
-        else:
-            deposit = deposits.last()
+    discount.duration_text = f"""
+        The trailer was returned
+        <strong>{abs(duration)}</strong>
+        {days}
+        <strong class="text-{css_class}">{sign}</strong>
+        .
+        """.replace(
+        "\n", ""
+    )
 
     if (
         contract.stage == "missing"
@@ -301,6 +297,7 @@ def adjust_end_deposit(request, id):
         "on_contract": deposit.contract.security_deposit,
         "documents": documents,
         "contract": contract,
+        "discount": discount,
     }
     return render(request, "rent/contract/adjust_deposit.html", context)
 
