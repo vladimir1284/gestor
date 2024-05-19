@@ -7,35 +7,157 @@
 {% block content %}
     <script>
         function deleteDocument(name, id) {
-                let confirmAction = confirm("Are you sure to delete the document: " + name + "?");
-                if (confirmAction) {
-                    window.location ="{% url 'delete-document-on-ended-contract' id='PLACEHOLDER' %}".replace('PLACEHOLDER', id);
-                }
+            let confirmAction = confirm("Are you sure to delete the document: " + name + "?");
+            if (confirmAction) {
+                window.location ="{% url 'delete-document-on-ended-contract' id='PLACEHOLDER' %}".replace('PLACEHOLDER', id);
             }
+        }
     </script>
     <!-- Basic with Icons -->
-    <div class="col-xxl">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">{{ title }}</h5>
-                <h6 style='margin-bottom: 0px' >On contract ${{on_contract}}</h6>
-                <h6 style='margin-bottom: 0px' >Deposited ${{initial}}</h6>
-                <h6 style='margin-bottom: 0px' id='condonation_label'>Difference between deposited and returned $0</h6>
-            </div>
-            <div class="card-body">
-                <form enctype="multipart/form-data" method="post" id="update-form">
-                    {% csrf_token %}
-                    {% crispy form %}
-                </form>
-                <div class="card-header">
-                    <h5>
-                        <strong>Documents</strong>
-                        <a class="btn btn-icon btn-outline-primary ms-2"
-                           type="button"
-                           href="{% url 'create-document-on-ended-contract' contract.id %}">
-                            <span class="tf-icons bx bx-plus"></span>
+    <div>
+        {%if discount%}
+            <div class="col-xxl">
+                <div class="card mb-4">
+                    <div class="card-header flex items-center justify-between">
+                        <h5 class="mb-0">Contract conditions:</h5>
+                        <a class="btn btn-link btn-icon"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="left"
+                           data-bs-custom-class="custom-tooltip"
+                           data-bs-title="Edit contract conditions."
+                           href="{% url 'adjust-deposit-discount' contract.id %}"
+                        >
+                            <i class='bx bx-edit-alt' ></i>
                         </a>
-                    </h5>
+                    </div>
+                    <div class="card-body">
+                        <table>
+                            <tr>
+                                <td class="pr-2">
+                                    <strong>
+                                        Duration:
+                                    </strong>
+                                </td>
+                                <td>
+                                    {{discount.duration_text|safe}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pr-2 align-top">
+                                    <strong>
+                                        Returned location:
+                                    </strong>
+                                </td>
+                                <td>
+                                    {% if discount.location_towit %}
+                                        <div class="text-success">
+                                            The trailer was returned at Towit Houston location.
+                                        </div>
+                                    {% else %}
+                                        <div class="text-danger">
+                                            The trailer was not returned at Towit Houston location.
+                                        </div>
+                                        <div>
+                                            <strong>Note:</strong>
+                                        </div>
+                                        <div>
+                                            {{discount.location_note}}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pr-2">
+                                    <strong>
+                                        Due
+                                    </strong>
+                                </td>
+                                <td {% if discount.due > 0 %}
+                                        class="text-danger"
+                                    {% elif discount.due < 0 %}
+                                        class="text-primary"
+                                    {% else %}
+                                        class="text-success"
+                                    {% endif %}
+                                >
+                                    ${{discount.due | floatformat:'-2'}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pr-2">
+                                    <strong>
+                                        Trailer conditions discount:
+                                    </strong>
+                                </td>
+                                <td {% if discount.discount_trailer_cond > 0 %}
+                                        class="text-danger"
+                                    {% elif discount.discount_trailer_cond < 0 %}
+                                        class="text-primary"
+                                    {% else %}
+                                        class="text-success"
+                                    {% endif %}
+                                >
+                                    ${{discount.discount_trailer_cond | floatformat:'-2'}}
+                                </td>
+                            </tr>
+                            <tr class="border-t border-main">
+                                <td class="pr-2">
+                                    <strong>
+                                        Should return deposit:
+                                    </strong>
+                                </td>
+                                <td>
+                                    {% if discount.should_return %}
+                                        <span class='text-success'>
+                                            Yes
+                                        </span>
+                                    {% else %}
+                                        <span class='text-danger'>
+                                            No
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if discount.should_return %}
+                                <tr>
+                                    <td class="pr-2">
+                                        <strong>
+                                            Total discount:
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        ${{discount.total_discount}}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {%endif%}
+
+        <div class="">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ title }}</h5>
+                    <h6 style='margin-bottom: 0px' >On contract ${{on_contract}}</h6>
+                    <h6 style='margin-bottom: 0px' >Deposited ${{initial}}</h6>
+                    <h6 style='margin-bottom: 0px' id='condonation_label'>Difference between deposited and returned $0</h6>
+                </div>
+                <div class="card-body">
+                    <form enctype="multipart/form-data" method="post" id="update-form">
+                        {% csrf_token %}
+                        {% crispy form %}
+                    </form>
+                    <div class="card-header">
+                        <h5>
+                            <strong>Documents</strong>
+                            <a class="btn btn-icon btn-outline-primary ms-2"
+                               type="button"
+                               href="{% url 'create-document-on-ended-contract' contract.id %}">
+                                <span class="tf-icons bx bx-plus"></span>
+                            </a>
+                        </h5>
                         <div class="row">
                             {% for document in documents %}
                                 <div class="col-md-4">
@@ -56,16 +178,16 @@
                                                 {{ document.note }}
                                                 <div class="demo-inline-spacing">
                                                     <a class="btn btn-icon btn-outline-primary ms-3"
-                                                        type="button"
-                                                        target="_blank"
-                                                        href="{{ document.file.url }}">
+                                                       type="button"
+                                                       target="_blank"
+                                                       href="{{ document.file.url }}">
                                                         <span class="tf-icons bx bx-download"></span>
                                                     </a>
                                                     <a class="btn btn-icon btn-outline-danger float-end"
-                                                        type="button"
-                                                        onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
-                                                    <span class="tf-icons bx bx-trash"></span>
-                                                </a>
+                                                       type="button"
+                                                       onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
+                                                        <span class="tf-icons bx bx-trash"></span>
+                                                    </a>
                                                 </div>
                                             </p>
                                         </div>
@@ -73,6 +195,7 @@
                                 </div>
                             {% endfor %}
                         </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -91,7 +214,7 @@
                 label.innerText = 'Invalid amount'
             }
         }
-        
+
         updateNumber();
         document.getElementById("id_amount").addEventListener("input", updateNumber);
     </script>
