@@ -20,8 +20,8 @@
                 <button @click="tag = '{{ filt }}'"
                         type="button"
                         :class="{
-                                'btn-{% if filt == 'Available' %}success{% elif filt == 'Reserved' %}info{% elif filt == 'Rented' %}warning{% elif filt == 'LTO' %}danger{% else %}primary{% endif %}': tag == '{{filt}}',
-                                'btn-outline-{% if filt == 'Available' %}success{% elif filt == 'Reserved' %}info{% elif filt == 'Rented' %}warning{% elif filt == 'LTO' %}danger{% else %}primary{% endif %}': tag != '{{filt}}',
+                                'btn-{% if filt == 'Available' %}success{% elif filt == 'Reserved' %}info{% elif filt == 'Rented' or filt == 'To rent' %}warning{% elif filt == 'LTO' or filt == 'To LTO' %}danger{% else %}primary{% endif %}': tag == '{{filt}}',
+                                'btn-outline-{% if filt == 'Available' %}success{% elif filt == 'Reserved' %}info{% elif filt == 'Rented' or filt == 'To rent' %}warning{% elif filt == 'LTO' or filt == 'To LTO' %}danger{% else %}primary{% endif %}': tag != '{{filt}}',
                                 }"
                         class="relative pr-2 btn rounded-pill ">
                     {{ filt }}

@@ -11,6 +11,7 @@ from django import forms
 from rent.forms.lease import HTML
 from rent.forms.lease import PrependedAppendedText
 from rent.models.deposit_discount import DepositDiscount
+from rent.models.lease import Contract
 
 
 class DepositDiscountForm(forms.ModelForm):
@@ -32,6 +33,8 @@ class DepositDiscountForm(forms.ModelForm):
         css_class = (
             "danger" if duration < 0 else "success" if duration > 0 else "primary"
         )
+        contract: Contract = self.instance.contract
+        exp_date = contract.expiration_date.strftime("%b %d, %Y")
 
         total_due = self.instance.total_due
 
@@ -55,11 +58,12 @@ class DepositDiscountForm(forms.ModelForm):
                     HTML(
                         f"""
                         Duration:
-                        The trailer was returned
+                        The trailer was returned:
                         <strong>{abs(duration)}</strong>
                         {days}
                         <strong class="text-{css_class}">{sign}</strong>
-                        .
+                        expiration day on
+                        <strong>{exp_date}</strong>.
                         """,
                     ),
                     css_class="mb-3",

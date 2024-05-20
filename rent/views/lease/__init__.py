@@ -244,8 +244,17 @@ def adjust_end_deposit(request, id):
     closing = request.GET.get("closing", False)
     contract, on_hold, deposit = adjust_security_deposit(id)
     discount = DepositDiscount.objects.filter(contract=contract).last()
-    if discount is None:
+    if contract.stage != "missing" and discount is None:
         return redirect("adjust-deposit-discount", contract.id)
+
+    if (
+        contract.stage == "missing"
+        and deposit.total_deposited_amount == 0
+        and (on_hold is None or on_hold.amount == 0)
+    ):
+        return redirect("update-contract-stage", id, "ended")
+    elif contract.stage == "missing":
+        return redirect("adjust-deposit-on-hold-from-contract", id)
 
     duration = discount.duration
     days = "day" if duration == 1 or duration == -1 else "days"
@@ -261,15 +270,6 @@ def adjust_end_deposit(request, id):
         """.replace(
         "\n", ""
     )
-
-    if (
-        contract.stage == "missing"
-        and deposit.total_deposited_amount == 0
-        and (on_hold is None or on_hold.amount == 0)
-    ):
-        return redirect("update-contract-stage", id, "ended")
-    elif contract.stage == "missing":
-        return redirect("adjust-deposit-on-hold-from-contract", id)
 
     if request.method == "POST":
         form = SecurityDepositDevolutionForm(request.POST, instance=deposit)
