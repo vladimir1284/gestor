@@ -14,6 +14,7 @@ from django.utils.timezone import timedelta
 from django.utils.timezone import timezone
 
 from rent.models.trailer_deposit import TrailerDeposit
+from rent.tools.get_conditions import get_on_hold_conditions
 from rent.views.vehicle import getImages
 
 MULTILANG_BODY = {
@@ -67,6 +68,7 @@ def trailer_deposit_context(request, id):
         "url": url,
         "token": token,
     }
+    context["conditions"] = get_on_hold_conditions(context)
     return context
 
 

@@ -48,6 +48,7 @@ class TrailerDeposit(models.Model):
     amount = models.FloatField()
     note = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    template_version = models.IntegerField(default=1)
 
     def __str__(self):
         return f"${self.amount} ({self.lease}) [{self.trailer}]"
