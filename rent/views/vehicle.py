@@ -32,19 +32,29 @@ def list_equipment(request):
         "Available": 0,
         "On Hold": 0,
         "Rented": 0,
+        "To rent": 0,
         "LTO": 0,
+        "To LTO": 0,
     }
     trailers = Trailer.objects.filter(active=True)
     for trailer in trailers:
         # Contracts
-        contracts = Contract.objects.filter(trailer=trailer).exclude(stage="ended")
+        contracts = Contract.objects.filter(trailer=trailer).exclude(
+            stage__in=("ended", "garbage")
+        )
         if contracts:
             trailer.current_contract = contracts.last()
             _, trailer.paid = trailer.current_contract.paid()
             if trailer.current_contract.contract_type == "lto":
-                trailer.filter = "LTO"
+                if trailer.current_contract.stage == "active":
+                    trailer.filter = "LTO"
+                else:
+                    trailer.filter = "To LTO"
             else:
-                trailer.filter = "Rented"
+                if trailer.current_contract.stage == "active":
+                    trailer.filter = "Rented"
+                else:
+                    trailer.filter = "To rent"
 
         trailer_deposits = get_current_trailer_deposit(trailer)
         if trailer_deposits:
