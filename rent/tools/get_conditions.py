@@ -3,9 +3,11 @@ import json
 from dateutil.relativedelta import relativedelta
 
 from rent.models.lease import Contract
+from rent.models.trailer_deposit import TrailerDeposit
 from rent.tools.init_conditions import LANG_EN
 from rent.tools.init_conditions import MODULE
 from rent.tools.init_conditions import TEMPLATE_LTO
+from rent.tools.init_conditions import TEMPLATE_ON_HOLD_CONDITIONS
 from rent.tools.init_conditions import TEMPLATE_ON_HOLD_REASONS
 from rent.tools.init_conditions import TEMPLATE_RENT
 from template_admin.models.template import Template
@@ -114,3 +116,25 @@ def get_on_hold_reasons():
 
     reazons = [(None, "-----")] + [(r, r) for r in data]
     return reazons
+
+
+def get_on_hold_conditions_last_version() -> int:
+    template = TemplateVersion.objects.filter(
+        module=MODULE,
+        template=TEMPLATE_ON_HOLD_CONDITIONS,
+        language=LANG_EN,
+    ).last()
+    return template.last_version
+
+
+def get_on_hold_conditions(ctx: dict) -> str:
+    on_hold: TrailerDeposit = ctx["deposit"]
+    template = TemplateVersion.objects.filter(
+        module=MODULE,
+        template=TEMPLATE_ON_HOLD_CONDITIONS,
+        language=on_hold.client.language,
+    ).last()
+    if template is None:
+        return ""
+
+    return template.render_template(ctx, on_hold.template_version)

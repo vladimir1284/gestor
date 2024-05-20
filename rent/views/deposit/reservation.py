@@ -11,6 +11,7 @@ from rent.models.lease import Associated
 from rent.models.lease import Trailer
 from rent.models.trailer_deposit import TrailerDeposit
 from rent.tools.deposit import send_deposit_pdf
+from rent.tools.get_conditions import get_on_hold_conditions_last_version
 from rent.views.create_lessee_with_data import create_lessee
 from rent.views.create_lessee_with_data import update_lessee
 
@@ -71,6 +72,7 @@ def create_trailer_reservation(request, trailer_id, lessee_id):
                 deposit: TrailerDeposit = form.save(commit=False)
                 deposit.client = get_object_or_404(Associated, id=lessee_id)
                 deposit.trailer = get_object_or_404(Trailer, id=trailer_id)
+                deposit.template_version = get_on_hold_conditions_last_version()
                 deposit.save()
                 TrailerDepositTrace.objects.create(
                     status="created",
