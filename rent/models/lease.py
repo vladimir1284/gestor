@@ -2,6 +2,7 @@ from datetime import datetime
 from datetime import timedelta
 
 import pytz
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -80,6 +81,10 @@ class Contract(models.Model):
     total_amount = models.IntegerField(default=0)
     template_version = models.IntegerField(null=True, blank=True)
     client_complete = models.BooleanField(null=True, blank=True)
+
+    @property
+    def expiration_date(self):
+        return self.effective_date + relativedelta(months=self.contract_term)
 
     def __str__(self):
         return f"({self.id}) {self.trailer} -> {self.lessee}"
