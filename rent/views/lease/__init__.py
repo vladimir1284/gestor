@@ -605,6 +605,21 @@ class LeseeDataUpdateView(LoginRequiredMixin, UpdateView):
 def contract_create_view(request, lessee_id, trailer_id, deposit_id=None):
     lessee = get_object_or_404(Associated, pk=lessee_id)
     trailer = get_object_or_404(Trailer, pk=trailer_id)
+
+    # Check if there is not any other contract for this trailer...
+    # Its happend when the user go back on the browser and generate various contract...
+    others_contracts = Contract.objects.filter(trailer=trailer).exclude(
+        stage__in=["ended", "garbage"]
+    )
+    if others_contracts.exists():
+        print("Multiple contracts...")
+        context = {
+            "contracts": others_contracts,
+        }
+        return render(
+            request, "rent/contract/contract_conflict/multiples_contracts.html", context
+        )
+
     deposit: TrailerDeposit | None = (
         None if deposit_id is None else get_object_or_404(TrailerDeposit, pk=deposit_id)
     )
