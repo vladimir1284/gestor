@@ -1,0 +1,90 @@
+{% load static %}
+{% load humanize %}
+<div class="col-lg-6 mb-4 order-0">
+    <div class="card">
+        <div class="d-flex align-items-end row">
+            <div class="col-sm-7">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">
+                        {{ title }} <strong>{{ contracts|length }}</strong>
+                    </h5>
+                </div>
+            </div>
+        </div>
+        <div class="card-body row">
+            <div class="table-responsive text-nowrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Trailer</th>
+                            <th>Next renovation</th>
+                            <th>Notify</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for contract in contracts %}
+                            <tr >
+                                <td>
+                                    <div class="d-flex">
+                                        {% include "rent/equipment_line.html" with equipment_type="trailer" equipment=contract.trailer pinned_image=equipment.pinned_image %}
+                                    </div>
+                                    <div class="pt-2">
+                                        {% include "users/associated_line.html" with associated=contract.lessee %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if contract.renovation.expirate_in_days == 0 %}
+                                        <div class="text-danger">
+                                            <strong>
+                                                Today
+                                            </strong>
+                                        </div>
+                                    {% else %}
+                                        <div {% if contract.renovation.expirate_in_days <= 3 %}
+                                                 class="text-danger"
+                                             {% elif contract.renovation.expirate_in_days <= 7 %}
+                                                 class="text-warning"
+                                             {% endif %}
+                                        >
+                                            {{contract.renovation.expirate_in_days}}
+                                            {% if contract.renovation.expirate_in_days == 1 %}
+                                                day
+                                            {% else %}
+                                                days
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contract.renovation.expirate_in_days <= 7 and not contract.renovation_7_notify %}
+                                        <a class="btn btn-icon btn-link {% if contract.renovation.expirate_in_days <= 3 %}
+                                                      text-danger
+                                                  {% else %}
+                                                      text-warning
+                                                  {% endif %}"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-placement="left"
+                                           data-bs-custom-class="custom-tooltip"
+                                           data-bs-title="Client has been notified?"
+                                           href="{% url 'notify-contract-renovation' contract.id %}">
+                                            <i class='bx bx-message-rounded-dots'></i>
+                                        </a>
+                                    {% elif not contract.renovation_15_notify %}
+                                        <a class="btn btn-icon btn-link"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-placement="left"
+                                           data-bs-custom-class="custom-tooltip"
+                                           data-bs-title="Client has been notified?"
+                                           href="{% url 'notify-contract-renovation' contract.id %}">
+                                            <i class='bx bx-message-rounded-dots'></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

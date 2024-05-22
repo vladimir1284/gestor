@@ -39,6 +39,7 @@
     <th>Rent</th>
     <th>Doc</th>
     <th>Last Order</th>
+    <th>Effective Date</th>
 {% endblock Theader %}
 {% block Tbody %}
     {% for equipment in trailers %}
@@ -93,6 +94,9 @@
                 {% else %}
                     None
                 {% endif %}
+            </td>
+            <td>
+                {{equipment.current_contract.effective_date}}
             </td>
         </tr>
     {% endfor %}

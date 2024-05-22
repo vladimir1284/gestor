@@ -2,6 +2,7 @@
 <div class="tab-pane fade {% if lease_id %}{% if lease.contract.id == lease_id %}active show{%endif%}{% elif forloop.first %}active show{% endif %}"
      id="navs-pills-justified-{{ lease.id }}"
      role="tabpanel">
+
     {% if lease.contract.contract_type == 'lto' %}
         <h5 class="ps-3 me-2">
             <div id="payment_progress_{{ lease.id }}"></div>
@@ -104,6 +105,8 @@
             </div>
         </div>
     </div>
+
+    {% include "./lease_item_renovation.html" %}
     <!-- Due Payments -->
     <hr class="mt-0" />
     {% include "./lease_item_due_payments.html" %}

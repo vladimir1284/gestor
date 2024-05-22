@@ -44,6 +44,7 @@ def list_equipment(request):
         )
         if contracts:
             trailer.current_contract = contracts.last()
+            trailer.renovation = trailer.current_contract.renovation_ctx
             _, trailer.paid = trailer.current_contract.paid()
             if trailer.current_contract.contract_type == "lto":
                 if trailer.current_contract.stage == "active":
