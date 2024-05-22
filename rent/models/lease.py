@@ -11,8 +11,10 @@ from django.db.models import Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.forms import ValidationError
+from django.template.defaultfilters import default
 from django.urls import reverse
 from django.utils import timezone
+from num2words import num2words
 from phonenumber_field.modelfields import PhoneNumberField
 from schedule.models import Calendar
 from schedule.models import Event
@@ -21,7 +23,9 @@ from schedule.models import Rule
 from .vehicle import classify_file
 from .vehicle import DOCUMENT_TYPES
 from .vehicle import Trailer
+from rent.models.contract_renovation import ContractRenovation
 from rent.models.guarantor import Guarantor
+from rent.tools.contract_renovation_notification import contract_renovation_notification
 from rent.tools.get_conditions_last_version import get_conditions_last_version
 from users.models import Associated
 
@@ -82,9 +86,118 @@ class Contract(models.Model):
     template_version = models.IntegerField(null=True, blank=True)
     client_complete = models.BooleanField(null=True, blank=True)
 
+    renovation_15_notify = models.BooleanField(default=False)
+    renovation_7_notify = models.BooleanField(default=False)
+
+    ####### Renovations #########################################
+    def _notify(self, status):
+        # return
+
+        if status == "exp7":
+            self.renovation_7_notify = True
+            self.save()
+        elif status == "exp15":
+            self.renovation_15_notify = True
+            self.save()
+
+        contract_renovation_notification(self, status)
+
+    def notify(self, renovation: bool = False):
+        exp_in = self.expirate_in
+
+        if renovation:
+            self._notify("renovation")
+        elif exp_in.days <= 7 and not self.renovation_7_notify:
+            self._notify("exp7")
+        elif exp_in.days <= 15 and not self.renovation_15_notify:
+            self._notify("exp15")
+
     @property
-    def expiration_date(self):
+    def renovations(self) -> list[ContractRenovation]:
+        renovations = self._renovations.order_by("effective_date").all()
+        num = 0
+        for r in renovations:
+            num += 1
+            r.num = num
+            r.oword_num = num2words(num, ordinal=True)
+            r.word_num = num2words(num)
+        return renovations
+
+    @property
+    def last_renovation(self) -> ContractRenovation | None:
+        return self._renovations.order_by("-effective_date").first()
+
+    @property
+    def renovations_count(self) -> int:
+        return self._renovations.count()
+
+    @property
+    def original_expiration_date(self) -> datetime.date:
         return self.effective_date + relativedelta(months=self.contract_term)
+
+    @property
+    def expiration_date(self) -> datetime.date:
+        last: ContractRenovation | None = self.last_renovation
+        if last is not None:
+            return last.expiration_date
+
+        return self.original_expiration_date
+
+    @property
+    def is_expirated(self) -> bool:
+        return self.expiration_date < timezone.now().date()
+
+    @property
+    def expirate_in(self) -> timedelta:
+        exp_in = self.expiration_date - timezone.now().date()
+        return exp_in
+
+    @property
+    def expirate_in_days(self):
+        exp_in = self.expirate_in
+        return exp_in.days
+
+    def _renovate(self):
+        while self.is_expirated:
+            exp_date = self.expiration_date
+            ContractRenovation.objects.create(
+                contract=self,
+                effective_date=exp_date,
+                renovation_term=(
+                    3 if self.renovation_term <= 0 else self.renovation_term
+                ),
+            )
+
+        self.renovation_15_notify = False
+        self.renovation_7_notify = False
+        self.save()
+
+        self.notify(renovation=True)
+
+    def renovate(self) -> bool:
+        if self.stage == "ended" or self.stage == "garbage":
+            return False
+
+        if not self.is_expirated:
+            return False
+
+        self._renovate()
+        return True
+
+    @property
+    def renovation_ctx(self) -> dict:
+        # self.notify()
+        return {
+            "renovated": self.renovate(),
+            "expirate_in_days": self.expirate_in_days,
+            "is_expirated": self.is_expirated,
+            "renovations": self.renovations,
+            "last_renovation": self.last_renovation,
+            "renovations_count": self.renovations_count,
+            "expiration_date": self.expiration_date,
+        }
+
+    # ------ Renovations -----------------------------------------
 
     def __str__(self):
         return f"({self.id}) {self.trailer} -> {self.lessee}"

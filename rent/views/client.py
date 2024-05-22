@@ -55,6 +55,7 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
         clients.append(client)
         client.trailer = contract.trailer
         client.contract = contract
+        client.renovation = contract.renovation_ctx
         client.unpaid_tolls = (
             True if client.contract.tolldue_set.all().filter(stage="unpaid") else False
         )
@@ -286,6 +287,8 @@ def client_detail(request, id, lease_id: int | None = None):
         lease.contract.toll_totalpaid = 0
         lease.contract.toll_totalunpaid = 0
         lease.contract.tolls = lease.contract.tolldue_set.all()
+
+        lease.renovation = lease.contract.renovation_ctx
 
         for toll in lease.contract.tolls:
             if toll.stage == "paid":
