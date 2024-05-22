@@ -213,6 +213,9 @@ def addStateCity(context):
 
 def create_associated(request, type):
     initial = {"type": type}
+    phone_number = request.GET.get("phone_number")
+    if phone_number:
+        initial["phone_number"] = phone_number
     form = FORMS[type](initial=initial)
     next = request.GET.get("next", "list-{}".format(type))
     print(next)

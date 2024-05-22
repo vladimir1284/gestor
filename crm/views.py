@@ -13,11 +13,12 @@ import os
 def registro(request):
     llamadas = TwilioCall.objects.all()  # Obtén todos los registros de la base de datos
     context = {
-        'llamadas': llamadas,  # Pasar los registros al contexto
-        'title': 'Registro de Llamadas',
-        'type': 'client'  # o 'provider', dependiendo de tu lógica
+        "llamadas": llamadas,  # Pasar los registros al contexto
+        "title": "Registro de Llamadas",
+        "type": "client",  # o 'provider', dependiendo de tu lógica
     }
-    return render(request, 'crm/registro_llamadas.html', context)
+    return render(request, "crm/registro_llamadas.html", context)
+
 
 @rbac_ignore
 @csrf_exempt
@@ -28,13 +29,14 @@ def make_call(request):
 
     try:
         call = client.calls.create(
-            url='http://demo.twilio.com/docs/voice.xml',
-            to='+13058336104',
-            from_='+13203563490'
+            url="http://demo.twilio.com/docs/voice.xml",
+            to="+13058336104",
+            from_="+13203563490",
         )
-        return HttpResponse(f'Call initiated with SID: {call.sid}')
+        return HttpResponse(f"Call initiated with SID: {call.sid}")
     except Exception as e:
-        return HttpResponse(f'Error: {e}', status=500)
+        return HttpResponse(f"Error: {e}", status=500)
+
 
 @rbac_ignore
 @csrf_exempt
@@ -45,19 +47,14 @@ def handle_call(request):
 
         # Crear una instancia del modelo TwilioCall y guardar los datos
         twilio_call = TwilioCall(
-            called=data.get("Called", ""),
             to_state=data.get("ToState", ""),
             caller_country=data.get("CallerCountry", ""),
             direction=data.get("Direction", ""),
             caller_state=data.get("CallerState", ""),
-            to_zip=data.get("ToZip", ""),
             call_sid=data.get("CallSid", ""),
             to_phone_number=data.get("To", ""),
-            caller_zip=data.get("CallerZip", ""),
             to_country=data.get("ToCountry", ""),
             call_token=data.get("CallToken", ""),
-            called_zip=data.get("CalledZip", ""),
-            api_version=data.get("ApiVersion", ""),
             called_city=data.get("CalledCity", ""),
             call_status=data.get("CallStatus", ""),
             from_phone_number=data.get("From", ""),
@@ -69,15 +66,16 @@ def handle_call(request):
             caller_phone_number=data.get("Caller", ""),
             from_city=data.get("FromCity", ""),
             called_state=data.get("CalledState", ""),
-            from_zip=data.get("FromZip", ""),
             from_state=data.get("FromState", ""),
         )
         twilio_call.save()
 
-        # Redirige la llamada al número deseado
+    """  # Redirige la llamada al número deseado
         response = VoiceResponse()
-        response.dial('+13058336104')
+        response.dial("+13058336104")
 
-        return HttpResponse(str(response), content_type='application/xml')
+        return HttpResponse(str(response), content_type="application/xml")
     else:
-        return HttpResponse("Method not allowed", status=405)
+        return HttpResponse("Method not allowed", status=405) """
+    
+    return HttpResponse("Good", content_type="application/xml")
