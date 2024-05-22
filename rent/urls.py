@@ -32,6 +32,7 @@ from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
 from rent.views.lease.deposit_discount import deposit_discount
+from rent.views.lease.notify import notify_contract_renovation
 from rent.views.lease.select_guarantor import create_guarantor
 from rent.views.lease.select_guarantor import select_guarantor
 from rent.views.lease.select_guarantor import update_guarantor
@@ -336,6 +337,11 @@ urlpatterns = [
         "update_data_on_contract/<id>",
         update_data_on_contract,
         name="update-data-on-contract",
+    ),
+    path(
+        "notify_contract_renovation/<id>",
+        notify_contract_renovation,
+        name="notify-contract-renovation",
     ),
     # -------------------- Inspection ----------------------------
     path(
