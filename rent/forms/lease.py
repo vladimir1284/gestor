@@ -1,14 +1,18 @@
+from datetime import datetime
+
 from crispy_forms.bootstrap import AppendedText
 from crispy_forms.bootstrap import PrependedAppendedText
 from crispy_forms.bootstrap import PrependedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.helper import mark_safe
 from crispy_forms.layout import ButtonHolder
+from crispy_forms.layout import Div
 from crispy_forms.layout import Field
 from crispy_forms.layout import Fieldset
 from crispy_forms.layout import HTML
 from crispy_forms.layout import Layout
 from crispy_forms.layout import Submit
+from dateutil.relativedelta import relativedelta
 from django import forms
 from django.forms import HiddenInput
 from django.forms import ModelForm
@@ -198,23 +202,62 @@ class LesseeDataForm(forms.ModelForm):
 class SecurityDepositDevolutionForm(forms.ModelForm):
     class Meta:
         model = SecurityDepositDevolution
-        fields = ("amount", "returned")
+        fields = ("refund_date", "note", "immediate_refund")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        instance = kwargs.get("instance", None)
 
-        if instance:
-            self.fields["amount"].initial = instance.total_deposited_amount
+        self.fields["immediate_refund"].required = False
+
+        self.initial["refund_date"] = datetime.now().date() + relativedelta(months=1)
+        self.fields["refund_date"] = forms.DateField(
+            widget=forms.DateInput(
+                attrs={"type": "date"},
+            ),
+            required=False,
+        )
+
+        self.fields["note"].required = False
+        self.fields["note"].widget.attrs["rows"] = 3
 
         self.helper = FormHelper()
         self.helper.field_class = "mb-3"
-        self.helper.form_method = "post"
+        self.helper.form_tag = False
         self.helper.layout = Layout(
-            PrependedText("amount", "$"),
-            Field("returned", style="margin-bottom: 1rem !important;"),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            Div(
+                Field("immediate_refund"),
+                css_class="mb-2",
+            ),
+            Div(
+                PrependedText(
+                    "refund_date",
+                    mark_safe("<i class='bx bx-calendar'></i>"),
+                ),
+                css_id="refundDateBox",
+            ),
+            Div(
+                PrependedText(
+                    "note",
+                    mark_safe("<i class='bx bx-edit' ></i>"),
+                ),
+                css_id="refundNoteBox",
+            ),
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        date = cleaned_data["refund_date"]
+        immediate = cleaned_data["immediate_refund"]
+        print(immediate, date)
+
+        if not immediate:
+            if date is None or date == "":
+                raise forms.ValidationError("Please insert a refund date")
+            if date < datetime.now().date():
+                raise forms.ValidationError("Please insert a valid refund date")
+
+        return cleaned_data
 
 
 class AssociatedCreateForm(BaseContactForm):

@@ -28,10 +28,10 @@ from rent.views.deposit.reservation import create_lessee_for_reservation
 from rent.views.deposit.reservation import create_trailer_reservation
 from rent.views.deposit.reservation import reserve_trailer
 from rent.views.deposit.reservation import update_lessee_for_reservation
+from rent.views.lease.adjust_end_deposit import adjust_end_deposit
 from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
-from rent.views.lease.deposit_discount import deposit_discount
 from rent.views.lease.notify import notify_contract_renovation
 from rent.views.lease.select_guarantor import create_guarantor
 from rent.views.lease.select_guarantor import select_guarantor
@@ -254,16 +254,11 @@ urlpatterns = [
         },
         name="ext-capture-signature",
     ),
-    path("adjust_deposit/<id>/", lease.adjust_end_deposit, name="adjust-deposit"),
+    path("adjust_deposit/<id>/", adjust_end_deposit, name="adjust-deposit"),
     path(
         "adjust_deposit_on_hold_from_contract/<id>/",
         adjust_deposit_on_hold_from_contract,
         name="adjust-deposit-on-hold-from-contract",
-    ),
-    path(
-        "adjust_deposit_discount/<contract_id>/",
-        deposit_discount,
-        name="adjust-deposit-discount",
     ),
     path(
         "create_document_on_ended_contract/<id>/",

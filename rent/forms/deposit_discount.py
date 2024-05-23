@@ -7,6 +7,7 @@ from crispy_forms.layout import Div
 from crispy_forms.layout import Field
 from crispy_forms.layout import Submit
 from django import forms
+from django.template.loader import render_to_string
 
 from rent.forms.lease import HTML
 from rent.forms.lease import PrependedAppendedText
@@ -18,68 +19,77 @@ class DepositDiscountForm(forms.ModelForm):
     class Meta:
         model = DepositDiscount
         fields = [
+            "duration",
             "location_towit",
             "location_note",
-            "discount_trailer_cond",
-            "due",
+            "trailer_condition_discount",
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        duration = self.instance.duration
+        duration = self.instance.expirate_in_days
         days = "day" if duration == 1 or duration == -1 else "days"
         sign = "before" if duration < 0 else "after"
         css_class = (
             "danger" if duration < 0 else "success" if duration > 0 else "primary"
         )
         contract: Contract = self.instance.contract
-        exp_date = contract.expiration_date.strftime("%b %d, %Y")
-
-        total_due = self.instance.total_due
+        renovations = contract.renovation_ctx
+        renovations["contract"] = contract
+        exp_date = renovations["expiration_date"].strftime("%b %d, %Y")
 
         self.fields["location_towit"] = forms.BooleanField(
             label="The trailer was returned at Towit Houston",
             required=False,
-            # help_text="Was the trailer returned at Towit Houston?",
         )
 
         self.fields["location_note"].widget.attrs["rows"] = 3
 
-        self.fields["discount_trailer_cond"].label = "Trailer condition discount"
-        self.fields["discount_trailer_cond"].required = True
-
-        self.fields["due"].required = True
+        html_renovations = render_to_string(
+            "rent/contract/discount/renovations_table.html",
+            renovations,
+        )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
+                # Duration
                 Div(
-                    HTML(
-                        f"""
-                        Duration:
-                        The trailer was returned:
-                        <strong>{abs(duration)}</strong>
-                        {days}
-                        <strong class="text-{css_class}">{sign}</strong>
-                        expiration day on
-                        <strong>{exp_date}</strong>.
-                        """,
+                    Div(
+                        HTML("<i class='bx bx-calendar' ></i>"),
+                        css_class="input-group-addon",
                     ),
-                    css_class="mb-3",
+                    Div(
+                        Div(
+                            Field("duration"),
+                            Div(
+                                HTML(
+                                    f""": <strong>{abs(duration)}</strong>
+                                    {days}
+                                    <strong class="text-{css_class}">{sign}</strong>
+                                    <strong>{exp_date}</strong>.
+                                    """,
+                                ),
+                            ),
+                            css_class="flex",
+                        ),
+                        css_class="form-control",
+                    ),
+                    css_class="input-group",
                 ),
+                Div(
+                    HTML(html_renovations),
+                    css_class="mb-4 shadow-inner",
+                ),
+                # Location
                 Div(
                     Div(
                         HTML("<i class='bx bx-map' ></i>"),
                         css_class="input-group-addon",
                     ),
                     Div(
-                        # HTML("Returned location"),
                         Field("location_towit"),
-                        # PrependedText(
-                        #     "location_towit",
-                        #     mark_safe("<i class='bx bx-map' ></i>"),
-                        # ),
                         css_class="form-control",
                     ),
                     css_class="mb-2 input-group",
@@ -90,29 +100,66 @@ class DepositDiscountForm(forms.ModelForm):
                         mark_safe("<i class='bx bx-edit' ></i>"),
                     ),
                     css_class="mb-4",
+                    css_id="location_note_box",
+                ),
+                # Debt dues
+                Div(
+                    HTML("Debts"),
+                    css_class="",
                 ),
                 Div(
-                    PrependedAppendedText(
-                        "due",
-                        mark_safe("<i class='bx bx-dollar' ></i>"),
-                        f"$ {total_due}",
+                    Div(
+                        HTML("<i class='bx bx-dollar' ></i>"),
+                        css_class="input-group-addon",
                     ),
-                    css_class="mb-3",
+                    Div(
+                        HTML(f"{self.instance.debt}"),
+                        css_class="form-control bg-mainBG",
+                    ),
+                    css_class="mb-3 input-group",
                 ),
+                # Tolls dues
+                Div(
+                    HTML("Tolls"),
+                    css_class="",
+                ),
+                Div(
+                    Div(
+                        HTML("<i class='bx bx-dollar' ></i>"),
+                        css_class="input-group-addon",
+                    ),
+                    Div(
+                        HTML(f"{self.instance.tolls}"),
+                        css_class="form-control bg-mainBG",
+                    ),
+                    css_class="mb-3 input-group",
+                ),
+                # Trailer condition discount
                 Div(
                     PrependedText(
-                        "discount_trailer_cond",
+                        "trailer_condition_discount",
                         mark_safe("<i class='bx bxs-car-mechanic'></i>"),
                     ),
                     css_class="mb-3",
                 ),
                 css_class="mb-3",
             ),
-            ButtonHolder(
-                Submit(
-                    "submit",
-                    "Enviar",
-                    css_class="btn btn-success",
-                ),
+            Div(
+                css_id="totalDiscountBox",
             ),
+            HTML(
+                f"""
+            <script>
+            window.DEBT = {self.instance.debt}
+            window.TOLLS = {self.instance.tolls}
+            </script>
+            """
+            ),
+            # ButtonHolder(
+            #     Submit(
+            #         "submit",
+            #         "Enviar",
+            #         css_class="btn btn-success",
+            #     ),
+            # ),
         )
