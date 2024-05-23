@@ -61,11 +61,22 @@
                 {% if equipment.current_contract %}
                     {% include "rent/contract_icon.html" with contract=equipment.current_contract equipment=equipment %}
                 {% elif equipment.reservation %}
-                    <a class="btn btn-icon btn-outline-{%if equipment.reservation.expirated%}danger{%else%}primary{%endif%}"
+                    <a class="btn btn-outline-{%if equipment.reservation.expirated%}danger{%else%}primary{%endif%} flex items-center px-1 py-[0.1rem]"
                        type
                        None="button"
                        href="{% url 'trailer-deposit-details' equipment.reservation.id %}">
                         <span class="tf-icons bx bx-calendar-check"></span>
+                        <div class="text-left text-[0.6rem] ml-1">
+                            <div>{{equipment.reservation.valid_until}}</div>
+                            <div class="text-[0.55rem]">
+                                {{equipment.reservation.remaining_days}}
+                                {% if equipment.reservation.remaining_days == 1 %}
+                                    day
+                                {% else %}
+                                    days
+                                {% endif %}
+                            </div>
+                        </div>
                     </a>
                 {% else %}
                     <a class="btn btn-icon btn-outline-primary"
