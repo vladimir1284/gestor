@@ -21,4 +21,4 @@ class ContractRenovation(models.Model):
 
     @property
     def is_expirated(self) -> bool:
-        return self.expiration_date.date() > timezone.now().date()
+        return self.expiration_date < timezone.now().date()

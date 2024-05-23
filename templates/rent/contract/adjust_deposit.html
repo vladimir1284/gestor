@@ -6,6 +6,8 @@
 {% endblock title %}
 {% block content %}
     <script>
+        window.Total = {{ initial }};
+
         function deleteDocument(name, id) {
             let confirmAction = confirm("Are you sure to delete the document: " + name + "?");
             if (confirmAction) {
@@ -14,208 +16,63 @@
         }
     </script>
     <!-- Basic with Icons -->
-    <div>
-        {%if discount%}
-            <div class="col-xxl">
+    <form enctype="multipart/form-data" method="post" id="update-form" x-data="depositDevolution">
+        {% csrf_token %}
+        <div class="lg:flex lg:gap-4">
+            {%if formDiscount%}
+                <div class="lg:flex-grow">
+                    <div class="card mb-4">
+                        <div class="card-header flex items-center justify-between">
+                            <h5 class="mb-0">Contract conditions:</h5>
+                        </div>
+                        <div class="card-body">
+                            {% crispy formDiscount %}
+                        </div>
+                    </div>
+                </div>
+            {%endif%}
+
+            <div class="lg:flex-grow">
                 <div class="card mb-4">
-                    <div class="card-header flex items-center justify-between">
-                        <h5 class="mb-0">Contract conditions:</h5>
-                        <a class="btn btn-link btn-icon"
-                           data-bs-toggle="tooltip"
-                           data-bs-placement="left"
-                           data-bs-custom-class="custom-tooltip"
-                           data-bs-title="Edit contract conditions."
-                           href="{% url 'adjust-deposit-discount' contract.id %}"
-                        >
-                            <i class='bx bx-edit-alt' ></i>
-                        </a>
+                    <div class="card-header"
+                         :style="{
+                                 filter: devolution() ? '': 'blur(3px)',
+                                 'pointer-events': devolution() ? '' : 'none',
+                                 }"
+                    >
+                        <h5 class="mb-2">{{ title }}</h5>
+                        <div>
+                            Current deposit: <strong>$<span>{{initial|floatformat:'-2'}}</span></strong> (On contract: <strong>$<span>{{on_contract|floatformat:'-2'}}</span></strong>)
+                        </div>
+                        <div>
+                            Total discount on the deposit: <strong>$<span x-text="totalDiscount()"></span></strong>
+                        </div>
+                        <div class="shadow-inner py-2">
+                            <span x-show="totalAmount() >= 0">
+                                Amount in favor of the customer:
+                            </span>
+                            <span x-show="totalAmount() < 0">
+                                Amount due from the customer:
+                            </span>
+                            <strong :class="totalAmount() < 0 ? 'text-danger': 'text-primary'">$<span x-text='Math.abs(totalAmount())'></span></strong>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <table>
-                            <tr>
-                                <td class="pr-2">
-                                    <strong>
-                                        Duration:
-                                    </strong>
-                                </td>
-                                <td>
-                                    {{discount.duration_text|safe}}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="pr-2 align-top">
-                                    <strong>
-                                        Returned location:
-                                    </strong>
-                                </td>
-                                <td>
-                                    {% if discount.location_towit %}
-                                        <div class="text-success">
-                                            The trailer was returned at Towit Houston location.
-                                        </div>
-                                    {% else %}
-                                        <div class="text-danger">
-                                            The trailer was not returned at Towit Houston location.
-                                        </div>
-                                        <div>
-                                            <strong>Note:</strong>
-                                        </div>
-                                        <div>
-                                            {{discount.location_note}}
-                                        </div>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="pr-2">
-                                    <strong>
-                                        Due
-                                    </strong>
-                                </td>
-                                <td {% if discount.due > 0 %}
-                                        class="text-danger"
-                                    {% elif discount.due < 0 %}
-                                        class="text-primary"
-                                    {% else %}
-                                        class="text-success"
-                                    {% endif %}
-                                >
-                                    ${{discount.due | floatformat:'-2'}}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="pr-2">
-                                    <strong>
-                                        Trailer conditions discount:
-                                    </strong>
-                                </td>
-                                <td {% if discount.discount_trailer_cond > 0 %}
-                                        class="text-danger"
-                                    {% elif discount.discount_trailer_cond < 0 %}
-                                        class="text-primary"
-                                    {% else %}
-                                        class="text-success"
-                                    {% endif %}
-                                >
-                                    ${{discount.discount_trailer_cond | floatformat:'-2'}}
-                                </td>
-                            </tr>
-                            <tr class="border-t border-main">
-                                <td class="pr-2">
-                                    <strong>
-                                        Should return deposit:
-                                    </strong>
-                                </td>
-                                <td>
-                                    {% if discount.should_return %}
-                                        <span class='text-success'>
-                                            Yes
-                                        </span>
-                                    {% else %}
-                                        <span class='text-danger'>
-                                            No
-                                        </span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% if discount.should_return %}
-                                <tr>
-                                    <td class="pr-2">
-                                        <strong>
-                                            Total discount:
-                                        </strong>
-                                    </td>
-                                    <td>
-                                        ${{discount.total_discount}}
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        </table>
-                    </div>
-                </div>
-            </div>
-        {%endif%}
-
-        <div class="">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">{{ title }}</h5>
-                    <h6 style='margin-bottom: 0px' >On contract ${{on_contract}}</h6>
-                    <h6 style='margin-bottom: 0px' >Deposited ${{initial}}</h6>
-                    <h6 style='margin-bottom: 0px' id='condonation_label'>Difference between deposited and returned $0</h6>
-                </div>
-                <div class="card-body">
-                    <form enctype="multipart/form-data" method="post" id="update-form">
-                        {% csrf_token %}
-                        {% crispy form %}
-                    </form>
-                    <div class="card-header">
-                        <h5>
-                            <strong>Documents</strong>
-                            <a class="btn btn-icon btn-outline-primary ms-2"
-                               type="button"
-                               href="{% url 'create-document-on-ended-contract' contract.id %}">
-                                <span class="tf-icons bx bx-plus"></span>
-                            </a>
-                        </h5>
-                        <div class="row">
-                            {% for document in documents %}
-                                <div class="col-md-4">
-                                    <div class="card mb-3 shadow-sm">
-                                        <div class="card-body">
-                                            <div class="d-flex mb-4 pb-1">
-                                                <div class="avatar flex-shrink-0 me-3">
-                                                    <img src="{% static document.icon %}" alt="" />
-                                                </div>
-                                                <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                                    <div class="me-2">
-                                                        <h6 class="mb-0">{{ document.name }}</h6>
-                                                        {% if document.expiration_date %}<small class="text-muted">{{ document.note }}</small>{% endif %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <p class="card-text">
-                                                {{ document.note }}
-                                                <div class="demo-inline-spacing">
-                                                    <a class="btn btn-icon btn-outline-primary ms-3"
-                                                       type="button"
-                                                       target="_blank"
-                                                       href="{{ document.file.url }}">
-                                                        <span class="tf-icons bx bx-download"></span>
-                                                    </a>
-                                                    <a class="btn btn-icon btn-outline-danger float-end"
-                                                       type="button"
-                                                       onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
-                                                        <span class="tf-icons bx bx-trash"></span>
-                                                    </a>
-                                                </div>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
+                        <div
+                            :style="{
+                                    filter: devolution() ? '': 'blur(3px)',
+                                    'pointer-events': devolution() ? '' : 'none',
+                                    }"
+                        >
+                            {% crispy form %}
+                        </div>
+                        <div>
+                            <input type="submit" class="btn btn-primary" value="Enviar">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <script>
-        function updateNumber() {
-            let initial = {{ initial }};
-            let amountElement = document.getElementById("id_amount");
-            let label = document.getElementById('condonation_label');
-
-            if (amountElement.value) {
-                label.className = '';
-                label.innerText = 'Difference between deposited and returned $'+((initial-amountElement.value).toFixed(2));
-            } else {
-                label.className = 'text-danger';
-                label.innerText = 'Invalid amount'
-            }
-        }
-
-        updateNumber();
-        document.getElementById("id_amount").addEventListener("input", updateNumber);
-    </script>
+    </form>
+    <script src="{% static "assets/js/deposits/deposit_discount.js" %}"></script>
 {% endblock content %}

@@ -1,0 +1,54 @@
+{% load static %}
+
+<div class="table-responsive text-nowrap">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Renovation</th>
+                <th>Initial Date</th>
+                <th>Ended Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            <tr >
+                <td>
+                    Original contract
+                </td>
+                <td>
+                    {{contract.effective_date}}
+                </td>
+                <td>
+                    {{contract.original_expiration_date}}
+                </td>
+                <td>
+                    {% if contract.original_is_expirated %}
+                        Completed
+                    {% else %}
+                        Incompleted
+                    {% endif %}
+                </td>
+            </tr>
+            {% for renovation in renovations %}
+                <tr >
+                    <td>
+                        {{renovation.oword_num|title}} renovation
+                    </td>
+                    <td>
+                        {{renovation.effective_date}}
+                    </td>
+                    <td>
+                        {{renovation.expiration_date}}
+                    </td>
+                    <td>
+                        {% if renovation.is_expirated %}
+                            Completed
+                        {% else %}
+                            Incompleted
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

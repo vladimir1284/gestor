@@ -144,6 +144,10 @@ class Contract(models.Model):
         return self.original_expiration_date
 
     @property
+    def original_is_expirated(self) -> bool:
+        return self.original_expiration_date < timezone.now().date()
+
+    @property
     def is_expirated(self) -> bool:
         return self.expiration_date < timezone.now().date()
 
@@ -366,8 +370,10 @@ class SecurityDepositDevolution(models.Model):
     returned = models.BooleanField(default=False)
     returned_date = models.DateField(null=True)
 
+    immediate_refund = models.BooleanField(default=False)
     reason = models.CharField(max_length=300, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
+    refund_date = models.DateField(null=True)
 
 
 class LeaseDeposit(models.Model):
