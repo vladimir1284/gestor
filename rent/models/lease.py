@@ -144,6 +144,10 @@ class Contract(models.Model):
         return self.original_expiration_date
 
     @property
+    def original_is_expirated(self) -> bool:
+        return self.original_expiration_date < timezone.now().date()
+
+    @property
     def is_expirated(self) -> bool:
         return self.expiration_date < timezone.now().date()
 

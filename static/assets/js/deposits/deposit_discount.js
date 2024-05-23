@@ -3,24 +3,44 @@
 /** @type {import('alpinejs').default} */
 var Alpine;
 
-const loc_towit = /** @type {HTMLInputElement}*/ (
+const duration = /**@type {HTMLInputElement}*/ (
+  document.querySelector("#id_duration")
+);
+duration.setAttribute("x-model", "duration");
+
+const location_towit = /**@type {HTMLInputElement}*/ (
   document.querySelector("#id_location_towit")
 );
-loc_towit.setAttribute("x-model", "locTowit");
+location_towit.setAttribute("x-model", "location");
 
-const note_box = /** @type {HTMLDivElement} */ (
-  document.querySelector("#div_id_location_note")
+const location_note_box = /**@type {HTMLDivElement}*/ (
+  document.querySelector("#location_note_box")
 );
-note_box.setAttribute("x-show", "showNote");
-note_box.setAttribute("x-cloak", "true");
+location_note_box.setAttribute("x-show", "!location");
+
+const trailer_discount = /**@type {HTMLInputElement}*/ (
+  document.querySelector("#id_trailer_condition_discount")
+);
+trailer_discount.setAttribute("x-model", "trailer_discount");
+
+const discount_box = /**@type {HTMLDivElement}*/ (
+  document.querySelector("#totalDiscountBox")
+);
+discount_box.setAttribute("x-text", "'Total discount: ' + totalDiscount()");
 
 document.addEventListener("alpine:init", () => {
-  Alpine.data("depositDiscount", () => {
+  Alpine.data("depositDevolution", () => {
     return {
-      locTowit: loc_towit.checked,
+      duration: duration.checked,
+      location: location_towit.checked,
+      trailer_discount: parseFloat(trailer_discount.value),
 
-      showNote() {
-        return this.locTowit == false;
+      totalDiscount() {
+        return (
+          parseFloat(window.DEBT) +
+          parseFloat(window.TOLLS) +
+          (this.trailer_discount | 0.0)
+        );
       },
     };
   });

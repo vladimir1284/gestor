@@ -7,19 +7,25 @@ from rent.tools.client import compute_client_debt
 
 class DepositDiscount(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
-    duration = models.IntegerField(null=True, blank=True)
+
+    duration = models.BooleanField(default=False)
+
     location_towit = models.BooleanField(null=True, blank=True)
     location_note = models.TextField(null=True, blank=True)
-    discount_trailer_cond = models.FloatField(null=True, blank=True)
-    due = models.FloatField(null=True, blank=True)
+
+    trailer_condition_discount = models.FloatField(default=0)
+
+    @property
+    def expirate_in_days(self) -> int:
+        return self.contract.expirate_in_days
 
     @property
     def should_return(self) -> bool:
-        return self.duration == 0 and self.location_towit
+        return self.duration and self.location_towit
 
     @property
     def total_discount(self) -> float:
-        return float(self.due) + float(self.discount_trailer_cond)
+        return float(self.discount_trailer_cond) + self.debt + self.tolls
 
     @property
     def debt(self) -> float:
@@ -42,7 +48,3 @@ class DepositDiscount(models.Model):
             unpay_tolls += toll.amount
 
         return unpay_tolls
-
-    @property
-    def total_due(self) -> float:
-        return self.debt + self.tolls

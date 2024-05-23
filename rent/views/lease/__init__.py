@@ -24,7 +24,6 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import UpdateView
-from schedule.models import date
 
 from rent.forms.hand_writing import HandWritingForm
 from rent.forms.lease import AssociatedCreateForm
@@ -35,11 +34,9 @@ from rent.forms.lease import LeaseDepositForm
 from rent.forms.lease import LeaseDocumentForm
 from rent.forms.lease import LeaseUpdateForm
 from rent.forms.lease import LesseeDataForm
-from rent.forms.lease import SecurityDepositDevolutionForm
 from rent.forms.lease import TireFormSet
 from rent.forms.lessee_contact import LesseeContactForm
 from rent.forms.trailer_deposit import TrailerDeposit
-from rent.models.deposit_discount import DepositDiscount
 from rent.models.guarantor import Guarantor
 from rent.models.lease import Contract
 from rent.models.lease import Due
@@ -54,7 +51,6 @@ from rent.models.lease import SecurityDepositDevolution
 from rent.models.lease import Tire
 from rent.models.vehicle import Trailer
 from rent.permissions import staff_required
-from rent.tools.adjust_security_deposit import adjust_security_deposit
 from rent.tools.contract_ctx import get_contract
 from rent.tools.contract_ctx import get_contract_token
 from rent.tools.contract_ctx import prepare_contract_view
@@ -65,10 +61,8 @@ from rent.tools.get_missing_handwriting import check_handwriting
 from rent.tools.get_missing_handwriting import get_missing_handwriting
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
-from rent.views.client import Note
 from rent.views.create_lessee_with_data import create_lessee
 from rent.views.create_lessee_with_data import update_lessee as updateLessee
-from rent.views.vehicle import FILES_ICONS
 from users.models import Associated
 from users.views import addStateCity
 
@@ -237,69 +231,6 @@ def contract_detail_signed(request, id):
 def contracts(request):
     contracts = Contract.objects.all()
     return render(request, "rent/contract/contract_list.html", {"contracts": contracts})
-
-
-@login_required
-def adjust_end_deposit(request, id):
-    closing = request.GET.get("closing", False)
-    contract, on_hold, deposit = adjust_security_deposit(id)
-    discount = DepositDiscount.objects.filter(contract=contract).last()
-    if contract.stage != "missing" and discount is None:
-        return redirect("adjust-deposit-discount", contract.id)
-
-    if (
-        contract.stage == "missing"
-        and deposit.total_deposited_amount == 0
-        and (on_hold is None or on_hold.amount == 0)
-    ):
-        return redirect("update-contract-stage", id, "ended")
-    elif contract.stage == "missing":
-        return redirect("adjust-deposit-on-hold-from-contract", id)
-
-    duration = discount.duration
-    days = "day" if duration == 1 or duration == -1 else "days"
-    sign = "before" if duration < 0 else "after"
-    css_class = "danger" if duration < 0 else "success" if duration > 0 else "primary"
-
-    discount.duration_text = f"""
-        The trailer was returned
-        <strong>{abs(duration)}</strong>
-        {days}
-        <strong class="text-{css_class}">{sign}</strong>
-        .
-        """.replace(
-        "\n", ""
-    )
-
-    if request.method == "POST":
-        form = SecurityDepositDevolutionForm(request.POST, instance=deposit)
-        if form.is_valid():
-            instance = form.save(commit=False)
-            if instance.returned:
-                instance.returned_date = timezone.now().date()
-                instance.save()
-            else:
-                instance.returned_date = None
-
-            if closing:
-                return redirect("update-contract-stage", id, "ended")
-            else:
-                return redirect("client-list")
-
-    form = SecurityDepositDevolutionForm(instance=deposit)
-    documents = LeaseDocument.objects.filter(contract=contract)
-    for doc in documents:
-        doc.icon = "assets/img/icons/" + FILES_ICONS[doc.document_type]
-    context = {
-        "title": "Adjust Security Deposit devolution.",
-        "form": form,
-        "initial": deposit.total_deposited_amount,
-        "on_contract": deposit.contract.security_deposit,
-        "documents": documents,
-        "contract": contract,
-        "discount": discount,
-    }
-    return render(request, "rent/contract/adjust_deposit.html", context)
 
 
 @login_required
