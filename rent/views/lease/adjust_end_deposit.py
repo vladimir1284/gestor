@@ -9,6 +9,7 @@ from rent.forms.deposit_discount import DepositDiscountForm
 from rent.forms.lease import SecurityDepositDevolutionForm
 from rent.models.deposit_discount import DepositDiscount
 from rent.models.lease import LeaseDocument
+from rent.models.lease import SecurityDepositDevolution
 from rent.tools.adjust_security_deposit import adjust_security_deposit
 from rent.views.lease.deposit_discount import get_deposit_discount
 from rent.views.vehicle import FILES_ICONS
@@ -19,7 +20,7 @@ from rent.views.vehicle import FILES_ICONS
 def adjust_end_deposit(request, id):
     closing = request.GET.get("closing", False)
     contract, on_hold, deposit = adjust_security_deposit(id)
-    discount = get_deposit_discount(contract)
+    discount: DepositDiscount = get_deposit_discount(contract)
 
     if (
         contract.stage == "missing"
@@ -34,14 +35,19 @@ def adjust_end_deposit(request, id):
         form = SecurityDepositDevolutionForm(request.POST, instance=deposit)
         formDiscount = DepositDiscountForm(request.POST, instance=discount)
         if form.is_valid() and formDiscount.is_valid():
-            instance = form.save(commit=False)
+            instance: SecurityDepositDevolution = form.save(commit=False)
+            discount: DepositDiscount = formDiscount.save()
+
+            if instance.immediate_refund:
+                instance.returned = True
+
             if instance.returned:
                 instance.returned_date = timezone.now().date()
-                instance.save()
             else:
                 instance.returned_date = None
 
-            formDiscount.save()
+            instance.amount = instance.total_deposited_amount - discount.total_discount
+            instance.save()
 
             if closing:
                 return redirect("update-contract-stage", id, "ended")

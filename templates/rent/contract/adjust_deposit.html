@@ -6,6 +6,8 @@
 {% endblock title %}
 {% block content %}
     <script>
+        window.Total = {{ initial }};
+
         function deleteDocument(name, id) {
             let confirmAction = confirm("Are you sure to delete the document: " + name + "?");
             if (confirmAction) {
@@ -32,83 +34,45 @@
 
             <div class="lg:flex-grow">
                 <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">{{ title }}</h5>
-                        <h6 style='margin-bottom: 0px' >On contract ${{on_contract}}</h6>
-                        <h6 style='margin-bottom: 0px' >Deposited ${{initial}}</h6>
-                        <h6 style='margin-bottom: 0px' id='condonation_label'>Difference between deposited and returned $0</h6>
+                    <div class="card-header"
+                         :style="{
+                                 filter: devolution() ? '': 'blur(3px)',
+                                 'pointer-events': devolution() ? '' : 'none',
+                                 }"
+                    >
+                        <h5 class="mb-2">{{ title }}</h5>
+                        <div>
+                            Current deposit: <strong>$<span>{{initial|floatformat:'-2'}}</span></strong> (On contract: <strong>$<span>{{on_contract|floatformat:'-2'}}</span></strong>)
+                        </div>
+                        <div>
+                            Total discount on the deposit: <strong>$<span x-text="totalDiscount()"></span></strong>
+                        </div>
+                        <div class="shadow-inner py-2">
+                            <span x-show="totalAmount() >= 0">
+                                Amount in favor of the customer:
+                            </span>
+                            <span x-show="totalAmount() < 0">
+                                Amount due from the customer:
+                            </span>
+                            <strong :class="totalAmount() < 0 ? 'text-danger': 'text-primary'">$<span x-text='Math.abs(totalAmount())'></span></strong>
+                        </div>
                     </div>
                     <div class="card-body">
-                        {% crispy form %}
-                        <div class="card-header">
-                            <h5>
-                                <strong>Documents</strong>
-                                <a class="btn btn-icon btn-outline-primary ms-2"
-                                   type="button"
-                                   href="{% url 'create-document-on-ended-contract' contract.id %}">
-                                    <span class="tf-icons bx bx-plus"></span>
-                                </a>
-                            </h5>
-                            <div class="row">
-                                {% for document in documents %}
-                                    <div class="col-md-4">
-                                        <div class="card mb-3 shadow-sm">
-                                            <div class="card-body">
-                                                <div class="d-flex mb-4 pb-1">
-                                                    <div class="avatar flex-shrink-0 me-3">
-                                                        <img src="{% static document.icon %}" alt="" />
-                                                    </div>
-                                                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                                        <div class="me-2">
-                                                            <h6 class="mb-0">{{ document.name }}</h6>
-                                                            {% if document.expiration_date %}<small class="text-muted">{{ document.note }}</small>{% endif %}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <p class="card-text">
-                                                    {{ document.note }}
-                                                    <div class="demo-inline-spacing">
-                                                        <a class="btn btn-icon btn-outline-primary ms-3"
-                                                           type="button"
-                                                           target="_blank"
-                                                           href="{{ document.file.url }}">
-                                                            <span class="tf-icons bx bx-download"></span>
-                                                        </a>
-                                                        <a class="btn btn-icon btn-outline-danger float-end"
-                                                           type="button"
-                                                           onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
-                                                            <span class="tf-icons bx bx-trash"></span>
-                                                        </a>
-                                                    </div>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
+                        <div
+                            :style="{
+                                    filter: devolution() ? '': 'blur(3px)',
+                                    'pointer-events': devolution() ? '' : 'none',
+                                    }"
+                        >
+                            {% crispy form %}
+                        </div>
+                        <div>
+                            <input type="submit" class="btn btn-primary" value="Enviar">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </form>
-    <script>
-        function updateNumber() {
-            let initial = {{ initial }};
-            let amountElement = document.getElementById("id_amount");
-            let label = document.getElementById('condonation_label');
-
-            if (amountElement.value) {
-                label.className = '';
-                label.innerText = 'Difference between deposited and returned $'+((initial-amountElement.value).toFixed(2));
-            } else {
-                label.className = 'text-danger';
-                label.innerText = 'Invalid amount'
-            }
-        }
-
-        updateNumber();
-        document.getElementById("id_amount").addEventListener("input", updateNumber);
-    </script>
     <script src="{% static "assets/js/deposits/deposit_discount.js" %}"></script>
 {% endblock content %}

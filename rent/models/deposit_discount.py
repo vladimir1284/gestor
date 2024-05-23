@@ -25,7 +25,7 @@ class DepositDiscount(models.Model):
 
     @property
     def total_discount(self) -> float:
-        return float(self.discount_trailer_cond) + self.debt + self.tolls
+        return float(self.trailer_condition_discount) + self.debt + self.tolls
 
     @property
     def debt(self) -> float:
