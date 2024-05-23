@@ -58,6 +58,11 @@ class TrailerDeposit(models.Model):
         return self.date + timedelta(days=self.days)
 
     @property
+    def remaining_days(self):
+        dtime = self.valid_until - datetime.now().date()
+        return dtime.days
+
+    @property
     def expirated(self):
         return self.valid_until < datetime.now().date()
 

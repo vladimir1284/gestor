@@ -51,13 +51,24 @@
         <div class="card-body pt-0 scroll trailers-available" x-show="on_hold">
             {% for equipment in on_hold %}
                 <hr />
-                <div class="d-flex">
+                <div class="flex">
                     {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
-                    <a class="btn btn-icon btn-outline-{%if equipment.on_hold.expirated%}danger{%else%}primary{%endif%}"
+                    <a class="btn btn-outline-{%if equipment.on_hold.expirated%}danger{%else%}primary{%endif%} flex items-center px-1 py-[0.1rem]"
                        type
                        None="button"
                        href="{% url 'trailer-deposit-details' equipment.on_hold.id %}">
                         <span class="tf-icons bx bx-calendar-check"></span>
+                        <div class="text-left text-[0.6rem] ml-1">
+                            <div class="whitespace-nowrap">{{equipment.on_hold.valid_until}}</div>
+                            <div class="text-[0.55rem]">
+                                {{equipment.on_hold.remaining_days}}
+                                {% if equipment.on_hold.remaining_days == 1 %}
+                                    day
+                                {% else %}
+                                    days
+                                {% endif %}
+                            </div>
+                        </div>
                     </a>
                 </div>
             {% endfor %}
