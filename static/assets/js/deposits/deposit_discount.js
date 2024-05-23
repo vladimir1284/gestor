@@ -55,6 +55,13 @@ document.addEventListener("alpine:init", () => {
 
       immediateReturn: immediateInput.checked,
 
+      init() {
+        this.$watch("devolution()", (d) => {
+          this.immediateReturn = !d;
+        });
+        this.immediateReturn = !this.devolution();
+      },
+
       totalDiscount() {
         return (
           parseFloat(window.DEBT) +
