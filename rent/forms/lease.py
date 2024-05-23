@@ -305,6 +305,8 @@ class AssociatedCreateForm(BaseContactForm):
     def validate_client(self):
         if self.use_client_url is None or "url" not in self.use_client_url:
             return
+        if "phone_number" not in self.cleaned_data:
+            return
 
         phone = self.cleaned_data["phone_number"]
         client = Associated.objects.filter(phone_number=phone).last()
