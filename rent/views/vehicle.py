@@ -291,7 +291,9 @@ def detail_trailer(request, id):
     images, pinned_image = getImages(trailer)
 
     # Contracts
-    contracts = Contract.objects.filter(trailer=trailer).exclude(stage="ended")
+    contracts = Contract.objects.filter(trailer=trailer).exclude(
+        stage_in=["ended", "garbage"]
+    )
     if contracts:
         trailer.current_contract = contracts.last()
 
