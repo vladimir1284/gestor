@@ -292,7 +292,7 @@ def detail_trailer(request, id):
 
     # Contracts
     contracts = Contract.objects.filter(trailer=trailer).exclude(
-        stage_in=["ended", "garbage"]
+        stage__in=["ended", "garbage"]
     )
     if contracts:
         trailer.current_contract = contracts.last()
