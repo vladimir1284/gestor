@@ -375,6 +375,10 @@ class SecurityDepositDevolution(models.Model):
     note = models.TextField(null=True, blank=True)
     refund_date = models.DateField(null=True)
 
+    @property
+    def income(self):
+        return self.total_deposited_amount - self.amount
+
 
 class LeaseDeposit(models.Model):
     lease = models.ForeignKey(
