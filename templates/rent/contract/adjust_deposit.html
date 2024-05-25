@@ -34,12 +34,7 @@
 
             <div class="lg:flex-grow">
                 <div class="card mb-4">
-                    <div class="card-header"
-                         :style="{
-                                 filter: devolution() ? '': 'blur(3px)',
-                                 'pointer-events': devolution() ? '' : 'none',
-                                 }"
-                    >
+                    <div class="card-header">
                         <h5 class="mb-2">{{ title }}</h5>
                         <div>
                             Current deposit: <strong>$<span>{{initial|floatformat:'-2'}}</span></strong> (On contract: <strong>$<span>{{on_contract|floatformat:'-2'}}</span></strong>)
@@ -59,10 +54,7 @@
                     </div>
                     <div class="card-body">
                         <div
-                            :style="{
-                                    filter: devolution() ? '': 'blur(3px)',
-                                    'pointer-events': devolution() ? '' : 'none',
-                                    }"
+                            x-show = "devolution()"
                         >
                             {% crispy form %}
                         </div>

@@ -75,7 +75,7 @@ document.addEventListener("alpine:init", () => {
       },
 
       devolution() {
-        return this.duration && this.location;
+        return this.duration && this.location && this.totalAmount() > 0;
       },
     };
   });
