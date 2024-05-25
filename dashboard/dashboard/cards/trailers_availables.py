@@ -17,8 +17,8 @@ def _resolver():
     on_hold_trailers = []
     for dep in deposits:
         trailer = dep.trailer
-        if trailer.id in ids:
-            continue
+        # if trailer.id in ids:
+        #     continue
         ids.append(trailer.id)
         trailer.on_hold = dep
         on_hold_trailers.append(trailer)
