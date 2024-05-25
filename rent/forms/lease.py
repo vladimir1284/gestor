@@ -220,6 +220,7 @@ class LesseeDataForm(forms.ModelForm):
                     "contact3_phone",
                     "contact3_file",
                 ),
+                css_class="xl:flex gap-2",
             ),
             ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
