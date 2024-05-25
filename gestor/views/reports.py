@@ -26,6 +26,7 @@ from rent.models.trailer_deposit import get_cancelled_trailer_deposits
 from rent.models.trailer_deposit import get_done_trailer_deposits
 from rent.models.trailer_deposit import get_expirated_trailer_deposits
 from rent.tools.client import get_start_paying_date
+from rent.tools.security_deposit_reports import security_deposit_reports
 from rent.tools.trailer_deposits_reports import deposits_reports
 from services.models import Expense
 from services.models import Payment
@@ -362,6 +363,7 @@ def monthly_membership_report(request, year=None, month=None):
 
     context = getMonthlyMembership(currentYear, currentMonth)
     deposits_reports(context, currentYear, currentMonth)
+    security_deposit_reports(context, currentYear, currentMonth)
 
     # done_deposits, done_amount = get_done_trailer_deposits(currentYear, currentMonth)
     # cancelled_deposits, cancelled_amount = get_cancelled_trailer_deposits(
