@@ -172,13 +172,20 @@ class LesseeDataForm(forms.ModelForm):
     class Meta:
         model = LesseeData
         fields = (
-            "contact_name",
-            "contact_phone",
             "insurance_number",
             "insurance_file",
             "license_number",
             "license_file",
             "client_address",
+            "contact_name",
+            "contact_phone",
+            "contact_file",
+            "contact2_name",
+            "contact2_phone",
+            "contact2_file",
+            "contact3_name",
+            "contact3_phone",
+            "contact3_file",
         )
 
     def __init__(self, *args, **kwargs):
@@ -194,7 +201,26 @@ class LesseeDataForm(forms.ModelForm):
                 "insurance_number",
                 "insurance_file",
             ),
-            Fieldset("Emergency Contact", "contact_name", "contact_phone"),
+            Div(
+                Fieldset(
+                    "Emergency Contact (Required)",
+                    "contact_name",
+                    "contact_phone",
+                    "contact_file",
+                ),
+                Fieldset(
+                    "Emergency Contact 2 (Optional)",
+                    "contact2_name",
+                    "contact2_phone",
+                    "contact2_file",
+                ),
+                Fieldset(
+                    "Emergency Contact 3 (Optional)",
+                    "contact3_name",
+                    "contact3_phone",
+                    "contact3_file",
+                ),
+            ),
             ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
 
