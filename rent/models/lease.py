@@ -96,6 +96,7 @@ class Contract(models.Model):
 
         if status == "exp7":
             self.renovation_7_notify = True
+            self.renovation_15_notify = True
             self.save()
         elif status == "exp15":
             self.renovation_15_notify = True
