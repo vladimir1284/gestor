@@ -5,7 +5,7 @@ const elements = /** @type {NodeListOf<HTMLInputElement>}*/ (
 );
 
 elements.forEach((e) => {
-  if (e.type == "file") {
+  if (e.name == "guarantor_avatar") {
     return;
   }
   e.removeAttribute("required");
