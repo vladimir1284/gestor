@@ -46,6 +46,11 @@ const refundNoteBox = /**@type {HTMLDivElement}*/ (
 );
 refundNoteBox.setAttribute("x-show", "immediateReturn");
 
+const Note = /**@type {HTMLTextAreaElement}*/ (
+  document.querySelector("#id_note")
+);
+Note.setAttribute("x-bind:required", "noteRequired()");
+
 document.addEventListener("alpine:init", () => {
   Alpine.data("depositDevolution", () => {
     return {
@@ -76,6 +81,10 @@ document.addEventListener("alpine:init", () => {
 
       devolution() {
         return this.duration && this.location && this.totalAmount() > 0;
+      },
+
+      noteRequired() {
+        return this.devolution() && this.immediateReturn;
       },
     };
   });
