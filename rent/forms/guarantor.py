@@ -18,6 +18,7 @@ class GuarantorForm(forms.ModelForm):
             "guarantor_avatar",
             "guarantor_name",
             "guarantor_license",
+            "guarantor_license_file",
             "guarantor_address",
             "guarantor_email",
             "guarantor_phone_number",
@@ -25,6 +26,8 @@ class GuarantorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["guarantor_license_file"].required = True
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -57,20 +60,43 @@ class GuarantorForm(forms.ModelForm):
                         css_class="mb-3",
                     ),
                 ),
-                PrependedText(
-                    "guarantor_name", mark_safe("<i class='bx bx-user' ></i>")
+                Div(
+                    PrependedText(
+                        "guarantor_name", mark_safe("<i class='bx bx-user' ></i>")
+                    ),
+                    css_class="mb-3",
                 ),
-                PrependedText(
-                    "guarantor_license", mark_safe("<i class='bx bx-id-card' ></i>")
+                Div(
+                    PrependedText(
+                        "guarantor_license", mark_safe("<i class='bx bx-id-card' ></i>")
+                    ),
+                    css_class="mb-3",
                 ),
-                PrependedText(
-                    "guarantor_address", mark_safe("<i class='bx bx-home' ></i>")
+                Div(
+                    AppendedText(
+                        "guarantor_license_file",
+                        mark_safe("<i class='bx bx-id-card' ></i>"),
+                    ),
+                    css_class="mb-3",
                 ),
-                PrependedText(
-                    "guarantor_email", mark_safe("<i class='bx bx-envelope' ></i>")
+                Div(
+                    PrependedText(
+                        "guarantor_address", mark_safe("<i class='bx bx-home' ></i>")
+                    ),
+                    css_class="mb-3",
                 ),
-                PrependedText(
-                    "guarantor_phone_number", mark_safe("<i class='bx bx-phone' ></i>")
+                Div(
+                    PrependedText(
+                        "guarantor_email", mark_safe("<i class='bx bx-envelope' ></i>")
+                    ),
+                    css_class="mb-3",
+                ),
+                Div(
+                    PrependedText(
+                        "guarantor_phone_number",
+                        mark_safe("<i class='bx bx-phone' ></i>"),
+                    ),
+                    css_class="mb-3",
                 ),
                 css_class="mb-3",
             ),
