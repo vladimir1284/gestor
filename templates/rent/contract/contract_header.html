@@ -191,12 +191,13 @@
     </div>
 
     <div class="flex flex-wrap mt-4 gap-2 justify-center">
-        {%if guarantor_required and contract.guarantor is None %}
-            <a class="btn btn-outline-success" href="{% url 'select-contract-guarantor' contract.id %}">
-                <span class="tf-icons bx bx-check"></span>
-                Select guarantor
-            </a>
-        {% elif validated %}
+        <!-- {%if guarantor_required and contract.guarantor is None %} -->
+        <!--     <a class="btn btn-outline-success" href="{% url 'select-contract-guarantor' contract.id %}"> -->
+        <!--         <span class="tf-icons bx bx-check"></span> -->
+        <!--         Select guarantor -->
+        <!--     </a> -->
+        <!-- {% endif %} -->
+        {% if validated %}
             <button class="btn btn-outline-secondary" disabled>
                 <span class="tf-icons bx bx-check"></span>
                 Activate contract
