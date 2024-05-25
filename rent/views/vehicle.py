@@ -58,12 +58,12 @@ def list_equipment(request):
                     trailer.filter = "Rented"
                 else:
                     trailer.filter = "To rent"
-
-        trailer_deposits = get_current_trailer_deposit(trailer)
-        if trailer_deposits:
-            trailer.reservation = trailer_deposits
-            if not hasattr(trailer, "filter"):
-                trailer.filter = "On Hold"
+        else:
+            trailer_deposits = get_current_trailer_deposit(trailer)
+            if trailer_deposits:
+                trailer.reservation = trailer_deposits
+                if not hasattr(trailer, "filter"):
+                    trailer.filter = "On Hold"
 
         if not hasattr(trailer, "filter"):
             trailer.filter = "Available"
