@@ -30,7 +30,7 @@ class DepositDiscountForm(forms.ModelForm):
 
         duration = self.instance.expirate_in_days
         days = "day" if duration == 1 or duration == -1 else "days"
-        sign = "before" if duration < 0 else "after"
+        sign = "before" if duration >= 0 else "after"
         css_class = (
             "danger" if duration < 0 else "success" if duration > 0 else "primary"
         )
