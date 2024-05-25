@@ -13,6 +13,7 @@ from django.utils.timezone import timezone
 from rent.forms.guarantor import GuarantorForm
 from rent.forms.lease import AssociatedCreateForm
 from rent.forms.lease import LesseeDataForm
+from rent.models.guarantor import Guarantor
 from rent.models.lease import Associated
 from rent.models.lease import LesseeData
 from rent.views.lease.contract_signing import HttpRequest
@@ -135,7 +136,7 @@ def save_lessee(
         if guarantor:
             if not formGuarantor.is_valid():
                 return None
-            guarantor = formGuarantor.save()
+            guarantor: Guarantor = formGuarantor.save()
             request.session["guarantor"] = guarantor.id
             try:
                 idx = args.index("{guarantor_id}")
@@ -189,7 +190,7 @@ def create_lessee(
             use_client_url=use_client_url,
             ask_guarantor=ask_guarantor,
         )
-        formGuarantor = GuarantorForm(data=request.POST)
+        formGuarantor = GuarantorForm(data=request.POST, files=request.FILES)
         ret = save_lessee(
             request,
             form,
@@ -239,7 +240,7 @@ def update_lessee(
             instance=lessee,
             ask_guarantor=ask_guarantor,
         )
-        formGuarantor = GuarantorForm(data=request.POST)
+        formGuarantor = GuarantorForm(data=request.POST, files=request.FILES)
         ret = save_lessee(
             request,
             form,
