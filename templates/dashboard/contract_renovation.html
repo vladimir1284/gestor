@@ -1,17 +1,79 @@
 {% load static %}
 {% load humanize %}
 <div class="col-lg-6 mb-4 order-0">
-    <div class="card">
-        <div class="d-flex align-items-end row">
-            <div class="col-sm-7">
-                <div class="card-body">
-                    <h5 class="card-title text-primary">
-                        {{ title }} <strong>{{ contracts|length }}</strong>
-                    </h5>
-                </div>
-            </div>
+    <div class="card" x-data="{showNot7: true, showNot15: true, showUNot7: true, showUNot15: true}">
+        <div class="card-header mb-0 pb-0">
+            <h5 class="card-title text-primary">
+                {{ title }} <strong>{{ contracts|length }}</strong>
+            </h5>
         </div>
-        <div class="card-body row">
+        <div class="card-body mt-0 pt-0">
+            <table class="table table-borderless table-sm">
+                <tbody>
+                    <tr>
+                        <td>
+                            Unnotified renovations in less than 7 days:
+                        </td>
+                        <td class="px-2">
+                            <strong>
+                                {{renov_unot_7}}
+                            </strong>
+                        </td>
+                        <td>
+                            <button @click="showUNot7 = !showUNot7" class="btn btn-icon btn-link">
+                                <i class='bx' :class="showUNot7 ? 'bx-show':'bx-hide'" ></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Unnotified renovations in less than 15 days:
+                        </td>
+                        <td class="px-2">
+                            <strong>
+                                {{renov_unot_15}}
+                            </strong>
+                        </td>
+                        <td>
+                            <button @click="showUNot15 = !showUNot15" class="btn btn-icon btn-link">
+                                <i class='bx' :class="showUNot15 ? 'bx-show':'bx-hide'" ></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Notified renovations in less than 7 days:
+                        </td>
+                        <td class="px-2">
+                            <strong>
+                                {{renov_not_7}}
+                            </strong>
+                        </td>
+                        <td>
+                            <button @click="showNot7 = !showNot7" class="btn btn-icon btn-link">
+                                <i class='bx' :class="showNot7 ? 'bx-show':'bx-hide'" ></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Notified renovations in less than 15 days:
+                        </td>
+                        <td class="px-2">
+                            <strong>
+                                {{renov_not_15}}
+                            </strong>
+                        </td>
+                        <td>
+                            <button @click="showNot15 = !showNot15" class="btn btn-icon btn-link">
+                                <i class='bx' :class="showNot15 ? 'bx-show':'bx-hide'" ></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="">
             <div class="table-responsive text-nowrap">
                 <table class="table">
                     <thead>
@@ -22,65 +84,164 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
+                        <!-- Unnotified -->
+                        <tr class="bg-mainBG">
+                            <td colspan='100%' class="text-danger">
+                                Unnotified
+                            </td>
+                        </tr>
+                        <!-- less than 7 days -->
                         {% for contract in contracts %}
-                            <tr >
-                                <td>
-                                    <div class="d-flex">
-                                        {% include "rent/equipment_line.html" with equipment_type="trailer" equipment=contract.trailer pinned_image=equipment.pinned_image %}
-                                    </div>
-                                    <div class="pt-2">
-                                        {% include "users/associated_line.html" with associated=contract.lessee %}
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if contract.renovation.expirate_in_days == 0 %}
-                                        <div class="text-danger">
-                                            <strong>
-                                                Today
-                                            </strong>
+                            {% if contract.renovation.expirate_in_days <= 7 and not contract.renovation_7_notify %}
+                                <tr x-show="showUNot7">
+                                    <td>
+                                        <div class="d-flex">
+                                            {% include "rent/equipment_line.html" with equipment_type="trailer" equipment=contract.trailer pinned_image=equipment.pinned_image %}
                                         </div>
-                                    {% else %}
-                                        <div {% if contract.renovation.expirate_in_days <= 3 %}
-                                                 class="text-danger"
-                                             {% elif contract.renovation.expirate_in_days <= 7 %}
-                                                 class="text-warning"
-                                             {% endif %}
-                                        >
+                                        <div class="pt-2">
+                                            {% include "users/associated_line.html" with associated=contract.lessee %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if contract.renovation.expirate_in_days == 0 %}
+                                            <div class="text-danger">
+                                                <strong>
+                                                    Today
+                                                </strong>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-danger">
+                                                {{contract.renovation.expirate_in_days}}
+                                                {% if contract.renovation.expirate_in_days == 1 %}
+                                                    day
+                                                {% else %}
+                                                    days
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-icon btn-link text-danger"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-placement="left"
+                                           data-bs-custom-class="custom-tooltip"
+                                           data-bs-title="Has not been notified"
+                                           href="{% url 'notify-contract-renovation' contract.id %}">
+                                            <i class='bx bx-message-rounded-error'></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        <!-- less than 15 days -->
+                        {% for contract in contracts %}
+                            {% if contract.renovation.expirate_in_days > 7 and contract.renovation.expirate_in_days <= 15 and not contract.renovation_15_notify %}
+                                <tr x-show="showUNot15">
+                                    <td>
+                                        <div class="d-flex">
+                                            {% include "rent/equipment_line.html" with equipment_type="trailer" equipment=contract.trailer pinned_image=equipment.pinned_image %}
+                                        </div>
+                                        <div class="pt-2">
+                                            {% include "users/associated_line.html" with associated=contract.lessee %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-warning">
                                             {{contract.renovation.expirate_in_days}}
-                                            {% if contract.renovation.expirate_in_days == 1 %}
-                                                day
-                                            {% else %}
-                                                days
-                                            {% endif %}
+                                            days
                                         </div>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if contract.renovation.expirate_in_days <= 7 and not contract.renovation_7_notify %}
-                                        <a class="btn btn-icon btn-link {% if contract.renovation.expirate_in_days <= 3 %}
-                                                      text-danger
-                                                  {% else %}
-                                                      text-warning
-                                                  {% endif %}"
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-icon btn-link text-warning"
                                            data-bs-toggle="tooltip"
                                            data-bs-placement="left"
                                            data-bs-custom-class="custom-tooltip"
-                                           data-bs-title="Client has been notified?"
+                                           data-bs-title="Has not been notified"
                                            href="{% url 'notify-contract-renovation' contract.id %}">
-                                            <i class='bx bx-message-rounded-dots'></i>
+                                            <i class='bx bx-message-rounded-error'></i>
                                         </a>
-                                    {% elif not contract.renovation_15_notify %}
-                                        <a class="btn btn-icon btn-link"
-                                           data-bs-toggle="tooltip"
-                                           data-bs-placement="left"
-                                           data-bs-custom-class="custom-tooltip"
-                                           data-bs-title="Client has been notified?"
-                                           href="{% url 'notify-contract-renovation' contract.id %}">
-                                            <i class='bx bx-message-rounded-dots'></i>
-                                        </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Notified -->
+                        <tr class="bg-mainBG">
+                            <td colspan='100%' class="text-success">
+                                Notified
+                            </td>
+                        </tr>
+                        <!-- less than 7 days -->
+                        {% for contract in contracts %}
+                            {% if contract.renovation.expirate_in_days <= 7 and contract.renovation_7_notify %}
+                                <tr x-show="showNot7">
+                                    <td>
+                                        <div class="d-flex">
+                                            {% include "rent/equipment_line.html" with equipment_type="trailer" equipment=contract.trailer pinned_image=equipment.pinned_image %}
+                                        </div>
+                                        <div class="pt-2">
+                                            {% include "users/associated_line.html" with associated=contract.lessee %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if contract.renovation.expirate_in_days == 0 %}
+                                            <div class="text-primary">
+                                                <strong>
+                                                    Today
+                                                </strong>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-primary">
+                                                {{contract.renovation.expirate_in_days}}
+                                                {% if contract.renovation.expirate_in_days == 1 %}
+                                                    day
+                                                {% else %}
+                                                    days
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-icon"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="left"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="Has already been notified">
+                                            <i class='bx bx-message-rounded-check' ></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        <!-- less than 15 days -->
+                        {% for contract in contracts %}
+                            {% if contract.renovation.expirate_in_days > 7 and contract.renovation.expirate_in_days <= 15 and contract.renovation_15_notify %}
+                                <tr x-show="showNot15">
+                                    <td>
+                                        <div class="d-flex">
+                                            {% include "rent/equipment_line.html" with equipment_type="trailer" equipment=contract.trailer pinned_image=equipment.pinned_image %}
+                                        </div>
+                                        <div class="pt-2">
+                                            {% include "users/associated_line.html" with associated=contract.lessee %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-success">
+                                            {{contract.renovation.expirate_in_days}}
+                                            days
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-icon"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="left"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="Has already been notified">
+                                            <i class='bx bx-message-rounded-check' ></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
