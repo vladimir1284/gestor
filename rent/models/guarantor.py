@@ -4,6 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Guarantor(models.Model):
+    guarantor_avatar = models.ImageField(upload_to="images/avatars/", blank=True)
     guarantor_name = models.CharField(max_length=120)
     guarantor_license = models.CharField(max_length=50)
     guarantor_address = models.CharField(max_length=500)
