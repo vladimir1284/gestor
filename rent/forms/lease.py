@@ -245,6 +245,7 @@ class SecurityDepositDevolutionForm(forms.ModelForm):
         )
 
         self.fields["note"].required = False
+        self.fields["note"].label = "Note*"
         self.fields["note"].widget.attrs["rows"] = 3
 
         self.helper = FormHelper()
