@@ -25,7 +25,8 @@ from .vehicle import DOCUMENT_TYPES
 from .vehicle import Trailer
 from rent.models.contract_renovation import ContractRenovation
 from rent.models.guarantor import Guarantor
-from rent.tools.contract_renovation_notification import contract_renovation_notification
+from rent.tools.contract_renovation_notification import \
+    contract_renovation_notification
 from rent.tools.get_conditions_last_version import get_conditions_last_version
 from users.models import Associated
 
@@ -411,13 +412,37 @@ class HandWriting(models.Model):
 
 class LesseeData(models.Model):
     associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
-    contact_name = models.CharField(max_length=100)
-    contact_phone = PhoneNumberField(region=settings.PHONE_NUMBER_DEFAULT_REGION)
     insurance_number = models.CharField(max_length=150, blank=True)
     insurance_file = models.FileField(upload_to="rental/insurances", blank=True)
     license_number = models.CharField(max_length=150)
     license_file = models.FileField(upload_to="rental/licenses", blank=True)
     client_address = models.TextField()
+
+    contact_name = models.CharField(max_length=100)
+    contact_phone = PhoneNumberField(region=settings.PHONE_NUMBER_DEFAULT_REGION)
+    contact_file = models.FileField(
+        upload_to="documents/contact", blank=True, null=True
+    )
+
+    contact2_name = models.CharField(max_length=100, null=True, blank=True)
+    contact2_phone = PhoneNumberField(
+        region=settings.PHONE_NUMBER_DEFAULT_REGION,
+        null=True,
+        blank=True,
+    )
+    contact2_file = models.FileField(
+        upload_to="documents/contact", blank=True, null=True
+    )
+
+    contact3_name = models.CharField(max_length=100, null=True, blank=True)
+    contact3_phone = PhoneNumberField(
+        region=settings.PHONE_NUMBER_DEFAULT_REGION,
+        null=True,
+        blank=True,
+    )
+    contact3_file = models.FileField(
+        upload_to="documents/contact", blank=True, null=True
+    )
 
     def __str__(self):
         return self.associated.name
