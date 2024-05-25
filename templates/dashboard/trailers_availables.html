@@ -3,9 +3,16 @@
     <div class="card" x-data="{on_hold: false}">
         <div class="list-head">
             <h5 class="card-header flex justify-between items-center">
-                <div>
-                    {{ title }}: <strong>{{ available|length }}</strong>
-                </div>
+                <template x-if='!on_hold'>
+                    <div>
+                        {{ title }}: <strong>{{ available|length }}</strong>
+                    </div>
+                </template>
+                <template x-if='on_hold'>
+                    <div>
+                        Trailers on hold: <strong>{{ on_hold|length }}</strong>
+                    </div>
+                </template>
                 <div class="flex items-center">
                     <div class="btn-group">
                         <button class="btn btn-icon btn-outline-primary"
