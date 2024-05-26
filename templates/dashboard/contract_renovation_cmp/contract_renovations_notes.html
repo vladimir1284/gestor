@@ -1,0 +1,107 @@
+{% load static %}
+<script>
+  const ContractNotesURL = "{% url 'contract_notes' 0 %}"
+  globalThis.ContractNotesURL = ContractNotesURL.substring(0, ContractNotesURL.length - 1)
+</script>
+<style>
+  .loader, .loader:before, .loader:after {
+    border-radius: 50%;
+    width: 2.5em;
+    height: 2.5em;
+    animation-fill-mode: both;
+    animation: bblFadInOut 1.8s infinite ease-in-out;
+  }
+  .loader {
+    color: #08f;
+    font-size: 7px;
+    position: relative;
+    text-indent: -9999em;
+    transform: translateZ(0);
+    animation-delay: -0.16s;
+  }
+  .loader:before,
+  .loader:after {
+    content: '';
+    position: absolute;
+    top: 0;
+  }
+  .loader:before {
+    left: -3.5em;
+    animation-delay: -0.32s;
+  }
+  .loader:after {
+    left: 3.5em;
+  }
+
+  @keyframes bblFadInOut {
+    0%, 80%, 100% { box-shadow: 0 2.5em 0 -1.3em }
+    40% { box-shadow: 0 2.5em 0 0 }
+  }
+
+  .noteDialogMH {
+    max-height: calc(100vh - 10rem) !important;
+  }
+</style>
+<div class="fixed top-0 left-0 right-0 bottom-0 z-50 bg-[rgba(0,0,0,0.4)]" style="backdrop-filter: blur(5px);" x-show="showNotesModal()" x-cloak>
+  <div class="">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content noteDialogMH">
+        <div class="modal-header">
+          <h5 class="modal-title">Notes</h5>
+          <button type="button" class="btn-close absolute right-0 top-0 m-0 shadow-sm bg-white rounded p-2" @click="closeNotesModal()"></button>
+        </div>
+
+        <div class="modal-body shadow-inner">
+          <template x-if="loading">
+            <div class="flex justify-center">
+              <span class="loader"></span>
+            </div>
+          </template>
+
+          <template x-if="!loading && error != null">
+            <div class="text-danger" x-text="error"></div>
+          </template>
+
+          <template x-if="!loading && error == null">
+            <template x-for="noteGroup in notes">
+              <div>
+                <div class="flex justify-center my-2">
+                  <span x-text="noteGroup.strDate" class="bg-blue-50 rounded px-1.5 py-0 text-xs"></span>
+                </div>
+                <div>
+                  <template x-for="note in noteGroup.notes">
+                    <div class="mb-2 flex justify-start">
+                      <div class="shadow-sm rounded-3xl rounded-tl-none p-2 min-w-60">
+                        <div class="font-bold text-main">
+                          <span x-text="note.created_by.username"></span>:
+                        </div>
+                        <div x-html="note.text.replace('\n', '<br>')" class="mx-2"></div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </template>
+          <div x-ref="down"></div>
+        </div>
+
+        <div class="">
+          <div class="flex justify-center" x-show="sending">
+            <span class="loader"></span>
+          </div>
+          <div x-show="!sending">
+            <div class="input-group">
+              <textarea class="form-control" x-model="content"></textarea>
+              <div class="input-group-text">
+                <button class="btn btn-icon btn-link" @click="send()">
+                  <i class='bx bx-send' ></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

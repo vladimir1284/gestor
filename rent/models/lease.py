@@ -205,6 +205,32 @@ class Contract(models.Model):
 
     # ------ Renovations -----------------------------------------
 
+    # ###### Notes ###############################################
+    @property
+    def notes(self) -> list:
+        return Note.objects.filter(contract=self).order_by("created_at")
+
+    @property
+    def grouped_notes(self) -> dict[str, list]:
+        mapped_notes = {}
+        notes = self.notes
+        for n in notes:
+            date = str(n.created_at.date())
+            if date not in mapped_notes:
+                mapped_notes[date] = [n]
+            else:
+                mapped_notes[date].append(n)
+        return mapped_notes
+
+    def push_note(self, by: User, content: str):
+        Note.objects.create(
+            created_by=by,
+            contract=self,
+            text=content,
+        )
+
+    # ------ Notes -----------------------------------------------
+
     def __str__(self):
         return f"({self.id}) {self.trailer} -> {self.lessee}"
 
