@@ -47,11 +47,15 @@
                 <hr />
                 <div class="d-flex">
                     {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
-                    <a class="btn btn-icon btn-outline-primary"
-                       type="button"
-                       href="{% url 'select-lessee' equipment.id %}">
-                        <i class='bx bx-key'></i>
-                    </a>
+                    {% if equipment.current_contract %}
+                        {% include "rent/contract_icon.html" with contract=equipment.current_contract %}
+                    {% else %}
+                        <a class="btn btn-icon btn-outline-primary"
+                           type="button"
+                           href="{% url 'select-lessee' equipment.id %}">
+                            <i class='bx bx-key'></i>
+                        </a>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
@@ -60,23 +64,27 @@
                 <hr />
                 <div class="flex">
                     {% include "rent/equipment_line.html" with equipment_type="trailer" pinned_image=equipment.pinned_image %}
-                    <a class="btn btn-outline-{%if equipment.on_hold.expirated%}danger{%else%}primary{%endif%} flex items-center px-1 py-[0.1rem]"
-                       type
-                       None="button"
-                       href="{% url 'trailer-deposit-details' equipment.on_hold.id %}">
-                        <span class="tf-icons bx bx-calendar-check"></span>
-                        <div class="text-left text-[0.6rem] ml-1">
-                            <div class="whitespace-nowrap">{{equipment.on_hold.valid_until}}</div>
-                            <div class="text-[0.55rem]">
-                                {{equipment.on_hold.remaining_days}}
-                                {% if equipment.on_hold.remaining_days == 1 %}
-                                    day
-                                {% else %}
-                                    days
-                                {% endif %}
+                    {% if equipment.current_contract %}
+                        {% include "rent/contract_icon.html" with contract=equipment.current_contract %}
+                    {% else %}
+                        <a class="btn btn-outline-{%if equipment.on_hold.expirated%}danger{%else%}primary{%endif%} flex items-center px-1 py-[0.1rem]"
+                           type
+                           None="button"
+                           href="{% url 'trailer-deposit-details' equipment.on_hold.id %}">
+                            <span class="tf-icons bx bx-calendar-check"></span>
+                            <div class="text-left text-[0.6rem] ml-1">
+                                <div class="whitespace-nowrap">{{equipment.on_hold.valid_until}}</div>
+                                <div class="text-[0.55rem]">
+                                    {{equipment.on_hold.remaining_days}}
+                                    {% if equipment.on_hold.remaining_days == 1 %}
+                                        day
+                                    {% else %}
+                                        days
+                                    {% endif %}
+                                </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
