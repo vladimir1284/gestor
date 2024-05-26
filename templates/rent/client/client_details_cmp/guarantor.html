@@ -1,0 +1,21 @@
+{% load static %}
+<div>
+    <div class="d-flex pb-1">
+        <div class="avatar flex-shrink-0 me-3">
+            <span class="avatar-initial rounded-circle bg-label-primary">
+                <img src="{% if guarantor.guarantor_avatar %} {{ guarantor.guarantor_avatar.url }} {% else %} {% static 'assets/img/icons/user.png' %} {% endif %}"
+                     alt=" Avatar "
+                     height="100px"
+                     width="100px"
+                     class="w-px-40 rounded-circle" />
+            </span>
+        </div>
+        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+            <div data-tag="{{ guarantor.guarantor_name }}{{ guarantor.guarantor_phone_number }}"
+                 class="me-2  associated-data">
+                <h6 class="mb-0">{{ guarantor.guarantor_name|truncatechars:"25" }}</h6>
+                <small class="text-muted">{{ guarantor.guarantor_phone_number }}</small>
+            </div>
+        </div>
+    </div>
+</div>
