@@ -45,10 +45,8 @@
     </script>
 {% endblock page %}
 {% block content %}
-    <div class="card">
-        <div class="card-body row  mb-0 pb-0">
-            {% include "./client_details_cmp/client.html" %}
-        </div>
+    <div class="card rounded-3xl" x-data="{guarantor:-1}">
+        {% include "./client_details_cmp/client.html" %}
         <div class="card-body pt-0">
             {% include "./client_details_cmp/leases.html" %}
         </div>

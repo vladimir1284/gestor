@@ -12,7 +12,10 @@
                         data-bs-toggle="tab"
                         data-bs-target="#navs-pills-justified-{{ lease.id }}"
                         aria-controls="navs-pills-justified-{{ lease.id }}"
-                        aria-selected="true">
+                        aria-selected="true"
+                        {% if lease_id %}{% if lease.contract.id == lease_id %}x-init="guarantor={{forloop.counter}}"{%endif%}{% elif forloop.first %}x-init="guarantor={{forloop.counter}}"{% endif %}
+                        @click="guarantor = {{forloop.counter}}"
+                >
                     {{ lease.contract.trailer }}
                     {% if lease.unpaid_dues|length > 0 %}
                         <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ lease.unpaid_dues|length }}</span>
