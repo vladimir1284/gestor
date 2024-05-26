@@ -38,26 +38,52 @@
     40% { box-shadow: 0 2.5em 0 0 }
   }
 
+  .noteDialogMH {
+    max-height: calc(100vh - 10rem) !important;
+  }
 </style>
 <div class="fixed top-0 left-0 right-0 bottom-0 z-50 bg-[rgba(0,0,0,0.4)]" style="backdrop-filter: blur(5px);" x-show="showNotesModal()" x-cloak>
   <div class="">
-    <div class="modal-dialog modal-dialog-scrollable relative">
-      <div class="modal-content">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content noteDialogMH">
         <div class="modal-header">
           <h5 class="modal-title">Notes</h5>
           <button type="button" class="btn-close absolute right-0 top-0 m-0 shadow-sm bg-white rounded p-2" @click="closeNotesModal()"></button>
         </div>
 
-        <div class="modal-body">
-          <div class="flex justify-center" x-show="loading">
-            <span class="loader"></span>
-          </div>
-          <div class="flex justify-center" x-show="!loading">
-            <template x-for="(notesList, date) in notes">
-              <div x-text="date"></div>
-              <div x-text="notesList"></div>
+        <div class="modal-body shadow-inner">
+          <template x-if="loading">
+            <div class="flex justify-center">
+              <span class="loader"></span>
+            </div>
+          </template>
+
+          <template x-if="!loading && error != null">
+            <div class="text-danger" x-text="error"></div>
+          </template>
+
+          <template x-if="!loading && error == null">
+            <template x-for="noteGroup in notes">
+              <div>
+                <div class="flex justify-center my-2">
+                  <span x-text="noteGroup.strDate" class="bg-blue-50 rounded px-1.5 py-0 text-xs"></span>
+                </div>
+                <div>
+                  <template x-for="note in noteGroup.notes">
+                    <div class="mb-2 flex justify-start">
+                      <div class="shadow-sm rounded-3xl rounded-tl-none p-2 min-w-60">
+                        <div class="font-bold text-main">
+                          <span x-text="note.created_by.username"></span>:
+                        </div>
+                        <div x-html="note.text.replace('\n', '<br>')" class="mx-2"></div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
             </template>
-          </div>
+          </template>
+          <div x-ref="down"></div>
         </div>
 
         <div class="">

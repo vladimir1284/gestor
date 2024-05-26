@@ -15,6 +15,8 @@ document.addEventListener("alpine:init", () => {
       sending: false,
       content: "",
       selected: -1,
+      /**@type{string | null}*/
+      error: null,
       notes: {},
 
       select(/**@type{number}*/ id) {
@@ -32,21 +34,39 @@ document.addEventListener("alpine:init", () => {
 
       async load() {
         this.loading = true;
+        this.error = null;
 
-        this.notes = await globalThis.loadNotes(this.selected);
-        console.log(this.notes);
+        try {
+          this.notes = await globalThis.loadNotes(this.selected);
+        } catch (e) {
+          console.error(e);
+          this.error = "Fail to get contract notes";
+        }
 
         this.loading = false;
+        this.scrolldown();
       },
 
       async send() {
         this.sending = true;
+        this.error = null;
 
-        this.notes = await globalThis.pushNotes(this.selected, this.content);
-        console.log(this.notes);
-        this.content = "";
+        try {
+          this.notes = await globalThis.pushNotes(this.selected, this.content);
+          this.content = "";
+        } catch (e) {
+          console.error(e);
+          this.error = "Fail to save contract note";
+        }
 
         this.sending = false;
+        this.scrolldown();
+      },
+
+      scrolldown() {
+        setTimeout(() => {
+          this.$refs.down.scrollIntoView({ behavior: "smooth" });
+        }, 300);
       },
     };
   });
