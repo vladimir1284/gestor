@@ -29,9 +29,9 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Difference:</td>
+                            <td>Towit compensation:</td>
                             <td>
-                                <strong :class="valid || 'text-danger'" x-text="valid ? '$' + diff.toFixed(2) : 'Invalid amount'">$0</strong>
+                                <strong :class="valid ? 'text-success' : 'text-danger'" x-text="valid ? '$' + diff.toFixed(2) : 'Invalid amount'">$0</strong>
                             </td>
                         </tr>
                     </tbody>
