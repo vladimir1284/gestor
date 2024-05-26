@@ -7,25 +7,40 @@ from rent.models.vehicle import Trailer
 
 
 def _resolver():
-    ids = []
-
-    active_contracts = Contract.objects.exclude(stage__in=["ended", "garbage"])
-    for contract in active_contracts:
-        ids.append(contract.trailer.id)
-
-    deposits = TrailerDeposit.objects.filter(cancelled=False, done=False)
+    active_trailers = []
     on_hold_trailers = []
-    for dep in deposits:
-        trailer = dep.trailer
-        if trailer.id in ids:
-            continue
-        ids.append(trailer.id)
-        trailer.on_hold = dep
-        on_hold_trailers.append(trailer)
 
-    active_trailers = Trailer.objects.filter(
-        active=True,
-    ).exclude(id__in=ids)
+    trailers = Trailer.objects.filter(active=True)
+    for trailer in trailers:
+        # Contracts
+        contract = (
+            Contract.objects.filter(trailer=trailer)
+            .exclude(stage__in=("ended", "garbage"))
+            .last()
+        )
+        if contract and contract.stage == "active":
+            continue
+
+        trailer.current_contract = contract
+        is_on_hold = False
+        if contract:
+            trailer_deposit = TrailerDeposit.objects.filter(
+                contract=contract,
+                trailer=trailer,
+                cancelled=False,
+            )
+            if trailer_deposit:
+                trailer.on_hold = trailer_deposit
+                is_on_hold = True
+        else:
+            trailer_deposits = get_current_trailer_deposit(trailer)
+            if trailer_deposits:
+                trailer.on_hold = trailer_deposits
+                is_on_hold = True
+        if is_on_hold:
+            on_hold_trailers.append(trailer)
+        else:
+            active_trailers.append(trailer)
 
     return {
         "available": active_trailers,

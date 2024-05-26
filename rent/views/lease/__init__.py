@@ -162,6 +162,7 @@ def contract_detail(request, id):
     context["handwriting_ok"] = check_handwriting(context["contract"])
 
     contract: Contract = context["contract"]
+    print(contract.stage)
     phone = contract.lessee.phone_number
 
     token = get_contract_token(id)

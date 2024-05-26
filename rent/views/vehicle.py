@@ -13,6 +13,7 @@ from rent.forms.vehicle import TrailerDocumentUpdateForm
 from rent.forms.vehicle import TrailerPictureForm
 from rent.models.lease import Contract
 from rent.models.trailer_deposit import get_current_trailer_deposit
+from rent.models.trailer_deposit import TrailerDeposit
 from rent.models.vehicle import Manufacturer
 from rent.models.vehicle import Trailer
 from rent.models.vehicle import TrailerDocument
@@ -45,19 +46,24 @@ def list_equipment(request):
             .order_by("created_at")
         )
         if contracts:
-            trailer.current_contract = contracts.last()
-            trailer.renovation = trailer.current_contract.renovation_ctx
-            _, trailer.paid = trailer.current_contract.paid()
-            if trailer.current_contract.contract_type == "lto":
-                if trailer.current_contract.stage == "active":
+            contract = contracts.last()
+            trailer.current_contract = contract
+            if contract.stage == "active":
+                trailer.renovation = trailer.current_contract.renovation_ctx
+                _, trailer.paid = trailer.current_contract.paid()
+                if trailer.current_contract.contract_type == "lto":
                     trailer.filter = "LTO"
                 else:
-                    trailer.filter = "To LTO"
-            else:
-                if trailer.current_contract.stage == "active":
                     trailer.filter = "Rented"
-                else:
-                    trailer.filter = "To rent"
+            else:
+                trailer_deposit = TrailerDeposit.objects.filter(
+                    contract=contract,
+                    trailer=trailer,
+                    cancelled=False,
+                )
+                if trailer_deposit:
+                    trailer.reservation = trailer_deposit
+                    trailer.filter = "On Hold"
         else:
             trailer_deposits = get_current_trailer_deposit(trailer)
             if trailer_deposits:
