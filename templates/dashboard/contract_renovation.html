@@ -1,7 +1,7 @@
 {% load static %}
 {% load humanize %}
 <div class="col-lg-6 mb-4 order-0">
-    <div class="card" x-data="{showNot7: true, showNot15: true, showUNot7: true, showUNot15: true}">
+    <div class="card" x-data="Renovations">
         <div class="card-header mb-0 pb-0">
             <h5 class="card-title text-primary">
                 {{ title }} <strong>{{ contracts|length }}</strong>
@@ -80,7 +80,7 @@
                         <tr>
                             <th>Trailer</th>
                             <th>Next renovation</th>
-                            <th>Notify</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
@@ -129,6 +129,16 @@
                                            href="{% url 'notify-contract-renovation' contract.id %}">
                                             <i class='bx bx-message-rounded-error'></i>
                                         </a>
+
+                                        <button class="btn btn-icon btn-link"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="left"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="Notes"
+                                                @click="select({{contract.id}})"
+                                        >
+                                            <i class='bx bx-message-square-detail' ></i>
+                                        </button>
                                     </td>
                                 </tr>
                             {% endif %}
@@ -160,6 +170,16 @@
                                            href="{% url 'notify-contract-renovation' contract.id %}">
                                             <i class='bx bx-message-rounded-error'></i>
                                         </a>
+
+                                        <button class="btn btn-icon btn-link"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="left"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="Notes"
+                                                @click="select({{contract.id}})"
+                                        >
+                                            <i class='bx bx-message-square-detail' ></i>
+                                        </button>
                                     </td>
                                 </tr>
                             {% endif %}
@@ -209,6 +229,16 @@
                                                 data-bs-title="Has already been notified">
                                             <i class='bx bx-message-rounded-check' ></i>
                                         </button>
+
+                                        <button class="btn btn-icon btn-link"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="left"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="Notes"
+                                                @click="select({{contract.id}})"
+                                        >
+                                            <i class='bx bx-message-square-detail' ></i>
+                                        </button>
                                     </td>
                                 </tr>
                             {% endif %}
@@ -239,6 +269,16 @@
                                                 data-bs-title="Has already been notified">
                                             <i class='bx bx-message-rounded-check' ></i>
                                         </button>
+
+                                        <button class="btn btn-icon btn-link"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="left"
+                                                data-bs-custom-class="custom-tooltip"
+                                                data-bs-title="Notes"
+                                                @click="select({{contract.id}})"
+                                        >
+                                            <i class='bx bx-message-square-detail' ></i>
+                                        </button>
                                     </td>
                                 </tr>
                             {% endif %}
@@ -247,5 +287,9 @@
                 </table>
             </div>
         </div>
+        {% include "./contract_renovation_cmp/contract_renovations_notes.html" %}
     </div>
 </div>
+
+<script src="{% static "assets/js/renovations/notes.js" %}"></script>
+<script src="{% static "assets/js/renovations/renovations.js" %}"></script>

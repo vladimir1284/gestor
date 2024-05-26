@@ -18,7 +18,8 @@ from .views.cost import list_cost
 from .views.cost import update_cost
 from rent.tools.init_conditions import init_conditions
 from rent.views.create_lessee_with_data import create_update_lessee_data
-from rent.views.deposit.adjust_deposit import adjust_deposit_on_hold_from_contract
+from rent.views.deposit.adjust_deposit import \
+    adjust_deposit_on_hold_from_contract
 from rent.views.deposit.conditions import trailer_deposit_conditions
 from rent.views.deposit.conditions import trailer_deposit_pdf
 from rent.views.deposit.details import trailer_deposit_details
@@ -32,6 +33,7 @@ from rent.views.lease.adjust_end_deposit import adjust_end_deposit
 from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
+from rent.views.lease.notes import contract_notes
 from rent.views.lease.notify import notify_contract_renovation
 from rent.views.lease.select_guarantor import create_guarantor
 from rent.views.lease.select_guarantor import select_guarantor
@@ -411,6 +413,7 @@ urlpatterns = [
         client.deactivate_reminder,
         name="deactivate-reminder",
     ),
+    path("contract_notes/<contract_id>", contract_notes, name="contract_notes"),
     # -------------------- Cost ----------------------------
     # -------------------- Trailer Pos ---------------------
     path(
