@@ -1,9 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.db.transaction import atomic
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 
+from rent.forms.on_hold_devolution import OnHoldReturnForm
 from rent.forms.trailer_deposit import TrailerDepositRenovationForm
 from rent.forms.trailer_deposit import TrailerDepositTrace
 from rent.models.trailer_deposit import TrailerDeposit
@@ -37,15 +39,27 @@ def renovate_trailer_reservation(request, deposit_id):
 
 @login_required
 @atomic
-def trailer_deposit_cancel(request, id):
+def trailer_deposit_cancel(request: HttpRequest, id: int):
     deposit: TrailerDeposit = get_object_or_404(TrailerDeposit, id=id)
-    deposit.cancelled = True
-    deposit.save()
-    TrailerDepositTrace.objects.create(
-        status="finished",
-        days=0,
-        amount=0,
-        trailer_deposit=deposit,
-    )
 
-    return redirect("trailer-deposit-details", id)
+    if request.method == "POST":
+        form = OnHoldReturnForm(request.POST, instance=deposit)
+        if form.is_valid():
+            deposit.cancelled = True
+            deposit.save()
+            TrailerDepositTrace.objects.create(
+                status="finished",
+                days=0,
+                amount=0,
+                trailer_deposit=deposit,
+            )
+            return redirect("trailer-deposit-details", id)
+    else:
+        form = OnHoldReturnForm(instance=deposit)
+
+    context = {
+        "form": form,
+        "title": "ON HOLD finish",
+        "on_hold": deposit,
+    }
+    return render(request, "rent/trailer_deposit_finishing.html", context)

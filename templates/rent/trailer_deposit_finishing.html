@@ -1,0 +1,54 @@
+{% extends "base/base_form.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <script>
+        globalThis.Total = {{on_hold.amount}}
+    </script>
+    <div class="col-xxl">
+        <div class="card mb-4" x-data="OnHoldFinish">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">{{ title }}</h5>
+            </div>
+            <div class="card-body pb-0">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Total deposited:
+                            </td>
+                            <td>
+                                <strong>
+                                    $
+                                    <span x-text="total()"></span>
+                                </strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Towit compensation:
+                            </td>
+                            <td :class="towitCompensation() < 0 ? 'text-danger' : 'text-success'">
+                                <strong>
+                                    $
+                                    <span x-text="towitCompensation()"></span>
+                                </strong>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{% static "assets/js/deposits/on_hold_finishing.js" %}"></script>
+{% endblock content %}
