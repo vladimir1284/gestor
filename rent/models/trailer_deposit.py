@@ -57,6 +57,18 @@ class TrailerDeposit(models.Model):
         return f"${self.amount} ({self.lease}) [{self.trailer}]"
 
     @property
+    def returned(self):
+        if self.returned_amount is None:
+            return 0
+        return self.returned_amount
+
+    @property
+    def income(self):
+        if self.returned_amount is None:
+            return self.amount
+        return self.amount - self.returned_amount
+
+    @property
     def valid_until(self):
         return self.date + timedelta(days=self.days)
 

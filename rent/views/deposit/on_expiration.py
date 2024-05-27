@@ -45,6 +45,7 @@ def trailer_deposit_cancel(request: HttpRequest, id: int):
     if request.method == "POST":
         form = OnHoldReturnForm(request.POST, instance=deposit)
         if form.is_valid():
+            deposit = form.save(commit=False)
             deposit.cancelled = True
             deposit.save()
             TrailerDepositTrace.objects.create(

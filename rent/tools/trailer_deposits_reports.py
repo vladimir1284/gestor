@@ -69,7 +69,7 @@ def deposits_finished_reports(ctx: dict, year: int, month: int):
 
     sum = 0
     for d in ended:
-        sum += d.amount
+        sum += d.income
     ctx["deposits_finished_total"] = sum
 
 
