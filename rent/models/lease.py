@@ -407,6 +407,18 @@ class SecurityDepositDevolution(models.Model):
     def income(self):
         return self.total_deposited_amount - self.amount
 
+    @property
+    def returned_amount(self):
+        if self.amount < 0:
+            return 0
+        return self.amount
+
+    @property
+    def debt_amount(self):
+        if self.amount > 0:
+            return 0
+        return -self.amount
+
 
 class LeaseDeposit(models.Model):
     lease = models.ForeignKey(

@@ -44,10 +44,15 @@ def security_deposit_reports(ctx: dict, year: int, month: int):
             actives.append(deposit)
             total_active += deposit.total_deposited_amount
 
+    completed.sort(key=lambda x: x.returned_date, reverse=True)
+    pendings.sort(key=lambda x: x.refund_date, reverse=False)
+    actives.sort(key=lambda x: x.contract.lessee.name, reverse=False)
+
     ctx["security_actives"] = actives
     ctx["security_completed"] = completed
     ctx["security_pending"] = pendings
     ctx["security_total_active"] = total_active
     ctx["security_total_income"] = total_income
     ctx["security_total_returned"] = total_returned
-    ctx["security_total"] = total_active + total_income + total_returned
+    ctx["security_total_pending"] = total_pending
+    ctx["security_total"] = total_active + total_income + total_pending

@@ -86,6 +86,17 @@
                                 <strong>${{security_total_active|floatformat:"-2"}}</strong>
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                <div class="rounded-full w-4 h-4 bg-[#FFCC00]"></div>
+                            </td>
+                            <td>
+                                PENDING:
+                            </td>
+                            <td>
+                                <strong>${{security_total_pending|floatformat:"-2"}}</strong>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -109,13 +120,24 @@
     </div>
 </div>
 <script>
-    labels = ['INCOME', 'RETURNED', 'SECURITY'];
+    labels = [
+        'INCOME',
+        'RETURNED',
+        'SECURITY',
+        'PENDING',
+    ];
     series = [
         {{security_total_income|floatformat:"-2"}},
         {{security_total_returned|floatformat:"-2"}},
         {{security_total_active|floatformat:"-2"}},
+        {{security_total_pending|floatformat:"-2"}},
     ],
-    colors = ['#00FF88', '#FF5500', '#0055FF'];
+    colors = [
+        '#00FF88',
+        '#FF5500',
+        '#0055FF',
+        '#FFCC00',
+    ];
 
     plotChart('#securityChart', labels, series, colors, '${{ security_total|floatformat:"0" }}')
 </script>

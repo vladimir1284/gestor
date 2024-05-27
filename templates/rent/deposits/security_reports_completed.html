@@ -37,16 +37,33 @@
                                 </strong>
                             </td>
                             <td>
-                                ${{dep.total_deposited_amount|floatformat:"-2"}}
+                                <strong>
+                                    ${{dep.total_deposited_amount|floatformat:"-2"}}
+                                </strong>
                             </td>
                             <td>
                                 ${{dep.contract.security_deposit|floatformat:'-2'}}
                             </td>
                             <td class="text-success">
-                                ${{dep.income|floatformat:"-2"}}
+                                <strong>
+                                    ${{dep.income|floatformat:"-2"}}
+                                </strong>
                             </td>
-                            <td class="text-danger">
-                                ${{dep.amount|floatformat:"-2"}}
+                            <td class="text-warning">
+                                <strong>
+                                    ${{dep.returned_amount|floatformat:"-2"}}
+                                </strong>
+                            </td>
+                            <td>
+                                {% if dep.debt_amount > 0 %}
+                                    <strong class="text-danger">
+                                        ${{dep.debt_amount|floatformat:"-2"}}
+                                    </strong>
+                                {% else %}
+                                    <strong class="text-primary">
+                                        -
+                                    </strong>
+                                {% endif %}
                             </td>
                             <td>
                                 {% if dep.returned_date %}
