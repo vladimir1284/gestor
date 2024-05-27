@@ -1,0 +1,62 @@
+{%load static%}
+
+<div>
+    <div class="table-responsive text-nowrap">
+        <div class="container ps-0" style="height: 500px; overflow-y: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            <i class='bx bx-cog'></i>
+                        </th>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Deposited</th>
+                        <th>On contract</th>
+                        <th>Compensation</th>
+                        <th>Returned</th>
+                        <th>Return date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dep in security_completed %}
+                        <tr>
+                            <td>
+                                <a
+                                    href="{% url 'detail-contract' dep.contract.id %}"
+                                >
+                                    <i class='bx bx-dots-vertical-rounded' ></i>
+                                </a>
+                            </td>
+                            <td>
+                                {{dep.contract.lessee.name|slice:":20"}}
+                            </td>
+                            <td>
+                                <strong class="text-success">
+                                    Completed
+                                </strong>
+                            </td>
+                            <td>
+                                ${{dep.total_deposited_amount|floatformat:"-2"}}
+                            </td>
+                            <td>
+                                ${{dep.contract.security_deposit|floatformat:'-2'}}
+                            </td>
+                            <td class="text-success">
+                                ${{dep.income|floatformat:"-2"}}
+                            </td>
+                            <td class="text-danger">
+                                ${{dep.amount|floatformat:"-2"}}
+                            </td>
+                            <td>
+                                {% if dep.returned_date %}
+                                    {{dep.returned_date}}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
