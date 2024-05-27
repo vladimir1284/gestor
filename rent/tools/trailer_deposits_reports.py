@@ -60,17 +60,22 @@ def deposits_renovations_reports(ctx: dict, year: int, month: int):
 def deposits_finished_reports(ctx: dict, year: int, month: int):
     ended = TrailerDeposit.objects.filter(
         cancelled=True,
-        done=False,
         date__year=year,
         date__month=month,
     )
     ctx["deposits_finished"] = ended
     ctx["deposits_finished_count"] = ended.count()
 
-    sum = 0
+    total = 0
+    income = 0
+    returned = 0
     for d in ended:
-        sum += d.amount
-    ctx["deposits_finished_total"] = sum
+        total += d.amount
+        income += d.income
+        returned += d.returned
+    ctx["deposits_finished_total"] = total
+    ctx["deposits_finished_income"] = income
+    ctx["deposits_finished_returned"] = returned
 
 
 def deposits_reports(ctx: dict, year: int, month: int):
