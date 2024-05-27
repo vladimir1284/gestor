@@ -34,6 +34,8 @@ def _resolver():
         "renov_not_15": not_15,
         "renov_unot_7": unot_7,
         "renov_unot_15": unot_15,
+        "renov_not": not_7 + not_15,
+        "renov_unot": unot_7 + unot_15,
     }
 
 
