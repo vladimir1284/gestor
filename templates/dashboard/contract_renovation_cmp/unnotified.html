@@ -1,0 +1,143 @@
+{% load static %}
+{% load humanize %}
+<div class="">
+    <div class="table-responsive text-nowrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Trailer</th>
+                    <th>Next renovation</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                        <!-- less than 7 days -->
+                <tr class="bg-mainBG" @click="showUNot7 = !showUNot7">
+                    <td colspan='100%' class="text-danger">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                7 days left renovations:
+                                <strong>
+                                    {{renov_unot_7}}
+                                </strong>
+                            </div>
+
+                            <div class="text-primary">
+                                <i class='bx' :class="showUNot7 ? 'bx-show':'bx-hide'" ></i>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% for contract in contracts %}
+                    {% if contract.renovation.expirate_in_days <= 7 and not contract.renovation_7_notify %}
+                        <tr x-show="showUNot7">
+                            <td>
+                                <div class="d-flex">
+                                    {% include "rent/equipment_line.html" with equipment_type="trailer" equipment=contract.trailer pinned_image=equipment.pinned_image %}
+                                </div>
+                                <div class="pt-2">
+                                    {% include "users/associated_line.html" with associated=contract.lessee %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if contract.renovation.expirate_in_days == 0 %}
+                                    <div class="text-danger">
+                                        <strong>
+                                            Today
+                                        </strong>
+                                    </div>
+                                {% else %}
+                                    <div class="text-danger">
+                                        {{contract.renovation.expirate_in_days}}
+                                        {% if contract.renovation.expirate_in_days == 1 %}
+                                            day
+                                        {% else %}
+                                            days
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="btn btn-icon btn-link text-danger"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="left"
+                                   data-bs-custom-class="custom-tooltip"
+                                   data-bs-title="Has not been notified"
+                                   href="{% url 'notify-contract-renovation' contract.id %}">
+                                    <i class='bx bx-message-rounded-error'></i>
+                                </a>
+
+                                <button class="btn btn-icon btn-link"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="left"
+                                        data-bs-custom-class="custom-tooltip"
+                                        data-bs-title="Notes"
+                                        @click="select({{contract.id}})"
+                                >
+                                    <i class='bx bx-message-square-detail' ></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                        <!-- less than 15 days -->
+                <tr class="bg-mainBG" @click="showUNot15 = !showUNot15">
+                    <td colspan='100%' class="text-warning">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                15 days left renovations:
+                                <strong>
+                                    {{renov_unot_15}}
+                                </strong>
+                            </div>
+
+                            <div class="text-primary">
+                                <i class='bx' :class="showUNot15 ? 'bx-show':'bx-hide'" ></i>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% for contract in contracts %}
+                    {% if contract.renovation.expirate_in_days > 7 and contract.renovation.expirate_in_days <= 15 and not contract.renovation_15_notify %}
+                        <tr x-show="showUNot15">
+                            <td>
+                                <div class="d-flex">
+                                    {% include "rent/equipment_line.html" with equipment_type="trailer" equipment=contract.trailer pinned_image=equipment.pinned_image %}
+                                </div>
+                                <div class="pt-2">
+                                    {% include "users/associated_line.html" with associated=contract.lessee %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-warning">
+                                    {{contract.renovation.expirate_in_days}}
+                                    days
+                                </div>
+                            </td>
+                            <td>
+                                <a class="btn btn-icon btn-link text-warning"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="left"
+                                   data-bs-custom-class="custom-tooltip"
+                                   data-bs-title="Has not been notified"
+                                   href="{% url 'notify-contract-renovation' contract.id %}">
+                                    <i class='bx bx-message-rounded-error'></i>
+                                </a>
+
+                                <button class="btn btn-icon btn-link"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="left"
+                                        data-bs-custom-class="custom-tooltip"
+                                        data-bs-title="Notes"
+                                        @click="select({{contract.id}})"
+                                >
+                                    <i class='bx bx-message-square-detail' ></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

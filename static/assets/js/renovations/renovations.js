@@ -6,6 +6,7 @@ var Alpine;
 document.addEventListener("alpine:init", () => {
   Alpine.data("Renovations", () => {
     return {
+      tab: "unot",
       showNot7: true,
       showNot15: true,
       showUNot7: true,
