@@ -925,6 +925,16 @@
   font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction);
 }
 
+.text-\[\#FF0055\] {
+  --tw-text-opacity: 1;
+  color: rgb(255 0 85 / var(--tw-text-opacity));
+}
+
+.text-\[\#FF5500\] {
+  --tw-text-opacity: 1;
+  color: rgb(255 85 0 / var(--tw-text-opacity));
+}
+
 .text-main {
   --tw-text-opacity: 1;
   color: rgb(105 108 255 / var(--tw-text-opacity));

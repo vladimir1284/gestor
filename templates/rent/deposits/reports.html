@@ -5,7 +5,10 @@
 <div class="col-md-6 px-2 pb-3">
     <div class="card h-full" x-data="{tab: 'on_hold'}">
         <div class="card-header flex justify-between items-center pb-0">
-            <h4>Deposits On Hold</h4>
+            <h4>
+                Deposits On Hold
+                <strong>${{deposits_on_hold_total|floatformat:"-2"}}</strong>
+            </h4>
             <div class="btn-group">
                 <button class="btn btn-outline-primary btn-icon"
                         :class="{
@@ -100,7 +103,11 @@
                                 FINISHED:
                             </td>
                             <td>
+                                <strong class="text-[#FF5500]">${{deposits_finished_income|floatformat:"-2"}}</strong>
+                                =
                                 <strong>${{deposits_finished_total|floatformat:"-2"}}</strong>
+                                -
+                                <strong class="text-[#FF0055]">${{deposits_finished_returned|floatformat:"-2"}}</strong>
                             </td>
                         </tr>
                     </tbody>
@@ -123,14 +130,29 @@
     </div>
 </div>
 <script>
-    labels = ['ON HOLD', 'SECURITY', 'RENOVATIONS', 'FINISHED'];
+    labels = [
+        'ON HOLD',
+        'SECURITY',
+        'RENOVATIONS',
+        'FINISHED',
+        //'FINISHED TOWIT COMPENSATION',
+        //'FINISHED RETURNED',
+    ];
     series = [
         {{deposits_on_hold_total|floatformat:"-2"}},
         {{deposits_security_total|floatformat:"-2"}},
         {{deposits_renovations_total|floatformat:"-2"}},
-        {{deposits_finished_total|floatformat:"-2"}}
-    ],
-    colors = ['#0068FF', '#00FF88', '#FFCC00', '#FF5500'];
+        {{deposits_finished_total|floatformat:"-2"}},
+        //{{deposits_finished_income|floatformat:"-2"}},
+        //{{deposits_finished_returned|floatformat:"-2"}},
+    ];
+    colors = [
+        '#0068FF',
+        '#00FF88',
+        '#FFCC00',
+        '#FF5500',
+        //'#FF0055',
+    ];
 
     plotChart('#depositsChart', labels, series, colors, '${{ deposits_total|floatformat:"0" }}')
 </script>
