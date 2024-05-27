@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -11,6 +12,7 @@ from rent.models.trailer_deposit import TrailerDeposit
 
 
 @login_required
+@atomic
 def adjust_deposit_on_hold_from_contract(request, id):
     contract: Contract = get_object_or_404(Contract, id=id)
     deposit, c = SecurityDepositDevolution.objects.get_or_create(contract=contract)
@@ -44,6 +46,11 @@ def adjust_deposit_on_hold_from_contract(request, id):
             instance.returned = True
             instance.returned_date = datetime.now().date()
             instance.save()
+
+            on_hold.cancelled = True
+            on_hold.done = True
+            on_hold.returned_amount = instance.amount
+            on_hold.save()
 
             return redirect("update-contract-stage", id, "ended")
     else:

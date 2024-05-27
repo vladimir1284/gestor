@@ -60,7 +60,6 @@ def deposits_renovations_reports(ctx: dict, year: int, month: int):
 def deposits_finished_reports(ctx: dict, year: int, month: int):
     ended = TrailerDeposit.objects.filter(
         cancelled=True,
-        done=False,
         date__year=year,
         date__month=month,
     )
