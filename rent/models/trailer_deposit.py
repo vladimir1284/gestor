@@ -50,8 +50,23 @@ class TrailerDeposit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     template_version = models.IntegerField(default=1)
 
+    returned_amount = models.FloatField(null=True, blank=True)
+    returned_note = models.TextField(null=True, blank=True)
+
     def __str__(self):
         return f"${self.amount} ({self.lease}) [{self.trailer}]"
+
+    @property
+    def returned(self):
+        if self.returned_amount is None:
+            return 0
+        return self.returned_amount
+
+    @property
+    def income(self):
+        if self.returned_amount is None:
+            return self.amount
+        return self.amount - self.returned_amount
 
     @property
     def valid_until(self):

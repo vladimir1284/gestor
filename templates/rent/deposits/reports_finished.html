@@ -24,7 +24,9 @@
                 <tr>
                     <th>Invoice</th>
                     <th>Client</th>
-                    <th class="text-end">Amount</th>
+                    <th class="text-end">Deposited</th>
+                    <th class="text-end">Towit Compensation</th>
+                    <th class="text-end">Returned</th>
                     <th>Days</th>
                     <th>From</th>
                     <th>To</th>
@@ -39,7 +41,9 @@
                             </a>
                         </td>
                         <td>{{ deposit.client.name|slice:":20" }}</td>
-                        <td class="text-end">${{ deposit.amount|floatformat:"2" }}</td>
+                        <td class="text-end font-bold">${{ deposit.amount|floatformat:"2" }}</td>
+                        <td class="text-end text-success font-bold">${{ deposit.income|floatformat:"2" }}</td>
+                        <td class="text-end text-danger font-bold">${{ deposit.returned|floatformat:"2" }}</td>
                         <td>{{ deposit.days }}</td>
                         <td>{{ deposit.date|date:"E, d Y" }}</td>
                         <td>{{ deposit.valid_until|date:"E, d Y" }}</td>
