@@ -35,6 +35,8 @@ from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
 from rent.views.lease.notes import contract_notes
 from rent.views.lease.notify import notify_contract_renovation
+from rent.views.lease.security_deposit_devolution_invoice import \
+    security_deposit_devolution_invoices
 from rent.views.lease.select_guarantor import create_guarantor
 from rent.views.lease.select_guarantor import select_guarantor
 from rent.views.lease.select_guarantor import update_guarantor
@@ -255,6 +257,11 @@ urlpatterns = [
             "external": True,
         },
         name="ext-capture-signature",
+    ),
+    path(
+        "security_deposit_dev_invoice/<id>/",
+        security_deposit_devolution_invoices,
+        name="security_deposit_devolution_invoice",
     ),
     path("adjust_deposit/<id>/", adjust_end_deposit, name="adjust-deposit"),
     path(

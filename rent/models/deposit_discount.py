@@ -9,6 +9,7 @@ class DepositDiscount(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
 
     duration = models.BooleanField(default=False)
+    saved_duration_in_days = models.IntegerField(null=True)
 
     location_towit = models.BooleanField(null=True, blank=True)
     location_note = models.TextField(null=True, blank=True)
@@ -17,7 +18,29 @@ class DepositDiscount(models.Model):
 
     @property
     def expirate_in_days(self) -> int:
-        return self.contract.expirate_in_days
+        self.saved_duration_in_days = self.contract.expirate_in_days
+        self.save()
+        return self.saved_duration_in_days
+
+    @property
+    def expirate_HTML(self):
+        duration = (
+            self.saved_duration_in_days
+            if self.saved_duration_in_days is not None
+            else self.expirate_in_days
+        )
+        days = "day" if duration == 1 or duration == -1 else "days"
+        sign = "before" if duration >= 0 else "after"
+        css_class = (
+            "danger" if duration < 0 else "success" if duration > 0 else "primary"
+        )
+        exp_date = self.contract.expiration_date
+
+        return f"""<strong>{abs(duration)}</strong>
+        {days}
+        <strong class="text-{css_class}">{sign}</strong>
+        <strong>{exp_date}</strong>.
+        """
 
     @property
     def should_return(self) -> bool:

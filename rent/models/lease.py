@@ -419,6 +419,17 @@ class SecurityDepositDevolution(models.Model):
             return 0
         return -self.amount
 
+    @property
+    def invoice_number(self):
+        contract_id = self.contract.id if self.contract is not None else "000"
+        client_id = (
+            self.contract.lessee.id
+            if self.contract is not None and self.contract.lessee is not None
+            else "000"
+        )
+
+        return f"SDD{self.id}-{contract_id}{client_id}"
+
 
 class LeaseDeposit(models.Model):
     lease = models.ForeignKey(

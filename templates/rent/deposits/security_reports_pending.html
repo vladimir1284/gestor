@@ -28,6 +28,11 @@
                                 >
                                     <i class='bx bx-dots-vertical-rounded' ></i>
                                 </a>
+                                <a
+                                    href="{% url 'security_deposit_devolution_invoice' dep.id %}"
+                                >
+                                    <i class='bx bxs-file-pdf' ></i>
+                                </a>
                             </td>
                             <td>
                                 {{dep.contract.lessee.name|slice:":20"}}
