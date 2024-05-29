@@ -13,7 +13,7 @@
             <td>
                 <strong>Total income:</strong>
             </td>
-            <td>${{deposits_finished_total}}</td>
+            <td>${{deposits_finished_income}}</td>
         </tr>
     </table>
 </div>
@@ -36,6 +36,10 @@
                 {% for deposit in deposits_finished %}
                     <tr>
                         <td>
+                            <a class="btn btn-link btn-icon"
+                               href="{% url 'trailer-deposit-conditions-pdf' deposit.jwt_token %}">
+                                <i class='bx bx-printer' ></i>
+                            </a>
                             <a href="{%url 'trailer-deposit-details' deposit.id %}">
                                 {{deposit.invoice_num}}
                             </a>

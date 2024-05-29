@@ -644,6 +644,10 @@
   border-width: 0px;
 }
 
+.border-t {
+  border-top-width: 1px;
+}
+
 .border-black {
   --tw-border-opacity: 1;
   border-color: rgb(0 0 0 / var(--tw-border-opacity));
@@ -774,6 +778,11 @@
   padding-right: 1rem;
 }
 
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
 .py-0 {
   padding-top: 0px;
   padding-bottom: 0px;
@@ -797,6 +806,21 @@
 .py-\[0\.1rem\] {
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
+}
+
+.px-8 {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.px-10 {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+.px-12 {
+  padding-left: 3rem;
+  padding-right: 3rem;
 }
 
 .pb-0 {
@@ -951,14 +975,14 @@
   font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction);
 }
 
-.text-\[\#FF0055\] {
+.text-\[\#0068FF\] {
   --tw-text-opacity: 1;
-  color: rgb(255 0 85 / var(--tw-text-opacity));
+  color: rgb(0 104 255 / var(--tw-text-opacity));
 }
 
-.text-\[\#FF5500\] {
+.text-\[\#FF0000\] {
   --tw-text-opacity: 1;
-  color: rgb(255 85 0 / var(--tw-text-opacity));
+  color: rgb(255 0 0 / var(--tw-text-opacity));
 }
 
 .text-main {
