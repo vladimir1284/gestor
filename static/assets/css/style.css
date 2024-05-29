@@ -929,14 +929,19 @@
   font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction);
 }
 
-.text-\[\#FF0055\] {
+.text-\[\#0068FF\] {
   --tw-text-opacity: 1;
-  color: rgb(255 0 85 / var(--tw-text-opacity));
+  color: rgb(0 104 255 / var(--tw-text-opacity));
 }
 
-.text-\[\#FF5500\] {
+.text-\[\#00FF33\] {
   --tw-text-opacity: 1;
-  color: rgb(255 85 0 / var(--tw-text-opacity));
+  color: rgb(0 255 51 / var(--tw-text-opacity));
+}
+
+.text-\[\#FF0000\] {
+  --tw-text-opacity: 1;
+  color: rgb(255 0 0 / var(--tw-text-opacity));
 }
 
 .text-main {
@@ -952,6 +957,11 @@
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.text-\[\#00CC33\] {
+  --tw-text-opacity: 1;
+  color: rgb(0 204 51 / var(--tw-text-opacity));
 }
 
 .underline {

@@ -49,6 +49,23 @@
                 top: 10px;
                 right: 40px;
             }
+
+            .text-primary {
+                color: #0069FF;
+                font-weight: bold;
+            }
+            .text-success {
+                color: #00FF55;
+                font-weight: bold;
+            }
+            .text-warning {
+                color: #FFBB00;
+                font-weight: bold;
+            }
+            .text-danger {
+                color: #FF1100;
+                font-weight: bold;
+            }
         {%else%}
             .card {
                 margin-bottom: 1rem;
@@ -133,7 +150,7 @@
 
                 </h2>
             </div>
-            <div class="card-body pb-0 mb-0">
+            <div class="card-body">
                 <div class="m-auto flex flex-wrap">
                     <table>
                         <tbody>
@@ -225,14 +242,6 @@
                             {%endif%}
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-body">
-                <div class="mx-4">
-                    {{conditions | safe}}
                 </div>
             </div>
         </div>
