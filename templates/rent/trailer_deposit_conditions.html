@@ -49,6 +49,19 @@
                 top: 10px;
                 right: 40px;
             }
+
+            .text-danger {
+                color: #FF0000;
+            }
+            .text-warning {
+                color: #FFCC00;
+            }
+            .text-success {
+                color: #00FF33;
+            }
+            .text-primary {
+                color: #0068FF;
+            }
         {%else%}
             .card {
                 margin-bottom: 1rem;
@@ -124,41 +137,52 @@
 
         <div class="card">
             <div class="card-header">
-                <h2 class="mb-0">Deposit On Hold:</h2>
+                <h2 class="mb-0">
+                    {% if deposit.cancelled %}
+                        <span class="text-danger">Finished</span>
+                    {% endif %}
+                    Deposit On Hold:
+                </h2>
             </div>
-            <div class="card-body pb-0 mb-0">
+            <div class="card-body pb-0 mb-0 px-12">
                 <div class="m-auto flex flex-wrap">
                     {%if not pdf%}
                         <div class="text-center p-0 m-0 pe-3 mb-3" id="qrcode">{{ qr_url | safe }}</div>
                     {%endif%}
-                    <table class="{%if pdf%}m-auto{%endif%}">
+                    <table class="{%if pdf and not deposit.cancelled%}m-auto{%endif%}">
                         <tbody>
-                            <tr>
-                                <td>Amount:</td>
-                                <td>{{ deposit.amount }}</td>
-                            </tr>
+                            {% if not deposit.cancelled %}
+                                <tr>
+                                    <td>Amount:</td>
+                                    <td>{{ deposit.amount }}</td>
+                                </tr>
+                            {% endif %}
                             <tr>
                                 <td>Validity:</td>
                                 <td>
                                     From
                                     <strong>{{ deposit.date }}</strong>
                                     to
-                                    <strong>{{ deposit.valid_until }}</strong>
+                                    <strong {% if deposit.expirated %}
+                                                class="text-danger"
+                                            {% endif %}>{{ deposit.valid_until }}</strong>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    Validity days:
-                                </td>
-                                <td>
-                                    <strong>{{ deposit.days }}</strong>
-                                    {%if deposit.days == 1%}
-                                        day
-                                    {%else%}
-                                        days
-                                    {%endif%}
-                                </td>
-                            </tr>
+                            {% if not deposit.cancelled %}
+                                <tr>
+                                    <td>
+                                        Validity days:
+                                    </td>
+                                    <td>
+                                        <strong>{{ deposit.days }}</strong>
+                                        {%if deposit.days == 1%}
+                                            day
+                                        {%else%}
+                                            days
+                                        {%endif%}
+                                    </td>
+                                </tr>
+                            {%endif%}
                             {%if equipment.vin and equipment.vin != ''%}
                                 <tr>
                                     <td>Vin:</td>
@@ -175,18 +199,54 @@
                                 <td>Note:</td>
                                 <td>{{ deposit.note }}</td>
                             </tr>
+                            {% if deposit.cancelled %}
+                                <tr class="border-t">
+                                    <td>Deposited:</td>
+                                    <td>
+                                        <strong class="text-primary">
+                                            ${{ deposit.amount }}
+                                        </strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Towit Compensation:</td>
+                                    <td>
+                                        <strong class="text-success">
+                                            ${{ deposit.income }}
+                                        </strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Returned:</td>
+                                    <td>
+                                        <strong class="text-danger">
+                                            ${{ deposit.returned }}
+                                        </strong>
+                                    </td>
+                                </tr>
+                                {% if deposit.returned_note %}
+                                    <tr>
+                                        <td>Returned Note:</td>
+                                        <td>
+                                            {{ deposit.returned_note }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body">
-                <div class="mx-4">
-                    {{conditions | safe}}
+        {% if not deposit.cancelled %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="mx-4">
+                        {{conditions | safe}}
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 </body>

@@ -1,6 +1,9 @@
+import jwt
+from django.conf import settings
 from django.db import models
 from django.utils.timezone import datetime
 from django.utils.timezone import timedelta
+from django.utils.timezone import timezone
 
 from rent.models.lease import Contract
 from rent.models.vehicle import Trailer
@@ -94,6 +97,16 @@ class TrailerDeposit(models.Model):
         if len(tra_id) < 6:
             tra_id = f"{self.trailer.id:06d}"
         return f"DOH{cli_id}-{tra_id}"
+
+    @property
+    def jwt_token(self):
+        exp = datetime.now(timezone.utc) + timedelta(hours=24)
+        tokCtx = {
+            "deposit_id": self.id,
+            "exp": exp,
+        }
+        token = jwt.encode(tokCtx, settings.SECRET_KEY, algorithm="HS256")
+        return token
 
 
 def get_active_trailers_deposit(trailer: Trailer):
