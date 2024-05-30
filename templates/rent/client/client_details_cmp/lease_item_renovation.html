@@ -1,0 +1,67 @@
+{%load static%}
+
+{% if lease.contract.stage != 'ended' and lease.contract.stage != 'garbage' %}
+    <div class="card-header shadow-inner">
+        {% if lease.renovation.renovations_count > 0 %}
+            <div>
+                <h4>
+                    This is contract has been renovated {{lease.renovation.renovations_count}} times
+                </h4>
+            </div>
+        {% endif %}
+        {% if lease.renovation.expirate_in_days <= 15 %}
+            <span
+                {% if lease.renovation.expirate_in_days < 3 %}
+                    class='text-danger'
+                {% elif lease.renovation.expirate_in_days < 7 %}
+                    class='text-warning'
+                {% else %}
+                    class="text-primary"
+                {% endif %}
+            >
+                This contract will be renovated in
+                <strong>{{lease.renovation.expirate_in_days}}</strong>
+                {% if lease.renovation.expirate_in_days == 1 %}
+                    day
+                {% else %}
+                    days
+                {% endif %}
+            </span>
+        {% endif %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>Renovation</td>
+                    <td>Effective Date</td>
+                    <td>Expiration Date</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        Original contract
+                    </td>
+                    <td>
+                        {{lease.contract.effective_date}}
+                    </td>
+                    <td>
+                        {{lease.contract.original_expiration_date}}
+                    </td>
+                </tr>
+                {% for ren in lease.renovation.renovations %}
+                    <tr>
+                        <td>
+                            {{ren.oword_num|title}} renovation
+                        </td>
+                        <td>
+                            {{ren.effective_date}}
+                        </td>
+                        <td>
+                            {{ren.expiration_date}}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

@@ -2,14 +2,8 @@ from django.db import models
 from django.template import Context
 from django.template import Template as DT
 
-
-Style = """
-{%load static%}
-<link rel="stylesheet" href="{%static 'libs/ckeditor/ckeditor.css'%}" />
-"""
-
-TT_TEXT = "text"
-TT_LIST = "list"
+from template_admin.tools.templates_tools import Style
+from template_admin.tools.templates_tools import TT_TEXT
 
 
 class Template(models.Model):

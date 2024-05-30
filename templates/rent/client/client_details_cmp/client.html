@@ -1,0 +1,37 @@
+{%load static%}
+
+<div class="card-body flex justify-between flex-wrap pb-0 shadow-sm rounded-3xl gap-4">
+    <div class="mb-3">
+        <h5>Client</h5>
+        {% include "users/associated_line.html" with associated=client %}
+    </div>
+
+    <div class="mb-3">
+        {% for lease in leases  %}
+            {% if lease.contract.guarantor %}
+                <div x-show="guarantor=={{forloop.counter}}" x-cloak>
+                    <h5>Guarantor</h5>
+                    {% include "./guarantor.html" with guarantor=lease.contract.guarantor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<div class="flex flex-wrap gap-2 pt-2 px-4">
+    {% if client.data.contact_name or client.data.contact_phone %}
+        <div class="rounded-3xl p-4 shadow-inner">
+            {% include "./emergency_contact.html" with number=1 name=client.data.contact_name phone=client.data.contact_phone %}
+        </div>
+    {% endif %}
+    {% if client.data.contact2_name or client.data.contact2_phone %}
+        <div class="rounded-3xl p-4 shadow-inner">
+            {% include "./emergency_contact.html" with number=2 name=client.data.contact2_name phone=client.data.contact2_phone %}
+        </div>
+    {% endif %}
+    {% if client.data.contact3_name or client.data.contact3_phone %}
+        <div class="rounded-3xl p-4 shadow-inner">
+            {% include "./emergency_contact.html" with number=3 name=client.data.contact3_name phone=client.data.contact3_phone %}
+        </div>
+    {% endif %}
+</div>

@@ -14,46 +14,9 @@
             {% include "services/order_header.html" %}
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}
-                <div class="card-body">{% crispy form %}</div>
+                <div class="card-body" x-data="orderForm">{% crispy form %}</div>
             </form>
         </div>
     </div>
-    <script>
-        const quotation = document.querySelector('#id_quotation')
-        const position = document.querySelector('#id_position')
-        const reason = document.querySelector('#div_id_storage_reason')
-        var oldValue = 0
-
-        function updatePosition() {
-            const q = quotation.checked
-            console.log(q)
-            position.disabled = q
-            if (q) {
-                const nullOption = document.createElement("option");
-                nullOption.value = "";
-                nullOption.text = "Null";
-                position.add(nullOption);
-                oldValue = position.value
-                position.value = ''
-                reason.style.display = 'none'
-            } else {
-                nullOption = position.querySelector('option[value=""]')
-                position.removeChild(nullOption)
-                position.value = oldValue
-                updateReason()
-            }
-        }
-
-        function updateReason() {
-            const value = position.value
-            console.log(value)
-            reason.style.display = value != '' && value == 0? 'block': 'none'
-        }
-
-        position.addEventListener('change', updateReason)
-        updateReason()
-
-        quotation.addEventListener('change', updatePosition)
-        updatePosition()
-    </script>
+    <script src="{%static 'assets/js/order-form.js'%}"></script>
 {% endblock content %}

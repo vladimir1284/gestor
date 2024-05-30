@@ -1,0 +1,51 @@
+{% load static %}
+{% load humanize %}
+<div class="col-lg-6 mb-4 order-0">
+    <div class="card" x-data="Renovations">
+        <div class="card-header mb-0 pb-0 flex justify-between items-center">
+            <h5 class="card-title text-primary">
+                {{ title }} <strong>{{ contracts|length }}</strong>
+            </h5>
+            <div>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-icon btn-outline-primary"
+                            :class="{active: tab=='unot'}"
+                            @click="tab = 'unot'"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            data-bs-custom-class="custom-tooltip"
+                            data-bs-title="Unnotified renovations"
+                    >
+                        <i class='bx bxs-bell-ring'></i>
+                    </button>
+                    <button type="button" class="btn btn-icon btn-outline-primary"
+                            :class="{active: tab=='not'}"
+                            @click="tab = 'not'"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            data-bs-custom-class="custom-tooltip"
+                            data-bs-title="Notified renovations"
+                    >
+                        <i class='bx bx-bell' ></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <template x-if="tab == 'unot'">
+            <div>
+                {% include "./contract_renovation_cmp/unnotified.html" %}
+            </div>
+        </template>
+        <template x-if="tab == 'not'">
+            <div>
+                {% include "./contract_renovation_cmp/notified.html" %}
+            </div>
+        </template>
+
+        {% include "./contract_renovation_cmp/contract_renovations_notes.html" %}
+    </div>
+</div>
+
+<script src="{% static "assets/js/renovations/notes.js" %}"></script>
+<script src="{% static "assets/js/renovations/renovations.js" %}"></script>

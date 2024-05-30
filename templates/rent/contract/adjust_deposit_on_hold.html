@@ -1,0 +1,48 @@
+{% extends "base/base_form.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <div class="card mb-4"
+             x-data="{
+                     total: {{initial}},
+                     retAmount: $refs.retAmountField.value,
+                     diff: 0,
+                     valid: true,
+                     }"
+             x-effect="
+                       diff = total - (parseFloat(retAmount) || 0);
+                       valid = parseFloat(retAmount) >= 0 && diff >= 0;
+                      ">
+            <div class="card-header">
+                <h4 class="mb-2">{{ title }}</h4>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>Deposited:</td>
+                            <td>
+                                <strong>${{initial}}</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Towit compensation:</td>
+                            <td>
+                                <strong :class="valid ? 'text-success' : 'text-danger'" x-text="valid ? '$' + diff.toFixed(2) : 'Invalid amount'">$0</strong>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="post" id="update-form">
+                    {% csrf_token %}
+                    {% crispy form %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

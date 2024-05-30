@@ -8,298 +8,180 @@
 {% endblock title %}
 {% block content %}
     {% localtime on %}
-    <style>
-        .invoice-descrpition{
-            width: 100%;
-        }
-        th {
-            font-weight: bold;
-        }
-    </style>
-    {% block nav %}
-    {% endblock nav %}
-    <div class="row">
-        <div class="card mb-3 col-md-6">
+        <style>
+            .invoice-descrpition{
+                width: 100%;
+            }
+            th {
+                font-weight: bold;
+            }
+        </style>
+        {% block nav %}
+        {% endblock nav %}
+        <div class="row">
+            <div class="col-md-6 px-2 pb-3">
+                <div class="card h-full">
             <!-- Services -->
-            <h5 class="mt-3 d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Total income:
-                <div class="text-success">
-                    <strong>{{ rental.total_income|floatformat:"0"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Pending payments:
-                <div class="text-success">
-                    <strong>{{ rental.pending_payments|floatformat:"0"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Planned income:
-                <div>
-                    <strong>{{ rental.planned_income|floatformat:"0"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Invoice amount:
-                <div class="text-success">
-                    <strong>{{ rental.invoice_income|floatformat:"0"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Unpaid amount:
-                <div class="text-danger">
-                    <strong>{{ rental.unpaid_amount|floatformat:"0"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Profit amount:
-                <div class="text-success">
-                    <strong>{{ profit|floatformat:"0"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <div class="table-responsive text-nowrap">
-                <div class="container ps-0" style="height: 500px; overflow-y: auto;">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Client</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for lease in rental.unpaid_leases %}
-                                {% for due in lease.unpaid_dues %}
+                    <h5 class="mt-3 d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                        Total income:
+                        <div class="text-success">
+                            <strong>{{ rental.total_income|floatformat:"0"|intcomma }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                        Pending payments:
+                        <div class="text-success">
+                            <strong>{{ rental.pending_payments|floatformat:"0"|intcomma }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                        Planned income:
+                        <div>
+                            <strong>{{ rental.planned_income|floatformat:"0"|intcomma }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                        Invoice amount:
+                        <div class="text-success">
+                            <strong>{{ rental.invoice_income|floatformat:"0"|intcomma }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                        Unpaid amount:
+                        <div class="text-danger">
+                            <strong>{{ rental.unpaid_amount|floatformat:"0"|intcomma }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
+                        Profit amount:
+                        <div class="text-success">
+                            <strong>{{ profit|floatformat:"0"|intcomma }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <div class="table-responsive text-nowrap">
+                        <div class="container ps-0" style="height: 500px; overflow-y: auto;">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        {% if forloop.first %}
-                                            <td rowspan="{{ lease.unpaid_dues|length }}">{{ lease.contract.lessee.name|slice:":20" }}</td>
-                                        {% endif %}
-                                        <td>${{ lease.payment_amount|floatformat:"0" }}</td>
-                                        <td>{{ due.start|date:"m/d/Y" }}</td>
+                                        <th>Client</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
                                     </tr>
-                                {% endfor %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-3 col-md-6">
-            <div class="card-header">
-                <h4>Deposits</h4>
-            </div>
-            <!-- Services -->
-            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Contracts' deposits:
-                <div class="text-success">
-                    <strong>{{ done_deposits_amount|floatformat:"0"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Expirated deposits:
-                <div class="text-danger">
-                    <strong>{{ expirated_deposits_amount|floatformat:"2"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Cancelled deposits:
-                <div class="text-danger">
-                    <strong>{{ cancelled_deposits_amount|floatformat:"2"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <h5 class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-1">
-                Total income:
-                <div class="text-danger">
-                    <strong>{{ total_deposits_amount|floatformat:"2"|intcomma }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <div class="table-responsive text-nowrap">
-                <div class="container ps-0" style="height: 500px; overflow-y: auto;">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th rowspan="4" class="text-success pt-5 position-relative">
-                                    <div class="position-absolute">Contract</div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <thead>
-                            <tr>
-                                <th><i class="bx bx-cog"></i></th>
-                                <th>Client</th>
-                                <th class="text-end">Amount</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for d in done_deposits %}
-                                <tr>
-                                        <td>
-                                            <a href="{%url 'trailer-deposit-details' d.id %}">
-                                                <i class="bx bx-dots-vertical-rounded"></i>
-                                            </a>
-                                        </td>
-                                        <td>{{ d.client.name|slice:":20" }}</td>
-                                        <td class="text-end">${{ d.amount|floatformat:"2" }}</td>
-                                        <td>{{ d.date|date:"m/d/Y" }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                        <thead>
-                            <tr>
-                                <th rowspan="4" class="text-danger pt-5 position-relative">
-                                    <div class="position-absolute">Expirated</div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <thead>
-                            <tr>
-                                <th><i class="bx bx-cog"></i></th>
-                                <th>Client</th>
-                                <th class="text-end">Amount</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for d in expirated_deposits %}
-                                <tr>
-                                        <td>
-                                            <a href="{%url 'trailer-deposit-details' d.id %}">
-                                                <i class="bx bx-dots-vertical-rounded"></i>
-                                            </a>
-                                        </td>
-                                        <td>{{ d.client.name|slice:":20" }}</td>
-                                        <td class="text-end">${{ d.amount|floatformat:"2" }}</td>
-                                        <td>{{ d.date|date:"m/d/Y" }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                        <thead>
-                            <tr>
-                                <th rowspan="4" class="text-danger pt-5 position-relative">
-                                    <div class="position-absolute">Cancelled</div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <thead>
-                            <tr>
-                                <th><i class="bx bx-cog"></i></th>
-                                <th>Client</th>
-                                <th class="text-end">Amount</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for d in cancelled_deposits %}
-                                <tr>
-                                        <td>
-                                            <a href="{%url 'trailer-deposit-details' d.id %}">
-                                                <i class="bx bx-dots-vertical-rounded"></i>
-                                            </a>
-                                        </td>
-                                        <td>{{ d.client.name|slice:":20" }}</td>
-                                        <td class="text-end">${{ d.amount|floatformat:"2" }}</td>
-                                        <td>{{ d.date|date:"m/d/Y" }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-3 col-md-6">
-            <!-- Services -->
-            <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                Maintenance cost:
-                <div class="text-success">
-                    <strong>{{ total.gross|floatformat:"2" }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            {% include "./table_membership.html" with initial=False %}
-            {% if orders.has_initial == True %}
-                <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                    Initial:
-                    <div class="text-success">
-                        <strong>{{ total_initial.gross|floatformat:"2" }}</strong>
-                        <span class="text-muted">USD</span>
-                    </div>
-                </h5>
-                {% include "./table_membership.html" with initial=True total=total_initial %}
-            {% endif %}
-        </div>
-        <div class="card mb-3 col-md-6">
-            <!-- Rental Cost -->
-            <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                Cost:
-                <div class="text-danger">
-                    <strong>{{ costs.total|floatformat:"2" }}</strong>
-                    <span class="text-muted">USD</span>
-                </div>
-            </h5>
-            <div class="table-responsive text-nowrap">
-                <div class="container ps-0" style="height: 500px; overflow-y: auto;">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Amount</th>
-                                <th>concept</th>
-                                <th>category</th>
-                                <th>date</th>
-                                <th>User</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for cost in costs %}
-                                <tr data-tag="{{ cost.category.name }}">
-                                    <td>
-                                        <a href={% url 'update-cost-rental' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
-                                    </td>
-                                    <td>
-                                        <strong>{{ cost.concept }}</strong>
-                                        {% if cost.image %}
-                                            <a href="{{ cost.image.url }}" target="blank" class="float-end"><span class="tf-icons bx bx-image"></span></a>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if cost.category %}{{ cost.category.name }}{% endif %}
-                                    </td>
-                                    <td>{{ cost.date|date:"m/d/Y" }}</td>
-                                    <td>
-                                        {% if cost.related_to %}
-                                            <div class="avatar avatar-online">
-                                                {% if cost.related_to.profile_user.avatar %}
-                                                    <img src="{{ cost.related_to.profile_user.avatar.url }}"
-                                                         alt=""
-                                                         class="w-px-40 rounded-circle" />
-                                                {% else %}
-                                                    <span style="font-size:1.5em"
-                                                          class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
-                                                        {{ cost.related_to.first_name|first }}
-                                                    </span>
+                                </thead>
+                                <tbody>
+                                    {% for lease in rental.unpaid_leases %}
+                                        {% for due in lease.unpaid_dues %}
+                                            <tr>
+                                                {% if forloop.first %}
+                                                    <td rowspan="{{ lease.unpaid_dues|length }}">{{ lease.contract.lessee.name|slice:":20" }}</td>
                                                 {% endif %}
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                                <td>${{ lease.payment_amount|floatformat:"0" }}</td>
+                                                <td>{{ due.start|date:"m/d/Y" }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <div class="col-md-6 px-2 pb-3">
+                <div class="card h-full">
+            <!-- Services -->
+                    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        Maintenance cost:
+                        <div class="text-success">
+                            <strong>{{ total.gross|floatformat:"2" }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    {% include "./table_membership.html" with initial=False %}
+                    {% if orders.has_initial == True %}
+                        <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            Initial:
+                            <div class="text-success">
+                                <strong>{{ total_initial.gross|floatformat:"2" }}</strong>
+                                <span class="text-muted">USD</span>
+                            </div>
+                        </h5>
+                        {% include "./table_membership.html" with initial=True total=total_initial %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-6 px-2 pb-3">
+                <div class="card h-full">
+            <!-- Rental Cost -->
+                    <h5 class="card-header d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        Cost:
+                        <div class="text-danger">
+                            <strong>{{ costs.total|floatformat:"2" }}</strong>
+                            <span class="text-muted">USD</span>
+                        </div>
+                    </h5>
+                    <div class="table-responsive text-nowrap">
+                        <div class="container ps-0" style="height: 500px; overflow-y: auto;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Amount</th>
+                                        <th>concept</th>
+                                        <th>category</th>
+                                        <th>date</th>
+                                        <th>User</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cost in costs %}
+                                        <tr data-tag="{{ cost.category.name }}">
+                                            <td>
+                                                <a href={% url 'update-cost-rental' cost.id %}>${{ cost.amount|floatformat:"2" }}</a>
+                                            </td>
+                                            <td>
+                                                <strong>{{ cost.concept }}</strong>
+                                                {% if cost.image %}
+                                                    <a href="{{ cost.image.url }}" target="blank" class="float-end"><span class="tf-icons bx bx-image"></span></a>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if cost.category %}{{ cost.category.name }}{% endif %}
+                                            </td>
+                                            <td>{{ cost.date|date:"m/d/Y" }}</td>
+                                            <td>
+                                                {% if cost.related_to %}
+                                                    <div class="avatar avatar-online">
+                                                        {% if cost.related_to.profile_user.avatar %}
+                                                            <img src="{{ cost.related_to.profile_user.avatar.url }}"
+                                                                 alt=""
+                                                                 class="w-px-40 rounded-circle" />
+                                                        {% else %}
+                                                            <span style="font-size:1.5em"
+                                                                  class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
+                                                                {{ cost.related_to.first_name|first }}
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% include "rent/deposits/reports.html" %}
+            {% include "rent/deposits/security_reports.html" %}
         </div>
-    </div>
-{% endlocaltime %}
+    {% endlocaltime %}
 {% endblock content %}

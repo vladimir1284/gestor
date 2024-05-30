@@ -51,5 +51,6 @@ def select_client(request, id=None):
         "associates": associates,
         "skip": preorder is None or preorder.order is None,
         "create": "order",
+        "preorder": preorder,
     }
     return render(request, "services/client_list.html", context)

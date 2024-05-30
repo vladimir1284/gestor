@@ -1,0 +1,85 @@
+{%load static%}
+
+<div>
+    <div class="table-responsive text-nowrap">
+        <div class="container ps-0" style="height: 500px; overflow-y: auto;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            <i class='bx bx-cog'></i>
+                        </th>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Deposited</th>
+                        <th>On contract</th>
+                        <th>Compensation</th>
+                        <th>Returned</th>
+                        <th>Debt</th>
+                        <th>Return date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dep in security_pending %}
+                        <tr>
+                            <td>
+                                <a
+                                    href="{% url 'detail-contract' dep.contract.id %}"
+                                >
+                                    <i class='bx bx-dots-vertical-rounded' ></i>
+                                </a>
+                                <a
+                                    href="{% url 'security_deposit_devolution_invoice' dep.id %}"
+                                >
+                                    <i class='bx bxs-file-pdf' ></i>
+                                </a>
+                            </td>
+                            <td>
+                                {{dep.contract.lessee.name|slice:":20"}}
+                            </td>
+                            <td>
+                                <strong class="text-warning">
+                                    Pending return
+                                </strong>
+                            </td>
+                            <td>
+                                <strong>
+                                    ${{dep.total_deposited_amount|floatformat:"-2"}}
+                                </strong>
+                            </td>
+                            <td>
+                                ${{dep.contract.security_deposit|floatformat:'-2'}}
+                            </td>
+                            <td class="text-success">
+                                <strong>
+                                    ${{dep.income|floatformat:"-2"}}
+                                </strong>
+                            </td>
+                            <td class="text-warning">
+                                <strong>
+                                    ${{dep.returned_amount|floatformat:"-2"}}
+                                </strong>
+                            </td>
+                            <td>
+                                {% if dep.debt_amount > 0 %}
+                                    <strong class="text-danger">
+                                        ${{dep.debt_amount|floatformat:"-2"}}
+                                    </strong>
+                                {% else %}
+                                    <strong class="text-primary">
+                                        -
+                                    </strong>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if dep.refund_date %}
+                                    {{dep.refund_date}}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

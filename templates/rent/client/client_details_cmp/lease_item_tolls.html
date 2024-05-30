@@ -1,0 +1,73 @@
+{%load static%}
+<div class="card-header">
+    <h5>
+        <strong>Toll Dues</strong>
+    </h5>
+    <div class="row">
+        <div class="col-md-6">
+            <strong>Unpaid Tolls: $
+                {% if lease.contract.toll_totalunpaid %}
+                    {{ lease.contract.toll_totalunpaid|floatformat:"0" }}
+                {% else %}
+                    0.00
+                {% endif %}
+            </strong>
+            <div class="table-container">
+                <table class="table">
+                    <tbody>
+                        {% for toll in lease.contract.tolls %}
+                            {% if toll.stage == 'unpaid' %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'update-toll' toll.id %}">{{ toll.created_date|date:"m/d/Y" }}</a>
+                                    </td>
+                                    <td>
+                                        <strong>${{ toll.amount|floatformat:"0" }}</strong>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <strong>Paid Tolls: $
+                {% if lease.contract.toll_totalpaid %}
+                    {{ lease.contract.toll_totalpaid|floatformat:"0" }}
+                {% else %}
+                    0.00
+                {% endif %}
+            </strong>
+            <div class="table-container">
+                <table class="table">
+                    <tbody>
+                        {% for toll in lease.contract.tolls %}
+                            {% if toll.stage == 'paid' %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'update-toll' toll.id %}">{{ toll.created_date|date:"m/d/Y" }}</a>
+                                    </td>
+                                    <td>
+                                        <strong>${{ toll.amount|floatformat:"0" }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if toll.invoice %}
+                                            <a class="btn btn-icon btn-outline-primary ms-3"
+                                               type="button"
+                                               target="_blank"
+                                               href="{{ toll.invoice.url }}">
+                                                <span class="tf-icons bx bx-download"></span>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

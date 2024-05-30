@@ -1,81 +1,275 @@
 {% load static %}
+<div class="bg-mainBG rounded-2xl flex justify-between items-center flex-col md:flex-row gap-2 sm:rounded-full">
+    <div class="flex mr-4 items-center">
+        <div class="avatar flex-shrink-0 my-[2px] ml-[3px] mr-2">
+            <a href={% url 'detail-associated' contract.lessee.id %}>
+                <span class="avatar-initial rounded-circle bg-label-primary">
+                    <img {% if contract.lessee.avatar %} src="{{ contract.lessee.avatar.url }}" {% else %} src="{% static 'assets/img/icons/user.png' %}" {% endif %}
+                         alt="Avatar"
+                         height="100px"
+                         width="100px"
+                         class="w-px-40 rounded-circle" />
+                </span>
+            </a>
+        </div>
+        <div>
+            <h6 class="my-0 py-0">{{ contract.lessee.name }}</h6>
+            {% if contract.lessee.debt > 0 %}
+                <small class="text-danger">Debt: ${{ contract.lessee.debt }} ({{ contract.lessee.debt_status }})</small>
+            {% else %}
+                <small class="text-muted">{{ contract.lessee.phone_number }}</small>
+            {% endif %}
+        </div>
+    </div>
+
+    {%if on_hold%}
+        <div>
+            ON HOLD:
+            <strong>${{on_hold.amount}}</strong>
+        </div>
+    {%endif%}
+
+    <div class="flex flex-wrap justify-end gap-1 pr-1">
+            <!-- <a href="{% url 'update-lessee-data' contract.lessee.data.id %}" -->
+            <!--    type="button" -->
+            <!--    class="btn btn-outline-primary"> -->
+            <!--     <span class="tf-icons bx bx-edit"></span>&nbsp; Client data -->
+            <!-- </a> -->
+        <a href="{% url 'update-data-on-contract' contract.id %}"
+           type="button"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           data-bs-custom-class="custom-tooltip"
+           data-bs-title="Edit client data"
+           class="btn btn-icon btn-link">
+            <i class='bx bx-id-card'></i>
+        </a>
+        <a href="{% url 'update-contract' contract.id %}"
+           type="button"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           data-bs-custom-class="custom-tooltip"
+           data-bs-title="Edit terms"
+           class="btn btn-icon btn-link">
+            <i class='bx bx-calendar-edit' ></i>
+        </a>
+        {% if contract.inspection %}
+            <a href="{% url 'update-inspection' contract.inspection.id %}"
+               type="button"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               data-bs-custom-class="custom-tooltip"
+               data-bs-title="Trailer inspection"
+               class="btn btn-link btn-icon">
+                <i class='bx bx-check-double' ></i>
+                <!-- <span class="tf-icons bx bx-edit"></span> -->
+            </a>
+            <a href="{% url 'update-tires' contract.inspection.id %}"
+               type="button"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               data-bs-custom-class="custom-tooltip"
+               data-bs-title="Trailer tires"
+               class="btn btn-link btn-icon">
+                <i class='bx bxs-bullseye'></i>
+                <!-- <span class="tf-icons bx bx-edit"></span> -->
+            </a>
+        {% endif %}
+        {%if guarantor_required %}
+            <a class="btn btn-link btn-icon"
+               href="{% url 'select-contract-guarantor' contract.id %}"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               data-bs-custom-class="custom-tooltip"
+               data-bs-title="Select guarantor"
+            >
+                <i class='bx bx-credit-card-front'></i>
+            </a>
+        {%endif%}
+        <a href="{% url 'contract-signing' contract.id %}"
+           type="button"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           data-bs-custom-class="custom-tooltip"
+           data-bs-title="Client contract signature"
+           class="btn btn-icon btn-link">
+            <span class="tf-icons bx bx-share-alt"></span>
+        </a>
+        <a href="{% url 'contract-signed' contract.id %}"
+           type="button"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           data-bs-custom-class="custom-tooltip"
+           data-bs-title="Client contract PDF"
+           class="btn btn-icon btn-link">
+            <span class="tf-icons bx bx-file"></span>
+        </a>
+    </div>
+</div>
 <div class="container">
-    <div class="row">
-        <div class="col-md-4 d-flex pb-1">
-            <div class="avatar flex-shrink-0 me-3">
-                <a href={% url 'detail-associated' contract.lessee.id %}>
-                    <span class="avatar-initial rounded-circle bg-label-primary">
-                        <img {% if contract.lessee.avatar %} src="{{ contract.lessee.avatar.url }}" {% else %} src="{% static 'assets/img/icons/user.png' %}" {% endif %}
-                             alt="Avatar"
-                             height="100px"
-                             width="100px"
-                             class="w-px-40 rounded-circle" />
-                    </span>
-                </a>
-            </div>
-            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                <div class="me-2">
-                    <h6 class="mb-0">{{ contract.lessee.name }}</h6>
-                    {% if contract.lessee.debt > 0 %}
-                        <small class="text-danger">Debt: ${{ contract.lessee.debt }} ({{ contract.lessee.debt_status }})</small>
-                    {% else %}
-                        <small class="text-muted">{{ contract.lessee.phone_number }}</small>
-                    {% endif %}
-                </div>
+    <div class="flex">
+        <!-- <div class="flex flex-grow mr-4 items-center"> -->
+        <!--     <div class="avatar flex-shrink-0 me-3"> -->
+        <!--         <a href={% url 'detail-associated' contract.lessee.id %}> -->
+        <!--             <span class="avatar-initial rounded-circle bg-label-primary"> -->
+        <!--                 <img {% if contract.lessee.avatar %} src="{{ contract.lessee.avatar.url }}" {% else %} src="{% static 'assets/img/icons/user.png' %}" {% endif %} -->
+        <!--                      alt="Avatar" -->
+        <!--                      height="100px" -->
+        <!--                      width="100px" -->
+        <!--                      class="w-px-40 rounded-circle" /> -->
+        <!--             </span> -->
+        <!--         </a> -->
+        <!--     </div> -->
+        <!--     <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2"> -->
+        <!--         <div class="me-2"> -->
+        <!--             <h6 class="mb-0">{{ contract.lessee.name }}</h6> -->
+        <!--             {% if contract.lessee.debt > 0 %} -->
+        <!--                 <small class="text-danger">Debt: ${{ contract.lessee.debt }} ({{ contract.lessee.debt_status }})</small> -->
+        <!--             {% else %} -->
+        <!--                 <small class="text-muted">{{ contract.lessee.phone_number }}</small> -->
+        <!--             {% endif %} -->
+        <!--         </div> -->
+        <!--     </div> -->
+        <!-- </div> -->
+        <!-- <div class="flex flex-wrap justify-end gap-2"> -->
+            <!-- <a href="{% url 'update-lessee-data' contract.lessee.data.id %}" -->
+            <!--    type="button" -->
+            <!--    class="btn btn-outline-primary"> -->
+            <!--     <span class="tf-icons bx bx-edit"></span>&nbsp; Client data -->
+            <!-- </a> -->
+        <!--     <a href="{% url 'update-data-on-contract' contract.id %}" -->
+        <!--        type="button" -->
+        <!--        class="btn btn-outline-primary"> -->
+        <!--         <span class="tf-icons bx bx-edit"></span>&nbsp; Client data -->
+        <!--     </a> -->
+        <!--     <a href="{% url 'update-contract' contract.id %}" -->
+        <!--        type="button" -->
+        <!--        class="btn btn-outline-primary"> -->
+        <!--         <span class="tf-icons bx bx-edit"></span>&nbsp; Terms -->
+        <!--     </a> -->
+        <!--     {% if contract.inspection %} -->
+        <!--         <a href="{% url 'update-inspection' contract.inspection.id %}" -->
+        <!--            type="button" -->
+        <!--            class="btn btn-outline-primary"> -->
+        <!--             <span class="tf-icons bx bx-edit"></span>&nbsp; Inspection -->
+        <!--         </a> -->
+        <!--         <a href="{% url 'update-tires' contract.inspection.id %}" -->
+        <!--            type="button" -->
+        <!--            class="btn btn-outline-primary"> -->
+        <!--             <span class="tf-icons bx bx-edit"></span>&nbsp; Tires -->
+        <!--         </a> -->
+        <!--     {% endif %} -->
+        <!--     <a href="{% url 'contract-signing' contract.id %}" -->
+        <!--        type="button" -->
+        <!--        class="btn btn-icon btn-outline-primary"> -->
+        <!--         <span class="tf-icons bx bx-share-alt"></span> -->
+        <!--     </a> -->
+        <!--     <a href="{% url 'contract-signed' contract.id %}" -->
+        <!--        type="button" -->
+        <!--        class="btn btn-icon btn-outline-primary"> -->
+        <!--         <span class="tf-icons bx bx-file"></span> -->
+        <!--     </a> -->
+        <!-- </div> -->
+    </div>
+
+    <div class="mt-4">
+        <div class="flex justify-center">
+            <div>
+                <strong>SMS sended to:</strong> {{ phone }}
             </div>
         </div>
-        <div class="demo-inline-spacing col-md-8">
-            <a href="{% url 'update-lessee-data' contract.lessee.data.id %}"
-               type="button"
-               class="btn btn-outline-primary">
-                <span class="tf-icons bx bx-edit"></span>&nbsp; Client data
-            </a>
-            <a href="{% url 'update-contract' contract.id %}"
-               type="button"
-               class="btn btn-outline-primary">
-                <span class="tf-icons bx bx-edit"></span>&nbsp; Terms
-            </a>
-            {% if contract.inspection %}
-                <a href="{% url 'update-inspection' contract.inspection.id %}"
-                type="button"
-                class="btn btn-outline-primary">
-                    <span class="tf-icons bx bx-edit"></span>&nbsp; Inspection
+        <div class="flex justify-center">
+            <div style="max-width: 5cm">{{ qr_url|safe }}</div>
+        </div>
+        <div class="flex justify-center">
+            <div class="max-w-[10cm] w-full">
+                <a href="{{ url }}">
+                    {{ url }}
                 </a>
-                <a href="{% url 'update-tires' contract.inspection.id %}"
-                type="button"
-                class="btn btn-outline-primary">
-                    <span class="tf-icons bx bx-edit"></span>&nbsp; Tires
-                </a>
-            {% endif %}
-            <a href="{% url 'contract-signing' contract.id %}"
-               type="button"
-               class="btn btn-icon btn-outline-primary">
-                <span class="tf-icons bx bx-share-alt"></span>
-            </a>
-            <a href="{% url 'contract-signed' contract.id %}"
-               type="button"
-               class="btn btn-icon btn-outline-primary">
-                <span class="tf-icons bx bx-file"></span>
-            </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap mt-4 gap-2 justify-center">
+        <!-- {%if guarantor_required and contract.guarantor is None %} -->
+        <!--     <a class="btn btn-outline-success" href="{% url 'select-contract-guarantor' contract.id %}"> -->
+        <!--         <span class="tf-icons bx bx-check"></span> -->
+        <!--         Select guarantor -->
+        <!--     </a> -->
+        <!-- {% endif %} -->
+        {% if validated %}
+            <button class="btn btn-outline-secondary" disabled>
+                <span class="tf-icons bx bx-check"></span>
+                Activate contract
+            </button>
+        {% elif handwriting_ok %}
             <button onClick="validateContract('{% url 'update-contract-stage' contract.id 'active' %}')"
                     id="submit-id-submit"
-                    class="btn btn-icon btn-outline-primary">
+                    class="btn btn-outline-primary relative">
                 <span class="tf-icons bx bx-check"></span>
+                Activate contract
+                {%if contract.client_complete%}
+                    <link rel='stylesheet' href='{% static "assets/css/loader_arrow_lr.css" %}'>
+                    <span class="loader"></span>
+                {%endif%}
             </button>
-            {% if contract.stage == 'ended' %}
+        {%else%}
+            <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#unsignedModal">
+                <span class="tf-icons bx bx-check"></span>
+                Activate contract
+            </button>
+
+            <div class="modal fade" id="unsignedModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Unsigned contract</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            This contract has not been signed
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="reloadForm" method='GET'></form>
+            {%if date_daniel.img.url and date_daniel.img.url != '' %}
+                <script>
+                    const URL = "{%url 'contract-cli-completed' contract.id%}"
+                    const next = document.getElementById('reloadForm')
+
+                    async function getState() {
+                        const response = await fetch(URL)
+                        try {
+                            const json = await response.json()
+                            if (json.completed) {
+                                next.submit()
+                            }
+                        } catch (err) {
+                            console.error(err)
+                        }
+                    }
+
+                    setInterval(getState, 5000)
+                </script>
+            {%endif%}
+        {%endif%}
+        {% if contract.stage == 'ended' %}
             <a href="{% url 'adjust-deposit' contract.id %}"
-                type="button"
-                class="btn btn-icon btn-outline-primary">
+               type="button"
+               class="btn btn-outline-primary">
                 <span class="tf-icons bx bx-wallet"></span>
+                Adjust deposit
             </a>
-            {% else %}
+        {% else %}
             <button onClick="cancelContract('{% url 'adjust-deposit' contract.id %}?closing=1')"
                     id="submit-id-submit"
-                    class="btn btn-icon btn-outline-primary">
+                    class="btn btn-outline-danger">
                 <span class="tf-icons bx bx-x"></span>
+                Cancel contract
             </button>
-            {% endif %}
-        </div>
+        {% endif %}
     </div>
 </div>
 {% include "base/toast.html" with msg="Please, be pacient, we are sending the PDF copy to the client." %}

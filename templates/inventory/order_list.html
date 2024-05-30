@@ -38,22 +38,28 @@
 {% endblock Theader %}
 {% block Tbody %}
     {% for order in orders %}
-        <tr data-tag="{{ order.status }}">
+        <tr data-tag="{{ order.status }}"
+            x-show='match("{{ order.concept|escapejs }}", $store.search.search) || match("{{ order.status|escapejs }}", $store.search.search) || match("{{ order.note|escapejs }}", $store.search.search) || match("{{ order.associated|escapejs }}", $store.search.search)'>
             <td>
                 <a href={% url 'detail-order' order.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
             <td>
-                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ order.concept }}</strong>
+                <i class="fab fa-angular fa-lg text-danger"></i> <strong x-html='highlightMatch("{{ order.concept|escapejs }}", $store.search.search)'>{{ order.concept }}</strong>
+                <div class="text-xs italic"
+                     x-show='$store.search.search != "" && match("{{ order.note|escapejs }}", $store.search.search)'
+                     x-html='highlightMatch("{{ order.note|escapejs }}", $store.search.search)'></div>
             </td>
             <td>{{ order.created_date|date:"m/d/Y" }}</td>
             <td>
-                <span class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
+                <span x-html='highlightMatch("{{ order.status|escapejs }}", $store.search.search)'
+                      class="badge bg-label-{% if order.status == 'processing' %}primary{% elif order.status == 'complete' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'approved' %}info{% elif order.status == 'decline' %}danger{% endif %} me-1">
                     {{ order.status }}
                 </span>
             </td>
             <td>
                 {% if order.associated %}
-                    <a href={% url 'detail-associated' order.associated.id %}>{{ order.associated }}</a>
+                    <a href="{% url 'detail-associated' order.associated.id %}"
+                       x-html='highlightMatch("{{ order.associated|escapejs }}", $store.search.search)'>{{ order.associated }}</a>
                 {% endif %}
             </td>
             <td>${{ order.amount|floatformat:"2" }}</td>

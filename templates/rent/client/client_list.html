@@ -144,6 +144,7 @@
                             <th>type</th>
                             <th>Trailer</th>
                             <th>Effective Date</th>
+                            <th>Created Date</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -162,10 +163,14 @@
                                         </div>
                                     </td>
                                     <td>
-                                        {% if client.debt %}{{ client.contract.effective_date|date:"m/d/Y" }}{% endif %}
+                                        {{ client.contract.effective_date|date:"m/d/Y" }}
                                     </td>
                                     <td>
-                                        <a onclick="updateStatus('{% url 'update-contract-stage'  client.contract.id 'garbage' %}',  '{{ client.contract }}')"
+                                        {{ client.contract.created_at|date:"m/d/Y" }}
+                                    </td>
+                                    <td>
+                                        <!-- <a onclick="updateStatus('{% url 'update-contract-stage' client.contract.id 'garbage' %}',  '{{ client.contract }}')" -->
+                                        <a onclick="updateStatus('{% url 'adjust-deposit' client.contract.id %}?closing=1',  '{{ client.contract }}')"
                                            type="button"
                                            class="btn btn-icon btn-outline-danger float-end">
                                             <span class="tf-icons bx bx-trash"></span>
@@ -237,12 +242,12 @@
         </div>
     </div>
     <script>
-                function updateStatus(url, contract) {
-                    let confirmAction = confirm("Are you sure move the contract: " + contract +" to garbage?");
-                    if (confirmAction) {
-                        window.location = url;
-                    }
-                }
+        function updateStatus(url, contract) {
+            let confirmAction = confirm("Are you sure move the contract: " + contract +" to garbage?");
+            if (confirmAction) {
+                window.location = url;
+            }
+        }
     </script>
 {% endblock card %}
 {% block add %}

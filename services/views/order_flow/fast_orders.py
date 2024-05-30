@@ -14,8 +14,10 @@ def fast_order_create(request, id):
     order = Order(
         concept=preorder.concept,
         quotation=preorder.concept == QUOTATION,
+        parts_sale=preorder.concept == PARTS_SALE,
         created_by=request.user,
         associated=preorder.associated,
+        type="sell",
     )
     order.save()
     preorder.order = order
@@ -36,4 +38,4 @@ def order_quotation(request):
     preorder = Preorder()
     preorder.concept = QUOTATION
     preorder.save()
-    return redirect("fast-order-create", preorder.id)
+    return redirect("select-service-client", preorder.id)

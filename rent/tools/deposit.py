@@ -1,6 +1,7 @@
 import logging
 import tempfile
 
+import jwt
 import qrcode.image.svg
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -8,10 +9,13 @@ from django.core.mail import get_connection
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.timezone import datetime
+from django.utils.timezone import timedelta
+from django.utils.timezone import timezone
 
 from rent.models.trailer_deposit import TrailerDeposit
+from rent.tools.get_conditions import get_on_hold_conditions
 from rent.views.vehicle import getImages
-
 
 MULTILANG_BODY = {
     "english": """Dear {}, your vehicle at TOWITHOUSTON is reserved!
@@ -34,11 +38,19 @@ Gracias""",
 
 
 def trailer_deposit_context(request, id):
-    deposit = get_object_or_404(TrailerDeposit, id=id)
+    deposit: TrailerDeposit = get_object_or_404(TrailerDeposit, id=id)
     images, pinned_image = getImages(deposit.trailer)
 
+    exp = datetime.now(timezone.utc) + timedelta(hours=2)
+    tokCtx = {
+        "deposit_id": id,
+        "exp": exp,
+    }
+
+    token = jwt.encode(tokCtx, settings.SECRET_KEY, algorithm="HS256")
+
     url_base = "{}://{}".format(request.scheme, request.get_host())
-    url = url_base + reverse("trailer-deposit-conditions", args=[id])
+    url = url_base + reverse("trailer-deposit-conditions-pdf", args=[token])
     factory = qrcode.image.svg.SvgPathImage
     factory.QR_PATH_STYLE["fill"] = "#455565"
     img = qrcode.make(
@@ -54,12 +66,15 @@ def trailer_deposit_context(request, id):
         "equipment": deposit.trailer,
         "qr_url": img.to_string(encoding="unicode"),
         "url": url,
+        "token": token,
     }
+    context["conditions"] = get_on_hold_conditions(context)
     return context
 
 
 def trailer_deposit_conditions_pdf(request, id):
     context = trailer_deposit_context(request, id)
+    context["pdf"] = True
     html_string = render_to_string(
         "rent/trailer_deposit_conditions.html",
         context,

@@ -2,6 +2,7 @@ from datetime import datetime
 from datetime import timedelta
 
 import pytz
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -10,8 +11,10 @@ from django.db.models import Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.forms import ValidationError
+from django.template.defaultfilters import default
 from django.urls import reverse
 from django.utils import timezone
+from num2words import num2words
 from phonenumber_field.modelfields import PhoneNumberField
 from schedule.models import Calendar
 from schedule.models import Event
@@ -20,11 +23,22 @@ from schedule.models import Rule
 from .vehicle import classify_file
 from .vehicle import DOCUMENT_TYPES
 from .vehicle import Trailer
+from rent.models.contract_renovation import ContractRenovation
+from rent.models.guarantor import Guarantor
+from rent.tools.contract_renovation_notification import \
+    contract_renovation_notification
+from rent.tools.get_conditions_last_version import get_conditions_last_version
 from users.models import Associated
 
 
 class Contract(models.Model):
     lessee = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    guarantor = models.ForeignKey(
+        Guarantor,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
     trailer = models.ForeignKey(Trailer, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
@@ -58,6 +72,7 @@ class Contract(models.Model):
     )
     security_deposit = models.IntegerField()
     contract_term = models.FloatField(default=3)  # Months
+    renovation_term = models.IntegerField(default=3)  # Months
     delayed_payments = models.IntegerField(default=0)
     TYPE_CHOICES = [
         ("lto", "Lease to own"),
@@ -69,6 +84,152 @@ class Contract(models.Model):
         default="rent",
     )
     total_amount = models.IntegerField(default=0)
+    template_version = models.IntegerField(null=True, blank=True)
+    client_complete = models.BooleanField(null=True, blank=True)
+
+    renovation_15_notify = models.BooleanField(default=False)
+    renovation_7_notify = models.BooleanField(default=False)
+
+    ####### Renovations #########################################
+    def _notify(self, status):
+        # return
+
+        if status == "exp7":
+            self.renovation_7_notify = True
+            self.renovation_15_notify = True
+            self.save()
+        elif status == "exp15":
+            self.renovation_15_notify = True
+            self.save()
+
+        contract_renovation_notification(self, status)
+
+    def notify(self, renovation: bool = False):
+        exp_in = self.expirate_in
+
+        if renovation:
+            self._notify("renovation")
+        elif exp_in.days <= 7 and not self.renovation_7_notify:
+            self._notify("exp7")
+        elif exp_in.days <= 15 and not self.renovation_15_notify:
+            self._notify("exp15")
+
+    @property
+    def renovations(self) -> list[ContractRenovation]:
+        renovations = self._renovations.order_by("effective_date").all()
+        num = 0
+        for r in renovations:
+            num += 1
+            r.num = num
+            r.oword_num = num2words(num, ordinal=True)
+            r.word_num = num2words(num)
+        return renovations
+
+    @property
+    def last_renovation(self) -> ContractRenovation | None:
+        return self._renovations.order_by("-effective_date").first()
+
+    @property
+    def renovations_count(self) -> int:
+        return self._renovations.count()
+
+    @property
+    def original_expiration_date(self) -> datetime.date:
+        return self.effective_date + relativedelta(months=self.contract_term)
+
+    @property
+    def expiration_date(self) -> datetime.date:
+        last: ContractRenovation | None = self.last_renovation
+        if last is not None:
+            return last.expiration_date
+
+        return self.original_expiration_date
+
+    @property
+    def original_is_expirated(self) -> bool:
+        return self.original_expiration_date < timezone.now().date()
+
+    @property
+    def is_expirated(self) -> bool:
+        return self.expiration_date < timezone.now().date()
+
+    @property
+    def expirate_in(self) -> timedelta:
+        exp_in = self.expiration_date - timezone.now().date()
+        return exp_in
+
+    @property
+    def expirate_in_days(self):
+        exp_in = self.expirate_in
+        return exp_in.days
+
+    def _renovate(self):
+        while self.is_expirated:
+            exp_date = self.expiration_date
+            ContractRenovation.objects.create(
+                contract=self,
+                effective_date=exp_date,
+                renovation_term=(
+                    3 if self.renovation_term <= 0 else self.renovation_term
+                ),
+            )
+
+        self.renovation_15_notify = False
+        self.renovation_7_notify = False
+        self.save()
+
+        self.notify(renovation=True)
+
+    def renovate(self) -> bool:
+        if self.stage == "ended" or self.stage == "garbage":
+            return False
+
+        if not self.is_expirated:
+            return False
+
+        self._renovate()
+        return True
+
+    @property
+    def renovation_ctx(self) -> dict:
+        # self.notify()
+        return {
+            "renovated": self.renovate(),
+            "expirate_in_days": self.expirate_in_days,
+            "is_expirated": self.is_expirated,
+            "renovations": self.renovations,
+            "last_renovation": self.last_renovation,
+            "renovations_count": self.renovations_count,
+            "expiration_date": self.expiration_date,
+        }
+
+    # ------ Renovations -----------------------------------------
+
+    # ###### Notes ###############################################
+    @property
+    def notes(self) -> list:
+        return Note.objects.filter(contract=self).order_by("created_at")
+
+    @property
+    def grouped_notes(self) -> dict[str, list]:
+        mapped_notes = {}
+        notes = self.notes
+        for n in notes:
+            date = str(n.created_at.date())
+            if date not in mapped_notes:
+                mapped_notes[date] = [n]
+            else:
+                mapped_notes[date].append(n)
+        return mapped_notes
+
+    def push_note(self, by: User, content: str):
+        Note.objects.create(
+            created_by=by,
+            contract=self,
+            text=content,
+        )
+
+    # ------ Notes -----------------------------------------------
 
     def __str__(self):
         return f"({self.id}) {self.trailer} -> {self.lessee}"
@@ -95,14 +256,20 @@ class Contract(models.Model):
 
         return paid_amount, (paid_amount >= self.total_amount)
 
+    def save(self, *args, **kwargs):
+        if self.template_version is None or self.template_version <= 0:
+            self.template_version = get_conditions_last_version(
+                self.contract_type,
+            )
+        super().save(*args, **kwargs)
+
     class Meta:
         ordering = ("-effective_date",)
 
 
 class Lease(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE)
-    event = models.ForeignKey(
-        Event, null=True, blank=True, on_delete=models.SET_NULL)
+    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.SET_NULL)
     notify = models.BooleanField(default=False)
     PERIODICITY_CHOICES = [
         ("weekly", "Weekly"),
@@ -133,8 +300,7 @@ class Lease(models.Model):
             )
 
     def save(self, *args, **kwargs):
-        STATUS_COLOR = {"weekly": "green",
-                        "biweekly": "brown", "monthly": "blue"}
+        STATUS_COLOR = {"weekly": "green", "biweekly": "brown", "monthly": "blue"}
         RULES_DICT = {
             "weekly": "Weekly",
             "biweekly": "Biweekly",
@@ -147,8 +313,7 @@ class Lease(models.Model):
             self.event.delete()
 
         start = timezone.make_aware(
-            datetime.combine(start_date, datetime.min.time()
-                             ) + timedelta(hours=12),
+            datetime.combine(start_date, datetime.min.time()) + timedelta(hours=12),
             pytz.timezone(settings.TIME_ZONE),
         )
 
@@ -233,6 +398,38 @@ class SecurityDepositDevolution(models.Model):
     returned = models.BooleanField(default=False)
     returned_date = models.DateField(null=True)
 
+    immediate_refund = models.BooleanField(default=False)
+    reason = models.CharField(max_length=300, null=True, blank=True)
+    note = models.TextField(null=True, blank=True)
+    refund_date = models.DateField(null=True)
+
+    @property
+    def income(self):
+        return self.total_deposited_amount - self.amount
+
+    @property
+    def returned_amount(self):
+        if self.amount < 0:
+            return 0
+        return self.amount
+
+    @property
+    def debt_amount(self):
+        if self.amount > 0:
+            return 0
+        return -self.amount
+
+    @property
+    def invoice_number(self):
+        contract_id = self.contract.id if self.contract is not None else "000"
+        client_id = (
+            self.contract.lessee.id
+            if self.contract is not None and self.contract.lessee is not None
+            else "000"
+        )
+
+        return f"SDD{self.id}-{contract_id}{client_id}"
+
 
 class LeaseDeposit(models.Model):
     lease = models.ForeignKey(
@@ -241,6 +438,7 @@ class LeaseDeposit(models.Model):
     date = models.DateField()
     amount = models.FloatField()
     note = models.TextField(blank=True)
+    on_hold = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -264,15 +462,37 @@ class HandWriting(models.Model):
 
 class LesseeData(models.Model):
     associated = models.ForeignKey(Associated, on_delete=models.CASCADE)
-    contact_name = models.CharField(max_length=100)
-    contact_phone = PhoneNumberField(
-        region=settings.PHONE_NUMBER_DEFAULT_REGION)
     insurance_number = models.CharField(max_length=150, blank=True)
-    insurance_file = models.FileField(
-        upload_to="rental/insurances", blank=True)
+    insurance_file = models.FileField(upload_to="rental/insurances", blank=True)
     license_number = models.CharField(max_length=150)
     license_file = models.FileField(upload_to="rental/licenses", blank=True)
     client_address = models.TextField()
+
+    contact_name = models.CharField(max_length=100)
+    contact_phone = PhoneNumberField(region=settings.PHONE_NUMBER_DEFAULT_REGION)
+    contact_file = models.FileField(
+        upload_to="documents/contact", blank=True, null=True
+    )
+
+    contact2_name = models.CharField(max_length=100, null=True, blank=True)
+    contact2_phone = PhoneNumberField(
+        region=settings.PHONE_NUMBER_DEFAULT_REGION,
+        null=True,
+        blank=True,
+    )
+    contact2_file = models.FileField(
+        upload_to="documents/contact", blank=True, null=True
+    )
+
+    contact3_name = models.CharField(max_length=100, null=True, blank=True)
+    contact3_phone = PhoneNumberField(
+        region=settings.PHONE_NUMBER_DEFAULT_REGION,
+        null=True,
+        blank=True,
+    )
+    contact3_file = models.FileField(
+        upload_to="documents/contact", blank=True, null=True
+    )
 
     def __str__(self):
         return self.associated.name
@@ -300,8 +520,7 @@ class Inspection(models.Model):
         if self.megaramp and self.ramp is not None:
             raise ValidationError("Megaramp and Ramp cannot both be selected.")
         if self.ramp is not None and self.megaramp:
-            raise ValidationError(
-                "If Ramp is selected, Megaramp must be False.")
+            raise ValidationError("If Ramp is selected, Megaramp must be False.")
 
     def __str__(self) -> str:
         return f"{self.lease} ({self.id})"
@@ -323,8 +542,7 @@ class Tire(models.Model):
         (90, "90%"),
         (100, "100%"),
     )
-    remaining_life = models.IntegerField(
-        choices=remaining_life_choices, default=100)
+    remaining_life = models.IntegerField(choices=remaining_life_choices, default=100)
 
 
 class Payment(models.Model):

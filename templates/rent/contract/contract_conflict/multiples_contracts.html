@@ -1,0 +1,53 @@
+{% extends "base/base_form.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block title %}
+    Contract conflicts
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <div class="card mb-4">
+            <div class="card-header flex items-center justify-between">
+                <h4 class="mb-0 flex-grow text-danger">Contract conflicts</h4>
+            </div>
+            <div class="card-body" x-data="createContract">
+                <div class="mb-2">
+                    <strong>
+                        We find a conflict with some previous contracts:
+                    </strong>
+                </div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td>Client</td>
+                            <td>Trailer</td>
+                            <td>Stage</td>
+                            <td>Effective Date</td>
+                            <td>Created Date</td>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for contract in contracts %}
+                            <tr>
+                                <!-- <td> -->
+                                <!--     <a class="trailer-link" href={% url 'detail-contract' contract.id %}><i class="bx bx-dots-vertical-rounded"></i></a> -->
+                                <!-- </td> -->
+                                <td>{% include "users/associated_line.html" with associated=contract.lessee %}</td>
+                                <td class="d-flex">
+                                    {% include "rent/equipment_line.html" with equipment_type="trailer" equipment=contract.trailer %}
+                                </td>
+                                <td class="text-center">
+                                    {% include "rent/contract_icon.html" %}
+                                </td>
+                                <td class="text-center">{{ contract.effective_date|date:"Y/m/d" }}</td>
+                                <td class="text-center">{{ contract.created_at|date:"Y/m/d" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

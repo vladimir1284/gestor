@@ -7,7 +7,7 @@ from django.shortcuts import render
 from template_admin.forms.editor import ListEditorForm
 from template_admin.forms.editor import TextEditorForm
 from template_admin.models.template import Template
-from template_admin.models.template import TT_LIST
+from template_admin.tools.templates_tools import TT_LIST
 
 
 @login_required
@@ -30,7 +30,7 @@ def template_edit(request: HttpRequest, id):
         if form.is_valid():
             template.content = form.cleaned_data["text"]
             template.save()
-            return redirect("template-list")
+            # return redirect("template-list")
     else:
         form = TempForm(initial=initial)
 
