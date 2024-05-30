@@ -1,3 +1,4 @@
+from django.urls import include
 from django.urls import path
 
 from .views import category
@@ -55,6 +56,8 @@ except Exception as e:
     print(e)
 
 urlpatterns = [
+    # -------------------- APIS --------------------------------
+    path("api/", include("services.api.urls")),
     # -------------------- Category ----------------------------
     path(
         "create-category/",

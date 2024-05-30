@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_cleanup.apps.CleanupConfig",
     "django_extensions",
+    "rest_framework",
+    "rest_framework.authtoken",
     # local
     "utils.apps.UtilsConfig",
     "inventory.apps.inventoryConfig",
