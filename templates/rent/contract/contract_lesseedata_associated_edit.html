@@ -1,0 +1,31 @@
+{% extends "base/base_form.html" %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+    <!-- Basic with Icons -->
+    <div class="col-xxl">
+        <form enctype="multipart/form-data" method="post" id="update-form">
+            {% csrf_token %}
+            <div class="xl:flex">
+                <div class="card mb-4 xl:flex-grow xl:mr-2">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Associated</h5>
+                    </div>
+                    <div class="card-body">
+                        {% crispy formAssociated %}
+                    </div>
+                </div>
+                <div class="card mb-4 xl:flex-grow xl:ml-2">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Documents</h5>
+                    </div>
+                    <div class="card-body">
+                        {% crispy formLesseeData %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

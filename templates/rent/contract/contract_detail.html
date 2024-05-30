@@ -2,74 +2,56 @@
 {% block page %}
     <meta charset="utf-8" />
     <style>
-    {% block mark %}    
-      mark { 
-         background-color: yellow;
-         color: black;
-      }
-    {% endblock %}
-     .bottom-three-left-two {
-         margin-left: 3em;
-         margin-top: -4em;
-         z-index:-1;
-     }
-     
-    .date {
-        margin-bottom: 2em;
-        max-width: 300px;
-    }
-     
-	.signature {
-        min-width: 300px;
-        max-width: 300px;
-        z-index:1;
-	}
-     .center {
-	      text-align: center;
-      }
-      p, li {
-	      text-align: justify;
-      }
-      div.break {
-         page-break-before:always;
-      }
-    .left-space {
-        margin-left: 1em;
-        margin-right: 0.5em;
-    }
-    svg {
-        width: 100%;
-        height: auto;
-    }
+        {% block mark %}
+            mark {
+                background-color: yellow;
+                color: black;
+            }
+        {% endblock %}
+        .bottom-three-left-two {
+            margin-left: 3em;
+            margin-top: -4em;
+            z-index:-1;
+        }
+
+        .date,
+        .signature {
+            min-width: 2rem;
+            max-width: 100%;
+            width: 15rem;
+            z-index:1;
+        }
+        .center {
+            text-align: center;
+        }
+        p, li {
+            text-align: justify;
+        }
+        div.break {
+            page-break-before:always;
+        }
+        .left-space {
+            margin-left: 1em;
+            margin-right: 0.5em;
+        }
+        svg {
+            width: 100%;
+            height: auto;
+        }
+        @media screen and (max-width: 600px) {
+            .ck-content {
+                font-size: 0.75rem;
+                table {
+                    max-width: 100%;
+                }
+            }
+        }
     </style>
 {% endblock page %}
 {% block content %}
     <div class="card mb-3">
-        <div class="card-body">{% include "./contract_header.html" %}</div>
-        <div class="container">
-            <div class="container">
-                <div class="row">
-                    <div class="col d-flex justify-content-center">
-                        <div>
-                            <strong>SMS sended to:</strong> {{ phone }}
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col d-flex justify-content-center">
-                        <div style="max-width: 5cm">{{ qr_url|safe }}</div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col d-flex justify-content-center">
-                        <div class="mb-4">
-                            <a href="{{ url }}">
-                                <strong>URL:</strong> {{ url }}
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="card-body">
+            {% include "./contract_header.html" %}
         </div>
     </div>
     {% include "./contract_content.html" %}

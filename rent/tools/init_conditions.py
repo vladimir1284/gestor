@@ -1,201 +1,116 @@
 from template_admin.models.template import Template
-from template_admin.models.template import TT_TEXT
-
-DEF_COND_EN = """
-<p class="center">
-   <strong>EQUIPMENT</strong> <strong>LEASE</strong>
-</p>
-<p>
-   This Equipment Lease ("this lease") is made effective as
-   of <mark>{{ contract.effective_date|date:'F d, Y' }}</mark> between Towit Houston, LLC ("the Lessors"), 6514 Mohave Ln, Richmond, TX 77469,
-   and <mark>{{ contract.lessee.name }}</mark>, ("the Lessee"), <mark>{{ contract.lessee.data.client_address }}</mark> and states the agreement of the parties as follows:
-</p>
-<p>
-   <strong>EQUIPMENT SUBJECT TO LEASE</strong>. The Lessor shall lease the equipment listed on the attached exhibit "A".
-</p>
-{% if contract.contract_type == "lto" %}
-   <p>
-      <strong>PAYMENT TERMS</strong>. The Lessee shall make  <mark>{{ contract.n_payments }} {{ contract.payment_frequency }}</mark> payments of $<mark>{{ contract.payment_amount }}</mark>.
-      The lease payments shall be due whether or not the Lessee has received notice of payment due.
-   </p>
-{% else %}
-   <p>
-      <strong>PAYMENT TERMS</strong>. The Lessee shall make a  payment of $<mark>{{ contract.payment_amount }}</mark> <mark>{{ contract.payment_frequency }}</mark>.
-      The lease payments shall be due whether or not the Lessee has received notice of payment due.
-   </p>
-{% endif %}
-<p>
-   <strong>SERVICE CHARGE</strong>. If any lease installment is not paid within 7 day(s) after the due date,
-   the Lessee shall pay to the Lessor a service charge of $<mark>{{ contract.service_charge }}</mark> for every week the payment is late.
-</p>
-{% if contract.contract_type == "lto" %}
-   <p>
-      <strong>DOWN PAYMENT</strong>. In addition to the Lease payment charge, the Lessee shall pay a down payment of
-      $<mark>{{ contract.security_deposit }}</mark> at the time that this Lease is signed.
-   </p>
-   <p>
-      <strong>LEASE TO OWN TERM</strong>. This Lease shall begin on the above effective date and shall terminate on <mark>{{ contract.contract_end_date|date:'F d, Y' }}</mark>,
-      unless otherwise terminated in a manner consistent with the terms of this Lease. Once the last payment is received by the Lessor, the title shall be released and granted
-      to the Lease, which will be the new owner of the equipment.
-   </p>
-{% else %}
-   <p>
-      <strong>SECURITY DEPOSIT</strong>. In addition to the Lease payment charge, the Lessee shall pay a security deposit of
-      $<mark>{{ contract.security_deposit }}</mark> at the time that this Lease is signed. Any amount refundable to the Lessee shall
-      be paid at the time this Lease is terminated, subject to the option of the Lessor to apply it against Lease charges and damages.
-      This security deposit shall not bear interest.
-   </p>
-   <p>
-      <strong>LEASE TERM</strong>. This Lease shall begin on the above effective date and shall terminate on <mark>{{ contract.contract_end_date|date:'F d, Y' }}</mark>,
-      unless otherwise terminated in a manner consistent with the terms of this Lease.
-   </p>
-{% endif %}
-<p>
-   <strong>LOCATION OF EQUIPMENT</strong>. The equipment shall be located at <mark>{{ contract.trailer_location }}</mark>, during the Lease term, and shall not be
-   removed from that location without the Lessor prior written consent.
-</p>
-<p>
-   <strong>CARE AND OPERATION OF EQUIPMENT</strong>. The equipment may only be used and operated in a careful and proper manner.
-   Its use must comply with all laws, ordinances, and regulations relating to the possession, use, or maintenance of the equipment,
-   including registration and/or licensing requirements, if any.
-</p>
-<p>
-   <strong>MAINTENANCE AND REPAIR</strong>. The Lessee shall maintain, at the Lessee's cost, the equipment in good repair and operating
-   condition. Allowing for reasonable wear and tear. Such cost shall include labor, materials, parts, and similar items.
-</p>
-<ol>
-   <li style="list-style-type: none;">A. Tires/Brakes shall be returned new at the end of the Lease term.</li>
-</ol>
-<p>
-   <strong>LESSOR'S RIGHT OF INSPECTION</strong>. The Lessor shall have the right to inspect the equipment during Lessee's normal business hours.
-</p>
-<p>
-   <strong>RETURN OF EQUIPMENT</strong>. At the end of the Lease term, the Lessee shall be obligated to return the equipment to the Lessors at the Lessee's expense.
-</p>
-<p>
-   <strong>TOLL BY PLATE</strong>. Lease shall pay all tolls by plate receive by Lessor.
-</p>
-<p>
-   <strong>OPTION TO RENEW</strong>. If the Lessee is not in default upon expiration of this Lease,
-   The Lessee shall have the option to renew this Lease for a similar term on such terms as the parties may agree at the time of such renewal.
-</p>
-<p>
-   <strong>OPTION TO PURCHASE</strong>. If the Lessee is not in default under this Lease,
-   the Lessees shall have the option to purchase items of equipment at the end of the lease term for the price specified for such items
-   of the equipment in the attached Equipment Schedule. The Lessee shall exercise this option by providing written notice to the Lessor of such intent at
-   least 60 day(s) prior to the end of the Lease term.
-</p>
-<p>
-   <strong>ACCEPTANCE OF EQUIPMENT</strong>. The Lessee shall inspect each
-   item of equipment delivered pursuant to this Lease. The Lessee shall immediately notify the Lessors of any discrepancies between
-   such items of equipment and description of the equipment in the Equipment Schedule. If the Lessee fails to provide such notice in writing within 7 day(s) after the deliver
-   y of the equipment, the Lessee will be conclusively presumed to have accepted equipment as a specific in Equipment Schedule.
-</p>
-<p>
-   <strong>OWNERSHIP AND STATUS OF EQUIPMENT</strong>. The equipment will be deemed to be personal property, regardless of the manner in which it may
-   be attached to any other property. The Lessor shall be deemed to have retained title to the equipment at all times, unless the Lessor transferred the
-   title by sell. The Lessee shall immediately advise the Lessor regarding any notice of any claims, levy, lien, or legal process issued against equipment.
-</p>
-<p>
-   <strong>RISK OF LOSS OR DAMAGE</strong>. The Lessee assumes all risk of loss or damage to the equipment from any cost,
-   and agrees to return it to the Lessor in the condition received from the Lessor, with the exception of normal wear and tear, unless otherwise provided in this Lease.
-</p>
-<p>
-   <strong>INDEMNITY OF LESSOR FOR LOSS OR DAMAGE</strong>. Unless otherwise stated in this Lease, if the equipment is damaged or lost,
-   the Lessor shall have the option of requiring the Lessee to repair the equipment to a state of good working order,
-   or replace the equipment with like equipment in good repair, which equipment shall become the property of the Lessor and subject to this Lease.
-</p>
-<p>
-   <strong>LIABILITY AND INDEMNITY</strong>. Liability for injury, disability, and death of workers and other persons caused by operating, handling,
-   or transporting the equipment during the term of this lease is the obligation of the Lessee, and the Lessee shall indemnify and hold the Lessor harmless
-   from on against all such liability. Lessee shall maintain liability insurance of at least $13,000.
-</p>
-<p>
-   <strong>CASUALTY INSURANCE</strong>. The Lessee shall insure the equipment in an amount sufficient to cover the replacement cost of the equipment.
-</p>
-<p>
-   <strong>DEFAULT</strong>. The occurrence of any of the following shall constitute a default under this Lease:
-</p>
-<ol>
-   <li>The failure to make a required payment under this Lease when due.</li>
-   <li>
-      The violation of any other provision or requirement that is not corrected within 30 day(s) after written notice of the violation is given.
-   </li>
-   <li>The insolvency or bankruptcy of the Lessee.</li>
-   <li>
-      The subjection of any of Lessee's property to any levy, seizure, assignment, application, or sale for or by any creditor or government agency.
-   </li>
-</ol>
-<p>
-   <strong>RIGHTS ON DEFAULT</strong>. In addition to any other rights afforded the Lessor by law, if the Lessee is in default under this Lease,
-   without notice to or demands on the Lessee, the Lessor may take possession of the equipment as provided by law, deduct the cost of recovery (including atto
-   rney fees and legal costs), repairs, and related cost, and hold the Lessee responsible for any deficiency. The rights and remedies of the
-   Lessor provided by law and this Agreement shall be cumulative in nature. The Lessor shall be obligated to re-lease the equipment,
-   or otherwise mitigate the damage from the default, only as required by law.
-</p>
-<p>
-   <strong>NOTICE</strong>. All notices required or permitted under this Lease shall be deemed delivered when delivered in person or by mail, postage
-   prepaid, addressed to the appropriate party at the address shown for that party at the beginning of this Lease.
-</p>
-<p>
-   <strong>ASSIGNMENT</strong>.  The Lessee shall not assign or sublet any interest in this Lease or the equipment or permit the equipment to be used
-   by anyone other than the Lessee or the Lessee's employees, without Lessors prior written consent.
-</p>
-<p>
-   <strong>ENTIRE AGREEMENT AND MODIFICATION</strong>. This Lease constitutes the entire agreement between the parties.
-   No modification or amendment of this Lease shall be effective unless in writing and signed by both parties. This Lease replaces any all-prior agreement between the parties.
-</p>
-<p>
-   <strong>COVERING LAW</strong>.  This Lease shall be construed in accordance with the laws of the state of Texas.
-</p>
-<p>
-   <strong>SEVERABILITY</strong>. If any portion of this Lease shall be held to be invalid or unenforceable by any reason,
-   the remaining provisions shall continue to be valid and enforceable. If a court finds that any provision of this Lease is invalid or unenforceable,
-   but that by limiting such provisions, it would become valid and enforceable, then such provision shall be deemed to be written, construed, and enforced as so limited.
-</p>
-<p>
-   <strong>WAIVER</strong>. The failure of either party to enforce any provision of this lease shall not be construed as a waiver or limitation of the
-   party's right to subsequently enforce and compel strict compliance with every provision of this Lease.
-</p>
-<p>
-   <strong>CERTIFICATION</strong>. Lessee certifies that the application, statement, trade reference and financial reports to make it to the Lessor ar
-   e true and correct and any material misrepresentation will constitute a default under this Lease.
-</p>
-<p>
-   <strong>DISPUTE RESOLUTION</strong>. The parties will attempt to resolve any dispute arising out of the relating to this Agreement through friendly
-   negotiations among the parties. If the matter is not resolved by negotiation,
-   the parties will resolve the dispute using the below Alternative Dispute Resolution (ADR) procedure.
-</p>
-<p>
-   Any controversies or disputes arising out of or relating to this Agreement will be submitted to mediation in accordance with any statutory rules or mediation.
-   If mediation is not successful in resolving the entire dispute or is unavailable,
-   any outstanding issues will be submitted to final and binding arbitration under the rules of the American Arbitration Association.
-   The arbitrator's award will be final, and judgment may be entered upon it by any court having proper jurisdiction.
-</p>
-<p>
-   <strong>SIGNATORIES</strong>. This Lease shall be signed by Towit Houston, LLC and <mark>{{ contract.lessee.name }}</mark> and shall be effective
-   as of the date first above written.
-</p>
-"""
+from template_admin.models.template_version import TemplateVersion
+from template_admin.tools.templates_tools import TT_LIST
+from template_admin.tools.templates_tools import TT_TEXT
 
 MODULE = "rent"
-TEMPLATE = "lease-conditions"
 LANG_EN = "english"
+LANG_ES = "spanish"
+
+UPDATE_ON_HOLD_REASONS = False
+
+TEMPLATE_LTO = "lease-conditions-lto"
+TEMPLATE_RENT = "lease-conditions-rent"
+TEMPLATE_ON_HOLD_REASONS = "on-hold-reasons"
+TEMPLATE_ON_HOLD_CONDITIONS = "on-hold-conditions"
+
+DEF_LTO_EN = "rent/tools/conditions_default_templates/lto.html"
+DEF_RENT_EN = "rent/tools/conditions_default_templates/rent.html"
+
+DEF_ONHOLD_EN = "rent/tools/conditions_default_templates/on_hold_en.html"
+DEF_ONHOLD_ES = "rent/tools/conditions_default_templates/on_hold_es.html"
+
+ON_HOLD_REASONS = """[
+"Reason 1",
+"Reason 2",
+"Reason 3"
+]"""
 
 
 def init_conditions():
+    init_on_hold_reason()
+    init_on_hold_conditions()
     # English
-    temp = Template.objects.filter(
+    # LTO
+    temp = TemplateVersion.objects.filter(
         module=MODULE,
-        template=TEMPLATE,
+        template=TEMPLATE_LTO,
         language=LANG_EN,
         tmp_type=TT_TEXT,
     ).last()
     if temp is None:
-        temp = Template.objects.create(
-            module=MODULE,
-            template=TEMPLATE,
-            language=LANG_EN,
-            content=DEF_COND_EN,
-            tmp_type=TT_TEXT,
-        )
+        with open(DEF_LTO_EN, "r") as templ:
+            content = templ.read()
+            temp = TemplateVersion.objects.create(
+                module=MODULE,
+                template=TEMPLATE_LTO,
+                language=LANG_EN,
+                tmp_type=TT_TEXT,
+            )
+            temp.new_version(content=content)
+    # RENT
+    temp = TemplateVersion.objects.filter(
+        module=MODULE,
+        template=TEMPLATE_RENT,
+        language=LANG_EN,
+        tmp_type=TT_TEXT,
+    ).last()
+    if temp is None:
+        with open(DEF_RENT_EN, "r") as templ:
+            content = templ.read()
+            temp = TemplateVersion.objects.create(
+                module=MODULE,
+                template=TEMPLATE_RENT,
+                language=LANG_EN,
+                tmp_type=TT_TEXT,
+            )
+            temp.new_version(content=content)
+
+
+def init_on_hold_reason():
+    temp, c = Template.objects.get_or_create(
+        module=MODULE,
+        template=TEMPLATE_ON_HOLD_REASONS,
+        language=LANG_EN,
+        tmp_type=TT_LIST,
+    )
+    if c or UPDATE_ON_HOLD_REASONS:
+        temp.content = ON_HOLD_REASONS
+        temp.save()
+
+
+def init_on_hold_conditions():
+    # ON HOLD EN
+    temp = TemplateVersion.objects.filter(
+        module=MODULE,
+        template=TEMPLATE_ON_HOLD_CONDITIONS,
+        language=LANG_EN,
+        tmp_type=TT_TEXT,
+    ).last()
+    if temp is None:
+        with open(DEF_ONHOLD_EN, "r") as templ:
+            content = templ.read()
+            temp = TemplateVersion.objects.create(
+                module=MODULE,
+                template=TEMPLATE_ON_HOLD_CONDITIONS,
+                language=LANG_EN,
+                tmp_type=TT_TEXT,
+            )
+            temp.new_version(content=content)
+    # ON HOLD ES
+    temp = TemplateVersion.objects.filter(
+        module=MODULE,
+        template=TEMPLATE_ON_HOLD_CONDITIONS,
+        language=LANG_ES,
+        tmp_type=TT_TEXT,
+    ).last()
+    if temp is None:
+        with open(DEF_ONHOLD_ES, "r") as templ:
+            content = templ.read()
+            temp = TemplateVersion.objects.create(
+                module=MODULE,
+                template=TEMPLATE_ON_HOLD_CONDITIONS,
+                language=LANG_ES,
+                tmp_type=TT_TEXT,
+            )
+            temp.new_version(content=content)

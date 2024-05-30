@@ -1,5 +1,6 @@
 {% extends "base/base_form.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 {% block title %}
     {{ title }}
 {% endblock title %}
@@ -7,10 +8,15 @@
     <!-- Basic with Icons -->
     <div class="col-xxl">
         <div class="card mb-4">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="mb-0">{{ title }}</h5>
+            <div class="card-header flex items-center justify-between">
+                <h5 class="mb-0 flex-grow">{{ title }}</h5>
+                {%if on_hold%}
+                    <div class="bg-mainBG rounded-xl py-2 px-4 text-main">
+                        ON HOLD: <strong>${{on_hold.amount|floatformat:'-2'}}</strong>
+                    </div>
+                {%endif%}
             </div>
-            <div class="card-body">
+            <div class="card-body" x-data="createContract">
                 <form enctype="multipart/form-data" method="post" id="update-form">
                     {% csrf_token %}
                     {% crispy form %}
@@ -18,25 +24,6 @@
             </div>
         </div>
     </div>
-    <script>
-        function toggleInput() {
-            var contractType = document.getElementById("id_contract_type");
-            var totalAmount = document.getElementById("div_id_total_amount");
-            var label = document.querySelector('label[for="id_security_deposit"]');
-            
-            if (contractType.value === "lto") {
-                totalAmount.style.display = 'block';
-                label.innerHTML = 'Down payment*';
-            } else {
-                totalAmount.style.display = 'none';
-                label.innerHTML = 'Security deposit*';
-            }
-        }
-
-        // Call the toggleInput function on page load
-        toggleInput();
-
-        // Call the toggleInput function on every update of the select element
-        document.getElementById("id_contract_type").addEventListener("change", toggleInput);
+    <script src="{% static "assets/js/create_contract.js" %}">
     </script>
 {% endblock content %}

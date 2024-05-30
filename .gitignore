@@ -13,6 +13,9 @@ openapi_client/
 # Backup files # 
 *.bak 
 
+# CodeShots #
+code_shot*.png
+
 # If you are using PyCharm # 
 # User-specific stuff
 .idea/**/workspace.xml

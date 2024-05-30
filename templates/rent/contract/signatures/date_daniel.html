@@ -1,0 +1,13 @@
+{% load static %}
+{% if pdf %}
+{% else %}
+    {% if not external %}
+        <a class="date_btn"
+           href="{% url 'capture-signature' 'date_daniel' token %}">
+            <button type="button" class="btn btn-icon btn-primary">
+                <span class="tf-icons bx bx-edit"></span>
+            </button>
+        </a>
+    {% endif %}
+{% endif %}
+<img class="date" src="{{ date_daniel.img.url }}">

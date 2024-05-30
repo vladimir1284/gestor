@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Gestor de Mantenimientos</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+        <meta name="description" content="" />
+        <!-- Favicon -->
+        <link rel="icon"
+              type="image/x-icon"
+              href="{% static 'assets/img/favicon/favicon.ico' %}" />
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+              rel="stylesheet" />
+        <!-- Icons. Uncomment required icon fonts -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+        <!-- Core CSS -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/css/core.css' %}"
+              class="template-customizer-core-css" />
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/css/theme-default.css' %}"
+              class="template-customizer-theme-css" />
+        <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+        <!-- Vendors CSS -->
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+        <link rel="stylesheet"
+              href="{% static 'assets/vendor/libs/apex-charts/apex-charts.css' %}" />
+        <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+        <!-- Helpers -->
+        <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+        <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+        <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+        <script src="{% static 'assets/js/config.js' %}"></script>
+        <script defer src="{%static 'js/alpine.min.js'%}"></script>
+        <script src="{% static 'assets/js/signature.js' %}"></script>
+        <script src="{% static 'assets/js/signature_layout.js' %}"></script>
+        <link rel='stylesheet' href="{% static "assets/css/signature.css" %}"/>
+        {%if date%}
+            <link rel='stylesheet' href="{% static "fonts/over_the_rainbow/font.css" %}"/>
+            <script src="{% static "assets/js/get_date.js" %}"></script>
+        {%endif%}
+    </head>
+    <body>
+        <div id="MainContainer" class="flex flex-col items-center pt-3" x-ref="mainContainer" x-data="signature">
+            <div :class="landscape && 'fixed top-0 left-0 right-0 flex justify-start items-center'">
+                <h4 class="flex items-center z-10 mt-2" x-ref="title">
+                    {% if back %}
+                        <a href="{{ back }}#{{ form.position.value }}"
+                           class="btn btn-secondary back-but">
+                            <i class='bx bx-left-arrow-alt'></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'detail-contract' contract.id %}#{{ form.position.value }}"
+                           class="btn btn-secondary back-but">
+                            <i class='bx bx-left-arrow-alt'></i>
+                        </a>
+                    {% endif %}
+
+                    INSERT
+                    {% if date %}
+                        THE DATE.
+                    {% else %}
+                        SIGNATURE.
+                    {% endif %}
+                </h4>
+            </div>
+            <!-- <div x-text='`${landscape} ${CanvW} ${CanvH}`'></div> -->
+            <div
+                :class="landscape? 'fixed top-1 right-1 bottom-16 flex flex-col items-end': 'mt-4 w-full p-1'"
+                :style="{left: (left + 20) + 'px'}"
+                x-ref="canvasBox">
+                    <!-- :class="!landscape && 'w-full'" -->
+                <canvas
+                    x-ref="canvas"
+                    :class="{danger: emptyCanv}"
+                ></canvas>
+            </div>
+            <div class="container" style="max-width: 600px">
+                <div class="row justify-content-center">
+                    <div class="col d-flex justify-content-center">
+                        <button class="btn btn-danger btn-block m-1 col-6 px-1"
+                                :class="landscape && 'fixed bottom-2 left-16 w-40'"
+                                @click="clear"
+                                type="button">
+                            <i class='bx bx-x'></i>
+                            Clear
+                        </button>
+                        <button class="btn btn-success btn-block m-1 col-6 px-1"
+                                @click="capture"
+                                :class="landscape && 'fixed bottom-2 right-16 w-40'">
+                            <i class='bx bx-check'></i>
+                            Capture
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div :class="landscape && 'fixed top-11 left-[10px] w-min'"
+                 x-ref='exampleBox'>
+                <div class="text-center mt-4 mb-1">Example:</div>
+                <div class="text-center max-w-full">
+                    {% if date %}
+                        <div class="flex justify-center event-none">
+                            <div class="flex flex-col align-items-center signature py-4 event-none">
+                                <div id="dateExample" class="over-the-rainbow text-center my-1 event-none" x-data x-text="getDate()"></div>
+                                <div class="border border-black w-11/12 my-1 event-none"></div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <img class="signature max-w-full" src="{% static '/images/signs/firma_daniel.png' %}">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <form id="form1" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display: none">{{ form.as_p }}</div>
+        </form>
+        <!-- <script>zkSignature.capture();</script> -->
+    </body>
+</html>

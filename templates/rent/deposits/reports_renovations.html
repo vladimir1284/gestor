@@ -1,0 +1,82 @@
+{% load static %}
+{% load humanize %}
+<div class="card-body pt-0">
+    <strong class='text-main'>RENOVATIONS</strong>
+    <table>
+        <tr>
+            <td>
+                <strong>Quantity:</strong>
+            </td>
+            <td>{{deposits_renovations_count}}</td>
+        </tr>
+        <tr>
+            <td>
+                <strong>Total income:</strong>
+            </td>
+            <td>${{deposits_renovations_total}}</td>
+        </tr>
+    </table>
+</div>
+<div class="table-responsive text-nowrap">
+    <div class="container ps-0" style="height: 500px; overflow-y: auto;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><i class="bx bx-cog"></i></th>
+                    <th>Invoice</th>
+                    <th>Client</th>
+                    <th class="text-end">Amount</th>
+                    <th>Days</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody x-data="{item_expand: {}}">
+                {% for _, deposit in deposits_renovations.items %}
+                    {%for renovation in deposit.renovations%}
+                        <tr
+                            {%if forloop.counter == 1%}
+                                x-init="item_expand['{{deposit.id}}'] = true"
+                            {%else%}
+                                x-show="item_expand['{{deposit.id}}']"
+                            {%endif%}
+                        >
+                            {%if forloop.counter == 1%}
+                                <td :rowspan="item_expand['{{deposit.id}}'] ? '{{deposit.renovations|length}}' : ''"
+                                    @click="item_expand['{{deposit.id}}'] = !item_expand['{{deposit.id}}']"
+                                    class="align-top"
+                                >
+                                    <div class="bg-main text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer">
+                                        <span>
+                                            {{deposit.renovations | length}}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td :rowspan="item_expand['{{deposit.id}}'] ? '{{deposit.renovations|length}}' : ''"
+                                    class="align-top"
+                                >
+                                    <a href="{%url 'trailer-deposit-details' deposit.id %}">
+                                        {{deposit.invoice_num}}
+                                    </a>
+                                </td>
+                                <td :rowspan="item_expand['{{deposit.id}}'] ? '{{deposit.renovations|length}}' : ''"
+                                    class="align-top"
+                                >
+                                    {{ deposit.client.name|slice:":20" }}
+                                </td>
+                            {%endif%}
+                            <td class="text-end">
+                                ${{ renovation.amount|floatformat:"2" }}
+                            </td>
+                            <td>
+                                {{ renovation.days }}
+                            </td>
+                            <td>
+                                {{ renovation.created_at|date:"E, d Y" }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

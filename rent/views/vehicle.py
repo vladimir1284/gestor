@@ -13,6 +13,7 @@ from rent.forms.vehicle import TrailerDocumentUpdateForm
 from rent.forms.vehicle import TrailerPictureForm
 from rent.models.lease import Contract
 from rent.models.trailer_deposit import get_current_trailer_deposit
+from rent.models.trailer_deposit import TrailerDeposit
 from rent.models.vehicle import Manufacturer
 from rent.models.vehicle import Trailer
 from rent.models.vehicle import TrailerDocument
@@ -21,26 +22,57 @@ from rent.models.vehicle import TrailerPlates
 from rent.permissions import staff_required
 from users.models import Company
 from users.views import processOrders
-from utils.models import (
-    Order,
-)
+from utils.models import Order
 
 # -------------------- Equipment ----------------------------
 
 
 @login_required
 def list_equipment(request):
+    active_filters = {
+        "Available": 0,
+        "On Hold": 0,
+        "Rented": 0,
+        "To rent": 0,
+        "LTO": 0,
+        "To LTO": 0,
+    }
     trailers = Trailer.objects.filter(active=True)
     for trailer in trailers:
         # Contracts
-        contracts = Contract.objects.filter(trailer=trailer).exclude(stage="ended")
+        contracts = Contract.objects.filter(trailer=trailer).exclude(
+            stage__in=("ended", "garbage")
+        )
         if contracts:
-            trailer.current_contract = contracts.last()
-            _, trailer.paid = trailer.current_contract.paid()
+            contract = contracts.last()
+            trailer.current_contract = contract
+            if contract.stage == "active":
+                trailer.renovation = trailer.current_contract.renovation_ctx
+                _, trailer.paid = trailer.current_contract.paid()
+                if trailer.current_contract.contract_type == "lto":
+                    trailer.filter = "LTO"
+                else:
+                    trailer.filter = "Rented"
+            else:
+                trailer_deposit = TrailerDeposit.objects.filter(
+                    contract=contract,
+                    trailer=trailer,
+                    cancelled=False,
+                )
+                if trailer_deposit:
+                    trailer.reservation = trailer_deposit
+                    trailer.filter = "On Hold"
+        else:
+            trailer_deposits = get_current_trailer_deposit(trailer)
+            if trailer_deposits:
+                trailer.reservation = trailer_deposits
+                if not hasattr(trailer, "filter"):
+                    trailer.filter = "On Hold"
 
-        trailer_deposits = get_current_trailer_deposit(trailer)
-        if trailer_deposits:
-            trailer.reservation = trailer_deposits
+        if not hasattr(trailer, "filter"):
+            trailer.filter = "Available"
+
+        active_filters[trailer.filter] += 1
 
         # Images
         images, pinned_image = getImages(trailer)
@@ -65,13 +97,35 @@ def list_equipment(request):
         )
         if last_order is not None:
             trailer.last_order = last_order
+
+    inactive_filters = {
+        "Available": 0,
+        "Rented": 0,
+        "LTO": 0,
+    }
     inactive_trailers = Trailer.objects.filter(active=False)
     for trailer in inactive_trailers:
         # Contracts
-        contracts = Contract.objects.filter(trailer=trailer).exclude(stage="ended")
+        contracts = (
+            Contract.objects.filter(
+                trailer=trailer,  # stage__in=["active", "missing"]
+            )
+            .exclude(stage="ended")
+            .order_by("-created_at")
+        )
         if contracts:
             trailer.current_contract = contracts.last()
             trailer.paid = trailer.current_contract.paid()
+            if trailer.current_contract.contract_type == "lto":
+                trailer.filter = "LTO"
+            else:
+                trailer.filter = "Rented"
+
+        if not hasattr(trailer, "filter"):
+            trailer.filter = "Available"
+
+        inactive_filters[trailer.filter] += 1
+
         # Images
         images, pinned_image = getImages(trailer)
         trailer.images = images
@@ -95,7 +149,13 @@ def list_equipment(request):
         )
         if last_order is not None:
             trailer.last_order = last_order
-    context = {"trailers": trailers, "inactive_trailers": inactive_trailers}
+
+    context = {
+        "trailers": trailers,
+        "inactive_trailers": inactive_trailers,
+        "active_filters": active_filters,
+        "inactive_filters": inactive_filters,
+    }
     return render(request, "rent/equipment_list.html", context)
 
 
@@ -237,7 +297,9 @@ def detail_trailer(request, id):
     images, pinned_image = getImages(trailer)
 
     # Contracts
-    contracts = Contract.objects.filter(trailer=trailer).exclude(stage="ended")
+    contracts = Contract.objects.filter(trailer=trailer).exclude(
+        stage__in=["ended", "garbage"]
+    )
     if contracts:
         trailer.current_contract = contracts.last()
 

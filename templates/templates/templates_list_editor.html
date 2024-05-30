@@ -48,6 +48,28 @@
                                 {{ template.language|upper }}
                             </h5>
                         </div>
+                        {% if versions %}
+                            <div class="btn-group">
+                                <button type="button"
+                                        class="btn btn-link dropdown-toggle"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    {{ version.version }} - {{ version.created_date }}
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {% for v in versions %}
+                                        <li>
+                                            <a href="{% url 'template-version-edit' template.id v.version %}"
+                                               class="dropdown-item">{{ v.version }} - {{ v.date }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <a href="{% url 'template-version-new' template.id %}"
+                               class="btn btn-link btn-icon">
+                                <i class='bx bxs-file-plus'></i>
+                            </a>
+                        {% endif %}
                         <div>
                             <button class="btn btn-link" @click.stop="newItem">
                                 <i class='bx bx-plus'></i>

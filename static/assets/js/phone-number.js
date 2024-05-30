@@ -61,7 +61,12 @@ const setInputPhoneFormatter = (input) => {
 function init() {
   const phones = document.querySelectorAll('input[type="tel"]');
   phones.forEach((p) => {
-    setInputPhoneFormatter(p);
+    p.setAttribute("x-data", "");
+    p.setAttribute(
+      "x-mask:dynamic",
+      "$input.startsWith('+') ? '+99 9999 9999999' : '(999) 999 - 9999'",
+    );
+    // setInputPhoneFormatter(p);
   });
 }
 

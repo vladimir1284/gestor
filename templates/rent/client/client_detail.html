@@ -1,11 +1,12 @@
 {% extends "base/base.html" %}
 {% load static %}
+{% load debug %}
 {% block page %}
     <style>
         .table-container {
             height: 300px; /* Set the desired fixed height for the table */
             overflow-y: scroll; /* Enable vertical scrolling */
-          }
+        }
         .table td {
             padding-right: 0;
         }
@@ -44,513 +45,105 @@
     </script>
 {% endblock page %}
 {% block content %}
-    <div class="card">
-        <div class="card-body row  mb-0 pb-0">
-            <div class="col-md-6">{% include "users/associated_line.html" with associated=client %}</div>
-            <div class="col-md-6">
-                <h5>Emergency contact:</h5>
-                <div class="d-flex pb-1">
-                    <a class="btn btn-icon btn-outline-primary me-3"
-                       type
-                       None="button"
-                       href="tel:{{ client.data.contact_phone }}">
-                        <span class="tf-icons bx bx-phone-call"></span>
-                    </a>
-                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                        <div class="me-2  associated-data">
-                            <h6 class="mb-0">{{ client.data.contact_name }}</h6>
-                            <small class="text-muted">{{ client.data.contact_phone }}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="card rounded-3xl" x-data="{guarantor:-1}">
+        {% include "./client_details_cmp/client.html" %}
+        <div class="card-body pt-0">
+            {% include "./client_details_cmp/leases.html" %}
         </div>
         <div class="card-body pt-0">
-            <div class="demo-inline-spacing">
-                <h5 class="card-header">Leases</h5>
-            </div>
-            <div class="card-body tabs pt-0">
-                <div class="nav-align-top">
-                    <ul class="nav nav-pills nav-fill" role="tablist">
-                        {% for lease in leases %}
-                            <li class="nav-item">
-                                <button type="button"
-                                        class="nav-link {% if forloop.first %}active{% endif %}"
-                                        role="tab"
-                                        data-bs-toggle="tab"
-                                        data-bs-target="#navs-pills-justified-{{ lease.id }}"
-                                        aria-controls="navs-pills-justified-{{ lease.id }}"
-                                        aria-selected="true">
-                                    {{ lease.contract.trailer }}
-                                    {% if lease.unpaid_dues|length > 0 %}
-                                        <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ lease.unpaid_dues|length }}</span>
-                                    {% endif %}
-                                </button>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
             <div class="tab-content p-0">
                 {% for lease in leases %}
-                    <div class="tab-pane fade {% if forloop.first %}active show{% endif %}"
-                         id="navs-pills-justified-{{ lease.id }}"
-                         role="tabpanel">
-                        {% if lease.contract.contract_type == 'lto' %}
-                            <h5 class="ps-3 me-2">
-                                <div id="payment_progress_{{ lease.id }}"></div>
-                            </h5>
-                        {% endif %}
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5 class="ps-3 me-2">
-                                    <div class="d-flex mb-4 pb-1">
-                                        <a class="btn btn-icon btn-outline-primary me-1"
-                                        href="{% url 'update-lease' lease.id %}">
-                                            <span class="tf-icons bx bx-edit"></span>
-                                        </a>
-                                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                            <div class="me-2">
-                                                <h6 class="mb-0">{{ lease.get_payment_frequency_display }} payments</h6>
-                                                <small class="text-muted">{{ lease.event.start|date:"m/d/Y" }}</small>
-                                            </div>
-                                            <div class="user-progress">
-                                                <small class="fw-semibold">${{ lease.payment_amount|floatformat:"0" }}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </h5>
-                                <h5 class="ps-3 me-2">
-                                    Remaining: $
-                                    {% if lease.remaining %}
-                                        {{ lease.remaining|floatformat:"0" }}
-                                    {% else %}
-                                        0.00
-                                    {% endif %}
-                                    <a href="{% url 'rental-payment' client.id %}"
-                                    type="button"
-                                    class="btn btn-icon btn-outline-primary">
-                                        <span class="tf-icons bx bx-dollar"></span>
-                                    </a>
-                                </h5>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Notes</strong>
-                                <a class="btn btn-icon btn-outline-primary ms-2"
-                                type="button"
-                                href="{% url 'create-note' lease.contract.id %}">
-                                    <span class="tf-icons bx bx-plus"></span>
-                                </a>
-                                <div class="table-container">
-                                    <table class="table">
-                                        <tbody>
-                                            {% for note in lease.notes %}
-                                                <tr>
-                                                    <td>
-                                                        {% if note.created_by %}
-                                                            <div class="avatar avatar-online">
-                                                                {% if note.created_by.profile_user.avatar %}
-                                                                    <img src="{{ note.created_by.profile_user.avatar.url }}"
-                                                                         alt=""
-                                                                         class="w-px-40 rounded-circle" />
-                                                                {% else %}
-                                                                    <span style="font-size:1.5em"
-                                                                          class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
-                                                                        {{ note.created_by.first_name|first }}
-                                                                    </span>
-                                                                {% endif %}
-                                                            </div>
-                                                        {% endif %}
-                                                        <span>   <strong>{{ note.created_at|timesince }}</strong> ago</span>
-                                                    <td>
-                                                            <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deleteNote({{ note.id }},'{{ note.text }}')">
-                                                                <span class="tf-icons bx bx-trash text-danger"></span>
-                                                            </a>
-                                                    </td>
-                                                </tr>
-                                                <tr style='border-top-style:hidden;'>
-                                                    <td colspan='2' class="pt-0 pb-0 mb-0">
-                                                        <p class="mb-0">{{ note.text }}</p>
-                                                    </td>
-                                                </tr>
-                                                <tr style='border-top-style:hidden;'>
-                                                    <td>
-                                                        {% if note.has_reminder %}
-                                                            <a class="btn btn-icon btn-outline-primary" type="button" onclick="deactivateReminder({{ note.id }})">
-                                                                <span class="tf-icons bx bx-bell"></span>
-                                                            </a>
-                                                            {{ note.reminder_date|date:"d M" }} 
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if note.icon %}
-                                                            <div class="avatar flex-shrink-0 me-3">
-                                                                <a href="{{ note.file.url }}">
-                                                                    <img src="{% static note.icon %}" alt="" />
-                                                                </a>
-                                                            </div>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="mt-0" />
-                        <div class="row">
-                            <div class="col-md-4">
-                                <strong>Due payments: $
-                                    {% if lease.debt %}
-                                        {{ lease.debt|floatformat:"0" }}
-                                    {% else %}
-                                        0.00
-                                    {% endif %}
-                                </strong>
-                                <div class="table-container">
-                                    <table class="table">
-                                        <tbody>
-                                            {% for due in lease.unpaid_dues %}
-                                                <tr>
-                                                    <td>
-                                                        {% if forloop.first %}
-                                                            <a href={% url 'create-due' lease.id due.start|date:"mdY" %}>
-                                                                <i class="tf-icons bx bx-calendar text-danger"></i></a>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        <a href="{% url 'rental-invoice' lease.id due.start|date:"mdY" 'false' %}">{{ due.start|date:"m/d/Y" }}</a>
-                                                    </td>
-                                                    <td>
-                                                        <strong>${{ lease.payment_amount|floatformat:"0" }}</strong>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <strong>Payment history: $
-                                    {% if lease.total_payment %}
-                                        {{ lease.total_payment|floatformat:"0" }}
-                                    {% else %}
-                                        0.00
-                                    {% endif %}
-                                </strong>
-                                <div class="table-container">
-                                    <table class="table">
-                                        <tbody>
-                                            {% for payment in lease.payments %}
-                                                <tr>
-                                                    <td>
-                                                        <a href={% url 'detail-payment' payment.id %}>{{ payment.date_of_payment|date:"m/d/Y" }}</a>
-                                                    </td>
-                                                    <td>
-                                                        <strong>${{ payment.amount|floatformat:"0" }}</strong>
-                                                    </td>
-                                                    <td>
-                                                        {% if forloop.first %}
-                                                            <a class="btn btn-icon btn-outline-primary ms-3" type="button" onclick="deletePayment('{{ payment.amount }}', '{{ payment.date_of_payment|date:"m/d/Y" }}', {{ payment.id }})">
-                                                                <span class="tf-icons bx bx-trash text-danger"></span>
-                                                            </a>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                                <tr style='border-top-style:hidden;'>
-                                                    <td>
-                                                        {% if payment.user %}
-                                                            <div class="avatar avatar-online">
-                                                                {% if payment.user.profile_user.avatar %}
-                                                                    <img src="{{ payment.user.profile_user.avatar.url }}"
-                                                                         alt=""
-                                                                         class="w-px-40 rounded-circle" />
-                                                                {% else %}
-                                                                    <span style="font-size:1.5em"
-                                                                          class="badge badge-center rounded-pill bg-primary w-px-40 h-px-40">
-                                                                        {{ payment.user.first_name|first }}
-                                                                    </span>
-                                                                {% endif %}
-                                                            </div>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td colspan='2'>
-                                                        <span>   <strong>{{ payment.date|timesince }}</strong> ago</span>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <strong>Invoices: $
-                                    {% if lease.paid %}
-                                        {{ lease.paid|floatformat:"0" }}
-                                    {% else %}
-                                        0.00
-                                    {% endif %}
-                                </strong>
-                                <div class="table-container">
-                                    <table class="table">
-                                        <tbody>
-                                            {% for due in lease.paid_dues %}
-                                                {% include "./due_line.html" %}
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Tolls -->
-                <hr class="mt-0" />
-                <div class="card-header">
-                    <h5>
-                        <strong>Toll Dues</strong>
-                    </h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong>Unpaid Tolls: $
-                                {% if lease.contract.toll_totalunpaid %}
-                                    {{ lease.contract.toll_totalunpaid|floatformat:"0" }}
-                                {% else %}
-                                    0.00
-                                {% endif %}
-                            </strong>
-                            <div class="table-container">
-                                <table class="table">
-                                    <tbody>
-                                        {% for toll in lease.contract.tolls %}
-                                            {% if toll.stage == 'unpaid' %}
-                                                <tr>
-                                                    <td>
-                                                        <a href="{% url 'update-toll' toll.id %}">{{ toll.created_date|date:"m/d/Y" }}</a>
-                                                    </td>
-                                                    <td>
-                                                        <strong>${{ toll.amount|floatformat:"0" }}</strong>
-                                                    </td>
-                                                    <td></td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Paid Tolls: $
-                                {% if lease.contract.toll_totalpaid %}
-                                    {{ lease.contract.toll_totalpaid|floatformat:"0" }}
-                                {% else %}
-                                    0.00
-                                {% endif %}
-                            </strong>
-                            <div class="table-container">
-                                <table class="table">
-                                    <tbody>
-                                        {% for toll in lease.contract.tolls %}
-                                            {% if toll.stage == 'paid' %}
-                                                <tr>
-                                                    <td>
-                                                        <a href="{% url 'update-toll' toll.id %}">{{ toll.created_date|date:"m/d/Y" }}</a>
-                                                    </td>
-                                                    <td>
-                                                        <strong>${{ toll.amount|floatformat:"0" }}</strong>
-                                                    </td>
-                                                    <td>
-                                                        {% if toll.invoice %}
-                                                            <a class="btn btn-icon btn-outline-primary ms-3"
-                                                               type="button"
-                                                               target="_blank"
-                                                               href="{{ toll.invoice.url }}">
-                                                                <span class="tf-icons bx bx-download"></span>
-                                                            </a>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Documents -->
-                <hr class="mt-0" />
-                <div class="card-header">
-                    <h5>
-                        <strong>Documents</strong>
-                        <a class="btn btn-icon btn-outline-primary ms-2"
-                           href="{% url 'detail-contract' lease.contract.id %}">
-                            <img src="{% static 'assets/img/icons/contract.jpg' %}"
-                                 alt="contract icon"
-                                 class="h-px-20 w-auto" />
-                        </a>
-                        <a class="btn btn-icon btn-outline-primary ms-2"
-                           type="button"
-                           href="{% url 'lease-document-create' lease.id %}">
-                            <span class="tf-icons bx bx-plus"></span>
-                        </a>
-                    </h5>
-                    <div class="row">
-                        {% for document in lease.documents %}
-                            <div class="col-md-4">
-                                <div class="card mb-3 shadow-sm">
-                                    <div class="card-body">
-                                        <div class="d-flex mb-4 pb-1">
-                                            <div class="avatar flex-shrink-0 me-3">
-                                                <img src="{% static document.icon %}" alt="" />
-                                            </div>
-                                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                                <div class="me-2">
-                                                    <h6 class="mb-0">{{ document.name }}</h6>
-                                                    {% if document.expiration_date %}<small class="text-muted">{{ document.note }}</small>{% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <p class="card-text">
-                                            {{ document.note }}
-                                            <div class="demo-inline-spacing">
-                                                <a class="btn btn-icon btn-outline-primary ms-3"
-                                                   type="button"
-                                                   target="_blank"
-                                                   href="{{ document.file.url }}">
-                                                    <span class="tf-icons bx bx-download"></span>
-                                                </a>
-                                                <a class="btn btn-icon btn-outline-primary ms-3"
-                                                   type="button"
-                                                   href="{% url 'update-lease-document' document.id %}">
-                                                    <span class="tf-icons bx bx-edit"></span>
-                                                </a>
-                                                <a class="btn btn-icon btn-outline-danger float-end"
-                                                   type="button"
-                                                   onclick="deleteDocument('{{ document.name }}', {{ document.id }})">
-                                                    <span class="tf-icons bx bx-trash"></span>
-                                                </a>
-                                            </div>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                        <!-- END Documents -->
-                        <!-- Deposits -->
-                        <hr class="mt-0" />
-                        <div class="card-header">
-                            <strong>Deposits (${{ lease.total_deposit|floatformat:"0" }}/${{ lease.contract.security_deposit|floatformat:"0" }}):</strong>
-                            <a class="btn btn-icon btn-outline-primary ms-3"
-                               type="button"
-                               href="{% url 'lease-deposit-create' lease.id %}">
-                                <span class="tf-icons bx bx-plus"></span>
-                            </a>
-                            <ul class="pt-2">
-                                {% for deposit in lease.deposits %}
-                                    <li>
-                                        <i class="tf-icons bx bx-calendar"></i>{{ deposit.date|date:"m/d/Y" }} - <strong>${{ deposit.amount|floatformat:"0" }}</strong>
-                                        <a class="btn btn-icon btn-outline-primary ms-3"
-                                           type="button"
-                                           onclick="deleteDeposit('{{ deposit.amount }}', {{ deposit.id }})">
-                                            <span class="tf-icons bx bx-trash text-danger"></span>
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        <!-- END Deposits -->
-                    {% endfor %}
-                </div>
+                    {% include "./client_details_cmp/lease_item_content.html" %}
+                {% endfor %}
             </div>
-            <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
-            <script>
-                // Get data
-                let ids = [{% for lease in leases %}"#payment_progress_"+'{{lease.id}}',{% endfor %}];
-                let paids = [{% for lease in leases %}{{lease.paid}},{% endfor %}];
-                let debts = [{% for lease in leases %}{{lease.debt}},{% endfor %}];
+        </div>
+    </div>
+    <script src="{% static 'assets/vendor/libs/apex-charts/apexcharts.js' %}"></script>
+    <script>
+        // Get data
+        let ids = [{% for lease in leases %}"#payment_progress_"+'{{lease.id}}',{% endfor %}];
+        let paids = [{% for lease in leases %}{{lease.paid}},{% endfor %}];
+        let debts = [{% for lease in leases %}{{lease.debt}},{% endfor %}];
 
-                (function () {
-                    plot_status(ids[0], paids[0], debts[0]);
-                })();
-                function computePercentage(value, total) {
-                    // Calculate the percentage
-                    const percentage = (value / total) * 100;
+        (function () {
+            plot_status(ids[0], paids[0], debts[0]);
+        })();
+        function computePercentage(value, total) {
+            // Calculate the percentage
+            const percentage = (value / total) * 100;
 
-                    // Round the percentage to the nearest integer
-                    const roundedPercentage = Math.round(percentage);
+            // Round the percentage to the nearest integer
+            const roundedPercentage = Math.round(percentage);
 
-                    // Return the result as an integer
-                    return roundedPercentage;
+            // Return the result as an integer
+            return roundedPercentage;
+        }
+        function plot_status(id, paid, debt){
+            let total = paid+debt;
+            var options = {
+                series: [{
+                    name: `Paid: \$${paid}`,
+                    data: [computePercentage(paid, total)],
+                    color: '#0f0'
+                }, {
+                    name: `Debt: \$${debt}`,
+                    data: [computePercentage(debt, total)],
+                    color: '#f00'
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 120,
+                    stacked: true,
+                    stackType: '100%',
+                    toolbar: {
+                        show: false
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: true,
+                    },
+                },
+                stroke: {
+                    width: 1,
+                    colors: ['#fff']
+                },
+                title: {
+                    text: `Total amount: \$${total}`,
+                    offsetY: 20
+                },
+                fill: {
+                    opacity: 1
+
+                },
+                yaxis: {
+                    show: false,
+                    labels: {
+                        show: false
+                    },
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    }
+                },
+                xaxis: {
+                    show: false,
+                    labels: {
+                        show: false
+                    },
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    }
                 }
-                function plot_status(id, paid, debt){
-                    let total = paid+debt;
-                    var options = {
-                        series: [{
-                        name: `Paid: \$${paid}`,
-                        data: [computePercentage(paid, total)],
-                        color: '#0f0'
-                      }, {
-                        name: `Debt: \$${debt}`,
-                        data: [computePercentage(debt, total)],
-                        color: '#f00'
-                      }],
-                        chart: {
-                        type: 'bar',
-                        height: 120,
-                        stacked: true,
-                        stackType: '100%',
-                        toolbar: {
-                          show: false 
-                        }
-                      },
-                      plotOptions: {
-                        bar: {
-                          horizontal: true,
-                        },
-                      },
-                      stroke: {
-                        width: 1,
-                        colors: ['#fff']
-                      },
-                      title: {
-                        text: `Total amount: \$${total}`,
-                        offsetY: 20
-                      },
-                      fill: {
-                        opacity: 1
-                      
-                      },
-                      yaxis: {
-                        show: false,
-                        labels: {
-                          show: false
-                        },
-                        axisBorder: {
-                          show: false
-                        },
-                        axisTicks: {
-                          show: false
-                        }
-                      },
-                      xaxis: {
-                        show: false,
-                        labels: {
-                          show: false
-                        },
-                        axisBorder: {
-                          show: false
-                        },
-                        axisTicks: {
-                          show: false
-                        }
-                      }
-                      };
-              
-                      var chart = new ApexCharts(document.querySelector(id), options);
-                      chart.render();
-                }
-            </script>
-        {% endblock content %}
+            };
+
+            var chart = new ApexCharts(document.querySelector(id), options);
+            chart.render();
+        }
+    </script>
+{% endblock content %}
