@@ -34,7 +34,7 @@ class DepositDiscount(models.Model):
         css_class = (
             "danger" if duration < 0 else "success" if duration > 0 else "primary"
         )
-        exp_date = self.contract.expiration_date
+        exp_date = self.contract.expiration_date.strftime("%b %d, %Y")
 
         return f"""<strong>{abs(duration)}</strong>
         {days}
