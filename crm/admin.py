@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (TwilioCall)
+from .models.twilio_model import (TwilioCall)
 
 
 

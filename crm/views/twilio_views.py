@@ -1,10 +1,10 @@
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from twilio.rest import Client
 from twilio.twiml.voice_response import VoiceResponse
 
-from .models import TwilioCall
+from ..models.twilio_model import TwilioCall
 from rbac.decorators.ignore import rbac_ignore
 import os
 
@@ -20,7 +20,7 @@ def registro(request):
     return render(request, "crm/registro_llamadas.html", context)
 
 
-@rbac_ignore
+""" @rbac_ignore
 @csrf_exempt
 def make_call(request):
     account_sid = os.getenv("TWILIO_ACCOUNT_SID")
@@ -35,7 +35,7 @@ def make_call(request):
         )
         return HttpResponse(f"Call initiated with SID: {call.sid}")
     except Exception as e:
-        return HttpResponse(f"Error: {e}", status=500)
+        return HttpResponse(f"Error: {e}", status=500) """
 
 
 @rbac_ignore
@@ -79,3 +79,6 @@ def handle_call(request):
         return HttpResponse("Method not allowed", status=405) """
     
     return HttpResponse("Good", content_type="application/xml")
+
+
+
