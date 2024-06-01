@@ -1,22 +1,17 @@
 from django import forms
 from crispy_forms.bootstrap import PrependedText
+import phonenumbers
 from .models.crm_model import FlaggedCalls
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, ButtonHolder, Div, Field, HTML
 from django.utils.safestring import mark_safe
+from users.forms import AssociatedCreateForm
 
 
 class CommonContactLayout(Layout):
     def __init__(self, *args, **kwargs):
         super().__init__(
             PictureLayout(),
-            Div(
-                Field(
-                    PrependedText(
-                        "name", mark_safe('<i class="bx bx-user-circle"></i>')
-                    )
-                )
-            ),
             Div(
                 Field(
                     PrependedText(
@@ -59,8 +54,6 @@ class PictureLayout(Layout):
         )
 
 
-
-
 class FlaggedCallsForm(forms.ModelForm):
     class Meta:
         model = FlaggedCalls
@@ -68,19 +61,20 @@ class FlaggedCallsForm(forms.ModelForm):
         widgets = {
             "phone_number": forms.TextInput(attrs={"readonly": "readonly"}),
         }
+
     def __init__(self, *args, **kwargs):
         super(FlaggedCallsForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False  # No renderizar la etiqueta del formulario
         self.helper.disable_csrf = True  # No renderizar el token CSRF
         self.helper.layout = Layout(
-            Div(
-                Field(
-                    PrependedText(
-                        "phone_number",
-                        mark_safe('<i class="bx bx-phone"></i>'),
-                    )
-                )
-            ),
+            CommonContactLayout(),
             ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
+
+
+class AssociatedCreateFormCrm(AssociatedCreateForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Hacer que el campo phone_number sea de solo lectura
+        self.fields["phone_number"].widget = forms.TextInput(attrs={"readonly": True})
