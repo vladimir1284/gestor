@@ -99,6 +99,19 @@ document.addEventListener("alpine:init", () => {
           });
         } catch (e) {
           console.error(e);
+          if (loader) {
+            globalThis.showNotify({
+              title: "Error",
+              msg: "Fail to load order parts",
+              status: "danger",
+            });
+          } else {
+            globalThis.showNotify({
+              title: "Error",
+              msg: "Fail to reload order parts",
+              status: "danger",
+            });
+          }
         }
         if (loader) this.loading = false;
       },
@@ -111,6 +124,11 @@ document.addEventListener("alpine:init", () => {
           console.log(this.partsProducts);
         } catch (e) {
           console.error(e);
+          globalThis.showNotify({
+            title: "Error",
+            msg: "Fail to load available parts",
+            status: "danger",
+          });
         }
         this.loadingPartsProducts = false;
       },
@@ -197,28 +215,33 @@ document.addEventListener("alpine:init", () => {
         /** @type {ProductTransactionCreation} */
         this.searchNewProduct = "";
 
-        const part = {
-          product_id: product.id,
-          tax: product.sell_tax,
-          active_tax: true,
-          quantity: 1,
-          price: product.sell_price,
-        };
-        try {
-          let addedPart = this.findByProductId(product.id);
+        let addedPart = this.findByProductId(product.id);
 
-          if (!addedPart) {
+        if (!addedPart) {
+          try {
+            const part = {
+              product_id: product.id,
+              tax: product.sell_tax,
+              active_tax: true,
+              quantity: 1,
+              price: product.sell_price,
+            };
             await globalThis.addOrderParts(globalThis.OrderID, part);
-            await this.loadParts(false);
-
-            addedPart = this.findByProductId(product.id);
+          } catch (e) {
+            console.log(e);
+            // console.log(await e.text());
+            globalThis.showNotify({
+              title: "Error",
+              msg: "Fail to create the new part",
+              status: "danger",
+            });
           }
+          await this.loadParts(false);
 
-          this.select(addedPart);
-        } catch (e) {
-          console.log(e);
-          console.log(await e.text());
+          addedPart = this.findByProductId(product.id);
         }
+
+        this.select(addedPart);
       },
 
       // Editing
@@ -227,23 +250,22 @@ document.addEventListener("alpine:init", () => {
        * @param {ProductTransaction} ref
        * */
       async editSave(ref) {
-        console.log(ref);
         if (!ref.id) return;
         try {
-          const resp = await globalThis.updateOrderParts(
-            globalThis.OrderID,
-            ref.id,
-            {
-              ...ref,
-              product_id: ref.product.id,
-            },
-          );
-          console.log(resp);
-          await this.loadParts(false);
+          await globalThis.updateOrderParts(globalThis.OrderID, ref.id, {
+            ...ref,
+            product_id: ref.product.id,
+          });
         } catch (e) {
           console.error(e);
-          console.log(await e.text());
+          // console.log(await e.text());
+          globalThis.showNotify({
+            title: "Error",
+            msg: "Fail to update the part",
+            status: "danger",
+          });
         }
+        await this.loadParts(false);
       },
 
       /**
@@ -348,6 +370,11 @@ document.addEventListener("alpine:init", () => {
           this.toRemove = -1;
         } catch (e) {
           console.error(e);
+          globalThis.showNotify({
+            title: "Error",
+            msg: "Fail to remove the part",
+            status: "danger",
+          });
         }
         // this.loading = false;
         this.removing = false;
