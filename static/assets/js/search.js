@@ -1,3 +1,14 @@
+// @ts-check
+
+/** @type {import('alpinejs').default} */
+var Alpine;
+
+/**
+ * Search for match
+ * @param {string} text
+ * @param {string} query
+ * @returns {boolean}
+ * */
 function match(text, query) {
   const textUC = text.toUpperCase();
   const queries = query.toUpperCase().split(" ");
@@ -9,6 +20,12 @@ function match(text, query) {
   return true;
 }
 
+/**
+ * Return a highlighted html string
+ * @param {string} text
+ * @param {string} query
+ * @returns {string}
+ * */
 function highlightMatch(text, query) {
   if (query == "") return text;
 
@@ -72,3 +89,6 @@ document.addEventListener("alpine:init", () => {
     search: "",
   });
 });
+
+globalThis.match = match;
+globalThis.highlightMatch = highlightMatch;

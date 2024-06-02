@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_cleanup.apps.CleanupConfig",
     "django_extensions",
+    "rest_framework",
+    "rest_framework.authtoken",
     # local
     "utils.apps.UtilsConfig",
     "inventory.apps.inventoryConfig",
@@ -141,6 +143,13 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_PARSER_CLASSES": [
+        "rest_framework.parsers.JSONParser",
+    ],
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
+}
 
 
 # Internationalization
