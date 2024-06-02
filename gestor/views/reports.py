@@ -91,7 +91,8 @@ def getOrderBalance(order: Order, products: dict):
         product = trans.product
         if product in products.keys():
             products[product]["quantity"] += trans.quantity
-            products[product]["cost"] += trans.cost
+            if trans.cost is not None:
+                products[product]["cost"] += trans.cost
             products[product]["price"] += trans.getAmount()
             products[product]["profit"] += computeTransactionProfit(
                 trans, procedure="profit"
