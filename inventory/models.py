@@ -180,6 +180,26 @@ class Stock(models.Model):
         return "{}-{}-${}".format(self.product.name, self.quantity, self.cost)
 
 
+class ProductTransactionStock(models.Model):
+    """
+    Will be used to reference which stock a product came from.
+    It is for stock restoration propose in the reverse transaction operation.
+    """
+
+    stock = models.ForeignKey(
+        Stock,
+        on_delete=models.CASCADE,
+        related_name="trans_refs",
+    )
+    transaction = models.ForeignKey(
+        ProductTransaction,
+        on_delete=models.CASCADE,
+        related_name="stock_refs",
+    )
+    created_date = models.DateTimeField(auto_now_add=True)
+    quantity = models.FloatField()
+
+
 class ProductKit(models.Model):
     # A kit is a set of products that are usually included together in an order
     name = models.CharField(max_length=120, unique=True)

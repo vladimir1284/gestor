@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from inventory.models import ProductTransaction
 from services.api.serializer.product_transaction import \
     ProductTransactionSerializer
+from services.tools.transaction import check_transaction
+from services.tools.transaction import handle_transaction
 from services.tools.transaction import reverse_transaction
 from utils.models import Order
 
@@ -26,9 +28,41 @@ class OrderPartsView(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         order: Order = get_object_or_404(Order, id=order_id)
+        part: ProductTransaction = serializer.save(order=order)
+
+        if (
+            order.type == "sell"
+            and order.status != "pending"
+            and order.status != "decline"
+            and check_transaction(part)
+        ):
+            handle_transaction(part)
+
+        return Response({})
+
+    @atomic
+    def update(self, request: Request, order_id: int, pk: int):
+        before: ProductTransaction = self.get_object()
+        serializer = ProductTransactionSerializer(instance=before, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        order: Order = get_object_or_404(Order, id=order_id)
+
+        if (
+            order.type == "sell"
+            and order.status != "pending"
+            and order.status != "decline"
+        ):
+            reverse_transaction(before)
 
         part: ProductTransaction = serializer.save(order=order)
-        print(part)
+        if (
+            order.type == "sell"
+            and order.status != "pending"
+            and order.status != "decline"
+            and check_transaction(part)
+        ):
+            handle_transaction(part)
 
         return Response({})
 
@@ -38,11 +72,11 @@ class OrderPartsView(viewsets.ModelViewSet):
 
         transaction: ProductTransaction = self.get_object()
 
-        if transaction.order.type == "sell":
-            if (
-                transaction.order.status != "pending"
-                and transaction.order.status != "decline"
-            ):
-                reverse_transaction(transaction)
+        if (
+            transaction.order.type == "sell"
+            and transaction.order.status != "pending"
+            and transaction.order.status != "decline"
+        ):
+            reverse_transaction(transaction)
 
         return super().destroy(request, *args, **kwargs)

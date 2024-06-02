@@ -1,6 +1,7 @@
 from inventory.models import convertUnit
 from inventory.models import Product
 from inventory.models import ProductTransaction
+from inventory.models import ProductTransactionStock
 from inventory.models import Stock
 from inventory.tools.transaction import NotEnoughStockError
 from inventory.views.product import discountStockFIFO
@@ -32,11 +33,26 @@ def reverse_transaction(transaction: Transaction):
     product.stock_price += stock_cost
     product.save()
 
-    Stock.objects.create(
-        product=product,
-        quantity=product_quantity,
-        cost=stock_cost / product_quantity,
-    )
+    # Restore all stock
+    stock_refs: list[ProductTransactionStock] = transaction.stock_refs.all()
+    pending = product_quantity
+    remainding_cost = stock_cost
+    for sr in stock_refs:
+        stock = sr.stock
+        count = sr.quantity
+        stock.quantity += count
+        stock.save()
+        pending -= count
+        remainding_cost -= stock.cost
+        sr.delete()
+
+    # If there are parts with unreferenced stock create a new one
+    if pending > 0:
+        Stock.objects.create(
+            product=product,
+            quantity=pending,
+            cost=remainding_cost / pending,
+        )
 
     transaction.done = False
     transaction.save()
@@ -46,6 +62,44 @@ def reverse_order_transactions(order: Order):
     transactions = ProductTransaction.objects.filter(order=order)
     for transaction in transactions:
         reverse_transaction(transaction)
+
+
+def handle_transaction_stock(transaction: ProductTransaction):
+    # Same as discountStockFIFO
+    # But this will not remove the stocks
+    # Will take the stock reference for transaction reversion
+    product = transaction.product
+    pending = convertUnit(
+        input_unit=transaction.unit,
+        output_unit=product.unit,
+        value=transaction.quantity,
+    )
+    stock_cost = 0
+    stock_array = Stock.objects.filter(
+        product=product,
+        quantity__gt=0,
+    ).order_by("created_date")
+
+    for stock in stock_array:
+        if pending == 0:
+            break
+
+        count = max(min(pending, stock.quantity), 0)
+        pending -= count
+
+        stock.quantity -= count
+        stock.save()
+
+        ProductTransactionStock.objects.create(
+            stock=stock,
+            transaction=transaction,
+            quantity=count,
+        )
+
+        stock_cost += count * stock.cost
+
+    transaction.cost = stock_cost
+    return stock_cost
 
 
 def handle_transaction(transaction: Transaction):
@@ -69,8 +123,8 @@ def handle_transaction(transaction: Transaction):
     if product_quantity > product.quantity:
         raise NotEnoughStockError
 
-    stock_cost = discountStockFIFO(product, product_quantity)
-    transaction.cost = stock_cost
+    # stock_cost = discountStockFIFO(product, product_quantity)
+    stock_cost = handle_transaction_stock(transaction)
     transaction.done = True
     transaction.save()
 
