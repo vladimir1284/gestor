@@ -7,9 +7,9 @@ from services.tools.transaction import check_transaction
 
 
 class ProductTransactionSerializer(serializers.ModelSerializer):
-    product = ProductSerializer()
-    unit = UnitSerializer()
-    satisfied = serializers.SerializerMethodField()
+    product = ProductSerializer(read_only=True)
+    unit = UnitSerializer(read_only=True)
+    satisfied = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ProductTransaction
@@ -21,7 +21,22 @@ class ProductTransactionSerializer(serializers.ModelSerializer):
             "done",
             "decline",
             "satisfied",
+            "tax",
+            "active_tax",
+            "price",
+            "quantity",
+        ]
+        read_only_fields = [
+            "id",
+            "product",
+            "unit",
+            "cost",
+            "done",
+            "decline",
+            "satisfied",
+            "tax",
+            "price",
         ]
 
-    def get_satisfied(self, obj):
-        return check_transaction(obj)
+    def get_satisfied(self, trans: ProductTransaction):
+        return check_transaction(trans)

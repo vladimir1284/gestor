@@ -7,6 +7,7 @@ class UnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Unit
         fields = [
+            "id",
             "name",
             "factor",
             "magnitude",

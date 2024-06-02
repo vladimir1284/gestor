@@ -1,7 +1,10 @@
-from django.urls import path
+from rest_framework import routers
 
-from services.api.views.order_parts import OrderPartsViewSet
+from services.api.views.order_parts import OrderPartsView
+from services.api.views.products import ProductView
 
-urlpatterns = [
-    path("order_parts/<order_id>", OrderPartsViewSet.as_view()),
-]
+router = routers.SimpleRouter()
+router.register(r"products", ProductView)
+router.register(r"order_parts/(?P<order_id>\d+)", OrderPartsView)
+
+urlpatterns = router.urls

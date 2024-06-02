@@ -1,0 +1,171 @@
+{% load static %}
+<div class="table-responsive text-nowrap">
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>
+                    <i class="bx bx-cog"></i>
+                </th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th>Tax</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" @click.outside="editNothing()">
+            <template x-for="part in satisfied">
+                <tr :data-tag="part.name" :class="part.decline && 'bg-red-100'">
+                    <td>
+                        <a :href="transactionUrl(part.id)">
+                            $<span x-text="getTotalPrice(part).toFixed(2)"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <a :href="productUrl(part.product.id)" :class="part.product.quantity == 0 && 'text-danger'">
+                            <strong x-text="part.product.name"></strong>
+                        </a>
+                    </td>
+                    <td :class="part.product.quantity == 0 && 'text-danger'" @click="editQuantity(part.id)">
+                        <template x-if="editingQuantity(part.id)">
+                            <div class="input-group">
+                                <input type="number" class="form-control py-1" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
+                            </div>
+                        </template>
+                        <template x-if="!editingQuantity(part.id)">
+                            <div>
+                                <span x-text="part.quantity"></span>
+                                <span :class="part.satisfied || 'text-danger'"
+                                      x-text="`(${part.product.quantity})`"
+                                      x-show="!part.satisfied || part.product.quantity <= part.product.quantity_min"></span>
+                            </div>
+                        </template>
+                    </td>
+                    <td>
+                        <span x-text="part.unit.name"></span>
+                    </td>
+                    <td>
+                        $<span x-text="part.price.toFixed(2)"></span>
+                    </td>
+                    <td>
+                        $<span x-text="getAmount(part).toFixed(2)"></span>
+                    </td>
+                    <td @click="editTax(part.id)">
+                        <template x-if="editingTax(part.id)">
+                            <div class="form-check pl-0">
+                                <input class="form-check-input" type="checkbox" id="activeTax" x-model="selected.ref.active_tax">
+                                <label class="form-check-label" for="activeTax">
+                                    $<span x-text="getTax(part, true).toFixed(2)"></span>
+                                </label>
+                            </div>
+                        </template>
+                        <template x-if="!editingTax(part.id)">
+                            <div>
+                                $<span x-text="getTax(part).toFixed(2)"></span>
+                            </div>
+                        </template>
+                    </td>
+                    <td class="flex justify-end">
+                        <button class="btn btn-icon btn-link text-danger"
+                                @click="remove(part.id)">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </td>
+                </tr>
+            </template>
+
+            {%if order.status == 'processing'%}
+                <tr class="bg-mainBG" x-show="unsatisfied.length > 0" @click="editNothing()">
+                    <th colspan="100%">
+                        <div class="flex items-center">
+                            <div class="flex-grow">
+                                <span class="text-danger mr-2">
+                                    Out Stock
+                                </span>
+                                <strong>
+                                    $<span x-text="unsatisfied_args.total.toFixed(2)"></span>
+                                </strong>
+                                =
+                                <span>
+                                    $<span x-text="unsatisfied_args.amount.toFixed(2)"></span>
+                                </span>
+                                +
+                                <span>
+                                    $<span x-text="unsatisfied_args.tax.toFixed(2)"></span>
+                                </span>
+                            </div>
+                            <div>
+                                <a class="btn btn-link btn-icon"
+                                   href="{%url 'service-order-out-stock-print' order.id%}">
+                                    <i class='bx bx-printer'></i>
+                                </a>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            {% endif %}
+
+            <template x-for="part in unsatisfied">
+                <tr :data-tag="part.name" :class="part.decline && 'bg-red-100'">
+                    <td>
+                        <a :href="transactionUrl(part.id)">
+                            $<span x-text="getTotalPrice(part).toFixed(2)"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <a :href="productUrl(part.product.id)" :class="part.product.quantity == 0 && 'text-danger'">
+                            <strong x-text="part.product.name"></strong>
+                        </a>
+                    </td>
+                    <td :class="part.product.quantity == 0 && 'text-danger'" @click="editQuantity(part.id)">
+                        <template x-if="editingQuantity(part.id)">
+                            <div class="input-group">
+                                <input type="number" class="form-control py-1" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
+                            </div>
+                        </template>
+                        <template x-if="!editingQuantity(part.id)">
+                            <div>
+                                <span x-text="part.quantity"></span>
+                                <span :class="part.satisfied || 'text-danger'"
+                                      x-text="`(${part.product.quantity})`"
+                                      x-show="!part.satisfied || part.product.quantity <= part.product.quantity_min"></span>
+                            </div>
+                        </template>
+                    </td>
+                    <td>
+                        <span x-text="part.unit.name"></span>
+                    </td>
+                    <td>
+                        $<span x-text="part.price.toFixed(2)"></span>
+                    </td>
+                    <td>
+                        $<span x-text="getAmount(part).toFixed(2)"></span>
+                    </td>
+                    <td @click="editTax(part.id)">
+                        <template x-if="editingTax(part.id)">
+                            <div class="form-check pl-0">
+                                <input class="form-check-input" type="checkbox" id="activeTax" x-model="selected.ref.active_tax">
+                                <label class="form-check-label" for="activeTax">
+                                    $<span x-text="getTax(part, true).toFixed(2)"></span>
+                                </label>
+                            </div>
+                        </template>
+                        <template x-if="!editingTax(part.id)">
+                            <div>
+                                $<span x-text="getTax(part).toFixed(2)"></span>
+                            </div>
+                        </template>
+                    </td>
+                    <td class="flex justify-end">
+                        <button class="btn btn-icon btn-link text-danger"
+                                @click="remove(part.id)">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+</div>
