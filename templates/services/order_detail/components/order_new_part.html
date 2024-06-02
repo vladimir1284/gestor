@@ -1,0 +1,44 @@
+{% load static %}
+<div class="table-responsive text-nowrap">
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>
+                    <i class="bx bx-cart"></i>
+                </th>
+                <th>Product</th>
+                <th>Available</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Cost</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" @click.outside="editNothing()">
+            <template x-for="product in partsProducts">
+                <tr x-show="globalThis.match(product.name, searchNewProduct)">
+                    <td>
+                        <button class="btn btn-icon btn-link"
+                                @click="addNewPart(product)">
+                            <i class='bx bx-plus'></i>
+                        </button>
+                    </td>
+                    <td>
+                        <strong x-html="globalThis.highlightMatch(product.name, searchNewProduct)"></strong>
+                    </td>
+                    <td :class="product.quantity <= product.quantity_min && 'text-danger'">
+                        <span x-text="product.quantity"></span>
+                    </td>
+                    <td>
+                        <span x-text="product.unit.name"></span>
+                    </td>
+                    <td>
+                        $<span x-text="product.sell_price.toFixed(2)"></span>
+                    </td>
+                    <td>
+                        $<span x-text="product.average_cost.toFixed(2)"></span>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+</div>

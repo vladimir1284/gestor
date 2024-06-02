@@ -186,6 +186,10 @@
   z-index: 50;
 }
 
+.z-\[1100\] {
+  z-index: 1100;
+}
+
 .z-\[2000\] {
   z-index: 2000;
 }
@@ -409,6 +413,10 @@
   height: 0.25rem;
 }
 
+.h-12 {
+  height: 3rem;
+}
+
 .h-4 {
   height: 1rem;
 }
@@ -465,6 +473,10 @@
   width: 20rem;
 }
 
+.w-96 {
+  width: 24rem;
+}
+
 .w-\[100px\] {
   width: 100px;
 }
@@ -480,6 +492,10 @@
 .w-min {
   width: -moz-min-content;
   width: min-content;
+}
+
+.\!min-w-20 {
+  min-width: 5rem !important;
 }
 
 .min-w-60 {
@@ -584,6 +600,10 @@
 
 .overflow-auto {
   overflow: auto;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
 }
 
 .overflow-x-hidden {
@@ -728,6 +748,10 @@
   stroke-width: 8px;
 }
 
+.\!p-1 {
+  padding: 0.25rem !important;
+}
+
 .p-0 {
   padding: 0px;
 }
@@ -763,9 +787,19 @@
   padding-right: 0.375rem;
 }
 
+.px-12 {
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+}
+
+.px-20 {
+  padding-left: 5rem;
+  padding-right: 5rem;
 }
 
 .px-3 {
@@ -776,11 +810,6 @@
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
-}
-
-.px-6 {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
 }
 
 .py-0 {
@@ -806,21 +835,6 @@
 .py-\[0\.1rem\] {
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
-}
-
-.px-8 {
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-
-.px-10 {
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
-}
-
-.px-12 {
-  padding-left: 3rem;
-  padding-right: 3rem;
 }
 
 .pb-0 {

@@ -131,6 +131,7 @@ class ProductTransaction(Transaction):
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     done = models.BooleanField(null=True, blank=True)
     decline = models.BooleanField(null=True, blank=True)
+    active_tax = models.BooleanField(default=True)
 
     def __str__(self):
         return "{} product: {}".format(
@@ -177,6 +178,26 @@ class Stock(models.Model):
 
     def __str__(self):
         return "{}-{}-${}".format(self.product.name, self.quantity, self.cost)
+
+
+class ProductTransactionStock(models.Model):
+    """
+    Will be used to reference which stock a product came from.
+    It is for stock restoration propose in the reverse transaction operation.
+    """
+
+    stock = models.ForeignKey(
+        Stock,
+        on_delete=models.CASCADE,
+        related_name="trans_refs",
+    )
+    transaction = models.ForeignKey(
+        ProductTransaction,
+        on_delete=models.CASCADE,
+        related_name="stock_refs",
+    )
+    created_date = models.DateTimeField(auto_now_add=True)
+    quantity = models.FloatField()
 
 
 class ProductKit(models.Model):

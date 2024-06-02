@@ -96,7 +96,8 @@ def getOrderBalance(order: Order, products: dict):
         product = trans.product
         if product in products.keys():
             products[product]["quantity"] += trans.quantity
-            products[product]["cost"] += trans.cost
+            if trans.cost is not None:
+                products[product]["cost"] += trans.cost
             products[product]["price"] += trans.getAmount()
             products[product]["profit"] += computeTransactionProfit(
                 trans, procedure="profit"
@@ -115,9 +116,11 @@ def getOrderBalance(order: Order, products: dict):
                 },
             )
         if product.type == "part":
-            parts_cost += trans.cost
+            if trans.cost is not None:
+                parts_cost += trans.cost
         if product.type == "consumable":
-            consumable_expenses += trans.cost
+            if trans.cost is not None:
+                consumable_expenses += trans.cost
     # Third party expenses
     tpe = Expense.objects.filter(order=order)
     third_party_expenses = 0
@@ -221,7 +224,8 @@ def monthly_report(request, year=None, month=None):
 
     context.setdefault(
         "membership",
-        getMonthlyMembership(currentYear, currentMonth, all=True)["total"]["gross"],
+        getMonthlyMembership(currentYear, currentMonth, all=True)[
+            "total"]["gross"],
     )
 
     return render(request, "monthly.html", context)
@@ -245,7 +249,8 @@ def getRentalReport(currentYear, currentMonth):
             timezone.datetime(currentYear, currentMonth, 1),
             pytz.timezone(settings.TIME_ZONE),
         )
-        first_day_of_next_month = first_day_of_this_month + relativedelta(months=1)
+        first_day_of_next_month = first_day_of_this_month + \
+            relativedelta(months=1)
 
         interval_start = max(first_day_of_this_month, interval_start)
         interval_end = min(first_day_of_next_month, timezone.now())
@@ -257,7 +262,8 @@ def getRentalReport(currentYear, currentMonth):
         lease.unpaid_dues = []
         unpaid_lease = False
         for occurrence in occurrences:
-            paid_due = Due.objects.filter(due_date=occurrence.start.date(), lease=lease)
+            paid_due = Due.objects.filter(
+                due_date=occurrence.start.date(), lease=lease)
             if len(paid_due) == 0:
                 unpaid_amount += lease.payment_amount
                 lease.unpaid_dues.append(occurrence)
@@ -363,7 +369,8 @@ def getWeekMembership(start_date, end_date):
         .exclude(company=None)
     )
 
-    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(
+        start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -490,7 +497,8 @@ def weekly_report(request, date=None):
         .exclude(company__membership=True, associated=None)
     )
 
-    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(
+        start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -839,4 +847,6 @@ def computeTransactionProfit(transaction: ProductTransaction, procedure="min"):
     if procedure == "min":
         return transaction.getAmount() - transaction.getMinCost()
     if procedure == "profit":
-        return transaction.getAmount() - transaction.cost
+        if transaction.cost is not None:
+            return transaction.getAmount() - transaction.cost
+        return transaction.getAmount()
