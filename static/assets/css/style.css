@@ -102,10 +102,6 @@
   bottom: 0.5rem;
 }
 
-.bottom-3 {
-  bottom: 0.75rem;
-}
-
 .bottom-4 {
   bottom: 1rem;
 }
@@ -122,10 +118,6 @@
   left: 4rem;
 }
 
-.left-3 {
-  left: 0.75rem;
-}
-
 .left-\[10px\] {
   left: 10px;
 }
@@ -140,10 +132,6 @@
 
 .right-16 {
   right: 4rem;
-}
-
-.right-3 {
-  right: 0.75rem;
 }
 
 .right-4 {
@@ -170,24 +158,12 @@
   top: 2.75rem;
 }
 
-.top-3 {
-  top: 0.75rem;
-}
-
 .top-4 {
   top: 1rem;
 }
 
 .top-\[-0\.3rem\] {
   top: -0.3rem;
-}
-
-.left-10 {
-  left: 2.5rem;
-}
-
-.right-10 {
-  right: 2.5rem;
 }
 
 .isolate {
@@ -210,24 +186,12 @@
   z-index: 50;
 }
 
-.z-\[2000\] {
-  z-index: 2000;
-}
-
-.z-\[1000\] {
-  z-index: 1000;
-}
-
 .z-\[1100\] {
   z-index: 1100;
 }
 
-.z-\[-1\] {
-  z-index: -1;
-}
-
-.z-\[-10\] {
-  z-index: -10;
+.z-\[2000\] {
+  z-index: 2000;
 }
 
 .float-end {
@@ -525,6 +489,10 @@
   width: min-content;
 }
 
+.\!min-w-20 {
+  min-width: 5rem !important;
+}
+
 .min-w-60 {
   min-width: 15rem;
 }
@@ -775,6 +743,10 @@
   stroke-width: 8px;
 }
 
+.\!p-1 {
+  padding: 0.25rem !important;
+}
+
 .p-0 {
   padding: 0px;
 }
@@ -820,6 +792,11 @@
   padding-right: 0.5rem;
 }
 
+.px-20 {
+  padding-left: 5rem;
+  padding-right: 5rem;
+}
+
 .px-3 {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
@@ -853,11 +830,6 @@
 .py-\[0\.1rem\] {
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
-}
-
-.px-20 {
-  padding-left: 5rem;
-  padding-right: 5rem;
 }
 
 .pb-0 {
@@ -1073,6 +1045,11 @@
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.ring-main {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(105 108 255 / var(--tw-ring-opacity));
 }
 
 .blur {

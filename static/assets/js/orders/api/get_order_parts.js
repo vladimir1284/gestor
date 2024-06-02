@@ -1,6 +1,7 @@
 // @ts-check
 
 /** @typedef {import('../models/product_transaction.js').ProductTransaction} */
+/** @typedef {import('../models/product_transaction.js').ProductTransactionCreation} */
 
 /**
  * Get the API url
@@ -29,24 +30,42 @@ globalThis.getOrderParts = async function (order_id) {
 };
 
 /**
+ * Add an order parts
+ * @param {number} order_id - The order ID
+ * @param {ProductTransactionCreation} trans - The part to add
+ * */
+globalThis.addOrderParts = async function (order_id, trans) {
+  const csrftoken = globalThis.getCookie("csrftoken");
+  const resp = await fetch(getURL(order_id), {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": csrftoken ? csrftoken : "",
+      "content-type": "application/json",
+    },
+    credentials: "same-origin",
+    body: JSON.stringify(trans),
+  });
+  if (resp.status != 200 && resp.status != 204) {
+    throw resp;
+  }
+};
+
+/**
  * Update an order parts
  * @param {number} order_id - The order ID
- * @param {ProductTransaction} trans - The part to update
+ * @param {number} trans_id - The part ID
+ * @param {ProductTransactionCreation} trans - The part to update
  * */
-globalThis.updateOrderParts = async function (order_id, trans) {
+globalThis.updateOrderParts = async function (order_id, trans_id, trans) {
   const csrftoken = globalThis.getCookie("csrftoken");
-  const resp = await fetch(getURL(order_id, trans.id), {
+  const resp = await fetch(getURL(order_id, trans_id), {
     method: "PUT",
     headers: {
       "X-CSRFToken": csrftoken ? csrftoken : "",
       "content-type": "application/json",
     },
     credentials: "same-origin",
-    body: JSON.stringify({
-      id: trans.id,
-      quantity: trans.quantity,
-      active_tax: trans.active_tax,
-    }),
+    body: JSON.stringify(trans),
   });
   if (resp.status != 200 && resp.status != 204) {
     throw resp;

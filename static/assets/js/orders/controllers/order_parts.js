@@ -1,6 +1,7 @@
 // @ts-check
 
 /** @typedef {import('../models/product_transaction.js').ProductTransaction} */
+/** @typedef {import('../models/product_transaction.js').ProductTransactionCreation} */
 /** @typedef {import('../models/product.js').Product} */
 
 /** @type {import('alpinejs').default} */
@@ -176,6 +177,50 @@ document.addEventListener("alpine:init", () => {
         return part;
       },
 
+      /**
+       * Find a part by product ID
+       * @param {number} id
+       * @returns {ProductTransaction | undefined}
+       * */
+      findByProductId(id) {
+        const part = this.parts.find((p) => p.product.id == id);
+        return part;
+      },
+
+      // Adding
+
+      /**
+       * Add new part from product
+       * @param {Product} product
+       * */
+      async addNewPart(product) {
+        /** @type {ProductTransactionCreation} */
+        this.searchNewProduct = "";
+
+        const part = {
+          product_id: product.id,
+          tax: product.sell_tax,
+          active_tax: true,
+          quantity: 1,
+          price: product.sell_price,
+        };
+        try {
+          let addedPart = this.findByProductId(product.id);
+
+          if (!addedPart) {
+            await globalThis.addOrderParts(globalThis.OrderID, part);
+            await this.loadParts(false);
+
+            addedPart = this.findByProductId(product.id);
+          }
+
+          this.select(addedPart);
+        } catch (e) {
+          console.log(e);
+          console.log(await e.text());
+        }
+      },
+
       // Editing
       /**
        * Edit save
@@ -183,12 +228,18 @@ document.addEventListener("alpine:init", () => {
        * */
       async editSave(ref) {
         console.log(ref);
+        if (!ref.id) return;
         try {
           const resp = await globalThis.updateOrderParts(
             globalThis.OrderID,
-            ref,
+            ref.id,
+            {
+              ...ref,
+              product_id: ref.product.id,
+            },
           );
           console.log(resp);
+          await this.loadParts(false);
         } catch (e) {
           console.error(e);
           console.log(await e.text());
@@ -214,14 +265,37 @@ document.addEventListener("alpine:init", () => {
       },
 
       /**
+       * Select a part if exist
+       * @param {ProductTransaction | undefined} part
+       * @returns {ProductTransaction | undefined}
+       * */
+      select(part) {
+        this.checkEditingSave();
+
+        if (part && part.id && part.id != this.selected.id) {
+          this.selected.id = part.id;
+          this.selected.ref = part;
+          this.selected.editing = "";
+        }
+        return part;
+      },
+
+      /**
+       * Select a part if exist by id
+       * @param {number} id
+       * @returns {ProductTransaction | undefined}
+       * */
+      selectById(id) {
+        const part = this.findById(id);
+        return this.select(part);
+      },
+
+      /**
        * Edit part quantity
        * @param {number} id
        * */
       editQuantity(id) {
-        this.checkEditingSave();
-
-        this.selected.id = id;
-        this.selected.ref = this.findById(id);
+        this.selectById(id);
         this.selected.editing = EditQuantity;
       },
 
@@ -230,10 +304,7 @@ document.addEventListener("alpine:init", () => {
        * @param {number} id
        * */
       editTax(id) {
-        this.checkEditingSave();
-
-        this.selected.id = id;
-        this.selected.ref = this.findById(id);
+        this.selectById(id);
         this.selected.editing = EditTax;
       },
 
@@ -306,6 +377,18 @@ document.addEventListener("alpine:init", () => {
        * */
       newProductMode() {
         return this.searchNewProduct != "";
+      },
+
+      // Tools
+      /**
+       * Scroll to element
+       * @param {HTMLElement} el
+       * */
+      scrollTo(el) {
+        console.log(el);
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: "smooth" });
+        }, 300);
       },
     };
   });

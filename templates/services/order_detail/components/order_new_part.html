@@ -17,6 +17,10 @@
             <template x-for="product in partsProducts">
                 <tr x-show="globalThis.match(product.name, searchNewProduct)">
                     <td>
+                        <button class="btn btn-icon btn-link"
+                                @click="addNewPart(product)">
+                            <i class='bx bx-plus'></i>
+                        </button>
                     </td>
                     <td>
                         <strong x-html="globalThis.highlightMatch(product.name, searchNewProduct)"></strong>

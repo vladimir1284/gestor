@@ -17,7 +17,14 @@
         </thead>
         <tbody class="table-border-bottom-0" @click.outside="editNothing()">
             <template x-for="part in satisfied">
-                <tr :data-tag="part.name" :class="part.decline && 'bg-red-100'">
+                <tr :data-tag="part.name"
+                    :class="{
+                            'bg-red-100': part.decline,
+                            'highlight': part.id == selected.id,
+                            }">
+                    <!-- x-effect="if (part.id == selected.id) { -->
+                    <!--           scrollTo($el) -->
+                    <!--           }"> -->
                     <td>
                         <a :href="transactionUrl(part.id)">
                             $<span x-text="getTotalPrice(part).toFixed(2)"></span>
@@ -31,7 +38,7 @@
                     <td :class="part.product.quantity == 0 && 'text-danger'" @click="editQuantity(part.id)">
                         <template x-if="editingQuantity(part.id)">
                             <div class="input-group">
-                                <input type="number" class="form-control py-1" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
+                                <input type="number" class="form-control !p-1 !min-w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
                             </div>
                         </template>
                         <template x-if="!editingQuantity(part.id)">
@@ -108,7 +115,14 @@
             {% endif %}
 
             <template x-for="part in unsatisfied">
-                <tr :data-tag="part.name" :class="part.decline && 'bg-red-100'">
+                <tr :data-tag="part.name"
+                    :class="{
+                            'bg-red-100': part.decline,
+                            'highlight': part.id == selected.id,
+                            }">
+                    <!-- x-effect="if (part.id == selected.id) { -->
+                    <!--           scrollTo($el) -->
+                    <!--           }"> -->
                     <td>
                         <a :href="transactionUrl(part.id)">
                             $<span x-text="getTotalPrice(part).toFixed(2)"></span>
@@ -122,7 +136,7 @@
                     <td :class="part.product.quantity == 0 && 'text-danger'" @click="editQuantity(part.id)">
                         <template x-if="editingQuantity(part.id)">
                             <div class="input-group">
-                                <input type="number" class="form-control py-1" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
+                                <input type="number" class="form-control !p-1 !min-w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
                             </div>
                         </template>
                         <template x-if="!editingQuantity(part.id)">
@@ -146,7 +160,7 @@
                     <td @click="editTax(part.id)">
                         <template x-if="editingTax(part.id)">
                             <div class="form-check pl-0">
-                                <input class="form-check-input" type="checkbox" id="activeTax" x-model="selected.ref.active_tax">
+                                <input class="form-check-input" type="checkbox" id="activeTax" x-model="selected.ref.active_tax" @change="checkEditingSave()" @keyup.enter="editNothing()">
                                 <label class="form-check-label" for="activeTax">
                                     $<span x-text="getTax(part, true).toFixed(2)"></span>
                                 </label>

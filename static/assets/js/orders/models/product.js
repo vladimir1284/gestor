@@ -18,4 +18,6 @@
  * @property {number} quantity
  * @property {number} stock_price
  * @property {number} quantity_min
+ * @property {number} sell_price
+ * @property {number} average_cost
  * */
