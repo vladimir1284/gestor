@@ -110,7 +110,7 @@
                      role="alert"
                      aria-live="assertive"
                      aria-atomic="true">
-                    <div class="toast-header text-main mb-0 pb-2">
+                    <div class="toast-header mb-0 pb-2" :class="'text-'+not.status">
                         <i :class="'bx ' + not.icon"></i>
                         <strong class="me-auto ml-2" x-text="not.title"></strong>
                         <button type="button"
@@ -121,47 +121,7 @@
                 </div>
             </template>
         </div>
-        <script>
-            const _nots = []
-
-            function notify(title, msg, icon='bxs-info-circle') {
-                const nots = Alpine.store('notifications')
-                if (nots) {
-                    nots.notify(title, msg, icon)
-                } else {
-                    _nots.push({
-                        title,
-                        msg,
-                        icon,
-                    })
-                }
-            }
-
-            document.addEventListener('alpine:init', () => {
-                Alpine.store('notifications', {
-                    nots: [],
-
-                    init() {
-                        _nots.forEach(e => {
-                            this.notify(e.title, e.msg, e.icon)
-                        })
-                    },
-
-                    remove(not) {
-                        const idx = this.nots.indexOf(not)
-                        if (idx != -1)
-                            this.nots.splice(idx, 1)
-                    },
-
-                    notify(title, msg, icon='bxs-info-circle') {
-                        const not = { title, msg, icon }
-                        this.nots.push(not)
-                        setTimeout(() =>{
-                            this.remove(not)
-                        }, 5000)
-                    },
-                })
-            })
+        <script src="{% static "assets/js/tools/notifications.js" %}">
         </script>
         {% block body %}
             <!-- Layout wrapper -->
