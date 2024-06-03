@@ -1,3 +1,4 @@
+{% load static %}
 <thead>
     <tr>
         <th>
@@ -7,14 +8,16 @@
         <th>Cost</th>
     </tr>
 </thead>
-<tbody class="table-border-bottom-0">
+<tbody class="table-border-bottom-0" x-data>
     {% for service in services %}
-        <tr data-tag="{{ service.category }}" data-search="{{ service.name }}">
+        <tr data-tag="{{ service.category }}"
+            x-show='match("{{service.name|escapejs}}", $store.search.search)'
+        >
             <td>
                 <a href={% url 'create-kit-service' kit_id service.id %}><i class="bx bx-plus"></i></a>
             </td>
             <td class="pl-0">
-                <strong>{{ service.name }}</strong>
+                <strong x-html='highlightMatch("{{service.name|escapejs}}", $store.search.search)'>{{ service.name }}</strong>
             </td>
             <td>${{ service.suggested_price|floatformat:"-2" }}</td>
         </tr>
