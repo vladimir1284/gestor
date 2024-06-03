@@ -35,7 +35,6 @@ class NotEnoughStockError(BaseException):
     """
 
 
-
 # -------------------- Product ----------------------------
 
 
@@ -327,7 +326,13 @@ def average(product: Product):
     )
 
     try:
-        avg_cost = mean([trans.cost / trans.quantity for trans in transactions])
+        avg_cost = mean(
+            [
+                trans.cost / trans.quantity
+                for trans in transactions
+                if trans.cost is not None
+            ]
+        )
     except StatisticsError as err:
         avg_cost = None
         if product.quantity != 0:
