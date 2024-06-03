@@ -21,7 +21,7 @@
             position: absolute;
             bottom: 0;
             left: 50%; /* position the left edge of the element at the middle of the parent */
-        
+
             transform: translate(25px, 0);
         }
     </style>
@@ -29,7 +29,7 @@
 {% block content %}
     {% block Ctitle %}
     {% endblock Ctitle %}
-    <div class="row">
+    <div class="row" x-data>
         {% block Cards %}
         {% endblock Cards %}
     </div>
@@ -48,10 +48,10 @@
 {% endblock content %}
 {% block scripts %}
     <script>
-        window.onload = function(){  
-            add = document.getElementsByClassName("add")[0];  
-            $(add).tooltip('show'); 
-        }  
+        window.onload = function(){
+            add = document.getElementsByClassName("add")[0];
+            $(add).tooltip('show');
+        }
         filterText = function () {
             let j;
             let text = document.getElementById("search").value;
@@ -64,8 +64,8 @@
                     cards[j].style.display = "";
                 } else {
                     cards[j].style.display = "none";
-                }    
+                }
             }
-          }
+        }
     </script>
 {% endblock scripts %}

@@ -14,12 +14,20 @@
 {% endblock Theader %}
 {% block Tbody %}
     {% for kit in kits %}
-        <tr data-search="{{ kit.category.name }}" data-search="{{ kit.name }}">
+        <tr x-show="match('{{kit.category.name|escapejs}} | {{kit.name|escapejs}}', $store.search.search)">
+        <!-- data-search="{{ kit.category.name }}" data-search="{{ kit.name }}"> -->
             <td>
                 <a href={% url 'detail-kit' kit.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
             <td>
-                <strong>{{ kit.name }}</strong>
+                <div>
+                    <strong x-html="highlightMatch('{{kit.name|escapejs}}', $store.search.search)">
+                        {{ kit.name }}
+                    </strong>
+                </div>
+                <small x-show="match('{{kit.category.name|escapejs}}', $store.search.search) && $store.search.search != ''"
+                       x-html="highlightMatch('{{kit.category.name|escapejs}}', $store.search.search)"
+                       x-cloak></small>
             </td>
             <td>${{ kit.total|floatformat:"2" }}</td>
         </tr>
