@@ -1,66 +1,104 @@
+{% load static %}
 <thead>
-    <tr>
-        <th>Name</th>
-        <th>unit</th>
-        <th>Sugg</th>
-        {% if type == 'part' %}<th>Ave Price</th>{% endif %}
-        <th>Cost</th>
-        {% if type == 'part' %}<th>Ave Cost</th>{% endif %}
-        <th>Min</th>
-        <th>Qty</th>
-    </tr>
+  <tr>
+    <th>Name</th>
+    <th>unit</th>
+    <th>Sugg</th>
+    {% if type == 'part' %}
+      <th>Ave Price</th>
+    {% endif %}
+    <th>Cost</th>
+    {% if type == 'part' %}
+      <th>Ave Cost</th>
+    {% endif %}
+    <th>Min</th>
+    <th>Qty</th>
+  </tr>
 </thead>
-<tbody class="table-border-bottom-0">
-    {% for product in products %}
-        {% if product.type == type %}
-            <tr data-tag="{{ product.category }}" data-search="{{ product.name }}">
-                <td>
-                    <div class="d-flex">
-                        <a class="pe-2" href="{% url 'detail-product' product.id %}"><strong>{{ product.name }}</strong></a>
-                        <ul class="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
-                            {% for ref in product.price_references %}
-                                <li data-bs-toggle="tooltip"
-                                    data-popup="tooltip-custom"
-                                    data-bs-placement="top"
-                                    class="avatar avatar-xs pull-up"
-                                    title=""
-                                    data-bs-original-title="{{ ref.store }}: ${{ ref.price }}">
-                                    <img src="{{ ref.favicon }}"
-                                         alt="{{ ref.store | truncatechars:1 }}"
-                                         class="rounded-circle">
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </td>
-                <td>{{ product.unit }}</td>
-                <td>${{ product.sell_price|floatformat:"-2" }}</td>
-                {% if type == 'part' %}
-                    <td>
-                        {% if product.average_price %}${{ product.average_price|floatformat:"-2" }}{% endif %}
-                    </td>
-                {% endif %}
-                <td>${{ product.average_cost|floatformat:"-2" }}</td>
-                {% if type == 'part' %}
-                    <td>
-                        {% if product.average_cost %}${{ product.average_cost|floatformat:"-2"}}{% endif %}
-                    </td>
-                {% endif %}
-                <td>
-                    <button onclick="getInitialData(this.id)" type="button" class="btn btn-outline-primary p-1 pt-0 pb-0 minprice" data-min-price={{ product.min_price }} id="product-{{ product.id }}" data-product-name="{{ product.name }}" data-bs-toggle="modal" data-bs-target="#modalCenter">
-                        ${{ product.min_price|floatformat:"-2" }}
-                    </button>
-                </td>
-                <td>
-                    {% if product.quantity > 0 %}
-                        <button onclick="getInitialQty(this.id)" type="button" class="btn btn-outline-primary p-1 pt-0 pb-0 minprice" data-quantity={{ product.quantity }} id="qty_product-{{ product.id }}" data-product-name="{{ product.name }}" data-bs-toggle="modal" data-bs-target="#modalCenterQty">
-                            {{ product.quantity|floatformat:"-2" }}
-                        </button>
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-            </tr>
+<tbody class="table-border-bottom-0" x-data>
+  {% for product in products %}
+    {% if product.type == type %}
+      <tr data-tag="{{ product.category }}"
+          x-show='match("{{product.name|escapejs}}", $store.search.search)'
+      >
+    <!-- data-search="{{ product.name }}"> -->
+        <td>
+          <div class="d-flex">
+            <a class="pe-2" href="{% url 'detail-product' product.id %}">
+              <strong
+                x-html='highlightMatch("{{product.name|escapejs}}", $store.search.search)'
+              >{{ product.name }}</strong>
+            </a>
+            <ul class="list-unstyled users-list m-0 avatar-group d-flex align-items-center">
+              {% for ref in product.price_references %}
+                <li
+                  data-bs-toggle="tooltip"
+                  data-popup="tooltip-custom"
+                  data-bs-placement="top"
+                  class="avatar avatar-xs pull-up"
+                  title=""
+                  data-bs-original-title="{{ ref.store }}: ${{ ref.price }}"
+                >
+                  <img
+                    src="{{ ref.favicon }}"
+                    alt="{{ ref.store | truncatechars:1 }}"
+                    class="rounded-circle"
+                  />
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </td>
+        <td>{{ product.unit }}</td>
+        <td>${{ product.sell_price|floatformat:"-2" }}</td>
+        {% if type == 'part' %}
+          <td>
+            {% if product.average_price %}
+              ${{ product.average_price|floatformat:"-2"}}
+            {% endif %}
+          </td>
         {% endif %}
-    {% endfor %}
+        <td>${{ product.average_cost|floatformat:"-2" }}</td>
+        {% if type == 'part' %}
+          <td>
+            {% if product.average_cost %}
+              ${{ product.average_cost|floatformat:"-2"}}
+            {%endif %}
+          </td>
+        {% endif %}
+        <td>
+          <button
+            onclick="getInitialData(this.id)"
+            type="button"
+            class="btn btn-outline-primary p-1 pt-0 pb-0 minprice"
+            data-min-price="{{product.min_price}}"
+            id="product-{{ product.id }}"
+            data-product-name="{{ product.name }}"
+            data-bs-toggle="modal"
+            data-bs-target="#modalCenter"
+          >
+            ${{ product.min_price|floatformat:"-2" }}
+          </button>
+        </td>
+        <td>
+          {% if product.quantity > 0 %}
+            <button
+              onclick="getInitialQty(this.id)"
+              type="button"
+              class="btn btn-outline-primary p-1 pt-0 pb-0 minprice"
+              data-quantity="{{product.quantity}}"
+              id="qty_product-{{ product.id }}"
+              data-product-name="{{ product.name }}"
+              data-bs-toggle="modal"
+              data-bs-target="#modalCenterQty"
+            >
+              {{ product.quantity|floatformat:"-2" }}
+            </button>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+    {% endif %}
+  {% endfor %}
 </tbody>
