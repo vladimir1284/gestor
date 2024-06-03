@@ -1,3 +1,4 @@
+{% load static %}
 <thead>
     <tr>
         <th>
@@ -6,9 +7,11 @@
         <th>Name</th>
     </tr>
 </thead>
-<tbody class="table-border-bottom-0">
+<tbody class="table-border-bottom-0" x-data>
     {% for kit in kits %}
-        <tr data-tag="{{ kit.category }}" data-search="{{ kit.name }}">
+        <tr data-tag="{{ kit.category }}" data-search="{{ kit.name }}"
+            x-show='match("{{service.name|escapejs}}", $store.search.search)'
+        >
             <td>
                 {% if kit.available %}
                     <a href={% url 'create-kit-transaction' order_id kit.id %}><i class="bx bx-plus"></i></a>
@@ -17,7 +20,8 @@
             <td>
                 <a href={% url 'detail-kit' kit.id %}>
                     <div {% if kit.available %}{% else %}class="text-danger"{% endif %}>
-                        <strong>{{ kit.name }}</strong>
+                        <!-- <strong>{{ kit.name }}</strong> -->
+                        <strong x-html='highlightMatch("{{kit.name|escapejs}}", $store.search.search)'>{{ kit.name }}</strong>
                     </div>
                 </a>
             </td>

@@ -745,6 +745,11 @@
   padding-right: 0.375rem;
 }
 
+.px-12 {
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -758,11 +763,6 @@
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
-}
-
-.px-6 {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
 }
 
 .py-0 {
@@ -788,21 +788,6 @@
 .py-\[0\.1rem\] {
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
-}
-
-.px-8 {
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-
-.px-10 {
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
-}
-
-.px-12 {
-  padding-left: 3rem;
-  padding-right: 3rem;
 }
 
 .pb-0 {
@@ -1071,9 +1056,18 @@
 }
 
 .match {
-  font-weight: 700;
-  --tw-text-opacity: 1;
-  color: rgb(105 108 255 / var(--tw-text-opacity));
+  font-weight: 700 !important;
+  --tw-text-opacity: 1 !important;
+  color: rgb(105 108 255 / var(--tw-text-opacity)) !important;
+}
+
+.text-primary .match,
+.text-primary.match,
+a .match,
+a.match {
+  font-weight: 700 !important;
+  --tw-text-opacity: 1 !important;
+  color: rgb(153 27 27 / var(--tw-text-opacity)) !important;
 }
 
 .hover\:right-\[-0\.5rem\]:hover {
