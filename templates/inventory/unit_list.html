@@ -15,14 +15,19 @@
 {% endblock Theader %}
 {% block Tbody %}
     {% for unit in units %}
-        <tr>
+        <tr x-show='match("{{unit.name|escapejs}} | {{unit.magnitude|escapejs}}", $store.search.search)'>
             <td>
                 <a href={% url 'update-unit' unit.id %}><i class="bx bx-dots-vertical-rounded"></i></a>
             </td>
             <td>
-                <i class="fab fa-angular fa-lg text-danger"></i> <strong>{{ unit.name }}</strong>
+                <i class="fab fa-angular fa-lg text-danger"></i>
+                <strong
+                    x-html='highlightMatch("{{unit.name|escapejs}}", $store.search.search)'
+                >{{ unit.name }}</strong>
             </td>
-            <td>{{ unit.magnitude }}</td>
+            <td
+                x-html='highlightMatch("{{unit.magnitude|escapejs}}", $store.search.search)'
+            >{{ unit.magnitude }}</td>
             <td>
                 {% if unit.factor == 1 %}
                     -
