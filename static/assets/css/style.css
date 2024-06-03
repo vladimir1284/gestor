@@ -1111,9 +1111,18 @@
 }
 
 .match {
-  font-weight: 700;
-  --tw-text-opacity: 1;
-  color: rgb(105 108 255 / var(--tw-text-opacity));
+  font-weight: 700 !important;
+  --tw-text-opacity: 1 !important;
+  color: rgb(105 108 255 / var(--tw-text-opacity)) !important;
+}
+
+.text-primary .match,
+.text-primary.match,
+a .match,
+a.match {
+  font-weight: 700 !important;
+  --tw-text-opacity: 1 !important;
+  color: rgb(153 27 27 / var(--tw-text-opacity)) !important;
 }
 
 .hover\:right-\[-0\.5rem\]:hover {
