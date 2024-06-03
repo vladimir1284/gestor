@@ -11,5 +11,12 @@
 }
 
 .match {
-  @apply text-main font-bold;
+  @apply !text-main !font-bold;
+}
+
+.text-primary .match,
+.text-primary.match,
+a .match,
+a.match {
+  @apply !text-red-800 !font-bold;
 }
