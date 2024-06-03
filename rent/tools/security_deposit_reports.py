@@ -3,7 +3,11 @@ from rent.models.lease import SecurityDepositDevolution
 from rent.tools.adjust_security_deposit import adjust_security_deposit
 
 
-def security_deposit_reports(ctx: dict, year: int, month: int):
+def security_deposit_reports(
+    ctx: dict,
+    year: int | None = None,
+    month: int | None = None,
+):
     completed = []
     pendings = []
     actives = []
@@ -23,9 +27,13 @@ def security_deposit_reports(ctx: dict, year: int, month: int):
             # Sub conditional because it does not matter if the returned date does not match
             # to be returned and we will NOT include it in the active list
             if (
-                deposit.returned_date is not None
-                and deposit.returned_date.year == year
-                and deposit.returned_date.month == month
+                year is None
+                or month is None
+                or (
+                    deposit.returned_date is not None
+                    and deposit.returned_date.year == year
+                    and deposit.returned_date.month == month
+                )
             ):
                 completed.append(deposit)
                 total_returned += deposit.amount
@@ -34,7 +42,14 @@ def security_deposit_reports(ctx: dict, year: int, month: int):
         elif deposit.contract.stage == "ended" and deposit.refund_date is not None:
             # Sub conditional because it does not matter if the future returned date does not match
             # to be a pending return and we will NOT include it in the active list
-            if deposit.refund_date.year == year and deposit.refund_date.month == month:
+            if (
+                year is None
+                or month is None
+                or (
+                    deposit.refund_date.year == year
+                    and deposit.refund_date.month == month
+                )
+            ):
                 pendings.append(deposit)
                 total_pending += deposit.total_deposited_amount
         # is active
