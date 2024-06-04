@@ -43,7 +43,8 @@ class DepositDiscount(models.Model):
         days = "day" if duration == 1 or duration == -1 else "days"
         sign = "before" if duration >= 0 else "after"
         css_class = (
-            "danger" if duration < 0 else "success" if duration > 0 else "primary"
+            ""
+            # "danger" if duration < 0 else "success" if duration > 0 else "primary"
         )
         exp_date = self.expiration_date.strftime("%b %d, %Y")
 
