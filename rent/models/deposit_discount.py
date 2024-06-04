@@ -11,31 +11,41 @@ class DepositDiscount(models.Model):
 
     duration = models.BooleanField(default=False)
     saved_duration_in_days = models.IntegerField(null=True)
+    saved_contract_exp = models.DateField(null=True)
 
     location_towit = models.BooleanField(null=True, blank=True)
     location_note = models.TextField(null=True, blank=True)
 
     trailer_condition_discount = models.FloatField(default=0)
 
+    def reset(self):
+        self.expiration_date = None
+        self.expirate_in_days = None
+        self.save()
+
     @property
     def expirate_in_days(self) -> int:
-        self.saved_duration_in_days = self.contract.expirate_in_days
-        self.save()
+        if self.saved_duration_in_days is None:
+            self.saved_duration_in_days = self.contract.expirate_in_days
+            self.save()
         return self.saved_duration_in_days
 
     @property
+    def expiration_date(self):
+        if self.saved_contract_exp is None:
+            self.saved_contract_exp = self.contract.expiration_date
+            self.save()
+        return self.saved_contract_exp
+
+    @property
     def expirate_HTML(self):
-        duration = (
-            self.saved_duration_in_days
-            if self.saved_duration_in_days is not None
-            else self.expirate_in_days
-        )
+        duration = self.expirate_in_days
         days = "day" if duration == 1 or duration == -1 else "days"
         sign = "before" if duration >= 0 else "after"
         css_class = (
             "danger" if duration < 0 else "success" if duration > 0 else "primary"
         )
-        exp_date = self.contract.expiration_date.strftime("%b %d, %Y")
+        exp_date = self.expiration_date.strftime("%b %d, %Y")
 
         return f"""<strong>{abs(duration)}</strong>
         {days}

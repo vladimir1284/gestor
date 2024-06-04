@@ -13,6 +13,7 @@ from rent.forms.lease import HTML
 from rent.forms.lease import PrependedAppendedText
 from rent.models.deposit_discount import DepositDiscount
 from rent.models.lease import Contract
+from rent.models.lease import SecurityDepositDevolution
 
 
 class DepositDiscountForm(forms.ModelForm):
@@ -25,19 +26,23 @@ class DepositDiscountForm(forms.ModelForm):
             "trailer_condition_discount",
         ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *args,
+        devolution: SecurityDepositDevolution | None = None,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
-        duration = self.instance.expirate_in_days
+        discount: DepositDiscount = self.instance
+
+        duration = discount.expirate_in_days
         days = "day" if duration == 1 or duration == -1 else "days"
         sign = "before" if duration >= 0 else "after"
         css_class = (
             "danger" if duration < 0 else "success" if duration > 0 else "primary"
         )
-        contract: Contract = self.instance.contract
-        renovations = contract.renovation_ctx
-        renovations["contract"] = contract
-        exp_date = renovations["expiration_date"].strftime("%b %d, %Y")
+        exp_date = discount.expiration_date.strftime("%b %d, %Y")
 
         self.fields["location_towit"] = forms.BooleanField(
             label="The trailer was returned at Towit Houston",
@@ -45,6 +50,15 @@ class DepositDiscountForm(forms.ModelForm):
         )
 
         self.fields["location_note"].widget.attrs["rows"] = 3
+
+        contract: Contract = self.instance.contract
+        renovations = contract.renovation_ctx
+        renovations["contract"] = contract
+        renovations["renovations"] = [
+            r
+            for r in renovations["renovations"]
+            if r.effective_date <= discount.expiration_date
+        ]
 
         html_renovations = render_to_string(
             "rent/contract/discount/renovations_table.html",
