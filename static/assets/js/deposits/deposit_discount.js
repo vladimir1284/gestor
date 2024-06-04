@@ -28,7 +28,7 @@ const discount_box = /**@type {HTMLDivElement}*/ (
 );
 discount_box.setAttribute(
   "x-text",
-  "'Total discount on the deposit: ' + totalDiscount()",
+  "`Total discount on the deposit: ${totalDiscount()} = ${globalThis.DEBT} + ${globalThis.TOLLS} + ${(trailer_discount | 0.0)} - ${globalThis.EXTRA_PAY}`",
 );
 
 const immediateInput = /**@type {HTMLInputElement}*/ (

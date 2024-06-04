@@ -124,7 +124,7 @@ class DepositDiscountForm(forms.ModelForm):
                 Div(
                     Div(
                         HTML("<i class='bx bx-dollar' ></i>"),
-                        css_class="input-group-addon",
+                        css_class="input-group-addon text-success",
                     ),
                     Div(
                         HTML(f"{self.instance.extra_payments}"),
@@ -140,7 +140,7 @@ class DepositDiscountForm(forms.ModelForm):
                 Div(
                     Div(
                         HTML("<i class='bx bx-dollar' ></i>"),
-                        css_class="input-group-addon",
+                        css_class="input-group-addon text-danger",
                     ),
                     Div(
                         HTML(f"{self.instance.debt}"),
@@ -156,7 +156,7 @@ class DepositDiscountForm(forms.ModelForm):
                 Div(
                     Div(
                         HTML("<i class='bx bx-dollar' ></i>"),
-                        css_class="input-group-addon",
+                        css_class="input-group-addon text-danger",
                     ),
                     Div(
                         HTML(f"{self.instance.tolls}"),
@@ -168,7 +168,7 @@ class DepositDiscountForm(forms.ModelForm):
                 Div(
                     PrependedText(
                         "trailer_condition_discount",
-                        mark_safe("<i class='bx bxs-car-mechanic'></i>"),
+                        mark_safe("<i class='bx bx-dollar text-danger'></i>"),
                     ),
                     css_class="mb-3",
                 ),

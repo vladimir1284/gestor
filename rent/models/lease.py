@@ -411,7 +411,7 @@ class SecurityDepositDevolution(models.Model):
 
     @property
     def income(self):
-        return self.total_deposited_amount + self.prepayments - self.amount
+        return self.debts + self.trailer_discount
 
     @property
     def returned_amount(self):
