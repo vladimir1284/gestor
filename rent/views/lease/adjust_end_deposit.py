@@ -8,9 +8,11 @@ from django.utils.translation import gettext_lazy as _
 from rent.forms.deposit_discount import DepositDiscountForm
 from rent.forms.lease import SecurityDepositDevolutionForm
 from rent.models.deposit_discount import DepositDiscount
+from rent.models.lease import Lease
 from rent.models.lease import LeaseDocument
 from rent.models.lease import SecurityDepositDevolution
 from rent.tools.adjust_security_deposit import adjust_security_deposit
+from rent.tools.get_extra_payments import reverse_extra_payments
 from rent.views.lease.deposit_discount import get_deposit_discount
 from rent.views.vehicle import FILES_ICONS
 
@@ -47,7 +49,14 @@ def adjust_end_deposit(request, id):
                 instance.returned_date = None
 
             instance.amount = instance.total_deposited_amount - discount.total_discount
+            instance.prepayments = discount.extra_payments
+            instance.debts = discount.debt
+            instance.tolls = discount.tolls
+            instance.trailer_discount = discount.trailer_condition_discount
             instance.save()
+
+            lease = Lease.objects.filter(contract=discount.contract).last()
+            reverse_extra_payments(lease)
 
             if closing:
                 return redirect("update-contract-stage", id, "ended")

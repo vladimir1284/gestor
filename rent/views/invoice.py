@@ -1,12 +1,18 @@
-from django.contrib.auth.decorators import login_required
-from django.core.mail import EmailMessage, get_connection
-from django.shortcuts import render, get_object_or_404, redirect
-from rent.models.lease import Lease, Due
-from datetime import datetime
-from django.http import HttpResponse
-from django.conf import settings
 import tempfile
+from datetime import datetime
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMessage
+from django.core.mail import get_connection
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
 from django.template.loader import render_to_string
+
+from rent.models.lease import Due
+from rent.models.lease import Lease
 from rent.permissions import staff_required
 
 
@@ -14,10 +20,7 @@ def get_invoice_context(lease_id, date, paid):
     lease = get_object_or_404(Lease, id=lease_id)
     date = datetime.strptime(date, "%m%d%Y")
     due = Due.objects.filter(lease=lease, due_date=date).last()
-    context = {'date': date,
-               'lease': lease,
-               'due': due,
-               'paid': (paid == "true")}
+    context = {"date": date, "lease": lease, "due": due, "paid": (paid == "true")}
     return context
 
 
@@ -33,13 +36,13 @@ def generate_invoice(request, lease_id, date, paid):
 
     if result is not None:
         # Creating http response
-        response = HttpResponse(content_type='application/pdf;')
-        response['Content-Disposition'] = 'inline; filename=invoice_towit.pdf'
-        response['Content-Transfer-Encoding'] = 'binary'
+        response = HttpResponse(content_type="application/pdf;")
+        response["Content-Disposition"] = "inline; filename=invoice_towit.pdf"
+        response["Content-Transfer-Encoding"] = "binary"
         with tempfile.NamedTemporaryFile() as output:
             output.write(result)
             output.flush()
-            output = open(output.name, 'rb')
+            output = open(output.name, "rb")
             response.write(output.read())
 
         return response
@@ -49,12 +52,13 @@ def generate_invoice(request, lease_id, date, paid):
 def generate_invoice_pdf(request, lease_id, date, paid):
     context = get_invoice_context(lease_id, date, paid)
     """Generate pdf."""
-    image = settings.STATIC_ROOT+'/assets/img/icons/TOWIT.png'
+    image = settings.STATIC_ROOT + "/assets/img/icons/TOWIT.png"
     # Render
-    context.setdefault('image', image)
-    html_string = render_to_string('rent/invoice/invoice_pdf.html', context)
+    context.setdefault("image", image)
+    html_string = render_to_string("rent/invoice/invoice_pdf.html", context)
     if settings.USE_WEASYPRINT:
         from weasyprint import HTML
+
         html = HTML(string=html_string, base_url=request.build_absolute_uri())
         main_doc = html.render(presentational_hints=True)
         return main_doc.write_pdf()
@@ -62,8 +66,7 @@ def generate_invoice_pdf(request, lease_id, date, paid):
 
 
 INVOICE_DICT = {
-    'english':
-    """Dear {}, 
+    "english": """Dear {}, 
 
 We hope this email finds you well. We would like to thank you for your recent payment. We are pleased to confirm that we have received the payment in full for the attached invoice. 
  
@@ -78,8 +81,7 @@ Thank you for your business.
 Best regards, 
 
 """,
-    'spanish':
-    """Estimado {},
+    "spanish": """Estimado {},
  
 Esperamos que este correo electrónico te encuentre bien. Nos gustaría agradecerle por su pago reciente. Nos complace confirmar que hemos recibido el pago completo de la factura adjunta.
  
@@ -91,12 +93,11 @@ Valoramos su asociación y esperamos continuar brindándole un servicio excepcio
  
 Gracias por hacer negocios.
  
-"""
+""",
 }
 
 PAYMENT_DICT = {
-    'english':
-    """Dear {}, 
+    "english": """Dear {}, 
  
 We hope this email finds you well. We would like to kindly remind you that the payment for your leased trailer is due on {}.  
  
@@ -109,8 +110,7 @@ If you have already made the payment, please disregard this reminder. However, i
 Thank you for your prompt attention to this matter. We greatly value your partnership and appreciate your continued business. 
  
 """,
-    'spanish':
-    """Estimado {},
+    "spanish": """Estimado {},
  
 Esperamos que este correo electrónico te encuentre bien. Nos gustaría recordarle que el pago de su remolque arrendado vence el {}.
  
@@ -122,12 +122,11 @@ Si ya realizó el pago, ignore este recordatorio. Sin embargo, si tiene alguna i
  
 Gracias por su pronta atención, a este asunto. Valoramos enormemente su asociación y apreciamos su continuidad comercial.
  
-"""
+""",
 }
 
 THANKS_DICT = {
-    'english':
-    """Best regards, 
+    "english": """Best regards, 
  
 Daniel Hernández 
 TOWIT Houston
@@ -138,8 +137,7 @@ www.tiktok.com/@towithouston
 Facebook:
 www.facebook.com/towithouston
 Check your invoice attached to this email.""",
-    'spanish':
-    """Atentamente,
+    "spanish": """Atentamente,
  
 Daniel Hernández 
 TOWIT Houston
@@ -151,15 +149,15 @@ Facebook:
 www.facebook.com/towithouston
 Google Maps:
 goo.gl/maps/GLyCCRaLECF2HcGW8?coh=178571&entry=tt
-Vea su factura en el adjunto de este correo."""
+Vea su factura en el adjunto de este correo.""",
 }
 DUE_SUBJECT_DICT = {
-    'english': 'Payment Reminder: Due Date for Leased Trailer',
-    'spanish': 'Recordatorio de pago: fecha de pago del remolque arrendado'
+    "english": "Payment Reminder: Due Date for Leased Trailer",
+    "spanish": "Recordatorio de pago: fecha de pago del remolque arrendado",
 }
 PAID_SUBJECT_DICT = {
-    'english': 'Invoice from Leased Trailer',
-    'spanish': 'Factura de la renta del remolque arrendado'
+    "english": "Invoice from Leased Trailer",
+    "spanish": "Factura de la renta del remolque arrendado",
 }
 
 
@@ -167,34 +165,44 @@ PAID_SUBJECT_DICT = {
 def send_invoice(request, lease_id, date, paid):
     lease = get_object_or_404(Lease, id=lease_id)
     mail_send_invoice(request, lease_id, date, paid)
-    return redirect('client-detail', lease.contract.lessee.id)
+    return redirect("client-detail", lease.contract.lessee.id)
 
 
 def mail_send_invoice(request, lease_id, date, paid):
+    if settings.ENVIRONMENT != "production":
+        print("Mail virtually sended")
+        return
+
     context = get_invoice_context(lease_id, date, paid)
-    if context['lease'].notify:
-        client = context['lease'].contract.lessee
-        if settings.ENVIRONMENT == 'production':
-            recipient_list = [client.email]
-        else:
-            recipient_list = ['vladimir.rdguez@gmail.com']
+    if context["lease"].notify:
+        client = context["lease"].contract.lessee
+        recipient_list = [client.email]
+        # if settings.ENVIRONMENT == 'production':
+        #     recipient_list = [client.email]
+        # else:
+        #     recipient_list = ['vladimir.rdguez@gmail.com']
 
         if paid == "true":
             subject = PAID_SUBJECT_DICT[client.language]
-            body = INVOICE_DICT[client.language].format(
-                client) + THANKS_DICT[client.language]
+            body = (
+                INVOICE_DICT[client.language].format(client)
+                + THANKS_DICT[client.language]
+            )
 
         else:
             subject = DUE_SUBJECT_DICT[client.language]
-            body = PAYMENT_DICT[client.language].format(
-                client, context['date'].strftime("%m/%d/%Y")) + THANKS_DICT[client.language]
+            body = (
+                PAYMENT_DICT[client.language].format(
+                    client, context["date"].strftime("%m/%d/%Y")
+                )
+                + THANKS_DICT[client.language]
+            )
         try:
             result = generate_invoice_pdf(request, lease_id, date, paid)
             if result:
                 with tempfile.NamedTemporaryFile(
-                        suffix=".pdf",
-                        delete=False,
-                        prefix=F"invoice_rental_{client.id}_") as output:
+                    suffix=".pdf", delete=False, prefix=f"invoice_rental_{client.id}_"
+                ) as output:
                     output.write(result)
                     output.flush()
                     with get_connection(
@@ -202,11 +210,16 @@ def mail_send_invoice(request, lease_id, date, paid):
                         port=settings.EMAIL_PORT,
                         username=settings.EMAIL_HOST_USER,
                         password=settings.EMAIL_HOST_PASSWORD,
-                        use_tls=settings.EMAIL_USE_TLS
+                        use_tls=settings.EMAIL_USE_TLS,
                     ) as connection:
                         email_from = settings.EMAIL_HOST_USER
-                        msg = EmailMessage(subject, body, email_from,
-                                           recipient_list, connection=connection)
+                        msg = EmailMessage(
+                            subject,
+                            body,
+                            email_from,
+                            recipient_list,
+                            connection=connection,
+                        )
                         msg.attach_file(output.name)
                         msg.send()
             else:

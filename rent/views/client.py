@@ -334,7 +334,9 @@ def payment(request, client_id):
             payment.client = client
             payment.user = request.user
             payment.save()
+            print("Processing payment")
             process_payment(request, payment)
+            print("Payment completed")
             payment.save()
             # Redirect to a success page
             return redirect("client-detail", client.id)

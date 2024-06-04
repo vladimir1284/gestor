@@ -104,6 +104,22 @@ class DepositDiscountForm(forms.ModelForm):
                 ),
                 # Debt dues
                 Div(
+                    HTML("Prepayments"),
+                    css_class="",
+                ),
+                Div(
+                    Div(
+                        HTML("<i class='bx bx-dollar' ></i>"),
+                        css_class="input-group-addon",
+                    ),
+                    Div(
+                        HTML(f"{self.instance.extra_payments}"),
+                        css_class="form-control bg-mainBG",
+                    ),
+                    css_class="mb-3 input-group",
+                ),
+                # Debt dues
+                Div(
                     HTML("Debts"),
                     css_class="",
                 ),
@@ -150,8 +166,9 @@ class DepositDiscountForm(forms.ModelForm):
             HTML(
                 f"""
             <script>
-            window.DEBT = {self.instance.debt}
-            window.TOLLS = {self.instance.tolls}
+            globalThis.DEBT = {self.instance.debt}
+            globalThis.TOLLS = {self.instance.tolls}
+            globalThis.EXTRA_PAY = {self.instance.extra_payments}
             </script>
             """
             ),

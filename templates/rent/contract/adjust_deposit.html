@@ -6,7 +6,7 @@
 {% endblock title %}
 {% block content %}
     <script>
-        window.Total = {{ initial }};
+        globalThis.Total = {{ initial }};
 
         function deleteDocument(name, id) {
             let confirmAction = confirm("Are you sure to delete the document: " + name + "?");
@@ -57,6 +57,24 @@
                             x-show = "devolution()"
                         >
                             {% crispy form %}
+                        </div>
+                        <div x-show="!devolution()" class="mb-3 text-danger">
+                            <div x-show="totalAmount() > 0">
+                                <div>
+                                    This amount will <strong>not</strong> be returned,
+                                </div>
+                                <div>
+                                    it will be used as <strong>Towit Compensation</strong> for <strong>breach of contract</strong>.
+                                </div>
+                            </div>
+                            <div x-show="totalAmount() <= 0">
+                                <div>
+                                    There is <strong>nothing to return</strong>,
+                                </div>
+                                <div>
+                                    the client has a <strong>debt</strong> with towit.
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <input type="submit" class="btn btn-primary" value="Enviar">
