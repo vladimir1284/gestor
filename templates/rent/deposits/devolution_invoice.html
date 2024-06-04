@@ -55,7 +55,6 @@
                 font-weight: bold;
             }
             .text-success {
-                color: #00FF55;
                 font-weight: bold;
             }
             .text-warning {
@@ -142,12 +141,16 @@
         <div class="card">
             <div class="card-header">
                 <h2 class="mb-0">
+                    Security Deposit -
                     {% if devolution.returned %}
-                        Security Deposit - <span class="text-primary">Returned</span>:
+                        {% if discount.should_return and devolution.debt_amount == 0 %}
+                            <span>Returned</span>:
+                        {% else %}
+                            <span>Towit Compensation</span>:
+                        {% endif %}
                     {% else %}
-                        Security Deposit - <span class="text-warning">Pending Return</span>:
+                        <span>Pending Return</span>:
                     {% endif %}
-
                 </h2>
             </div>
             <div class="card-body">
@@ -156,33 +159,35 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <span
+                                    <span>
                                         {% if discount.duration %}
-                                            class="text-success"
+                                            <i class='bx bx-check-circle'></i>
                                         {% else %}
-                                            class="text-danger"
+                                            <i class='bx bx-x-circle' ></i>
                                         {% endif %}
-                                    >
+                                    </span>
+                                    <span>
                                         Duration:
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-right">
                                     {{discount.expirate_HTML|safe}}
                                 </td>
                             </tr>
                             <tr>
                                 <td class="align-top">
-                                    <span
+                                    <span>
                                         {% if discount.location_towit %}
-                                            class="text-success"
+                                            <i class='bx bx-check-circle'></i>
                                         {% else %}
-                                            class="text-danger"
+                                            <i class='bx bx-x-circle' ></i>
                                         {% endif %}
-                                    >
+                                    </span>
+                                    <span>
                                         Return location:
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-right">
                                     {% if discount.location_towit %}
                                         Returned at Towit Houston location.
                                     {% else %}
@@ -196,32 +201,8 @@
                                 </td>
                             </tr>
                             <tr class="border-t">
-                                <td>Prepayments:</td>
-                                <td>
-                                    <strong>${{devolution.prepayments | floatformat:'-2'}}</strong>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Debts:</td>
-                                <td>
-                                    <strong>${{devolution.debts | floatformat:'-2'}}</strong>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Tolls:</td>
-                                <td>
-                                    <strong>${{devolution.tolls | floatformat:'-2'}}</strong>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Trailer condition discount:</td>
-                                <td>
-                                    <strong>${{devolution.trailer_discount | floatformat:'-2'}}</strong>
-                                </td>
-                            </tr>
-                            <tr class="border-t">
                                 <td>Return date:</td>
-                                <td>
+                                <td class="text-right">
                                     {% if devolution.returned %}
                                         {{devolution.returned_date|date:"E d, Y"}}
                                     {% else %}
@@ -229,16 +210,34 @@
                                     {% endif %}
                                 </td>
                             </tr>
-                            <tr>
+                            <tr class="border-t">
                                 <td>Total deposited:</td>
-                                <td>
-                                    <strong>${{devolution.total_deposited_amount | floatformat:'-2'}}</strong>
+                                <td class="text-right">
+                                    <strong>+ ${{devolution.total_deposited_amount | floatformat:'-2'}}</strong>
                                 </td>
                             </tr>
                             <tr>
-                                <td>Towit compensation:</td>
-                                <td>
-                                    <strong class="text-success">${{ devolution.income|floatformat:'-2' }}</strong>
+                                <td>Prepayments:</td>
+                                <td class="text-right">
+                                    <strong>+ ${{devolution.prepayments | floatformat:'-2'}}</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Debts:</td>
+                                <td class="text-right">
+                                    <strong>- ${{devolution.debts | floatformat:'-2'}}</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Tolls:</td>
+                                <td class="text-right">
+                                    <strong>- ${{devolution.tolls | floatformat:'-2'}}</strong>
+                                </td>
+                            </tr>
+                            <tr class="border-b">
+                                <td>Trailer condition discount:</td>
+                                <td class="text-right">
+                                    <strong>- ${{devolution.trailer_discount | floatformat:'-2'}}</strong>
                                 </td>
                             </tr>
                             {%if devolution.amount >= 0%}
@@ -250,18 +249,24 @@
                                             To return:
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        <strong class="text-warning">${{ devolution.returned_amount | floatformat:'-2' }}</strong>
+                                    <td class="text-right">
+                                        <strong>${{ devolution.returned_amount | floatformat:'-2' }}</strong>
                                     </td>
                                 </tr>
                             {%else%}
                                 <tr>
                                     <td>Total client debt:</td>
-                                    <td>
-                                        <strong class="text-danger">${{ devolution.debt_amount|floatformat:'-2' }}</strong>
+                                    <td class="text-right">
+                                        <strong>${{ devolution.debt_amount|floatformat:'-2' }}</strong>
                                     </td>
                                 </tr>
                             {%endif%}
+                            <tr>
+                                <td>Towit compensation:</td>
+                                <td class="text-right">
+                                    <strong>${{ devolution.income|floatformat:'-2' }}</strong>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

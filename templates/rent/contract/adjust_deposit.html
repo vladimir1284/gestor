@@ -43,7 +43,7 @@
                             Total discount on the deposit: <strong>$<span x-text="totalDiscount()"></span></strong>
                         </div>
                         <div class="shadow-inner py-2">
-                            <span x-show="totalAmount() >= 0">
+                            <span x-show="totalAmount() >= 0" :class="devolution() || 'line-through'">
                                 Amount in favor of the customer:
                             </span>
                             <span x-show="totalAmount() < 0">

@@ -664,6 +664,10 @@
   border-width: 0px;
 }
 
+.border-b {
+  border-bottom-width: 1px;
+}
+
 .border-t {
   border-top-width: 1px;
 }
@@ -929,6 +933,10 @@
   text-align: center;
 }
 
+.text-right {
+  text-align: right;
+}
+
 .text-end {
   text-align: end;
 }
@@ -1016,6 +1024,10 @@
 
 .underline {
   text-decoration-line: underline;
+}
+
+.line-through {
+  text-decoration-line: line-through;
 }
 
 .shadow {
