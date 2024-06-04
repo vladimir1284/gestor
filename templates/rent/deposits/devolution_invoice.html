@@ -196,24 +196,40 @@
                                 </td>
                             </tr>
                             <tr class="border-t">
+                                <td>Prepayments:</td>
+                                <td>
+                                    <strong>${{devolution.prepayments | floatformat:'-2'}}</strong>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Debts:</td>
                                 <td>
-                                    <strong>${{discount.debt | floatformat:'-2'}}</strong>
+                                    <strong>${{devolution.debts | floatformat:'-2'}}</strong>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Tolls:</td>
                                 <td>
-                                    <strong>${{discount.tolls | floatformat:'-2'}}</strong>
+                                    <strong>${{devolution.tolls | floatformat:'-2'}}</strong>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Trailer condition discount:</td>
                                 <td>
-                                    <strong>${{discount.trailer_condition_discount | floatformat:'-2'}}</strong>
+                                    <strong>${{devolution.trailer_discount | floatformat:'-2'}}</strong>
                                 </td>
                             </tr>
                             <tr class="border-t">
+                                <td>Return date:</td>
+                                <td>
+                                    {% if devolution.returned %}
+                                        {{devolution.returned_date|date:"E d, Y"}}
+                                    {% else %}
+                                        {{devolution.refund_date|date:"E d, Y"}}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Total deposited:</td>
                                 <td>
                                     <strong>${{devolution.total_deposited_amount | floatformat:'-2'}}</strong>
@@ -227,7 +243,13 @@
                             </tr>
                             {%if devolution.amount >= 0%}
                                 <tr>
-                                    <td>To return:</td>
+                                    <td>
+                                        {% if devolution.returned %}
+                                            Returned:
+                                        {% else %}
+                                            To return:
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         <strong class="text-warning">${{ devolution.returned_amount | floatformat:'-2' }}</strong>
                                     </td>
