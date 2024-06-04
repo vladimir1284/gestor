@@ -7,6 +7,7 @@ def security_deposit_reports(
     ctx: dict,
     year: int | None = None,
     month: int | None = None,
+    all_pendings: bool = False,
 ):
     completed = []
     pendings = []
@@ -36,14 +37,15 @@ def security_deposit_reports(
                 )
             ):
                 completed.append(deposit)
-                total_returned += deposit.amount
+                total_returned += deposit.returned_amount
                 total_income += deposit.income
         # Will be returned
         elif deposit.contract.stage == "ended" and deposit.refund_date is not None:
             # Sub conditional because it does not matter if the future returned date does not match
             # to be a pending return and we will NOT include it in the active list
             if (
-                year is None
+                all_pendings
+                or year is None
                 or month is None
                 or (
                     deposit.refund_date.year == year
