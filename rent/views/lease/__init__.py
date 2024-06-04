@@ -387,7 +387,8 @@ def update_contract_stage(request, id, stage):
         for lease in leases:
             lease.delete()
         contract.save()
-        return redirect("detail-trailer", contract.trailer.id)
+        return redirect("dashboard")
+        # return redirect("detail-trailer", contract.trailer.id)
     contract.save()
     if stage == "garbage":
         return redirect("client-list")
