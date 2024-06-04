@@ -21,7 +21,7 @@ from rent.views.vehicle import FILES_ICONS
 @atomic
 def adjust_end_deposit(request, id):
     closing = request.GET.get("closing", False)
-    contract, on_hold, deposit = adjust_security_deposit(id)
+    contract, on_hold, deposit = adjust_security_deposit(id, True)
     discount: DepositDiscount = get_deposit_discount(contract)
 
     if (
