@@ -1,13 +1,44 @@
 {% load static %}
 {% load humanize %}
 <div class="col-lg-6 mb-4 order-0">
-    <div class="card" x-data="Renovations">
+    <div class="card" x-data="{tab: 'now'}">
         <div class="card-header mb-0 pb-0 flex justify-between items-center">
             <h5 class="card-title text-primary">
-                {{ title }} <strong>{{ security_pending|length }}</strong>
+                {{ title }}
+                <strong x-show="tab == 'now'">{{ return_now|length }}</strong>
+                <strong x-show="tab == 'later'">{{ return_later|length }}</strong>
             </h5>
+            <div>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-icon btn-outline-primary"
+                            :class="{active: tab=='now'}"
+                            @click="tab = 'now'"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            data-bs-custom-class="custom-tooltip"
+                            data-bs-title="To return now"
+                    >
+                        <i class='bx bxs-alarm-exclamation' ></i>
+                    </button>
+                    <button type="button" class="btn btn-icon btn-outline-primary"
+                            :class="{active: tab=='later'}"
+                            @click="tab = 'later'"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            data-bs-custom-class="custom-tooltip"
+                            data-bs-title="To return later"
+                    >
+                        <i class='bx bx-alarm-snooze'></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        {% include "rent/deposits/security_reports_pending.html" %}
+        <div x-show="tab == 'now'">
+            {% include "rent/deposits/security_reports_pending.html" with security_pending=return_now %}
+        </div>
+        <div x-show="tab == 'later'">
+            {% include "rent/deposits/security_reports_pending.html" with security_pending=return_later %}
+        </div>
     </div>
 </div>
