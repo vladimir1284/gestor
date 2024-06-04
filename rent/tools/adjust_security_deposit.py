@@ -6,13 +6,13 @@ from rent.models.lease import SecurityDepositDevolution
 from rent.models.trailer_deposit import TrailerDeposit
 
 
-def adjust_security_deposit(contract_id):
+def adjust_security_deposit(contract_id, update: bool = False):
     contract: Contract = get_object_or_404(Contract, id=contract_id)
     on_hold = TrailerDeposit.objects.filter(done=True, contract=contract).last()
 
     deposits = SecurityDepositDevolution.objects.filter(contract=contract)
     with transaction.atomic():
-        if deposits.count() != 1:
+        if deposits.count() != 1 or update:
             total_amount = sum(
                 [
                     lease_deposit.amount
