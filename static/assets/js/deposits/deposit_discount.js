@@ -69,14 +69,15 @@ document.addEventListener("alpine:init", () => {
 
       totalDiscount() {
         return (
-          parseFloat(window.DEBT) +
-          parseFloat(window.TOLLS) +
-          (this.trailer_discount | 0.0)
+          parseFloat(globalThis.DEBT) +
+          parseFloat(globalThis.TOLLS) +
+          (this.trailer_discount | 0.0) -
+          parseFloat(globalThis.EXTRA_PAY)
         );
       },
 
       totalAmount() {
-        return parseFloat(window.Total) - this.totalDiscount();
+        return parseFloat(globalThis.Total) - this.totalDiscount();
       },
 
       devolution() {

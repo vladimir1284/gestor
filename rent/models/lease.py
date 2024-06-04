@@ -403,9 +403,15 @@ class SecurityDepositDevolution(models.Model):
     note = models.TextField(null=True, blank=True)
     refund_date = models.DateField(null=True)
 
+    prepayments = models.FloatField(default=0)
+
+    debts = models.FloatField(default=0)
+    tolls = models.FloatField(default=0)
+    trailer_discount = models.FloatField(default=0)
+
     @property
     def income(self):
-        return self.total_deposited_amount - self.amount
+        return self.total_deposited_amount + self.prepayments - self.amount
 
     @property
     def returned_amount(self):

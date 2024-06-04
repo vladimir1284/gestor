@@ -14,7 +14,9 @@ from rent.models.lease import SecurityDepositDevolution
 def security_deposit_devolution_invoices(request: HttpRequest, id: int):
     dev: SecurityDepositDevolution = get_object_or_404(SecurityDepositDevolution, id=id)
     if dev.contract is not None:
-        dis: DepositDiscount = get_object_or_404(DepositDiscount, contract=dev.contract)
+        dis: DepositDiscount = DepositDiscount.objects.filter(
+            contract=dev.contract
+        ).last()
     else:
         dis = None
 

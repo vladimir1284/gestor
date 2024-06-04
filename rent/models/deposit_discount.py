@@ -3,6 +3,7 @@ from django.db import models
 from rent.models.lease import Contract
 from rent.models.lease import Lease
 from rent.tools.client import compute_client_debt
+from rent.tools.get_extra_payments import get_extra_payments
 
 
 class DepositDiscount(models.Model):
@@ -48,7 +49,18 @@ class DepositDiscount(models.Model):
 
     @property
     def total_discount(self) -> float:
-        return float(self.trailer_condition_discount) + self.debt + self.tolls
+        return (
+            float(self.trailer_condition_discount)
+            + self.debt
+            + self.tolls
+            - self.extra_payments
+        )
+
+    @property
+    def extra_payments(self) -> float:
+        lease = Lease.objects.filter(contract=self.contract).last()
+        extra_payments = get_extra_payments(lease)
+        return extra_payments
 
     @property
     def debt(self) -> float:
