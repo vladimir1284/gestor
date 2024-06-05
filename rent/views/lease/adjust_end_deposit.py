@@ -55,6 +55,9 @@ def adjust_end_deposit(request, id):
             instance.trailer_discount = discount.trailer_condition_discount
             instance.save()
 
+            discount.security_deposit_devolution = instance
+            discount.save()
+
             lease = Lease.objects.filter(contract=discount.contract).last()
             reverse_extra_payments(lease)
 
