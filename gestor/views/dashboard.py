@@ -18,6 +18,10 @@ def dashboard(request):
         request.session["403"] = None
         ctx["e403"] = True
 
+    if "js" in request.session and request.session["js"]:
+        ctx["js"] = request.session["js"]
+        request.session["js"] = None
+
     return render(
         request,
         "dashboard.html",
