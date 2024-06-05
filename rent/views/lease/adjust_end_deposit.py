@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.transaction import atomic
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -62,6 +63,8 @@ def adjust_end_deposit(request, id):
             reverse_extra_payments(lease)
 
             if closing:
+                url = reverse("security_deposit_devolution_invoice", args=[instance.id])
+                request.session["js"] = f"window.open(`{url}`)"
                 return redirect("update-contract-stage", id, "ended")
             else:
                 return redirect("client-list")

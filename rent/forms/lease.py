@@ -21,8 +21,6 @@ from django.urls import reverse
 from django.utils import timezone
 from twilio.rest.pricing.v1 import phone_number
 
-from rent.tools.temp_emergcontact_relation import get_emergency_contact_relations_choices
-
 from ..models.lease import Contract
 from ..models.lease import Due
 from ..models.lease import Inspection
@@ -35,6 +33,8 @@ from ..models.lease import Payment
 from ..models.lease import SecurityDepositDevolution
 from ..models.lease import Tire
 from rent.tools.get_conditions import get_rent_conditions_template
+from rent.tools.temp_emergcontact_relation import \
+    get_emergency_contact_relations_choices
 from template_admin.models.template_version import TemplateVersion
 from users.forms import BaseContactForm
 from users.forms import CommonContactLayout
@@ -194,7 +194,7 @@ class LesseeDataForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['contact_relation'] = forms.ChoiceField(
+        self.fields["contact_relation"] = forms.ChoiceField(
             choices=get_emergency_contact_relations_choices()
         )
 
@@ -321,7 +321,7 @@ class AssociatedCreateForm(BaseContactForm):
     ):
         self.use_client_url = use_client_url
         self.buttons = ButtonHolder(
-            Submit("submit", "Enviar", css_class="btn btn-success")
+            Submit("submit", "Enviar", css_class="btn btn-success", css_id="DefSubmit")
         )
 
         super().__init__(*args, **kwargs)
