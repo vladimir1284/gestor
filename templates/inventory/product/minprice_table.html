@@ -1,16 +1,12 @@
 {% load static %}
-<thead>
+<thead class="sticky top-0 bg-white">
   <tr>
     <th>Name</th>
     <th>unit</th>
     <th>Sugg</th>
-    {% if type == 'part' %}
-      <th>Ave Price</th>
-    {% endif %}
+    {% if type == 'part' %}<th>Ave Price</th>{% endif %}
     <th>Cost</th>
-    {% if type == 'part' %}
-      <th>Ave Cost</th>
-    {% endif %}
+    {% if type == 'part' %}<th>Ave Cost</th>{% endif %}
     <th>Min</th>
     <th>Qty</th>
   </tr>

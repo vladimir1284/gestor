@@ -532,6 +532,7 @@ class LesseeData(models.Model):
     contact_file = models.FileField(
         upload_to="documents/contact", blank=True, null=True
     )
+    contact_relation = models.CharField(max_length=200, default='')
 
     contact2_name = models.CharField(max_length=100, null=True, blank=True)
     contact2_phone = PhoneNumberField(
