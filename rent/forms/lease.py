@@ -21,6 +21,8 @@ from django.urls import reverse
 from django.utils import timezone
 from twilio.rest.pricing.v1 import phone_number
 
+from rent.tools.temp_emergcontact_relation import get_emergency_contact_relations_choices
+
 from ..models.lease import Contract
 from ..models.lease import Due
 from ..models.lease import Inspection
@@ -180,6 +182,7 @@ class LesseeDataForm(forms.ModelForm):
             "contact_name",
             "contact_phone",
             "contact_file",
+            "contact_relation",
             "contact2_name",
             "contact2_phone",
             "contact2_file",
@@ -190,6 +193,11 @@ class LesseeDataForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['contact_relation'] = forms.ChoiceField(
+            choices=get_emergency_contact_relations_choices()
+        )
+
         self.helper = FormHelper()
         self.helper.field_class = "mb-3"
         self.helper.layout = Layout(
@@ -207,6 +215,7 @@ class LesseeDataForm(forms.ModelForm):
                     "contact_name",
                     "contact_phone",
                     "contact_file",
+                    "contact_relation",
                 ),
                 Fieldset(
                     "Emergency Contact 2 (Optional)",

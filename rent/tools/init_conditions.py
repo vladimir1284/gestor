@@ -1,3 +1,4 @@
+from rent.tools.temp_emergcontact_relation import init_temp_emergency_contact_relation
 from template_admin.models.template import Template
 from template_admin.models.template_version import TemplateVersion
 from template_admin.tools.templates_tools import TT_LIST
@@ -30,6 +31,7 @@ ON_HOLD_REASONS = """[
 def init_conditions():
     init_on_hold_reason()
     init_on_hold_conditions()
+    init_temp_emergency_contact_relation()
     # English
     # LTO
     temp = TemplateVersion.objects.filter(

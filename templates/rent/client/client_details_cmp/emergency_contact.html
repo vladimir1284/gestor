@@ -10,7 +10,12 @@
         </a>
         <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
             <div class="me-2  associated-data">
-                <h6 class="mb-0">{{ name }}</h6>
+                <h6 class="mb-0">
+                    {{ name }}
+                    {% if rel %}
+                        <span class="text-xs text-gray-400 italic">({{rel}})</span>
+                    {% endif %}
+                </h6>
                 <small class="text-muted">{{ phone }}</small>
             </div>
         </div>
