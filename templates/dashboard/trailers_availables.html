@@ -55,6 +55,12 @@
                            href="{% url 'select-lessee' equipment.id %}">
                             <i class='bx bx-key'></i>
                         </a>
+                        <a class="btn btn-icon btn-outline-primary"
+                           type
+                           None="button"
+                           href="{% url 'reserve-trailer' equipment.id %}">
+                            <i class='bx bx-calendar'></i>
+                        </a>
                     {% endif %}
                 </div>
             {% endfor %}
