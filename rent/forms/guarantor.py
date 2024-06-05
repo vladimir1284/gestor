@@ -1,9 +1,11 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.helper import Layout
 from crispy_forms.helper import mark_safe
+from crispy_forms.layout import ButtonHolder
 from crispy_forms.layout import Div
 from crispy_forms.layout import Field
 from crispy_forms.layout import HTML
+from crispy_forms.layout import Submit
 from django import forms
 
 from rent.forms.lease import AppendedText
@@ -98,6 +100,7 @@ class GuarantorForm(forms.ModelForm):
                     ),
                     css_class="mb-3",
                 ),
+                ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
                 css_class="mb-3",
             ),
         )

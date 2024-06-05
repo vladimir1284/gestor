@@ -62,7 +62,7 @@ def security_deposit_reports(
             total_active += deposit.total_deposited_amount
 
     completed.sort(key=lambda x: x.returned_date, reverse=True)
-    pendings.sort(key=lambda x: x.refund_date, reverse=False)
+    pendings.sort(key=lambda x: x.refund_date, reverse=True)
     actives.sort(key=lambda x: x.contract.lessee.name, reverse=False)
 
     ctx["security_actives"] = actives
