@@ -466,15 +466,17 @@ class SecurityDepositDevolution(models.Model):
 
     @property
     def returned_amount(self):
-        if self.amount < 0:
+        amount = self.calculated_returned_amount
+        if amount < 0:
             return 0
-        return self.amount
+        return amount
 
     @property
     def debt_amount(self):
-        if self.amount > 0:
+        amount = self.calculated_returned_amount
+        if amount > 0:
             return 0
-        return -self.amount
+        return -amount
 
     @property
     def invoice_number(self):
