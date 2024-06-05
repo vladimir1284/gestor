@@ -21,7 +21,7 @@
 <div class="flex flex-wrap gap-2 pt-2 px-4">
     {% if client.data.contact_name or client.data.contact_phone %}
         <div class="rounded-3xl p-4 shadow-inner">
-            {% include "./emergency_contact.html" with number=1 name=client.data.contact_name phone=client.data.contact_phone %}
+            {% include "./emergency_contact.html" with number=1 name=client.data.contact_name phone=client.data.contact_phone rel=client.data.contact_relation %}
         </div>
     {% endif %}
     {% if client.data.contact2_name or client.data.contact2_phone %}
