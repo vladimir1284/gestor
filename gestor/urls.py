@@ -13,7 +13,6 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -23,7 +22,9 @@ from django.urls import path
 from .views import cost
 from .views import dashboard
 from .views import reports
+from gestor.tools.emails_domains import init_temp_emails_domains
 from gestor.tools.week_stats_recal import initRecalculator
+from gestor.views.emails_domains import emails_domains
 from rbac.init_permissions import init_permissions
 
 
@@ -61,8 +62,7 @@ urlpatterns = [
         dashboard.week_stats_recalculate,
         name="week-stats-recalculate",
     ),
-    path("erp/weekly-costs/<category_id>/<date>",
-         cost.weekly_cost, name="weekly-cost"),
+    path("erp/weekly-costs/<category_id>/<date>", cost.weekly_cost, name="weekly-cost"),
     # Monthly reports
     path("erp/monthly/", reports.monthly_report, name="monthly-report"),
     path(
@@ -88,6 +88,8 @@ urlpatterns = [
         cost.monthly_cost,
         name="monthly-cost",
     ),
+    # Tools
+    path("erp/emails_domains", emails_domains, name="emails_domains"),
     # Apps
     path("erp/users/", include("users.urls")),
     path("erp/inventory/", include("inventory.urls")),
@@ -106,3 +108,8 @@ urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 init_permissions()
+
+try:
+    init_temp_emails_domains()
+except Exception as e:
+    print(e)
