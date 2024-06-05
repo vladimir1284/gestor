@@ -19,7 +19,7 @@
         .lang-flag{
             position: absolute;
             bottom: 0;
-            left: 50%; /* position the left edge of the element at the middle of the parent */      
+            left: 50%; /* position the left edge of the element at the middle of the parent */
             transform: translate(25px, 0);
         }
     </style>
@@ -69,7 +69,7 @@
                    type
                    None="button"
                    {% if type == 'company' %}
-                   href="{% url 'update-company' contact.id %}">
+                       href="{% url 'update-company' contact.id %}">
                 {% elif type == 'associated' %}
                     href="{% url 'update-associated' contact.id %}">
                 {% endif %}
@@ -95,7 +95,7 @@
     </div>
     <div class="table-responsive text-nowrap">
         <table class="table">
-            <thead>
+            <thead class="sticky top-0 bg-white">
                 <tr>
                     <th>Order</th>
                     <th>Date</th>
@@ -132,7 +132,7 @@
             </div>
             <div class="table-responsive text-nowrap">
                 <table class="table">
-                    <thead>
+                    <thead class="sticky top-0 bg-white">
                         <tr>
                             <th>amount</th>
                             <th>category</th>

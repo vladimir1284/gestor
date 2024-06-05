@@ -25,7 +25,7 @@
         <h5 class="card-title mt-3 mb-0">Parts</h5>
         <div class="table-responsive text-nowrap">
             <table class="table table-sm">
-                <thead>
+                <thead class="sticky top-0 bg-white">
                     <tr>
                         <th class="invoice-descrpition">Description</th>
                         <th>Qty</th>
@@ -60,7 +60,7 @@
         <h5 class="card-title mt-3 mb-0">Labor</h5>
         <div class="table-responsive text-nowrap">
             <table class="table table-sm">
-                <thead>
+                <thead class="sticky top-0 bg-white">
                     <tr>
                         <th class="invoice-descrpition">Description</th>
                         <th>Qty</th>
@@ -96,7 +96,7 @@
             <div class="table-responsive text-nowrap col-8">
                 <h5 class="card-title mt-3 mb-0">Tires</h5>
                 <table class="table table-sm">
-                    <thead>
+                    <thead class="sticky top-0 bg-white">
                         <tr>
                             <th class="invoice-descrpition">Description</th>
                             <th>Qty</th>
@@ -128,7 +128,7 @@
     <h5 class="card-title mt-3 mb-0">Internal</h5>
     <div class="table-responsive text-nowrap">
         <table class="table table-sm">
-            <thead>
+            <thead class="sticky top-0 bg-white">
                 <tr>
                     <th class="invoice-descrpition">Description</th>
                     {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
@@ -154,7 +154,7 @@
     <h5 class="card-title mt-3 mb-0">Marketing</h5>
     <div class="table-responsive text-nowrap">
         <table class="table table-sm">
-            <thead>
+            <thead class="sticky top-0 bg-white">
                 <tr>
                     <th class="invoice-descrpition">Description</th>
                     {% for worker in workers %}<th>{{ worker.user.username|slice:"2" }}</th>{% endfor %}
@@ -181,7 +181,7 @@
         <h5 class="card-title mt-3 mb-0">Supplies</h5>
         <div class="table-responsive text-nowrap">
             <table class="table table-sm">
-                <thead>
+                <thead class="sticky top-0 bg-white">
                     <tr>
                         <th class="invoice-descrpition">Description</th>
                         <th>Qty</th>
