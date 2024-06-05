@@ -6,8 +6,8 @@ def deposits_on_hold_reports(ctx: dict, year: int, month: int):
     on_hold = TrailerDeposit.objects.filter(
         cancelled=False,
         done=False,
-        date__year=year,
-        date__month=month,
+        # date__year=year,
+        # date__month=month,
     )
     ctx["deposits_on_hold"] = on_hold
     ctx["deposits_on_hold_count"] = on_hold.count()
