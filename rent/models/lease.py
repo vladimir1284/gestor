@@ -410,20 +410,73 @@ class SecurityDepositDevolution(models.Model):
     trailer_discount = models.FloatField(default=0)
 
     @property
-    def income(self):
+    def should_income(self):
+        """
+        Calculate the total amount of towit compensation
+        Is unpayments + trailer damages
+        """
         return self.debts + self.trailer_discount
 
     @property
-    def returned_amount(self):
-        if self.amount < 0:
+    def income(self):
+        """
+        Calculate the part of the income towit already has
+        Is what should income: unpayments + trailer damages
+        minus what client debt
+        """
+        return self.should_income - self.income_debt
+
+    @property
+    def income_debt(self):
+        """
+        Calculate the part of the client debt that belongs
+        to towit compensation
+        Is the client debt - the tolls (tolls does not belongs to towit)
+        """
+        amount = self.calculated_returned_amount
+        if amount >= 0:
             return 0
-        return self.amount
+
+        return self.tolls - amount
+
+    @property
+    def calculated_returned_amount(self):
+        """
+        Calculate the returned amount
+        if is less than zero is a debt so we return it
+        if not the is for return but it will be returned
+        just if not break the contract terms
+        """
+        amount = self.amount
+        # (
+        #     self.total_deposited_amount
+        #     + self.prepayments
+        #     - self.debts
+        #     - self.tolls
+        #     - self.trailer_discount
+        # )
+        if amount < 0:
+            return amount
+
+        disc = self.discount.last()
+        if disc is not None and not disc.should_return:
+            return 0
+
+        return amount
+
+    @property
+    def returned_amount(self):
+        amount = self.calculated_returned_amount
+        if amount < 0:
+            return 0
+        return amount
 
     @property
     def debt_amount(self):
-        if self.amount > 0:
+        amount = self.calculated_returned_amount
+        if amount > 0:
             return 0
-        return -self.amount
+        return -amount
 
     @property
     def invoice_number(self):

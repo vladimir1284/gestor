@@ -2,6 +2,7 @@ from django.db import models
 
 from rent.models.lease import Contract
 from rent.models.lease import Lease
+from rent.models.lease import SecurityDepositDevolution
 from rent.tools.client import compute_client_debt
 from rent.tools.get_extra_payments import get_extra_payments
 
@@ -17,6 +18,13 @@ class DepositDiscount(models.Model):
     location_note = models.TextField(null=True, blank=True)
 
     trailer_condition_discount = models.FloatField(default=0)
+
+    security_deposit_devolution = models.ForeignKey(
+        SecurityDepositDevolution,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="discount",
+    )
 
     def reset(self):
         self.expiration_date = None
