@@ -102,21 +102,15 @@
             </div>
         </div>
 
-        <template x-if="tab=='completed'">
-            <div>
-                {% include "./security_reports_completed.html" %}
-            </div>
-        </template>
-        <template x-if="tab=='active'">
-            <div>
-                {% include "./security_reports_active.html" %}
-            </div>
-        </template>
-        <template x-if="tab=='pending'">
-            <div>
-                {% include "./security_reports_pending.html" %}
-            </div>
-        </template>
+        <div x-show="tab == 'completed'">
+            {% include "./security_reports_completed.html" %}
+        </div>
+        <div x-show="tab == 'active'">
+            {% include "./security_reports_active.html" %}
+        </div>
+        <div x-show="tab == 'pending'">
+            {% include "./security_reports_pending.html" %}
+        </div>
     </div>
 </div>
 <script>
