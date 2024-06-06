@@ -1,8 +1,12 @@
 let tables = document.getElementsByTagName("tbody");
-window.onload = function() {
-  let add = document.getElementsByClassName("add")[0];
-  if (add.style.visibility != "hidden") {
-    $(add).tooltip("show");
+window.onload = function () {
+  try {
+    let add = document.getElementsByClassName("add")[0];
+    if (add.style.visibility != "hidden") {
+      $(add).tooltip("show");
+    }
+  } catch (e) {
+    console.log(e);
   }
 };
 function filterTag(tagName) {
@@ -72,6 +76,7 @@ const SortClass = "text-primary";
 let grids = document.getElementsByTagName("table");
 const ths = document.querySelectorAll("table th");
 ths.forEach((th) => {
+  console.log(th);
   if (!th.dataset.type) return;
 
   const sortable = document.createElement("span");
@@ -120,7 +125,7 @@ function sortGrid(tbody, th, colNum, type) {
   switch (type) {
     case "amount":
       reversed = 1;
-      compare = function(rowA, rowB) {
+      compare = function (rowA, rowB) {
         return (
           rowA.cells[colNum].innerHTML.replace("$", "") -
           rowB.cells[colNum].innerHTML.replace("$", "")
@@ -129,7 +134,7 @@ function sortGrid(tbody, th, colNum, type) {
       break;
     case "days":
       reversed = 1;
-      compare = function(rowA, rowB) {
+      compare = function (rowA, rowB) {
         const d =
           rowA.cells[colNum].dataset.days - rowB.cells[colNum].dataset.days;
         if (d == 0) return 1;
@@ -137,12 +142,12 @@ function sortGrid(tbody, th, colNum, type) {
       };
       break;
     case "number":
-      compare = function(rowA, rowB) {
+      compare = function (rowA, rowB) {
         return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
       };
       break;
     case "custom-number":
-      compare = function(rowA, rowB) {
+      compare = function (rowA, rowB) {
         return (
           rowA.cells[colNum].dataset["custom"] -
           rowB.cells[colNum].dataset["custom"]
@@ -150,14 +155,14 @@ function sortGrid(tbody, th, colNum, type) {
       };
       break;
     case "string":
-      compare = function(rowA, rowB) {
+      compare = function (rowA, rowB) {
         return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML
           ? 1
           : -1;
       };
       break;
     case "custom-string":
-      compare = function(rowA, rowB) {
+      compare = function (rowA, rowB) {
         return rowA.cells[colNum].dataset["custom"] >
           rowB.cells[colNum].dataset["custom"]
           ? 1

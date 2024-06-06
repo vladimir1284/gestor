@@ -410,6 +410,27 @@ class SecurityDepositDevolution(models.Model):
     trailer_discount = models.FloatField(default=0)
 
     @property
+    def returned_date_days(self):
+        if self.returned_date is None:
+            return -1
+        delta = datetime.now().date() - self.returned_date
+        return delta.days
+
+    @property
+    def refund_date_days(self):
+        delta = datetime.now().date() - self.refund_date
+        return delta.days
+
+    @property
+    def contract_end_date(self):
+        return self.contract.ended_date
+
+    @property
+    def contract_end_date_days(self):
+        delta = datetime.now().date() - self.contract_end_date
+        return delta.days
+
+    @property
     def should_income(self):
         """
         Calculate the total amount of towit compensation
@@ -532,7 +553,7 @@ class LesseeData(models.Model):
     contact_file = models.FileField(
         upload_to="documents/contact", blank=True, null=True
     )
-    contact_relation = models.CharField(max_length=200, default='')
+    contact_relation = models.CharField(max_length=200, default="")
 
     contact2_name = models.CharField(max_length=100, null=True, blank=True)
     contact2_phone = PhoneNumberField(
