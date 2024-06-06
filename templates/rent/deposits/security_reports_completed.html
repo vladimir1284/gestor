@@ -16,7 +16,8 @@
                         <th>Compensation</th>
                         <th>Returned</th>
                         <th>Debt</th>
-                        <th>Return date</th>
+                        <th data-type="days">Return date</th>
+                        <th data-type="days">Contract ends</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -71,9 +72,14 @@
                                     </strong>
                                 {% endif %}
                             </td>
-                            <td>
+                            <td data-days="{{dep.returned_date_days}}">
                                 {% if dep.returned_date %}
                                     {{dep.returned_date}}
+                                {% endif %}
+                            </td>
+                            <td data-days="{{dep.contract_end_date_days}}">
+                                {% if dep.contract_end_date %}
+                                    {{dep.contract_end_date}}
                                 {% endif %}
                             </td>
                         </tr>

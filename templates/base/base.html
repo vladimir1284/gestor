@@ -83,6 +83,9 @@
             .form-control.is-invalid {
                 border-color: #ff3e1d;
             }
+            .sortable {
+                font-size: 7px;
+            }
         </style>
         {% block page %}
         {% endblock page %}
@@ -98,6 +101,7 @@
         <script defer src="{%static 'js/alpine.min.js'%}"></script>
 
         <script defer src="{%static 'assets/js/email/email.js'%}"></script>
+        <script defer src="{%static 'assets/js/base-list.js'%}"></script>
     </head>
     <body>
         {% block body %}
