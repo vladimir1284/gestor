@@ -33,15 +33,42 @@
                 validity.
             </div>
         </div>
-        <div>
-            <a class="btn btn-outline-primary"
-               href="{% url 'security_deposit_devolution_invoice' devolution.id %}"
-               data-bs-toggle="tooltip"
-               data-bs-placement="bottom"
-               data-bs-custom-class="custom-tooltip"
-               data-bs-title="Security deposit devolution invoice">
-                <i class='bx bx-printer' ></i>
-            </a>
+        <div class="flex gap-4 flex-wrap justify-between">
+            <div>
+                <a class="btn btn-icon btn-outline-primary"
+                   href="{% url 'security_deposit_devolution_invoice' devolution.id %}"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="bottom"
+                   data-bs-custom-class="custom-tooltip"
+                   data-bs-title="Security deposit devolution invoice">
+                    <i class='bx bx-printer' ></i>
+                </a>
+            </div>
+            <div>
+                <span
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="left"
+                    data-bs-custom-class="custom-tooltip"
+                    {% if devolution.returned %}
+                        data-bs-title="Deposit details"
+                    {% else %}
+                        {% if devolution.debt_amount > 0 %}
+                            data-bs-title="Pay off debt"
+                        {% else %}
+                            data-bs-title="Return deposit"
+                        {% endif %}
+                    {% endif %}
+                >
+                    <button type="button"
+                            class="btn btn-icon btn-outline-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ReturnDepositModal">
+                        <i class='bx bx-money'></i>
+                    </button>
+                </span>
+            </div>
         </div>
     </div>
+
+    {% include "./ended_contract_details_contract_return_dialog.html" %}
 </div>

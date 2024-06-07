@@ -2,7 +2,11 @@
 <div class="card !h-full">
     <div class="card-header flex items-center justify-end flex-wrap gap-2">
         <h4 class="mb-0 flex-grow">
-            Debts:
+            {% if devolution.returned %}
+                Debts (Paid from Deposit):
+            {% else %}
+                Debts:
+            {% endif %}
             {% if devolution.debts > 0 %}
                 <strong>${{devolution.debts|floatformat:'-2'}}</strong>
             {% endif %}
