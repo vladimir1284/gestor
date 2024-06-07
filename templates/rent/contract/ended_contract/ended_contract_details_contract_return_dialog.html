@@ -1,0 +1,174 @@
+{% load static %}
+
+<div class="modal fade"
+     id="ReturnDepositModal"
+     tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-3" id="returnDepositModalLabel">
+                    {% if devolution.debt_amount > 0 %}
+                        Pay off debt
+                    {% else %}
+                        Return deposit
+                    {% endif %}
+                </h1>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 class="mb-0">
+                    Security Deposit -
+                    {% if devolution.returned %}
+                        {% if discount.should_return and devolution.debt_amount == 0 %}
+                            <span class="text-success">Returned</span>:
+                        {% else %}
+                            <span class="text-success">Towit Compensation</span>:
+                        {% endif %}
+                    {% else %}
+                        <span class="text-warning">Pending Return</span>:
+                    {% endif %}
+                </h5>
+                <div class="w-full py-3 flex justify-center">
+                    <div class="flex flex-wrap">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span>
+                                            {% if discount.duration %}
+                                                <i class='bx bx-check-circle text-success'></i>
+                                            {% else %}
+                                                <i class='bx bx-x-circle text-danger' ></i>
+                                            {% endif %}
+                                        </span>
+                                        <span>
+                                            Duration:
+                                        </span>
+                                    </td>
+                                    <td class="text-right">
+                                        {{discount.expirate_HTML|safe}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top">
+                                        <span>
+                                            {% if discount.location_towit %}
+                                                <i class='bx bx-check-circle text-success'></i>
+                                            {% else %}
+                                                <i class='bx bx-x-circle text-danger' ></i>
+                                            {% endif %}
+                                        </span>
+                                        <span>
+                                            Return location:
+                                        </span>
+                                    </td>
+                                    <td class="text-right">
+                                        {% if discount.location_towit %}
+                                            Returned at Towit Houston location.
+                                        {% else %}
+                                            Not returned at Towit Houston location.
+                                            {% if discount.location_note is not None %}
+                                                <div>
+                                                    {{discount.location_note}}
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr class="border-t">
+                                    <td>Return date:</td>
+                                    <td class="text-right">
+                                        {% if devolution.returned %}
+                                            {{devolution.returned_date|date:"E d, Y"}}
+                                        {% else %}
+                                            {{devolution.refund_date|date:"E d, Y"}}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr class="border-t">
+                                    <td>Total deposited:</td>
+                                    <td class="text-right text-success">
+                                        <strong>+ ${{devolution.total_deposited_amount | floatformat:'-2'}}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Prepayments:</td>
+                                    <td class="text-right text-success">
+                                        <strong>+ ${{devolution.prepayments | floatformat:'-2'}}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Debts:</td>
+                                    <td class="text-right text-danger">
+                                        <strong>- ${{devolution.debts | floatformat:'-2'}}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Tolls:</td>
+                                    <td class="text-right text-danger">
+                                        <strong>- ${{devolution.tolls | floatformat:'-2'}}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td>Trailer condition discount:</td>
+                                    <td class="text-right text-danger">
+                                        <strong>- ${{devolution.trailer_discount | floatformat:'-2'}}</strong>
+                                    </td>
+                                </tr>
+                                {%if devolution.amount >= 0%}
+                                    <tr>
+                                        <td>
+                                            {% if devolution.returned %}
+                                                Returned to client:
+                                            {% else %}
+                                                To return to client:
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-right text-warning">
+                                            <strong>${{ devolution.returned_amount | floatformat:'-2' }}</strong>
+                                        </td>
+                                    </tr>
+                                {%else%}
+                                    <tr>
+                                        <td>Total client debt:</td>
+                                        <td class="text-right text-warning">
+                                            <strong>${{ devolution.debt_amount|floatformat:'-2' }}</strong>
+                                        </td>
+                                    </tr>
+                                {%endif%}
+                                <tr>
+                                    <td>Towit compensation:</td>
+                                    <td class="text-right text-primary">
+                                        <strong>${{ devolution.income|floatformat:'-2' }}</strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                {% if devolution.returned %}
+                    {% if devolution.debt_amount > 0 %}
+                        Paid off
+                    {% else %}
+                        Returned
+                    {% endif %}
+                {% else %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="{% url 'return_security_deposit' devolution.id %}">
+                        {% if devolution.debt_amount > 0 %}
+                            Pay off debt
+                        {% else %}
+                            Return deposit
+                        {% endif %}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
