@@ -36,6 +36,7 @@ from rent.views.lease.contract_signing import is_contract_cli_complete
 from rent.views.lease.ended_contract_details import ended_contract_details
 from rent.views.lease.notes import contract_notes
 from rent.views.lease.notify import notify_contract_renovation
+from rent.views.lease.return_sec_deposit import return_security_deposit
 from rent.views.lease.security_deposit_devolution_invoice import \
     security_deposit_devolution_invoices
 from rent.views.lease.select_guarantor import create_guarantor
@@ -250,6 +251,11 @@ urlpatterns = [
         "ended_contract_details/<int:id>",
         ended_contract_details,
         name="ended-contract-details",
+    ),
+    path(
+        "return_security_deposit/<int:id>",
+        return_security_deposit,
+        name="return_security_deposit",
     ),
     path(
         "capture_signature/<str:position>/<str:token>",

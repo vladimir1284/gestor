@@ -38,7 +38,7 @@
                     {% include "./ended_contract_details_tolls.html" with tolls=tolls_paid total=tolls_paid_total title="Paid Tolls" %}
                 </div>
                 <div class="col-12 col-md-6 mb-3">
-                    {% if devoution.returned %}
+                    {% if devolution.returned %}
                         {% include "./ended_contract_details_tolls.html" with tolls=tolls_unpaid total=tolls_unpaid_total title="Unpaid Tolls (Paid from Deposit)" %}
                     {% else %}
                         {% include "./ended_contract_details_tolls.html" with tolls=tolls_unpaid total=tolls_unpaid_total title="Unpaid Tolls" %}

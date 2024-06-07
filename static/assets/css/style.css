@@ -400,6 +400,10 @@
   display: none;
 }
 
+.\!h-full {
+  height: 100% !important;
+}
+
 .h-1 {
   height: 0.25rem;
 }
@@ -430,46 +434,6 @@
 
 .h-full {
   height: 100%;
-}
-
-.h-80 {
-  height: 20rem;
-}
-
-.\!h-80 {
-  height: 20rem !important;
-}
-
-.\!h-96 {
-  height: 24rem !important;
-}
-
-.\!h-full {
-  height: 100% !important;
-}
-
-.\!max-h-96 {
-  max-height: 24rem !important;
-}
-
-.\!max-h-2 {
-  max-height: 0.5rem !important;
-}
-
-.\!max-h-5 {
-  max-height: 1.25rem !important;
-}
-
-.\!max-h-16 {
-  max-height: 4rem !important;
-}
-
-.\!max-h-36 {
-  max-height: 9rem !important;
-}
-
-.max-h-16 {
-  max-height: 4rem;
 }
 
 .max-h-96 {
@@ -619,10 +583,6 @@
 
 .overflow-auto {
   overflow: auto;
-}
-
-.overflow-y-auto {
-  overflow-y: auto;
 }
 
 .overflow-x-hidden {
