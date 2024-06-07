@@ -5,6 +5,7 @@ from .views import create_toll
 from .views import delete_toll
 from .views import list_toll
 from .views import update_toll
+from .views import update_toll_form_contract
 
 urlpatterns = [
     path("list-toll/", list_toll, name="list-toll"),
@@ -18,6 +19,11 @@ urlpatterns = [
         name="create-contract-toll",
     ),
     path("update-toll/<int:id>/", update_toll, name="update-toll"),
+    path("update-toll/<int:id>/", update_toll, name="update-toll"),
+    path(
+        "update-contract-toll/<toll>/<contract>",
+        update_toll_form_contract,
+        name="update-contract-toll",
+    ),
     path("delete-toll/<int:id>/", delete_toll, name="delete-toll"),
 ]
-
