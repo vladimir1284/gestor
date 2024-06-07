@@ -256,12 +256,12 @@
             {%endif%}
         {%endif%}
         {% if contract.stage == 'ended' %}
-            <a href="{% url 'adjust-deposit' contract.id %}"
-               type="button"
-               class="btn btn-outline-primary">
-                <span class="tf-icons bx bx-wallet"></span>
-                Adjust deposit
-            </a>
+            <!-- <a href="{% url 'adjust-deposit' contract.id %}" -->
+            <!--    type="button" -->
+            <!--    class="btn btn-outline-primary"> -->
+            <!--     <span class="tf-icons bx bx-wallet"></span> -->
+            <!--     Adjust deposit -->
+            <!-- </a> -->
         {% else %}
             <button onClick="cancelContract('{% url 'adjust-deposit' contract.id %}?closing=1')"
                     id="submit-id-submit"

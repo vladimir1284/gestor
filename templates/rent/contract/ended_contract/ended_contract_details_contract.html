@@ -1,0 +1,47 @@
+{% load static %}
+<div class="card">
+    <div class="card-header flex items-center justify-end flex-wrap gap-2">
+        <h2 class="mb-0 flex-grow">Finished Contract</h2>
+        <div class="flex flex-wrap gap-2 items-center justify-end">
+            {% if devolution.returned %}
+                <strong>
+                    Security deposit returned on {{devolution.returned_date|date:'E d, Y'}}
+                </strong>
+            {% else %}
+                <strong>
+                    Security deposit should be returned on {{devolution.refund_date}}
+                </strong>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="flex mb-3 gap-2 flex-wrap">
+            <div class="">
+                Valid from
+                <strong>{{ contract.effective_date|date:"E d, Y" }}</strong>
+                to
+                <strong>{{ contract.ended_date|date:"E d, Y" }}</strong>
+                .
+            </div>
+            <div class="">
+                <strong>{{ contract.validity_days }}</strong>
+                {%if contract.validity_days == 1%}
+                    day
+                {%else%}
+                    days
+                {%endif%}
+                validity.
+            </div>
+        </div>
+        <div>
+            <a class="btn btn-outline-primary"
+               href="{% url 'security_deposit_devolution_invoice' devolution.id %}"
+               data-bs-toggle="tooltip"
+               data-bs-placement="bottom"
+               data-bs-custom-class="custom-tooltip"
+               data-bs-title="Security deposit devolution invoice">
+                <i class='bx bx-printer' ></i>
+            </a>
+        </div>
+    </div>
+</div>

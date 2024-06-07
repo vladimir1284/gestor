@@ -157,11 +157,14 @@ def create_handwriting(request, token, position, external=False):
 def contract_detail(request, id):
     context = prepare_contract_view(id)
 
+    contract: Contract = context["contract"]
+    if contract.stage == "ended":
+        return redirect("ended-contract-details", id)
+
     context["validated"] = Lease.objects.filter(contract=context["contract"]).exists()
     context["guarantor_required"] = contract_guarantor(context["contract"])
     context["handwriting_ok"] = check_handwriting(context["contract"])
 
-    contract: Contract = context["contract"]
     print(contract.stage)
     phone = contract.lessee.phone_number
 
@@ -387,7 +390,8 @@ def update_contract_stage(request, id, stage):
         for lease in leases:
             lease.delete()
         contract.save()
-        return redirect("dashboard")
+        return redirect("ended-contract-details", contract.id)
+        # return redirect("dashboard")
         # return redirect("detail-trailer", contract.trailer.id)
     contract.save()
     if stage == "garbage":
