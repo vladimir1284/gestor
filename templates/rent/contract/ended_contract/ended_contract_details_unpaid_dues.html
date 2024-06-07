@@ -1,0 +1,38 @@
+{% load static %}
+<div class="card !h-full">
+    <div class="card-header flex items-center justify-end flex-wrap gap-2">
+        <h4 class="mb-0 flex-grow">
+            Debts:
+            {% if devolution.debts > 0 %}
+                <strong>${{devolution.debts|floatformat:'-2'}}</strong>
+            {% endif %}
+        </h4>
+    </div>
+    <div class="table-responsive text-nowrap">
+        <div class="container ps-0 max-h-96 overflow-auto">
+            <table class="table">
+                <thead class="sticky top-0 bg-white">
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for due in unpaid_dues %}
+                        <tr>
+                            <td>
+                                {{due.due_date|date:'E d, Y'}}
+                            </td>
+                            <td>
+                                $
+                                <strong>
+                                    {{due.amount|floatformat:'-2'}}
+                                </strong>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

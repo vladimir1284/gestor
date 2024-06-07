@@ -1,0 +1,70 @@
+{% load static %}
+<div class="card !h-full">
+    <div class="card-header">
+        <a href={% url 'detail-associated' contract.lessee.id %}>
+            <h2>
+                Lessee: <b> {{ contract.lessee.name }}</b>
+            </h2>
+        </a>
+        <div>
+            {% if contract.lessee.phone_number %}
+                <a href="tel:{{ contract.lessee.phone_number }}">
+                    <button class="btn btn-success"
+                            data-toggle="tooltip"
+                            data-placement="left"
+                            title="Call contact">
+                        <i class='bx bxs-phone'></i>
+                    </button>
+                </a>
+            {% endif %}
+            {% if contract.lessee.email %}
+                <a href="sendto:{{ contract.lessee.email }}">
+                    <button class="btn btn-success"
+                            data-toggle="tooltip"
+                            data-placement="left"
+                            title="Send email to contact">
+                        <i class='bx bxs-envelope'></i>
+                    </button>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% if contract.lessee.phone_number %}
+            <li class="list-group-item">
+                Phone number:
+                {{ contract.lessee.phone_number }}
+            </li>
+        {% endif %}
+        {% if contract.lessee.email %}
+            <li class="list-group-item">
+                Email:
+                {{ contract.lessee.email }}
+            </li>
+        {% endif %}
+        {% if contract.lessee.state %}
+            <li class="list-group-item">
+                State:
+                {{ contract.lessee.state }}
+            </li>
+        {% endif %}
+        {% if contract.lessee.other_state %}
+            <li class="list-group-item">
+                Other state:
+                {{ contract.lessee.other_state }}
+            </li>
+        {% endif %}
+        {% if contract.lessee.city %}
+            <li class="list-group-item">
+                City:
+                {{ contract.lessee.city }}
+            </li>
+        {% endif %}
+        {% if contract.lessee.other_city %}
+            <li class="list-group-item">
+                Other city:
+                {{ contract.lessee.other_city }}
+            </li>
+        {% endif %}
+    </ul>
+</div>

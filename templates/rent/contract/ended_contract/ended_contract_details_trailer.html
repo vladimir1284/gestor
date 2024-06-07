@@ -1,0 +1,22 @@
+{% load static %}
+<div class="card !h-full">
+    <div class="card-header">
+        <h2 class='mb-0'>Trailer</h2>
+    </div>
+    <a href="{% url 'detail-trailer' equipment.id %}" class="mb-4">
+        <div class="text-center">
+            <div class="mb-2 associated-pic">
+                <img {% if pinned_image %} src="{{ pinned_image.image.url }}" {% else %} src="{% static 'assets/img/icons/trailer.png' %}" {% endif %}
+                     alt="image"
+                     height="100px"
+                     width="100px"
+                     class="w-px-100 h-px-100 rounded-circle card-img-top" />
+            </div>
+            <h5 class="card-title">
+                {{ equipment.get_year_display }} {{ equipment.manufacturer }} {{ equipment.get_type_display }}
+            </h5>
+            <div class="card-subtitle text-muted mb-3">{{ equipment.vin }}</div>
+            <p class="card-text">{{ equipment.note }}</p>
+        </div>
+    </a>
+</div>

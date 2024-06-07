@@ -33,6 +33,7 @@ from rent.views.lease.adjust_end_deposit import adjust_end_deposit
 from rent.views.lease.contract_signing import contract_signing
 from rent.views.lease.contract_signing import contract_signing_id
 from rent.views.lease.contract_signing import is_contract_cli_complete
+from rent.views.lease.ended_contract_details import ended_contract_details
 from rent.views.lease.notes import contract_notes
 from rent.views.lease.notify import notify_contract_renovation
 from rent.views.lease.security_deposit_devolution_invoice import \
@@ -244,6 +245,11 @@ urlpatterns = [
         "update_contract_stage/<slug:id>/<stage>",
         lease.update_contract_stage,
         name="update-contract-stage",
+    ),
+    path(
+        "ended_contract_details/<int:id>",
+        ended_contract_details,
+        name="ended-contract-details",
     ),
     path(
         "capture_signature/<str:position>/<str:token>",

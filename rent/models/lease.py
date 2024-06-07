@@ -205,6 +205,15 @@ class Contract(models.Model):
 
     # ------ Renovations -----------------------------------------
 
+    # ###### Ends ################################################
+
+    @property
+    def validity_days(self) -> int:
+        duration = self.ended_date - self.effective_date
+        return duration.days
+
+    # ------ Ends ------------------------------------------------
+
     # ###### Notes ###############################################
     @property
     def notes(self) -> list:
@@ -406,7 +415,7 @@ class SecurityDepositDevolution(models.Model):
     prepayments = models.FloatField(default=0)
 
     debts = models.FloatField(default=0)
-    tolls = models.FloatField(default=0)
+    saved_tolls = models.FloatField(default=0)
     trailer_discount = models.FloatField(default=0)
 
     @property
@@ -509,6 +518,19 @@ class SecurityDepositDevolution(models.Model):
         )
 
         return f"SDD{self.id}-{contract_id}{client_id}"
+
+    @property
+    def tolls(self) -> float:
+        unpay_tolls = 0
+        tolls = self.contract.tolldue_set.all()
+
+        for toll in tolls:
+            if toll.stage == "paid":
+                continue
+
+            unpay_tolls += toll.amount
+
+        return unpay_tolls
 
 
 class LeaseDeposit(models.Model):
@@ -654,11 +676,12 @@ class Due(models.Model):
     in the contract terms
     """
 
+    lease = models.ForeignKey(Lease, null=True, on_delete=models.SET_NULL)
+    client = models.ForeignKey(Associated, on_delete=models.CASCADE)
+    contract = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True)
     date = models.DateTimeField(auto_now_add=True)
     due_date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    client = models.ForeignKey(Associated, on_delete=models.CASCADE)
-    lease = models.ForeignKey(Lease, null=True, on_delete=models.SET_NULL)
     note = models.TextField(blank=True)
 
     def __str__(self):
