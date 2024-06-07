@@ -7,6 +7,16 @@
                 <strong>${{total|floatformat:'-2'}}</strong>
             {% endif %}
         </h4>
+        <div>
+            <a href="{% url 'create-contract-toll' contract.id %}"
+               class="btn btn-icon btn-outline-primary"
+               data-bs-toggle="tooltip"
+               data-bs-placement="top"
+               data-bs-custom-class="custom-tooltip"
+               data-bs-title="Create a new toll">
+                <i class='bx bx-plus'></i>
+            </a>
+        </div>
     </div>
     <div class="table-responsive text-nowrap">
         <div class="container ps-0 max-h-96 overflow-auto">
@@ -28,9 +38,8 @@
                                 {{toll.created_date|date:'E d, Y'}}
                             </td>
                             <td>
-                                $
                                 <strong>
-                                    {{toll.amount|floatformat:'-2'}}
+                                    ${{toll.amount|floatformat:'-2'}}
                                 </strong>
                             </td>
                         </tr>

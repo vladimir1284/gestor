@@ -20,10 +20,18 @@
         </h6>
         <small class="text-muted">
             {% if equipment.vin %}
-                {{ equipment.vin }}
-                <br>
+                <div x-html='highlightMatch("{{ equipment.vin|escapejs }}", $store.search.search)'>
+                    {{ equipment.vin }}
+                </div>
             {% endif %}
-            {% if equipment.plate %}Plate: {{ equipment.plate }}{% endif %}
+            {% if equipment.plate %}
+                <div>
+                    Plate:
+                    <span x-html='highlightMatch("{{ equipment.plate|escapejs }}", $store.search.search)'>
+                        {{ equipment.plate }}
+                    </div>
+                </div>
+            {% endif %}
         </small>
     </div>
 </div>

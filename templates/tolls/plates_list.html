@@ -14,9 +14,15 @@
 {% endblock Theader %}
 {% block Tbody %}
     {% for plate in plates %}
-        <tr data-search="{{ plate.plate }}">
+        <tr x-show="
+                    match('{{plate.plate}} | {{ plate.trailer.vin }}', $store.search.search)
+                   "
+        >
             <td>
-                <strong>{{ plate.plate }}</strong>
+                <strong x-html='highlightMatch("{{ plate.plate|escapejs }}", $store.search.search)'>
+                    {{ plate.plate }}
+                </strong>
+            </td>
             <td>
                 <div class="d-flex">
                     {% include "rent/equipment_line.html" with equipment=plate.trailer equipment_type="trailer" pinned_image=plate.trailer.pinned_image %}
