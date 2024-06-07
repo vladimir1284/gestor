@@ -1,0 +1,46 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block page %}
+    <style>
+    </style>
+{% endblock page %}
+{% block content %}
+    <div>
+        <div class="">
+            <div class="row mb-3">
+                <div class="col">
+                    {% include "./ended_contract_details_contract.html" %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-6 mb-3">
+                    {% include "./ended_contract_details_lessee.html" %}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    {% include "./ended_contract_details_trailer.html" with equipment=contract.trailer %}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    {% include "./ended_contract_details_renovations.html" %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-6 mb-3">
+                    {% include "./ended_contract_details_dues.html" %}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    {% include "./ended_contract_details_unpaid_dues.html" %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-6 mb-3">
+                    {% include "./ended_contract_details_tolls.html" with tolls=tolls_paid total=tolls_paid_total title="Paid Tolls" %}
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    {% include "./ended_contract_details_tolls.html" with tolls=tolls_unpaid total=tolls_unpaid_total title="Unpaid Tolls" %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

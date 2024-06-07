@@ -151,6 +151,7 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 due_date=due_date,
                 amount=lease.payment_amount,
                 client=lease.contract.lessee,
+                contract=lease.contract,
                 lease=lease,
             )
             # Send invoice by email
@@ -177,6 +178,7 @@ def base_process_payment(request, lease: Lease, payment_amount=0):
                 due_date=due_date,
                 amount=lease.payment_amount,
                 client=lease.contract.lessee,
+                contract=lease.contract,
                 lease=lease,
             )
             # Send invoice by email

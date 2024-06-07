@@ -1,8 +1,10 @@
 from django.db import models
+from django.db.transaction import atomic
 
 from rent.models.lease import Contract
 from rent.models.lease import Lease
 from rent.models.lease import SecurityDepositDevolution
+from rent.models.unpaid_dues import UnpaidDues
 from rent.tools.client import compute_client_debt
 from rent.tools.get_extra_payments import get_extra_payments
 
@@ -102,3 +104,23 @@ class DepositDiscount(models.Model):
             unpay_tolls += toll.amount
 
         return unpay_tolls
+
+    @atomic
+    def save_unpaid_dues(self):
+        lease = Lease.objects.filter(contract=self.contract).last()
+        if lease is None:
+            return
+
+        self.unpaid_dues.all().delete()
+
+        debt, last_date, unpaid_dues = compute_client_debt(lease)
+        for ud in unpaid_dues:
+            UnpaidDues.objects.create(
+                discount=self,
+                date=ud.start.date(),
+                amount=lease.payment_amount,
+            )
+
+    @property
+    def unpaid_dues_list(self) -> list[UnpaidDues]:
+        return self.unpaid_dues.all().order_by("date")
