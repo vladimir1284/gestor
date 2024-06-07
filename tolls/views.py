@@ -1,7 +1,10 @@
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
+from django.shortcuts import HttpResponsePermanentRedirect
+from django.shortcuts import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.shortcuts import reverse
@@ -146,6 +149,20 @@ def update_toll(request, id):
 
 
 @login_required
+def update_toll_form_contract(request: HttpRequest, toll: int, contract: int):
+    response = update_toll(request, toll)
+    if isinstance(
+        response,
+        HttpResponsePermanentRedirect,
+    ) or isinstance(
+        response,
+        HttpResponseRedirect,
+    ):
+        return redirect("ended-contract-details", contract)
+    return response
+
+
+@login_required
 def delete_toll(request, id):
     toll = get_object_or_404(TollDue, id=id)
     next_id = request.GET.get("next_id", None)
@@ -154,4 +171,3 @@ def delete_toll(request, id):
         return redirect(reverse("list-toll") + f"{next_id}")
     else:
         return redirect("list-toll")
-

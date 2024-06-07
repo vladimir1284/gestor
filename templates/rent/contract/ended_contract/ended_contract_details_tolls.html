@@ -26,6 +26,7 @@
                         <th>Invoice Number</th>
                         <th>Date</th>
                         <th>Amount</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0">
@@ -41,6 +42,16 @@
                                 <strong>
                                     ${{toll.amount|floatformat:'-2'}}
                                 </strong>
+                            </td>
+                            <td class="flex justify-end">
+                                <a href="{% url 'update-contract-toll' toll.id contract.id %}"
+                                   class="btn btn-icon btn-link"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   data-bs-custom-class="custom-tooltip"
+                                   data-bs-title="Edit toll">
+                                    <i class='bx bx-cog'></i>
+                                </a>
                             </td>
                         </tr>
                     {% endfor %}
