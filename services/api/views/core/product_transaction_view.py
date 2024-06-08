@@ -14,8 +14,7 @@ from services.tools.transaction import reverse_transaction
 from utils.models import Order
 
 
-class OrderPartsView(viewsets.ModelViewSet):
-    queryset = ProductTransaction.objects.filter(product__type="part")
+class ProductTransactionView(viewsets.ModelViewSet):
     serializer_class = ProductTransactionSerializer
     permission_classes = [permissions.IsAuthenticated]
 

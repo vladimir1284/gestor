@@ -13,6 +13,14 @@ const EditTax = "TAX";
 
 document.addEventListener("alpine:init", () => {
   Alpine.data("OrderParts", () => {
+    const productApiClient = new globalThis.ProductApiClient(
+      globalThis.ProductPartsUrl,
+    );
+    const productTransactionApiClient =
+      new globalThis.ProductTransactionApiClient(
+        globalThis.ProductTransactionPartsUrl,
+      );
+
     return {
       // Controller properties
 
@@ -95,6 +103,10 @@ document.addEventListener("alpine:init", () => {
         globalThis.bindShortcut("escape", () => {
           this.searchNewProduct = "";
           this.$refs.searchProducts.blur();
+          this.editNothing();
+        });
+        globalThis.bindShortcut("enter", () => {
+          this.editNothing();
         });
       },
 
@@ -102,7 +114,10 @@ document.addEventListener("alpine:init", () => {
       async loadParts(loader = true) {
         if (loader) this.loading = true;
         try {
-          this.parts = await globalThis.getOrderParts(globalThis.OrderID);
+          this.parts =
+            await productTransactionApiClient.getProductTransactionList(
+              globalThis.OrderID,
+            );
           this.satisfied = [];
           this.unsatisfied = [];
           this.parts.forEach((p) => {
@@ -135,8 +150,7 @@ document.addEventListener("alpine:init", () => {
       async loadPartsProducts() {
         this.loadingPartsProducts = true;
         try {
-          this.partsProducts = await globalThis.getPartProducts();
-          console.log(this.partsProducts);
+          this.partsProducts = await productApiClient.getProducts();
         } catch (e) {
           console.error(e);
           globalThis.showNotify({
@@ -242,7 +256,10 @@ document.addEventListener("alpine:init", () => {
               price: product.sell_price,
             };
             console.log(part);
-            await globalThis.addOrderParts(globalThis.OrderID, part);
+            await productTransactionApiClient.addProductTransaction(
+              globalThis.OrderID,
+              part,
+            );
           } catch (e) {
             console.log(e);
             // console.log(await e.text());
@@ -268,10 +285,14 @@ document.addEventListener("alpine:init", () => {
       async editSave(ref) {
         if (!ref.id) return;
         try {
-          await globalThis.updateOrderParts(globalThis.OrderID, ref.id, {
-            ...ref,
-            product_id: ref.product.id,
-          });
+          await productTransactionApiClient.updateProductTransaction(
+            globalThis.OrderID,
+            ref.id,
+            {
+              ...ref,
+              product_id: ref.product.id,
+            },
+          );
         } catch (e) {
           console.error(e);
           // console.log(await e.text());
@@ -280,6 +301,9 @@ document.addEventListener("alpine:init", () => {
             msg: "Fail to update the part",
             status: "danger",
           });
+          if (e instanceof Response) {
+            console.error(await e.text());
+          }
         }
         await this.loadParts(false);
       },
@@ -399,7 +423,10 @@ document.addEventListener("alpine:init", () => {
         // this.loading = true;
         this.removing = true;
         try {
-          await globalThis.removeOrderParts(globalThis.OrderID, this.toRemove);
+          await productTransactionApiClient.removeProductTransaction(
+            globalThis.OrderID,
+            this.toRemove,
+          );
           await this.loadParts(false);
           this.toRemove = -1;
         } catch (e) {
