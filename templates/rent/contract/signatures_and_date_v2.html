@@ -7,40 +7,11 @@
             <tr>
                 <td>Accepted on:</td>
                 <td>
-                    {% if pdf %}
-                    {% else %}
-                        {% if not external %}
-                            <a class="date_btn"
-                               href="{% url 'capture-signature' 'date_daniel' token %}">
-                                <button type="button" class="btn btn-icon btn-primary">
-                                    <span class="tf-icons bx bx-edit"></span>
-                                </button>
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                    <img class="date" src="{{ date_daniel.img.url }}">
+                    {% include "./signatures/date_daniel.html" %}
                 </td>
                 <td>Signed on:</td>
                 <td>
-                    {% if pdf %}
-                    {% else %}
-                        {% if external %}
-                            <a class="date_btn"
-                               href="{% url 'ext-capture-signature' 'date_lessee' token %}">
-                                <button type="button" class="btn btn-icon btn-primary">
-                                    <span class="tf-icons bx bx-edit"></span>
-                                </button>
-                            </a>
-                        {% else %}
-                            <a class="date_btn"
-                               href="{% url 'capture-signature' 'date_lessee' token %}">
-                                <button type="button" class="btn btn-icon btn-primary">
-                                    <span class="tf-icons bx bx-edit"></span>
-                                </button>
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                    <img class="date" src="{{ date_lessee.img.url }}">
+                    {% include "./signatures/date_lessee.html" %}
                 </td>
             </tr>
             <tr>
@@ -62,25 +33,7 @@
                 </td>
                 <td>By:</td>
                 <td>
-                    {% if pdf %}
-                    {% else %}
-                        {% if external %}
-                            <a class="signature_btn"
-                               href="{% url 'ext-capture-signature' 'signature_lessee' token %}">
-                                <button type="button" class="btn btn-icon btn-primary">
-                                    <span class="tf-icons bx bx-edit"></span>
-                                </button>
-                            </a>
-                        {% else %}
-                            <a class="signature_btn"
-                               href="{% url 'capture-signature' 'signature_lessee' token %}">
-                                <button type="button" class="btn btn-icon btn-primary">
-                                    <span class="tf-icons bx bx-edit"></span>
-                                </button>
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                    <img class="signature" src="{{ signature_lessee.img.url }}">
+                    {% include "./signatures/sign_lessee.html" %}
                 </td>
             </tr>
             <tr>

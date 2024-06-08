@@ -586,6 +586,7 @@ class LesseeData(models.Model):
     contact2_file = models.FileField(
         upload_to="documents/contact", blank=True, null=True
     )
+    contact2_relation = models.CharField(max_length=200, default="", null=True)
 
     contact3_name = models.CharField(max_length=100, null=True, blank=True)
     contact3_phone = PhoneNumberField(
@@ -596,6 +597,7 @@ class LesseeData(models.Model):
     contact3_file = models.FileField(
         upload_to="documents/contact", blank=True, null=True
     )
+    contact3_relation = models.CharField(max_length=200, default="", null=True)
 
     def __str__(self):
         return self.associated.name

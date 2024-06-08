@@ -1,5 +1,5 @@
 {% load static %}
-{% if pdf %}
+{% if pdf or contract_signature and is_guarantor %}
 {% else %}
     {% if external %}
         <a class="date_btn"

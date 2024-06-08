@@ -168,24 +168,31 @@ def contract_detail(request, id):
     print(contract.stage)
     phone = contract.lessee.phone_number
 
-    token = get_contract_token(id)
+    token_client, token_guarantor = get_contract_token(id)
 
     url_base = "{}://{}".format(request.scheme, request.get_host())
-    url = url_base + reverse("contract-signature", args=[token])
-    context["url"] = url
+    url_client = url_base + reverse("contract-signature", args=[token_client])
+    url_guarantor = url_base + reverse("contract-signature", args=[token_guarantor])
+
+    context["url"] = url_client
     context["phone"] = phone
-    context["token"] = token
+    context["token"] = token_client
+
+    if contract.guarantor is not None:
+        context["url_guarantor"] = url_guarantor
+        context["phone_guarantor"] = contract.guarantor.guarantor_phone_number
+        context["token_guarantor"] = token_guarantor
 
     if contract.stage in ["missing", "garbage"]:
         if phone is not None and phone != "":
-            sendSMSLesseeContactURL(phone, url)
+            sendSMSLesseeContactURL(phone, url_client)
 
         client = contract.lessee
         if client.email is not None and client.email != "":
             contract_email_send_sign_url(
                 client.email,
                 client.name,
-                url,
+                url_client,
                 client.language,
             )
 
@@ -195,7 +202,10 @@ def contract_detail(request, id):
                 guarantor.guarantor_phone_number is not None
                 and guarantor.guarantor_phone_number != ""
             ):
-                sendSMSLesseeContactURL(guarantor.guarantor_phone_number, url)
+                sendSMSLesseeContactURL(
+                    guarantor.guarantor_phone_number,
+                    url_guarantor,
+                )
             if (
                 guarantor.guarantor_email is not None
                 and guarantor.guarantor_email != ""
@@ -203,17 +213,27 @@ def contract_detail(request, id):
                 contract_email_send_sign_url(
                     guarantor.guarantor_email,
                     guarantor.guarantor_name,
-                    url,
+                    url_guarantor,
                 )
 
     factory = qrcode.image.svg.SvgPathImage
     factory.QR_PATH_STYLE["fill"] = "#455565"
     img = qrcode.make(
-        url,
+        url_client,
         image_factory=factory,
         box_size=20,
     )
     context["qr_url"] = img.to_string(encoding="unicode")
+
+    if contract.guarantor is not None:
+        factory = qrcode.image.svg.SvgPathImage
+        factory.QR_PATH_STYLE["fill"] = "#455565"
+        img = qrcode.make(
+            url_guarantor,
+            image_factory=factory,
+            box_size=20,
+        )
+        context["qr_url_guarantor"] = img.to_string(encoding="unicode")
 
     context["conditions"] = get_conditions(context)
 
