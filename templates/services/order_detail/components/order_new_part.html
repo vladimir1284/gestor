@@ -1,44 +1,65 @@
 {% load static %}
-<div class="table-responsive text-nowrap">
-    <table class="table table-sm">
-        <thead>
-            <tr>
-                <th>
-                    <i class="bx bx-cart"></i>
-                </th>
-                <th>Product</th>
-                <th>Available</th>
-                <th>Unit</th>
-                <th>Price</th>
-                <th>Cost</th>
-            </tr>
-        </thead>
-        <tbody class="table-border-bottom-0" @click.outside="editNothing()">
-            <template x-for="product in partsProducts">
-                <tr x-show="globalThis.match(product.name, searchNewProduct)">
-                    <td>
-                        <button class="btn btn-icon btn-link"
-                                @click="addNewPart(product)">
-                            <i class='bx bx-plus'></i>
-                        </button>
-                    </td>
-                    <td>
-                        <strong x-html="globalThis.highlightMatch(product.name, searchNewProduct)"></strong>
-                    </td>
-                    <td :class="product.quantity <= product.quantity_min && 'text-danger'">
-                        <span x-text="product.quantity"></span>
-                    </td>
-                    <td>
-                        <span x-text="product.unit.name"></span>
-                    </td>
-                    <td>
-                        $<span x-text="product.sell_price.toFixed(2)"></span>
-                    </td>
-                    <td>
-                        $<span x-text="product.average_cost.toFixed(2)"></span>
-                    </td>
-                </tr>
-            </template>
-        </tbody>
-    </table>
+<div class="h-full">
+    <div class="card-body py-0">
+        <div class="input-group mb-3">
+            <span class="input-group-text">Default quantity:</span>
+            <input type="number" min="1" class="form-control" x-model="newProductQty">
+            <span class="input-group-text">
+                <div class="form-check">
+                    <label class="form-check-label" for="taxInput">
+                        Use tax
+                    </label>
+                    <input class="form-check-input checkboxinput" type="checkbox" id="taxInput" x-model="newProductTax">
+                </div>
+            </span>
+        </div>
+    </div>
+
+    <div class="h-full">
+        <div class="table-responsive text-nowrap h-full overflow-auto">
+            <table class="table table-sm">
+                <thead class="sticky top-0 bg-white">
+                    <tr>
+                        <th>
+                            <i class="bx bx-cart"></i>
+                        </th>
+                        <th>Product</th>
+                        <th>Available</th>
+                        <th>Unit</th>
+                        <th>Price</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0" @click.outside="editNothing()">
+                    <template x-for="product in partsProducts">
+                        <tr x-show="globalThis.match(product.name, searchNewProduct)">
+                            <td>
+                                <button class="btn btn-icon btn-link"
+                                        @click="addNewPart(product)">
+                                    <i class='bx bx-plus'></i>
+                                </button>
+                            </td>
+                            <td>
+                                <strong x-html="globalThis.highlightMatch(product.name, searchNewProduct)"></strong>
+                            </td>
+                            <td :class="product.quantity <= product.quantity_min && 'text-danger'">
+                                <strong x-text="newProductQty" :class="newProductQty > product.quantity ? 'text-danger' : 'text-success'"></strong>
+                                /
+                                <span x-text="product.quantity"></span>
+                            </td>
+                            <td>
+                                <span x-text="product.unit.name"></span>
+                            </td>
+                            <td>
+                                $<span x-text="product.sell_price.toFixed(2)"></span>
+                            </td>
+                            <td>
+                                $<span x-text="product.average_cost.toFixed(2)"></span>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

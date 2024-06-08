@@ -75,7 +75,7 @@
     </div>
   </div>
 
-  <div :class="newProductMode() && 'fixed top-0 left-0 right-0 bottom-0 z-[1100] bg-[rgba(0,0,0,0.4)] py-4 px-20'" style="backdrop-filter: blur(5px);">
+  <div :class="newProductMode() && 'fixed top-0 left-0 right-0 bottom-0 z-[1100] bg-[rgba(0,0,0,0.4)] py-4 sm:px-4 lg:px-20 xl:px-40'" style="backdrop-filter: blur(5px);">
     <div class="card mb-3 transition-all h-full partsCard">
       <div class="card-header flex items-center">
         <h5 class="flex-grow m-0 p-0" x-show="!newProductMode()">
@@ -101,51 +101,45 @@
               </span>
               <input type="text"
                      class="form-control transition-all"
-                     placeholder="Add a new part"
+                     placeholder="(ALT + P) Add a new part"
                      @keyup.escape="searchNewProduct = ''"
+                     @focus="searchProductInputFocus = true"
+                     @blur="searchProductInputFocus = false"
                      x-model="searchNewProduct"
                      x-ref="searchProducts">
             </div>
 
-            <a
-              href="{% url 'select-service' 'create-service-transaction' order.id 'parts' %}"
-              type="button"
-              data-bs-toggle="tooltip"
-              data-bs-offset="0,4"
-              data-bs-placement="left"
-              data-bs-html="true"
-              data-bs-original-title="Add part or service"
-              class="btn btn-icon btn-outline-info float-end"
-            >
-              <span class="tf-icons bx bx-plus"></span>
-            </a>
+            <!-- <a -->
+            <!--   href="{% url 'select-service' 'create-service-transaction' order.id 'parts' %}" -->
+            <!--   type="button" -->
+            <!--   data-bs-toggle="tooltip" -->
+            <!--   data-bs-offset="0,4" -->
+            <!--   data-bs-placement="left" -->
+            <!--   data-bs-html="true" -->
+            <!--   data-bs-original-title="Add part or service" -->
+            <!--   class="btn btn-icon btn-outline-info float-end" -->
+            <!-- > -->
+            <!--   <span class="tf-icons bx bx-plus"></span> -->
+            <!-- </a> -->
           {% endif %}
         </div>
       </div>
-      <template x-if="newProductMode()">
-        <div class="overflow-y-auto">
-          <template x-if="loadingPartsProducts">
-            <div class="flex justify-center items-center w-96 h-12">
-              <span class="loader"></span>
-            </div>
-          </template>
-          <template x-if="!loadingPartsProducts">
-            {% include "./components/order_new_part.html" %}
-          </template>
+      <div class="h-full" x-show="newProductMode()">
+        <div class="flex justify-center items-center w-96 h-12" x-show="loadingPartsProducts">
+          <span class="loader"></span>
         </div>
-      </template>
-      <template x-if="!newProductMode()">
-        <div>
-          <template x-if="loading">
-            <div class="flex justify-center items-center w-96 h-12">
-              <span class="loader"></span>
-            </div>
-          </template>
-          <template x-if="!loading">
-            {% include "./components/order_part_table.html" %}
-          </template>
+        <div x-show="!loadingPartsProducts">
+          {% include "./components/order_new_part.html" %}
         </div>
-      </template>
+      </div>
+      <div x-show="!newProductMode()">
+        <div class="flex justify-center items-center w-96 h-12" x-show="loading">
+          <span class="loader"></span>
+        </div>
+        <div x-if="!loading">
+          {% include "./components/order_part_table.html" %}
+        </div>
+      </div>
 
       <script>
         globalThis.OrderID = {{order.id}}

@@ -90,6 +90,14 @@
   position: relative;
 }
 
+.sticky {
+  position: sticky;
+}
+
+.\!sticky {
+  position: sticky !important;
+}
+
 .bottom-0 {
   bottom: 0px;
 }
@@ -164,6 +172,10 @@
 
 .top-\[-0\.3rem\] {
   top: -0.3rem;
+}
+
+.\!top-0 {
+  top: 0px !important;
 }
 
 .isolate {
@@ -354,6 +366,10 @@
 
 .mt-8 {
   margin-top: 2rem;
+}
+
+.ml-0 {
+  margin-left: 0px;
 }
 
 .box-border {
@@ -916,6 +932,10 @@
   padding-top: 1rem;
 }
 
+.pl-4 {
+  padding-left: 1rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -1047,11 +1067,6 @@
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
-.ring-main {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(105 108 255 / var(--tw-ring-opacity));
-}
-
 .blur {
   --tw-blur: blur(8px);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
@@ -1133,6 +1148,11 @@
   .sm\:rounded-full {
     border-radius: 9999px;
   }
+
+  .sm\:px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 @media (min-width: 768px) {
@@ -1190,6 +1210,11 @@
     gap: 1rem;
   }
 
+  .lg\:px-20 {
+    padding-left: 5rem;
+    padding-right: 5rem;
+  }
+
   .lg\:pr-\[30vw\] {
     padding-right: 30vw;
   }
@@ -1210,6 +1235,16 @@
 
   .xl\:flex-grow {
     flex-grow: 1;
+  }
+
+  .xl\:px-32 {
+    padding-left: 8rem;
+    padding-right: 8rem;
+  }
+
+  .xl\:px-40 {
+    padding-left: 10rem;
+    padding-right: 10rem;
   }
 }
 
