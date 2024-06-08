@@ -38,7 +38,7 @@
                     <td :class="part.product.quantity == 0 && 'text-danger'" @click="editQuantity(part.id)">
                         <template x-if="editingQuantity(part.id)">
                             <div class="input-group">
-                                <input type="number" class="form-control !p-1 !min-w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
+                                <input type="number" min="1" class="form-control !p-1 !min-w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
                             </div>
                         </template>
                         <template x-if="!editingQuantity(part.id)">
@@ -53,8 +53,17 @@
                     <td>
                         <span x-text="part.unit.name"></span>
                     </td>
-                    <td>
-                        $<span x-text="part.price.toFixed(2)"></span>
+                    <td @click="editPrice(part.id)">
+                        <template x-if="editingPrice(part.id)">
+                            <div class="input-group">
+                                <input type="number" class="form-control !p-1 !min-w-20" x-model="selected.ref.price" @keyup.enter="editNothing()" x-init="$el.focus()">
+                            </div>
+                        </template>
+                        <template x-if="!editingPrice(part.id)">
+                            <div>
+                                $<span x-text="part.price.toFixed(2)"></span>
+                            </div>
+                        </template>
                     </td>
                     <td>
                         $<span x-text="getAmount(part).toFixed(2)"></span>
