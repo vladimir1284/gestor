@@ -8,6 +8,7 @@
 var Alpine;
 
 const EditQuantity = "QTY";
+const EditPrice = "PRICE";
 const EditTax = "TAX";
 
 document.addEventListener("alpine:init", () => {
@@ -21,6 +22,12 @@ document.addEventListener("alpine:init", () => {
       partsProducts: [],
       /** @type {string} */
       searchNewProduct: "",
+      /** @type {number} */
+      newProductQty: 1,
+      /** @type {boolean} */
+      newProductTax: true,
+      /** @type {boolean} */
+      searchProductInputFocus: false,
 
       /** @type {boolean} */
       loading: false,
@@ -81,6 +88,14 @@ document.addEventListener("alpine:init", () => {
         });
         this.loadParts();
         this.loadPartsProducts();
+
+        globalThis.bindShortcut("alt+p", () => {
+          this.$refs.searchProducts.focus();
+        });
+        globalThis.bindShortcut("escape", () => {
+          this.searchNewProduct = "";
+          this.$refs.searchProducts.blur();
+        });
       },
 
       // Load data
@@ -222,10 +237,11 @@ document.addEventListener("alpine:init", () => {
             const part = {
               product_id: product.id,
               tax: product.sell_tax,
-              active_tax: true,
-              quantity: 1,
+              active_tax: this.newProductTax,
+              quantity: this.newProductQty,
               price: product.sell_price,
             };
+            console.log(part);
             await globalThis.addOrderParts(globalThis.OrderID, part);
           } catch (e) {
             console.log(e);
@@ -322,6 +338,15 @@ document.addEventListener("alpine:init", () => {
       },
 
       /**
+       * Edit part price
+       * @param {number} id
+       * */
+      editPrice(id) {
+        this.selectById(id);
+        this.selected.editing = EditPrice;
+      },
+
+      /**
        * Edit part tax
        * @param {number} id
        * */
@@ -337,6 +362,15 @@ document.addEventListener("alpine:init", () => {
        * */
       editingQuantity(id) {
         return this.selected.id == id && this.selected.editing == EditQuantity;
+      },
+
+      /**
+       * Check if editing part price
+       * @param {number} id
+       * @returns {boolean}
+       * */
+      editingPrice(id) {
+        return this.selected.id == id && this.selected.editing == EditPrice;
       },
 
       /**
@@ -403,7 +437,7 @@ document.addEventListener("alpine:init", () => {
        * @returns {boolean}
        * */
       newProductMode() {
-        return this.searchNewProduct != "";
+        return this.searchNewProduct != "" || this.searchProductInputFocus;
       },
 
       // Tools
