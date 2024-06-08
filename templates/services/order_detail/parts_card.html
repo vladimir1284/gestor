@@ -136,7 +136,7 @@
         <div class="flex justify-center items-center w-96 h-12" x-show="loading">
           <span class="loader"></span>
         </div>
-        <div x-if="!loading">
+        <div x-show="!loading">
           {% include "./components/order_part_table.html" %}
         </div>
       </div>
@@ -153,10 +153,13 @@
         {% endif %}
       </script>
       <script src="{% static "assets/js/orders/config/get_cookies.js" %}"></script>
-      <script src="{% static "assets/js/orders/config/order_parts_urls.js" %}"></script>
-      <script src="{% static "assets/js/orders/config/products_url.js" %}"></script>
-      <script src="{% static "assets/js/orders/api/get_order_parts.js" %}"></script>
-      <script src="{% static "assets/js/orders/api/get_order_products.js" %}"></script>
+
+      <script src="{% static "assets/js/orders/config/product_transaction_urls.js" %}"></script>
+      <script src="{% static "assets/js/orders/config/product_urls.js" %}"></script>
+
+      <script src="{% static "assets/js/orders/api/product_api_client.js" %}"></script>
+      <script src="{% static "assets/js/orders/api/product_transaction_api_client.js" %}"></script>
+
       <script src="{% static "assets/js/orders/controllers/order_parts.js" %}"></script>
     </div>
   </div>
