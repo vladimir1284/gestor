@@ -70,7 +70,7 @@
                     </td>
                     <td @click="editTax(part.id)">
                         <template x-if="editingTax(part.id)">
-                            <div class="form-check">
+                            <div class="form-check" @click.stop="console.log('123')">
                                 <input class="form-check-input checkboxinput" type="checkbox" id="activeTax" x-model="selected.ref.active_tax">
                                 <label class="form-check-label" for="activeTax">
                                     $<span x-text="getTax(part, true).toFixed(2)"></span>
@@ -145,7 +145,7 @@
                     <td :class="part.product.quantity == 0 && 'text-danger'" @click="editQuantity(part.id)">
                         <template x-if="editingQuantity(part.id)">
                             <div class="input-group">
-                                <input type="number" class="form-control !p-1 !min-w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
+                                <input type="number" class="form-control !p-1 !w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
                             </div>
                         </template>
                         <template x-if="!editingQuantity(part.id)">
@@ -160,16 +160,25 @@
                     <td>
                         <span x-text="part.unit.name"></span>
                     </td>
-                    <td>
-                        $<span x-text="part.price.toFixed(2)"></span>
+                    <td @click="editPrice(part.id)">
+                        <template x-if="editingPrice(part.id)">
+                            <div class="input-group">
+                                <input type="number" class="form-control !p-1 !w-20" x-model="selected.ref.price" @keyup.enter="editNothing()" x-init="$el.focus()">
+                            </div>
+                        </template>
+                        <template x-if="!editingPrice(part.id)">
+                            <div>
+                                $<span x-text="part.price.toFixed(2)"></span>
+                            </div>
+                        </template>
                     </td>
                     <td>
                         $<span x-text="getAmount(part).toFixed(2)"></span>
                     </td>
                     <td @click="editTax(part.id)">
                         <template x-if="editingTax(part.id)">
-                            <div class="form-check pl-0">
-                                <input class="form-check-input" type="checkbox" id="activeTax" x-model="selected.ref.active_tax" @change="checkEditingSave()" @keyup.enter="editNothing()">
+                            <div class="form-check" @click.stop="console.log('123')">
+                                <input class="form-check-input checkboxinput" type="checkbox" id="activeTax" x-model="selected.ref.active_tax">
                                 <label class="form-check-label" for="activeTax">
                                     $<span x-text="getTax(part, true).toFixed(2)"></span>
                                 </label>
