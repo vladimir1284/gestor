@@ -186,16 +186,26 @@ class LesseeDataForm(forms.ModelForm):
             "contact2_name",
             "contact2_phone",
             "contact2_file",
+            "contact2_relation",
             "contact3_name",
             "contact3_phone",
             "contact3_file",
+            "contact3_relation",
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields["contact_relation"] = forms.ChoiceField(
-            choices=get_emergency_contact_relations_choices()
+            choices=get_emergency_contact_relations_choices(),
+        )
+        self.fields["contact2_relation"] = forms.ChoiceField(
+            choices=get_emergency_contact_relations_choices(),
+            required=False,
+        )
+        self.fields["contact3_relation"] = forms.ChoiceField(
+            choices=get_emergency_contact_relations_choices(),
+            required=False,
         )
 
         self.helper = FormHelper()
@@ -222,12 +232,14 @@ class LesseeDataForm(forms.ModelForm):
                     "contact2_name",
                     "contact2_phone",
                     "contact2_file",
+                    "contact2_relation",
                 ),
                 Fieldset(
                     "Emergency Contact 3 (Optional)",
                     "contact3_name",
                     "contact3_phone",
                     "contact3_file",
+                    "contact3_relation",
                 ),
                 css_class="xl:flex gap-2",
             ),

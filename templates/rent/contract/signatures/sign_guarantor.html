@@ -1,5 +1,5 @@
 {% load static %}
-{% if pdf %}
+{% if pdf or contract_signature and not is_guarantor %}
 {% else %}
     {% if external %}
         <a class="signature_btn"
