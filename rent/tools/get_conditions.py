@@ -85,6 +85,26 @@ def get_conditions(ctx):
         "@@show_sign_guarantor@@": '{% include "rent/contract/signatures/show_sign_guarantor.html" %}',
         "@@show_sign_daniel@@": '{% include "rent/contract/signatures/show_sign_daniel.html" %}',
     }
+    # if we are in client or guarantor signature view
+    # The guarantor should not sign as client and client should not sign as guarantor
+    # if ctx.get("contract_signature", False):
+    #     print(ctx.get("is_guarantor", False))
+    #     if ctx.get("is_guarantor", False):
+    #         replaces["@@sign_lessee@@"] = (
+    #             '{% include "rent/contract/signatures/show_sign_lessee.html" %}'
+    #         )
+    #         replaces["@@date_lessee@@"] = (
+    #             '{% include "rent/contract/signatures/show_date_lessee.html" %}'
+    #         )
+    #         print(replaces)
+    #     else:
+    #         replaces["@@sign_guarantor@@"] = (
+    #             '{% include "rent/contract/signatures/show_sign_guarantor.html" %}'
+    #         )
+    #         replaces["@@date_guarantor@@"] = (
+    #             '{% include "rent/contract/signatures/show_date_guarantor.html" %}'
+    #         )
+
     cond = template.render_template(
         ctx,
         version=version,

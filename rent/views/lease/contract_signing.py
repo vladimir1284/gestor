@@ -24,15 +24,18 @@ def is_contract_cli_complete(request: HttpRequest, id: int):
 
 
 @login_required
-def contract_signing_id(request: HttpRequest, id: int):
-    token = get_contract_token(id)
-    return redirect("contract-signature", token)
+def contract_signing_id(request: HttpRequest, id: int, guarantor: bool = False):
+    token_client, token_guarantor = get_contract_token(id)
+    if guarantor:
+        return redirect("contract-signature", token_guarantor)
+    return redirect("contract-signature", token_client)
 
 
 def contract_signing(request, token):
     try:
         info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         contract_id = info["contract"]
+        is_guarantor = info.get("guarantor", False)
     except jwt.ExpiredSignatureError:
         context = {
             "title": "Error",
@@ -61,7 +64,9 @@ def contract_signing(request, token):
     context.setdefault("external", True)
 
     context["handwriting_ok"] = check_handwriting(context["contract"], daniel=False)
+    context["contract_signature"] = True
     context["token"] = token
+    context["is_guarantor"] = is_guarantor
     context["conditions"] = get_conditions(context)
 
     return render(request, "rent/contract/contract_signing.html", context)

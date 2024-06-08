@@ -172,22 +172,53 @@
         <!-- </div> -->
     </div>
 
-    <div class="mt-4">
-        <div class="flex justify-center">
-            <div>
-                <strong>SMS sended to:</strong> {{ phone }}
+    <div class="mt-4 w-full flex flex-wrap justify-center gap-4">
+        <div class="">
+            <div class="flex justify-center">
+                <h4>
+                    LESSEE:
+                </h4>
+            </div>
+            <div class="flex justify-center">
+                <div>
+                    <strong>SMS sended to:</strong> {{ phone }}
+                </div>
+            </div>
+            <div class="flex justify-center">
+                <div style="max-width: 5cm">{{ qr_url|safe }}</div>
+            </div>
+            <div class="flex justify-center">
+                <div class="max-w-[10cm] w-full">
+                    <a href="{{ url }}">
+                        {{ url }}
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="flex justify-center">
-            <div style="max-width: 5cm">{{ qr_url|safe }}</div>
-        </div>
-        <div class="flex justify-center">
-            <div class="max-w-[10cm] w-full">
-                <a href="{{ url }}">
-                    {{ url }}
-                </a>
+        {% if url_guarantor %}
+            <div class="">
+                <div class="flex justify-center">
+                    <h4>
+                        GUARANTOR:
+                    </h4>
+                </div>
+                <div class="flex justify-center">
+                    <div>
+                        <strong>SMS sended to:</strong> {{ phone_guarantor }}
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <div style="max-width: 5cm">{{ qr_url_guarantor|safe }}</div>
+                </div>
+                <div class="flex justify-center">
+                    <div class="max-w-[10cm] w-full">
+                        <a href="{{ url_guarantor }}">
+                            {{ url_guarantor }}
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 
     <div class="flex flex-wrap mt-4 gap-2 justify-center">

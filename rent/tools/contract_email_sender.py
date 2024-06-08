@@ -47,10 +47,11 @@ def contract_email_send_sign_url(
     url: str,
     lang: str = "english",
 ):
-    if settings.ENVIRONMENT == "production":
-        recipient_list = [email]
-    else:
-        recipient_list = ["julioguillermo0802@gmail.com"]
+    if settings.ENVIRONMENT != "production":
+        print(f"Email send to {email}")
+        return
+
+    recipient_list = [email]
 
     subject = CONTRACT_SIGNATURE_SUBJECT[lang]
     body = CONTRACT_SIGNATURE_BODY[lang].format(name, url)

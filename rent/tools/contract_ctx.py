@@ -4,6 +4,7 @@ from math import ceil
 
 import jwt
 from django.conf import settings
+from django.utils.timezone import timezone
 from django.utils.translation import gettext_lazy as _
 from num2words import num2words
 
@@ -75,11 +76,14 @@ def prepare_contract_view(id):
 
 
 def get_contract_token(id):
-    exp = datetime.utcnow() + timedelta(hours=2)
+    exp = datetime.now(timezone.utc) + timedelta(hours=24)
     context = {
         "contract": id,
         "exp": exp,
     }
+    token_client = jwt.encode(context, settings.SECRET_KEY, algorithm="HS256")
 
-    token = jwt.encode(context, settings.SECRET_KEY, algorithm="HS256")
-    return token
+    context["guarantor"] = True
+    token_guarantor = jwt.encode(context, settings.SECRET_KEY, algorithm="HS256")
+
+    return token_client, token_guarantor
