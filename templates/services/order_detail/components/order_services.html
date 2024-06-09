@@ -1,0 +1,51 @@
+{% load static %}
+<div class="h-full">
+    <div class="card-body py-0">
+        <div class="input-group mb-3">
+            <span class="input-group-text">Default quantity:</span>
+            <input type="number" min="1" class="form-control" x-model="newServiceQty">
+            <span class="input-group-text">
+                <div class="form-check">
+                    <label class="form-check-label" for="taxInput">
+                        Use tax
+                    </label>
+                    <input class="form-check-input checkboxinput" type="checkbox" id="taxInput" x-model="newServiceTax">
+                </div>
+            </span>
+        </div>
+    </div>
+
+    <div class="h-full">
+        <div class="table-responsive text-nowrap h-full overflow-auto">
+            <table class="table table-sm">
+                <thead class="sticky top-0 bg-white">
+                    <tr>
+                        <th>
+                            <i class="bx bx-cart"></i>
+                        </th>
+                        <th>Service</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0" @click.outside="editNothing()">
+                    <template x-for="service in services">
+                        <tr x-show="globalThis.match(service.name, newServiceSearch)">
+                            <td>
+                                <button class="btn btn-icon btn-link"
+                                        @click="addNewTransaction(service)">
+                                    <i class='bx bx-plus'></i>
+                                </button>
+                            </td>
+                            <td>
+                                <strong x-html="globalThis.highlightMatch(service.name, newServiceSearch)"></strong>
+                            </td>
+                            <td>
+                                $<span x-text="service.suggested_price.toFixed(2)"></span>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -6,6 +6,8 @@ from services.api.views.product_transaction_consumables_view import \
     ProductTransactionConsumablesView
 from services.api.views.product_transaction_parts_view import \
     ProductTransactionPartsView
+from services.api.views.service_transaction_view import ServiceTransactionView
+from services.api.views.service_view import ServiceView
 
 router = routers.SimpleRouter()
 # Apis for order parts
@@ -29,6 +31,17 @@ router.register(
     r"product_transaction/consumables/(?P<order_id>\d+)",
     ProductTransactionConsumablesView,
     basename="product-transaction-consumables",
+)
+# Apis for order services
+router.register(
+    r"services",
+    ServiceView,
+    basename="services",
+)
+router.register(
+    r"services_transaction/(?P<order_id>\d+)",
+    ServiceTransactionView,
+    basename="services-transaction",
 )
 
 urlpatterns = router.urls
