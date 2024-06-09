@@ -118,8 +118,7 @@ var Alpine;
               this.$refs.searchProducts.focus();
             });
             globalThis.bindShortcut("escape", () => {
-              this.newProductSearch = "";
-              this.$refs.searchProducts.blur();
+              this.closeNewProductMode();
               this.editNothing();
             });
             globalThis.bindShortcut("enter", () => {
@@ -273,7 +272,7 @@ var Alpine;
            * */
           async addNewTransaction(product) {
             /** @type {ProductTransactionCreation} */
-            this.newProductSearch = "";
+            this.closeNewProductMode();
 
             let addedTransaction = this.findByProductId(product.id);
 
@@ -502,6 +501,12 @@ var Alpine;
            * */
           newProductMode() {
             return this.newProductSearch != "" || this.searchProductInputFocus;
+          },
+
+          closeNewProductMode() {
+            this.newProductSearch = "";
+            this.searchProductInputFocus = false;
+            this.$refs.searchProducts.blur();
           },
 
           // Tools

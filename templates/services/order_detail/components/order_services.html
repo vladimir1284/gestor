@@ -1,18 +1,14 @@
 {% load static %}
 <div class="h-full">
-    <div class="card-body py-0">
+    <div class="card-body py-0 flex gap-2 flex-wrap">
         <div class="input-group mb-3">
             <span class="input-group-text">Default quantity:</span>
             <input type="number" min="1" class="form-control" x-model="newServiceQty">
-            <span class="input-group-text">
-                <div class="form-check">
-                    <label class="form-check-label" for="taxInput">
-                        Use tax
-                    </label>
-                    <input class="form-check-input checkboxinput" type="checkbox" id="taxInput" x-model="newServiceTax">
-                </div>
-            </span>
         </div>
+        <!-- <div class="input-group mb-3"> -->
+        <!--     <span class="input-group-text">Default Tax:</span> -->
+        <!--     <input type="number" min="1" class="form-control" x-model="newServiceTax"> -->
+        <!-- </div> -->
     </div>
 
     <div class="h-full">

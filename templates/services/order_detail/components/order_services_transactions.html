@@ -30,11 +30,9 @@
                         </a>
                     </td>
                     <td>
-                        <a :href="productUrl(transaction.product.id)" :class="transaction.product.quantity == 0 && 'text-danger'">
-                            <strong x-text="transaction.service.name"></strong>
-                        </a>
+                        <strong x-text="transaction.service.name"></strong>
                     </td>
-                    <td :class="transaction.product.quantity == 0 && 'text-danger'" @click="editQuantity(transaction.id)">
+                    <td @click="editQuantity(transaction.id)">
                         <template x-if="editingQuantity(transaction.id)">
                             <div class="input-group">
                                 <input type="number" min="1" class="form-control !p-1 !w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
@@ -63,11 +61,8 @@
                     </td>
                     <td @click="editTax(transaction.id)">
                         <template x-if="editingTax(transaction.id)">
-                            <div class="form-check" @click.stop="console.log('123')">
-                                <input class="form-check-input checkboxinput" type="checkbox" id="activeTax" x-model="selected.ref.active_tax">
-                                <label class="form-check-label" for="activeTax">
-                                    $<span x-text="getTax(transaction, true).toFixed(2)"></span>
-                                </label>
+                            <div class="input-group">
+                                <input type="number" class="form-control !p-1 !w-20" x-model="selected.ref.tax" @keyup.enter="editNothing()" x-init="$el.focus()">
                             </div>
                         </template>
                         <template x-if="!editingTax(transaction.id)">

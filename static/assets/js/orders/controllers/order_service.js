@@ -33,8 +33,8 @@ var Alpine;
         newServiceSearch: "",
         /** @type {number} */
         newServiceQty: 1,
-        /** @type {boolean} */
-        newServiceTax: true,
+        /** @type {number} */
+        newServiceTax: 0,
         /** @type {boolean} */
         searchServiceInputFocus: false,
 
@@ -65,6 +65,10 @@ var Alpine;
         // Initialization
         init() {
           this.$watch("transactions", (transactions) => {
+            this.transactions_args.total = 0;
+            this.transactions_args.amount = 0;
+            this.transactions_args.tax = 0;
+
             for (let transaction of transactions) {
               const amount = this.getAmount(transaction);
               const tax = this.getTax(transaction);
@@ -82,8 +86,7 @@ var Alpine;
             this.$refs.searchServices.focus();
           });
           globalThis.bindShortcut("escape", () => {
-            this.newServiceSearch = "";
-            this.$refs.searchServices.blur();
+            this.closeNewServiceMode();
             this.editNothing();
           });
           globalThis.bindShortcut("enter", () => {
@@ -156,17 +159,9 @@ var Alpine;
          * */
         transactionUrl(id) {
           if (globalThis.Terminated) {
-            return globalThis.DetailTransUrl.replace("/0", `/${id}`);
+            return globalThis.DetailServiceTransUrl.replace("/0", `/${id}`);
           }
-          return globalThis.UpdateTransUrl.replace("/0", `/${id}`);
-        },
-
-        /**
-         * @param {number} id
-         * @returns {string}
-         * */
-        serviceUrl(id) {
-          return globalThis.DetailServiceUrl.replace("/0", `/${id}`);
+          return globalThis.UpdateServiceTransUrl.replace("/0", `/${id}`);
         },
 
         /**
@@ -226,7 +221,7 @@ var Alpine;
          * */
         async addNewTransaction(service) {
           /** @type {ServiceTransactionCreation} */
-          this.newServiceSearch = "";
+          this.closeNewServiceMode();
 
           let addedTransaction = this.findByServiceId(service.id);
 
@@ -236,6 +231,7 @@ var Alpine;
               const trans = {
                 service_id: service.id,
                 tax: service.sell_tax,
+                // tax: this.newServiceTax,
                 quantity: this.newServiceQty,
                 price: service.suggested_price,
               };
@@ -414,7 +410,7 @@ var Alpine;
           this.removing = true;
           try {
             await serviceTransactionApiClient.removeServiceTransaction(
-              globalThis.orderID,
+              globalThis.OrderID,
               this.toRemove,
             );
             await this.loadTransactions(false);
@@ -455,6 +451,12 @@ var Alpine;
          * */
         newServiceMode() {
           return this.newServiceSearch != "" || this.searchServiceInputFocus;
+        },
+
+        closeNewServiceMode() {
+          this.newServiceSearch = "";
+          this.searchServiceInputFocus = false;
+          this.$refs.searchServices.blur();
         },
 
         // Tools
