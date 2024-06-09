@@ -1,29 +1,5 @@
 {%load static%}
-<div class="card mb-3">
-    <div class="card-header flex items-center">
-        <h5 class="flex-grow m-0 p-0">
-            Consumables
-            {% if consumable_amount %}
-                <b>${{ consumable_total|floatformat:"-2" }}</b>
-                {% if consumable_tax > 0 %}
-                    = ${{ consumable_amount|floatformat:"-2" }}+${{ consumable_tax|floatformat:"-2" }}
-                {% endif %}
-            {% endif %}
-        </h5>
-        <div>
-            {%if not terminated%}
-                <a href="{% url 'select-service' 'create-service-transaction' order.id 'consumable' %}"
-                   type="button"
-                   data-bs-toggle="tooltip"
-                   data-bs-offset="0,4"
-                   data-bs-placement="left"
-                   data-bs-html="true"
-                   data-bs-original-title="Add part or service"
-                   class="btn btn-icon btn-outline-info float-end">
-                    <span class="tf-icons bx bx-plus"></span>
-                </a>
-            {% endif %}
-        </div>
-    </div>
-    {%include 'services/order_detail/components/products_table.html' with type="consumable" showOStock=unsatisfiedConsumable %}
+<div x-data="OrderConsumables">
+  {% include "./components/order_transactions_card.html" %}
+  <script src="{% static "assets/js/orders/controllers/order_consumables.js" %}"></script>
 </div>
