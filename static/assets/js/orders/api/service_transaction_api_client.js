@@ -1,10 +1,10 @@
 // @ts-check
 
 (function () {
-  /** @typedef {import('../models/product_transaction.js').ProductTransaction} */
-  /** @typedef {import('../models/product_transaction.js').ProductTransactionCreation} */
+  /** @typedef {import('../models/service_transaction.js').ServiceTransaction} */
+  /** @typedef {import('../models/service_transaction.js').ServiceTransactionCreation} */
 
-  class _ProductTransactionApiClient {
+  class _ServiceTransactionApiClient {
     /**
      * @param {string} baseUrl
      * */
@@ -14,20 +14,20 @@
 
     /**
      * @param {number} order_id
-     * @param {number} [trans_id]
+     * @param {number} [service_id]
      * */
-    getURL(order_id, trans_id = undefined) {
-      if (trans_id) {
-        return `${this.BaseUrl}/${order_id}/${trans_id}/`;
+    getURL(order_id, service_id = undefined) {
+      if (service_id) {
+        return `${this.BaseUrl}/${order_id}/${service_id}/`;
       }
       return `${this.BaseUrl}/${order_id}/`;
     }
 
     /**
      * @param {number} order_id
-     * @returns {Promise<Array<ProductTransaction>>}
+     * @returns {Promise<Array<ServiceTransaction>>}
      * */
-    async getProductTransactionList(order_id) {
+    async getServiceTransactionList(order_id) {
       const resp = await fetch(this.getURL(order_id));
       if (resp.status != 200) {
         throw resp;
@@ -38,9 +38,9 @@
 
     /**
      * @param {number} order_id
-     * @param {ProductTransactionCreation} trans
+     * @param {ServiceTransactionCreation} trans
      * */
-    async addProductTransaction(order_id, trans) {
+    async addServiceTransaction(order_id, trans) {
       const csrftoken = globalThis.getCookie("csrftoken");
       const resp = await fetch(this.getURL(order_id), {
         method: "POST",
@@ -59,9 +59,9 @@
     /**
      * @param {number} order_id
      * @param {number} trans_id
-     * @param {ProductTransactionCreation} trans
+     * @param {ServiceTransactionCreation} trans
      * */
-    async updateProductTransaction(order_id, trans_id, trans) {
+    async updateServiceTransaction(order_id, trans_id, trans) {
       const csrftoken = globalThis.getCookie("csrftoken");
       const resp = await fetch(this.getURL(order_id, trans_id), {
         method: "PUT",
@@ -81,7 +81,7 @@
      * @param {number} order_id
      * @param {number} trans_id
      * */
-    async removeProductTransaction(order_id, trans_id) {
+    async removeServiceTransaction(order_id, trans_id) {
       const csrftoken = globalThis.getCookie("csrftoken");
       const resp = await fetch(this.getURL(order_id, trans_id), {
         method: "DELETE",
@@ -94,5 +94,5 @@
     }
   }
 
-  globalThis.ProductTransactionApiClient = _ProductTransactionApiClient;
+  globalThis.ServiceTransactionApiClient = _ServiceTransactionApiClient;
 })();

@@ -1,9 +1,9 @@
 // @ts-check
 
 (function () {
-  /** @typedef {import('../models/product.js').Product} */
+  /** @typedef {import('../models/service.js').Service} */
 
-  class _ProductApiClient {
+  class _ServiceApiClient {
     /**
      * @param {string} baseUrl
      * */
@@ -12,9 +12,9 @@
     }
 
     /**
-     * @returns {Promise<Array<Product>>}
+     * @returns {Promise<Array<Service>>}
      * */
-    async getProducts() {
+    async getServices() {
       const resp = await fetch(this.BaseUrl);
       if (resp.status != 200) {
         throw resp;
@@ -24,5 +24,5 @@
     }
   }
 
-  globalThis.ProductApiClient = _ProductApiClient;
+  globalThis.ServiceApiClient = _ServiceApiClient;
 })();

@@ -1,13 +1,15 @@
 // @ts-check
 
-globalThis.initController(
-  "OrderParts",
-  globalThis.ProductPartsUrl,
-  globalThis.ProductTransactionPartsUrl,
-  globalThis.OrderID,
-  "alt+p",
-  "part",
-);
+(function () {
+  globalThis.initController(
+    "OrderParts",
+    globalThis.ProductPartsUrl,
+    globalThis.ProductTransactionPartsUrl,
+    globalThis.OrderID,
+    "alt+p",
+    "part",
+  );
+})();
 
 // /** @typedef {import('../models/product_transaction.js').ProductTransaction} */
 // /** @typedef {import('../models/product_transaction.js').ProductTransactionCreation} */
