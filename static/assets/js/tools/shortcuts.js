@@ -45,12 +45,6 @@ function initShortCuts() {
           break;
         }
       }
-    } else {
-      console.log({
-        msg: "Not binded found for this shortcut",
-        shortcut,
-        event: e,
-      });
     }
   });
 }
