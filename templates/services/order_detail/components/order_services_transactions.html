@@ -1,0 +1,84 @@
+{% load static %}
+<div class="table-responsive text-nowrap">
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>
+                    <i class="bx bx-cog"></i>
+                </th>
+                <th>Service</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th>Tax</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" @click.outside="editNothing()">
+            <template x-for="transaction in transactions">
+                <tr :data-tag="transaction.name"
+                    :class="{
+                            'bg-red-100': transaction.decline,
+                            'highlight': transaction.id == selected.id,
+                            }">
+                    <!-- x-effect="if (transaction.id == selected.id) { -->
+                    <!--           scrollTo($el) -->
+                    <!--           }"> -->
+                    <td>
+                        <a :href="transactionUrl(transaction.id)">
+                            $<span x-text="getTotalPrice(transaction).toFixed(2)"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <strong x-text="transaction.service.name"></strong>
+                    </td>
+                    <td @click="editQuantity(transaction.id)">
+                        <template x-if="editingQuantity(transaction.id)">
+                            <div class="input-group">
+                                <input type="number" min="1" class="form-control !p-1 !w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
+                            </div>
+                        </template>
+                        <template x-if="!editingQuantity(transaction.id)">
+                            <div>
+                                <span x-text="transaction.quantity"></span>
+                            </div>
+                        </template>
+                    </td>
+                    <td @click="editPrice(transaction.id)">
+                        <template x-if="editingPrice(transaction.id)">
+                            <div class="input-group">
+                                <input type="number" class="form-control !p-1 !w-20" x-model="selected.ref.price" @keyup.enter="editNothing()" x-init="$el.focus()">
+                            </div>
+                        </template>
+                        <template x-if="!editingPrice(transaction.id)">
+                            <div>
+                                $<span x-text="transaction.price.toFixed(2)"></span>
+                            </div>
+                        </template>
+                    </td>
+                    <td>
+                        $<span x-text="getAmount(transaction).toFixed(2)"></span>
+                    </td>
+                    <td @click="editTax(transaction.id)">
+                        <template x-if="editingTax(transaction.id)">
+                            <div class="input-group">
+                                <input type="number" class="form-control !p-1 !w-20" x-model="selected.ref.tax" @keyup.enter="editNothing()" x-init="$el.focus()">
+                            </div>
+                        </template>
+                        <template x-if="!editingTax(transaction.id)">
+                            <div>
+                                $<span x-text="getTax(transaction).toFixed(2)"></span>
+                            </div>
+                        </template>
+                    </td>
+                    <td class="flex justify-end">
+                        <button class="btn btn-icon btn-link text-danger"
+                                @click="remove(transaction.id)">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+</div>
