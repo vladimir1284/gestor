@@ -16,76 +16,76 @@
             </tr>
         </thead>
         <tbody class="table-border-bottom-0" @click.outside="editNothing()">
-            <template x-for="part in satisfied">
-                <tr :data-tag="part.name"
+            <template x-for="transaction in satisfied">
+                <tr :data-tag="transaction.name"
                     :class="{
-                            'bg-red-100': part.decline,
-                            'highlight': part.id == selected.id,
+                            'bg-red-100': transaction.decline,
+                            'highlight': transaction.id == selected.id,
                             }">
-                    <!-- x-effect="if (part.id == selected.id) { -->
+                    <!-- x-effect="if (transaction.id == selected.id) { -->
                     <!--           scrollTo($el) -->
                     <!--           }"> -->
                     <td>
-                        <a :href="transactionUrl(part.id)">
-                            $<span x-text="getTotalPrice(part).toFixed(2)"></span>
+                        <a :href="transactionUrl(transaction.id)">
+                            $<span x-text="getTotalPrice(transaction).toFixed(2)"></span>
                         </a>
                     </td>
                     <td>
-                        <a :href="productUrl(part.product.id)" :class="part.product.quantity == 0 && 'text-danger'">
-                            <strong x-text="part.product.name"></strong>
+                        <a :href="productUrl(transaction.product.id)" :class="transaction.product.quantity == 0 && 'text-danger'">
+                            <strong x-text="transaction.product.name"></strong>
                         </a>
                     </td>
-                    <td :class="part.product.quantity == 0 && 'text-danger'" @click="editQuantity(part.id)">
-                        <template x-if="editingQuantity(part.id)">
+                    <td :class="transaction.product.quantity == 0 && 'text-danger'" @click="editQuantity(transaction.id)">
+                        <template x-if="editingQuantity(transaction.id)">
                             <div class="input-group">
                                 <input type="number" min="1" class="form-control !p-1 !w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
                             </div>
                         </template>
-                        <template x-if="!editingQuantity(part.id)">
+                        <template x-if="!editingQuantity(transaction.id)">
                             <div>
-                                <span x-text="part.quantity"></span>
-                                <span :class="part.satisfied || 'text-danger'"
-                                      x-text="`(${part.product.quantity})`"
-                                      x-show="!part.satisfied || part.product.quantity <= part.product.quantity_min"></span>
+                                <span x-text="transaction.quantity"></span>
+                                <span :class="transaction.satisfied || 'text-danger'"
+                                      x-text="`(${transaction.product.quantity})`"
+                                      x-show="!transaction.satisfied || transaction.product.quantity <= transaction.product.quantity_min"></span>
                             </div>
                         </template>
                     </td>
                     <td>
-                        <span x-text="part.unit.name"></span>
+                        <span x-text="transaction.unit.name"></span>
                     </td>
-                    <td @click="editPrice(part.id)">
-                        <template x-if="editingPrice(part.id)">
+                    <td @click="editPrice(transaction.id)">
+                        <template x-if="editingPrice(transaction.id)">
                             <div class="input-group">
                                 <input type="number" class="form-control !p-1 !w-20" x-model="selected.ref.price" @keyup.enter="editNothing()" x-init="$el.focus()">
                             </div>
                         </template>
-                        <template x-if="!editingPrice(part.id)">
+                        <template x-if="!editingPrice(transaction.id)">
                             <div>
-                                $<span x-text="part.price.toFixed(2)"></span>
+                                $<span x-text="transaction.price.toFixed(2)"></span>
                             </div>
                         </template>
                     </td>
                     <td>
-                        $<span x-text="getAmount(part).toFixed(2)"></span>
+                        $<span x-text="getAmount(transaction).toFixed(2)"></span>
                     </td>
-                    <td @click="editTax(part.id)">
-                        <template x-if="editingTax(part.id)">
+                    <td @click="editTax(transaction.id)">
+                        <template x-if="editingTax(transaction.id)">
                             <div class="form-check" @click.stop="console.log('123')">
                                 <input class="form-check-input checkboxinput" type="checkbox" id="activeTax" x-model="selected.ref.active_tax">
                                 <label class="form-check-label" for="activeTax">
-                                    $<span x-text="getTax(part, true).toFixed(2)"></span>
+                                    $<span x-text="getTax(transaction, true).toFixed(2)"></span>
                                 </label>
                             </div>
                         </template>
-                        <template x-if="!editingTax(part.id)">
+                        <template x-if="!editingTax(transaction.id)">
                             <div>
-                                $<span x-text="getTax(part).toFixed(2)"></span>
+                                $<span x-text="getTax(transaction).toFixed(2)"></span>
                             </div>
                         </template>
                     </td>
                     <td class="flex justify-end">
                         <button class="btn btn-icon btn-link text-danger"
-                                @click="remove(part.id)">
+                                @click="remove(transaction.id)">
                             <i class='bx bx-trash'></i>
                         </button>
                     </td>
@@ -123,76 +123,76 @@
                 </tr>
             {% endif %}
 
-            <template x-for="part in unsatisfied">
-                <tr :data-tag="part.name"
+            <template x-for="transaction in unsatisfied">
+                <tr :data-tag="transaction.name"
                     :class="{
-                            'bg-red-100': part.decline,
-                            'highlight': part.id == selected.id,
+                            'bg-red-100': transaction.decline,
+                            'highlight': transaction.id == selected.id,
                             }">
-                    <!-- x-effect="if (part.id == selected.id) { -->
+                    <!-- x-effect="if (transaction.id == selected.id) { -->
                     <!--           scrollTo($el) -->
                     <!--           }"> -->
                     <td>
-                        <a :href="transactionUrl(part.id)">
-                            $<span x-text="getTotalPrice(part).toFixed(2)"></span>
+                        <a :href="transactionUrl(transaction.id)">
+                            $<span x-text="getTotalPrice(transaction).toFixed(2)"></span>
                         </a>
                     </td>
                     <td>
-                        <a :href="productUrl(part.product.id)" :class="part.product.quantity == 0 && 'text-danger'">
-                            <strong x-text="part.product.name"></strong>
+                        <a :href="productUrl(transaction.product.id)" :class="transaction.product.quantity == 0 && 'text-danger'">
+                            <strong x-text="transaction.product.name"></strong>
                         </a>
                     </td>
-                    <td :class="part.product.quantity == 0 && 'text-danger'" @click="editQuantity(part.id)">
-                        <template x-if="editingQuantity(part.id)">
+                    <td :class="transaction.product.quantity == 0 && 'text-danger'" @click="editQuantity(transaction.id)">
+                        <template x-if="editingQuantity(transaction.id)">
                             <div class="input-group">
                                 <input type="number" class="form-control !p-1 !w-20" x-model="selected.ref.quantity" @keyup.enter="editNothing()" x-init="$el.focus()">
                             </div>
                         </template>
-                        <template x-if="!editingQuantity(part.id)">
+                        <template x-if="!editingQuantity(transaction.id)">
                             <div>
-                                <span x-text="part.quantity"></span>
-                                <span :class="part.satisfied || 'text-danger'"
-                                      x-text="`(${part.product.quantity})`"
-                                      x-show="!part.satisfied || part.product.quantity <= part.product.quantity_min"></span>
+                                <span x-text="transaction.quantity"></span>
+                                <span :class="transaction.satisfied || 'text-danger'"
+                                      x-text="`(${transaction.product.quantity})`"
+                                      x-show="!transaction.satisfied || transaction.product.quantity <= transaction.product.quantity_min"></span>
                             </div>
                         </template>
                     </td>
                     <td>
-                        <span x-text="part.unit.name"></span>
+                        <span x-text="transaction.unit.name"></span>
                     </td>
-                    <td @click="editPrice(part.id)">
-                        <template x-if="editingPrice(part.id)">
+                    <td @click="editPrice(transaction.id)">
+                        <template x-if="editingPrice(transaction.id)">
                             <div class="input-group">
                                 <input type="number" class="form-control !p-1 !w-20" x-model="selected.ref.price" @keyup.enter="editNothing()" x-init="$el.focus()">
                             </div>
                         </template>
-                        <template x-if="!editingPrice(part.id)">
+                        <template x-if="!editingPrice(transaction.id)">
                             <div>
-                                $<span x-text="part.price.toFixed(2)"></span>
+                                $<span x-text="transaction.price.toFixed(2)"></span>
                             </div>
                         </template>
                     </td>
                     <td>
-                        $<span x-text="getAmount(part).toFixed(2)"></span>
+                        $<span x-text="getAmount(transaction).toFixed(2)"></span>
                     </td>
-                    <td @click="editTax(part.id)">
-                        <template x-if="editingTax(part.id)">
+                    <td @click="editTax(transaction.id)">
+                        <template x-if="editingTax(transaction.id)">
                             <div class="form-check" @click.stop="console.log('123')">
                                 <input class="form-check-input checkboxinput" type="checkbox" id="activeTax" x-model="selected.ref.active_tax">
                                 <label class="form-check-label" for="activeTax">
-                                    $<span x-text="getTax(part, true).toFixed(2)"></span>
+                                    $<span x-text="getTax(transaction, true).toFixed(2)"></span>
                                 </label>
                             </div>
                         </template>
-                        <template x-if="!editingTax(part.id)">
+                        <template x-if="!editingTax(transaction.id)">
                             <div>
-                                $<span x-text="getTax(part).toFixed(2)"></span>
+                                $<span x-text="getTax(transaction).toFixed(2)"></span>
                             </div>
                         </template>
                     </td>
                     <td class="flex justify-end">
                         <button class="btn btn-icon btn-link text-danger"
-                                @click="remove(part.id)">
+                                @click="remove(transaction.id)">
                             <i class='bx bx-trash'></i>
                         </button>
                     </td>

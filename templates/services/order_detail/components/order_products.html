@@ -31,16 +31,16 @@
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0" @click.outside="editNothing()">
-                    <template x-for="product in partsProducts">
-                        <tr x-show="globalThis.match(product.name, searchNewProduct)">
+                    <template x-for="product in products">
+                        <tr x-show="globalThis.match(product.name, newProductSearch)">
                             <td>
                                 <button class="btn btn-icon btn-link"
-                                        @click="addNewPart(product)">
+                                        @click="addNewTransaction(product)">
                                     <i class='bx bx-plus'></i>
                                 </button>
                             </td>
                             <td>
-                                <strong x-html="globalThis.highlightMatch(product.name, searchNewProduct)"></strong>
+                                <strong x-html="globalThis.highlightMatch(product.name, newProductSearch)"></strong>
                             </td>
                             <td :class="product.quantity <= product.quantity_min && 'text-danger'">
                                 <strong x-text="newProductQty" :class="newProductQty > product.quantity ? 'text-danger' : 'text-success'"></strong>
