@@ -124,6 +124,10 @@ var Alpine;
             globalThis.bindShortcut("enter", () => {
               this.editNothing();
             });
+
+            globalThis[`reload_${this.transactionType}`] = () => {
+              this.loadTransactions;
+            };
           },
 
           // Tools

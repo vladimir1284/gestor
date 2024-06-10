@@ -1,5 +1,5 @@
 {% load static %}
-<div class="h-full">
+<div class="h-full flex flex-col overflow-hidden box-border">
     <div class="card-body py-0">
         <div class="input-group mb-3">
             <span class="input-group-text">Default quantity:</span>
@@ -15,51 +15,49 @@
         </div>
     </div>
 
-    <div class="h-full">
-        <div class="table-responsive text-nowrap h-full overflow-auto">
-            <table class="table table-sm">
-                <thead class="sticky top-0 bg-white">
-                    <tr>
-                        <th>
-                            <i class="bx bx-cart"></i>
-                        </th>
-                        <th>Product</th>
-                        <th>Available</th>
-                        <th>Unit</th>
-                        <th>Price</th>
-                        <th>Cost</th>
+    <div class="table-responsive text-nowrap flex-grow !overflow-auto">
+        <table class="table table-sm">
+            <thead class="sticky top-0 bg-white">
+                <tr>
+                    <th>
+                        <i class="bx bx-cart"></i>
+                    </th>
+                    <th>Product</th>
+                    <th>Available</th>
+                    <th>Unit</th>
+                    <th>Price</th>
+                    <th>Cost</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" @click.outside="editNothing()">
+                <template x-for="product in products">
+                    <tr x-show="globalThis.match(product.name, newProductSearch)">
+                        <td>
+                            <button class="btn btn-icon btn-link"
+                                    @click="addNewTransaction(product)">
+                                <i class='bx bx-plus'></i>
+                            </button>
+                        </td>
+                        <td>
+                            <strong x-html="globalThis.highlightMatch(product.name, newProductSearch)"></strong>
+                        </td>
+                        <td :class="product.quantity <= product.quantity_min && 'text-danger'">
+                            <strong x-text="newProductQty" :class="newProductQty > product.quantity ? 'text-danger' : 'text-success'"></strong>
+                            /
+                            <span x-text="product.quantity"></span>
+                        </td>
+                        <td>
+                            <span x-text="product.unit.name"></span>
+                        </td>
+                        <td>
+                            $<span x-text="product.sell_price.toFixed(2)"></span>
+                        </td>
+                        <td>
+                            $<span x-text="product.average_cost.toFixed(2)"></span>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="table-border-bottom-0" @click.outside="editNothing()">
-                    <template x-for="product in products">
-                        <tr x-show="globalThis.match(product.name, newProductSearch)">
-                            <td>
-                                <button class="btn btn-icon btn-link"
-                                        @click="addNewTransaction(product)">
-                                    <i class='bx bx-plus'></i>
-                                </button>
-                            </td>
-                            <td>
-                                <strong x-html="globalThis.highlightMatch(product.name, newProductSearch)"></strong>
-                            </td>
-                            <td :class="product.quantity <= product.quantity_min && 'text-danger'">
-                                <strong x-text="newProductQty" :class="newProductQty > product.quantity ? 'text-danger' : 'text-success'"></strong>
-                                /
-                                <span x-text="product.quantity"></span>
-                            </td>
-                            <td>
-                                <span x-text="product.unit.name"></span>
-                            </td>
-                            <td>
-                                $<span x-text="product.sell_price.toFixed(2)"></span>
-                            </td>
-                            <td>
-                                $<span x-text="product.average_cost.toFixed(2)"></span>
-                            </td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
+                </template>
+            </tbody>
+        </table>
     </div>
 </div>

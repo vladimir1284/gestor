@@ -76,8 +76,8 @@
   </div>
 
   <div :class="newServiceMode() && 'fixed top-0 left-0 right-0 bottom-0 z-[1100] bg-[rgba(0,0,0,0.4)] py-4 sm:px-4 lg:px-20 xl:px-40'" style="backdrop-filter: blur(5px);">
-    <div class="card mb-3 transition-all h-full partsCard" @click.outside="closeNewServiceMode()">
-      <div class="card-header flex items-center">
+    <div class="card mb-3 transition-all h-full partsCard flex flex-col" @click.outside="closeNewServiceMode()">
+      <div class="card-header flex items-center box-border">
         <h5 class="flex-grow m-0 p-0" x-show="!newServiceMode()">
           <span x-text="titleTransactionType()"></span>:
 
@@ -117,11 +117,11 @@
           {% endif %}
         </div>
       </div>
-      <div class="h-full" x-show="newServiceMode()">
+      <div x-show="newServiceMode()" class="flex-grow overflow-hidden box-border">
         <div class="flex justify-center items-center w-96 h-12" x-show="loadingServices">
           <span class="loader"></span>
         </div>
-        <div x-show="!loadingServices">
+        <div x-show="!loadingServices" class="h-full">
           {% include "./components/order_services.html" %}
         </div>
       </div>

@@ -1,5 +1,6 @@
 from rest_framework import routers
 
+from services.api.views.kits_view import KitView
 from services.api.views.product_consumables_view import ProductConsumableView
 from services.api.views.product_parts_view import ProductPartView
 from services.api.views.product_transaction_consumables_view import \
@@ -42,6 +43,12 @@ router.register(
     r"services_transaction/(?P<order_id>\d+)",
     ServiceTransactionView,
     basename="services-transaction",
+)
+# Apis for kits
+router.register(
+    r"kits/(?P<order_id>\d+)",
+    KitView,
+    basename="kits",
 )
 
 urlpatterns = router.urls

@@ -453,6 +453,11 @@
   height: 100%;
 }
 
+.h-max {
+  height: -moz-max-content;
+  height: max-content;
+}
+
 .max-h-96 {
   max-height: 24rem;
 }
@@ -610,8 +615,20 @@
   gap: 1rem;
 }
 
+.\!overflow-auto {
+  overflow: auto !important;
+}
+
 .overflow-auto {
   overflow: auto;
+}
+
+.\!overflow-hidden {
+  overflow: hidden !important;
+}
+
+.overflow-hidden {
+  overflow: hidden;
 }
 
 .overflow-x-hidden {
@@ -1150,6 +1167,10 @@ a.match {
   color: rgb(153 27 27 / var(--tw-text-opacity)) !important;
 }
 
+.partsCard {
+  box-sizing: border-box;
+}
+
 .hover\:right-\[-0\.5rem\]:hover {
   right: -0.5rem;
 }
@@ -1225,8 +1246,20 @@ a.match {
     flex-grow: 1;
   }
 
+  .lg\:flex-row {
+    flex-direction: row;
+  }
+
   .lg\:gap-4 {
     gap: 1rem;
+  }
+
+  .lg\:\!overflow-auto {
+    overflow: auto !important;
+  }
+
+  .lg\:\!overflow-hidden {
+    overflow: hidden !important;
   }
 
   .lg\:px-20 {

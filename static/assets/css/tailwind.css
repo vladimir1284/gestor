@@ -20,3 +20,7 @@ a .match,
 a.match {
   @apply !text-red-800 !font-bold;
 }
+
+.partsCard {
+  box-sizing: border-box;
+}
