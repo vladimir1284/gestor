@@ -1,24 +1,31 @@
 from rent.models.lease import HandWriting
-from rent.tools.get_conditions import get_rent_conditions_template_from_contract
+from rent.tools.get_conditions import \
+    get_rent_conditions_template_from_contract
+
+DEFAULT_LESSEE_SIGNATURES = [
+    "signature_lessee",
+    "date_lessee",
+]
+
+DEFAULT_GUARANTOR_SIGNATURES = [
+    "signature_guarantor",
+    "date_guarantor",
+]
 
 
 def get_handwritings(contract, daniel: bool = False) -> list[str]:
     template, version = get_rent_conditions_template_from_contract(contract)
 
-    lessee_handwritings = [
-        "signature_lessee",
-        "date_lessee",
-    ]
-
     if daniel:
-        lessee_handwritings.append("date_daniel")
+        lessee_handwritings = ["date_daniel"]
+    else:
+        lessee_handwritings = []
+
+    lessee_handwritings += DEFAULT_LESSEE_SIGNATURES
 
     if template is not None:
         if template.option(version, "guarantor") == "true":
-            lessee_handwritings += [
-                "signature_guarantor",
-                "date_guarantor",
-            ]
+            lessee_handwritings += DEFAULT_GUARANTOR_SIGNATURES
 
         extras = template.option_list(version, "extra_required_sign_date")
         if extras is not None:
@@ -52,3 +59,12 @@ def check_handwriting(contract, daniel: bool = True) -> bool:
         ).exists():
             return False
     return True
+
+
+def is_valid_as_next(mhw: str | None, is_guarantor: bool) -> bool:
+    if mhw is None or mhw == "date_daniel":
+        return False
+
+    return (not is_guarantor and mhw in DEFAULT_LESSEE_SIGNATURES) or (
+        is_guarantor and mhw in DEFAULT_GUARANTOR_SIGNATURES
+    )
