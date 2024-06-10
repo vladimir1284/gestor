@@ -327,6 +327,73 @@ var Alpine;
         },
 
         /**
+         * Get the editing field value
+         * @returns {number | undefined}
+         * */
+        getEditingField() {
+          if (!this.selected.ref) return undefined;
+
+          switch (this.selected.editing) {
+            case EditQuantity:
+              return this.selected.ref.quantity;
+            case EditPrice:
+              return this.selected.ref.price;
+            case EditTax:
+              return this.selected.ref.tax;
+          }
+        },
+
+        /**
+         * Set the editing field value
+         * @param {number} val
+         * */
+        setEditingField(val) {
+          if (!this.selected.ref) return undefined;
+
+          switch (this.selected.editing) {
+            case EditQuantity:
+              this.selected.ref.quantity = val;
+              break;
+            case EditPrice:
+              this.selected.ref.price = val;
+              break;
+            case EditTax:
+              this.selected.ref.tax = val;
+              break;
+          }
+        },
+
+        /**
+         * Dec editing field
+         * @param {number} [step]
+         * @param {number} [min]
+         * */
+        decEditingField(step, min) {
+          let fieldVal = this.getEditingField();
+          if (fieldVal === undefined) return;
+
+          fieldVal = parseInt(fieldVal) - (step ?? 1);
+          if (min !== undefined) fieldVal = Math.max(fieldVal, min);
+
+          this.setEditingField(fieldVal);
+        },
+
+        /**
+         * Dec editing field
+         * @param {number} [step]
+         * @param {number} [max]
+         * */
+        incEditingField(step, max) {
+          let fieldVal = this.getEditingField();
+          if (fieldVal === undefined) return;
+
+          fieldVal = parseInt(fieldVal) + (step ?? 1);
+          if (max !== undefined) fieldVal = Math.min(fieldVal, max);
+
+          this.setEditingField(fieldVal);
+        },
+
+        /**
          * Select a transaction if exist by id
          * @param {number} id
          * @returns {ServiceTransaction | undefined}

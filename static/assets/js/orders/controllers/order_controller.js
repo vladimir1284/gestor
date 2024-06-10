@@ -242,6 +242,24 @@ var Alpine;
             return this.getAmount(transaction) + this.getTax(transaction);
           },
 
+          /**
+           * Get min Price
+           * @param {ProductTransaction} transaction
+           * @returns {number}
+           * */
+          getMinPrice(transaction) {
+            const minPrice = transaction.product.min_price;
+            const cost = transaction.cost;
+            if (
+              minPrice !== undefined &&
+              minPrice !== null &&
+              minPrice > cost
+            ) {
+              return minPrice;
+            }
+            return cost;
+          },
+
           // Operations
 
           /**
@@ -314,6 +332,7 @@ var Alpine;
            * */
           async editSave(ref) {
             if (!ref.id) return;
+            ref.price = Math.max(ref.price, this.getMinPrice(ref));
             try {
               await productTransactionApiClient.updateProductTransaction(
                 orderID,
@@ -384,6 +403,68 @@ var Alpine;
           selectById(id) {
             const trans = this.findById(id);
             return this.select(trans);
+          },
+
+          /**
+           * Get the editing field value
+           * @returns {number | undefined}
+           * */
+          getEditingField() {
+            if (!this.selected.ref) return undefined;
+
+            switch (this.selected.editing) {
+              case EditQuantity:
+                return this.selected.ref.quantity;
+              case EditPrice:
+                return this.selected.ref.price;
+            }
+          },
+
+          /**
+           * Set the editing field value
+           * @param {number} val
+           * */
+          setEditingField(val) {
+            if (!this.selected.ref) return undefined;
+
+            switch (this.selected.editing) {
+              case EditQuantity:
+                this.selected.ref.quantity = val;
+                break;
+              case EditPrice:
+                this.selected.ref.price = val;
+                break;
+            }
+          },
+
+          /**
+           * Dec editing field
+           * @param {number} [step]
+           * @param {number} [min]
+           * */
+          decEditingField(step, min) {
+            let fieldVal = this.getEditingField();
+            if (fieldVal === undefined) return;
+
+            fieldVal = parseInt(fieldVal) - (step ?? 1);
+            if (min !== undefined) fieldVal = Math.max(fieldVal, min);
+
+            this.setEditingField(fieldVal);
+          },
+
+          /**
+           * Dec editing field
+           * @param {number} [step]
+           * @param {number} [max]
+           * */
+          incEditingField(step, max) {
+            let fieldVal = this.getEditingField();
+            if (fieldVal === undefined) return;
+
+            fieldVal = parseInt(fieldVal) + (step ?? 1);
+            if (max !== undefined) fieldVal = Math.min(fieldVal, max);
+
+            this.setEditingField(fieldVal);
           },
 
           /**
