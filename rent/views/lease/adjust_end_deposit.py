@@ -52,7 +52,7 @@ def adjust_end_deposit(request, id):
             instance.amount = instance.total_deposited_amount - discount.total_discount
             instance.prepayments = discount.extra_payments
             instance.debts = discount.debt
-            instance.tolls = discount.tolls
+            instance.saved_tolls = discount.tolls
             instance.trailer_discount = discount.trailer_condition_discount
             instance.save()
 

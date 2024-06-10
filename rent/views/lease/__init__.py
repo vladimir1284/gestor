@@ -58,7 +58,10 @@ from rent.tools.contract_email_sender import contract_email_send_sign_url
 from rent.tools.get_conditions import contract_guarantor
 from rent.tools.get_conditions import get_conditions
 from rent.tools.get_missing_handwriting import check_handwriting
+from rent.tools.get_missing_handwriting import DEFAULT_GUARANTOR_SIGNATURES
+from rent.tools.get_missing_handwriting import DEFAULT_LESSEE_SIGNATURES
 from rent.tools.get_missing_handwriting import get_missing_handwriting
+from rent.tools.get_missing_handwriting import is_valid_as_next
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
 from rent.views.create_lessee_with_data import create_lessee
@@ -71,6 +74,7 @@ def create_handwriting(request, token, position, external=False):
     try:
         info = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         lease_id = info["contract"]
+        is_guarantor = info.get("guarantor", False)
     except jwt.ExpiredSignatureError:
         context = {
             "title": "Error",
@@ -125,11 +129,12 @@ def create_handwriting(request, token, position, external=False):
                 mhw = None
 
                 # Get the first valid to change
-                while len(missing_hws) > 0 and (mhw is None or mhw == "date_daniel"):
+                while len(missing_hws) > 0 and not is_valid_as_next(mhw, is_guarantor):
                     mhw = missing_hws.pop(0)
 
                 # if exists capture
-                if mhw is not None and mhw != "date_daniel":
+                print(mhw)
+                if is_valid_as_next(mhw, is_guarantor):
                     return redirect(
                         "ext-capture-signature",
                         mhw,
