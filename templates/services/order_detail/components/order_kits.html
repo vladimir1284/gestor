@@ -1,0 +1,37 @@
+{% load static %}
+<div class="h-full flex flex-col overflow-hidden box-border">
+    <div class="table-responsive text-nowrap flex-grow overflow-auto">
+        <table class="table table-sm">
+            <thead class="sticky top-0 bg-white">
+                <tr>
+                    <th>
+                        <i class="bx bx-cart"></i>
+                    </th>
+                    <th>Kit</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                <template x-for="kit in kits">
+                    <tr x-show="globalThis.match(kit.name, newKitSearch)">
+                        <td>
+                            <template x-if="kit.available">
+                                <button class="btn btn-icon btn-link"
+                                        @click="selectKit(kit)">
+                                    <i class='bx bx-plus'></i>
+                                </button>
+                            </template>
+                            <template x-if="!kit.available">
+                                <button class="btn btn-icon btn-link text-danger">
+                                    <i class='bx bx-minus'></i>
+                                </button>
+                            </template>
+                        </td>
+                        <td :class="kit.available || 'text-danger'">
+                            <strong x-html="globalThis.highlightMatch(kit.name, newKitSearch)"></strong>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>

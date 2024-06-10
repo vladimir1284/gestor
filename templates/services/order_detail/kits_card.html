@@ -1,0 +1,118 @@
+{%load static%}
+
+{%if not terminated%}
+  <div x-data="OrderKits" x-cloak>
+    <style>
+      .loader, .loader:before, .loader:after {
+        border-radius: 50%;
+        width: 2.5em;
+        height: 2.5em;
+        animation-fill-mode: both;
+        animation: bblFadInOut 1.8s infinite ease-in-out;
+      }
+      .loader {
+        color: #06F;
+        font-size: 7px;
+        position: relative;
+        text-indent: -9999em;
+        transform: translateZ(0);
+        animation-delay: -0.16s;
+      }
+      .loader:before,
+      .loader:after {
+        content: '';
+        position: absolute;
+        top: 0;
+      }
+      .loader:before {
+        left: -3.5em;
+        animation-delay: -0.32s;
+      }
+      .loader:after {
+        left: 3.5em;
+      }
+
+      @keyframes bblFadInOut {
+        0%, 80%, 100% { box-shadow: 0 2.5em 0 -1.3em }
+        40% { box-shadow: 0 2.5em 0 0 }
+      }
+
+      .highlight {
+        box-shadow: inset 0 0 10px rgba(0, 50, 255, 0.5);
+      }
+    </style>
+
+    <div class="fixed top-0 left-0 right-0 bottom-0 z-[1100] bg-[rgba(0,0,0,0.4)] py-4 sm:px-4 lg:px-20 xl:px-40"
+         style="backdrop-filter: blur(5px);"
+         x-show="newKitMode()">
+      <div class="card mb-3 transition-all h-full partsCard flex flex-col" @click.outside="closeNewKitMode()">
+        <div class="card-header flex items-center">
+          <div class="flex transition-all w-full" x-show="!selectedKitMode()">
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">
+                <i class='bx bx-search-alt-2' ></i>
+              </span>
+              <input type="text"
+                     class="form-control transition-all"
+                     :placeholder="`(${shortcut.toUpperCase()}) Add a new ${transactionType}`"
+                     x-model="newKitSearch"
+                     x-ref="searchKit">
+              <span class="input-group-text text-danger"
+                    id="close"
+                    @click="closeNewKitMode()"
+              >
+                <i class='bx bx-x'></i>
+              </span>
+            </div>
+          </div>
+          <template x-if="selectedKitMode()">
+            <div class="flex-grow flex items-center">
+              <button class="btn btn-icon btn-link" @click="unselectKit()">
+                <i class='bx bx-left-arrow-alt'></i>
+              </button>
+              <h5 class="flex-grow m-0 p-0">
+                Selected kit:
+                <strong x-text="selectedKit.name"></strong>
+              </h5>
+              <button class="btn btn-outline-primary" @click="addKit()" x-show="!creating">
+                Add kit
+              </button>
+              <div class="spinner-border text-primary" role="status" x-show="creating">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="flex-grow overflow-hidden box-border" x-show="!selectedKitMode()">
+          <div class="flex justify-center items-center w-96 h-12" x-show="loadingKit">
+            <span class="loader"></span>
+          </div>
+          <div class="h-full" x-show="!loadingKit">
+            {% include "./components/order_kits.html" %}
+          </div>
+        </div>
+        <template x-if="selectedKitMode()">
+          <div class="flex-grow overflow-hidden box-border">
+            {% include "./components/order_selected_kit.html" %}
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <script>
+      globalThis.OrderID = {{order.id}}
+      {% if terminated %}
+        globalThis.Terminated = true
+      {% else %}
+        globalThis.Terminated = false
+      {% endif %}
+    </script>
+    <script src="{% static "assets/js/orders/config/get_cookies.js" %}"></script>
+
+    <script src="{% static "assets/js/orders/config/kit_urls.js" %}"></script>
+
+    <script src="{% static "assets/js/orders/api/kit_api_client.js" %}"></script>
+
+    <script src="{% static "assets/js/orders/controllers/order_kits.js" %}"></script>
+  </div>
+{% endif %}

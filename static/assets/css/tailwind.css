@@ -13,3 +13,7 @@
 .match {
   @apply text-main font-bold;
 }
+
+.partsCard {
+  box-sizing: border-box;
+}

@@ -1,6 +1,6 @@
 {% load static %}
-<div class="h-full">
-    <div class="card-body py-0 flex gap-2 flex-wrap">
+<div class="h-full flex flex-col overflow-hidden box-border">
+    <div class="card-body py-0 flex gap-2 flex-wrap box-border">
         <div class="input-group mb-3">
             <span class="input-group-text">Default quantity:</span>
             <input type="number" min="1" class="form-control" x-model="newServiceQty">
@@ -11,37 +11,35 @@
         <!-- </div> -->
     </div>
 
-    <div class="h-full">
-        <div class="table-responsive text-nowrap h-full overflow-auto">
-            <table class="table table-sm">
-                <thead class="sticky top-0 bg-white">
-                    <tr>
-                        <th>
-                            <i class="bx bx-cart"></i>
-                        </th>
-                        <th>Service</th>
-                        <th>Cost</th>
+    <div class="table-responsive text-nowrap flex-grow !overflow-auto">
+        <table class="table table-sm">
+            <thead class="sticky top-0 bg-white">
+                <tr>
+                    <th>
+                        <i class="bx bx-cart"></i>
+                    </th>
+                    <th>Service</th>
+                    <th>Cost</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" @click.outside="editNothing()">
+                <template x-for="service in services">
+                    <tr x-show="globalThis.match(service.name, newServiceSearch)">
+                        <td>
+                            <button class="btn btn-icon btn-link"
+                                    @click="addNewTransaction(service)">
+                                <i class='bx bx-plus'></i>
+                            </button>
+                        </td>
+                        <td>
+                            <strong x-html="globalThis.highlightMatch(service.name, newServiceSearch)"></strong>
+                        </td>
+                        <td>
+                            $<span x-text="service.suggested_price.toFixed(2)"></span>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="table-border-bottom-0" @click.outside="editNothing()">
-                    <template x-for="service in services">
-                        <tr x-show="globalThis.match(service.name, newServiceSearch)">
-                            <td>
-                                <button class="btn btn-icon btn-link"
-                                        @click="addNewTransaction(service)">
-                                    <i class='bx bx-plus'></i>
-                                </button>
-                            </td>
-                            <td>
-                                <strong x-html="globalThis.highlightMatch(service.name, newServiceSearch)"></strong>
-                            </td>
-                            <td>
-                                $<span x-text="service.suggested_price.toFixed(2)"></span>
-                            </td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
+                </template>
+            </tbody>
+        </table>
     </div>
 </div>

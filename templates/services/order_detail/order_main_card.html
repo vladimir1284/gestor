@@ -142,6 +142,16 @@
                     <span class="tf-icons bx bx-money"></span>
                 </a>
             {% endif %}
+            <a href="{% url 'select-service' 'create-service-transaction' order.id %}"
+               type="button"
+               data-bs-toggle="tooltip"
+               data-bs-offset="0,4"
+               data-bs-placement="left"
+               data-bs-html="true"
+               data-bs-original-title="Add part or service"
+               class="btn btn-icon btn-outline-info float-end">
+                <span class="tf-icons bx bx-plus"></span>
+            </a>
         </div>
     </div>
 </div>

@@ -444,6 +444,11 @@
   height: 100%;
 }
 
+.h-max {
+  height: -moz-max-content;
+  height: max-content;
+}
+
 .\!w-20 {
   width: 5rem !important;
 }
@@ -513,6 +518,10 @@
   max-width: 100%;
 }
 
+.flex-1 {
+  flex: 1 1 0%;
+}
+
 .flex-shrink {
   flex-shrink: 1;
 }
@@ -557,6 +566,10 @@
   flex-wrap: wrap;
 }
 
+.items-start {
+  align-items: flex-start;
+}
+
 .items-end {
   align-items: flex-end;
 }
@@ -597,8 +610,32 @@
   gap: 1rem;
 }
 
+.\!overflow-auto {
+  overflow: auto !important;
+}
+
 .overflow-auto {
   overflow: auto;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.\!overflow-hidden {
+  overflow: hidden !important;
+}
+
+.\!overflow-scroll {
+  overflow: scroll !important;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
 }
 
 .overflow-x-hidden {
@@ -1106,6 +1143,10 @@
   color: rgb(105 108 255 / var(--tw-text-opacity));
 }
 
+.partsCard {
+  box-sizing: border-box;
+}
+
 .hover\:right-\[-0\.5rem\]:hover {
   right: -0.5rem;
 }
@@ -1181,8 +1222,36 @@
     flex-grow: 1;
   }
 
+  .lg\:flex-row {
+    flex-direction: row;
+  }
+
+  .lg\:flex-wrap {
+    flex-wrap: wrap;
+  }
+
   .lg\:gap-4 {
     gap: 1rem;
+  }
+
+  .lg\:overflow-auto {
+    overflow: auto;
+  }
+
+  .lg\:\!overflow-auto {
+    overflow: auto !important;
+  }
+
+  .lg\:overflow-hidden {
+    overflow: hidden;
+  }
+
+  .lg\:\!overflow-hidden {
+    overflow: hidden !important;
+  }
+
+  .lg\:overflow-y-hidden {
+    overflow-y: hidden;
   }
 
   .lg\:px-20 {
