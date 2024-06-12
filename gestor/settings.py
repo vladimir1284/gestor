@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_cleanup.apps.CleanupConfig",
     "django_extensions",
+    "django_minio_backend",
     # local
     "utils.apps.UtilsConfig",
     "inventory.apps.inventoryConfig",
@@ -119,6 +120,9 @@ DATABASES = {
     }
 }
 
+# MINIO
+DEFAULT_FILE_STORAGE = "django_minio_backend.models.MinioBackend"
+MINIO_MEDIA_FILES_BUCKET = "my-media-files-bucket"  # reemplaza con tu bucket
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
