@@ -477,17 +477,24 @@ class SecurityDepositDevolution(models.Model):
         if not the is for return but it will be returned
         just if not break the contract terms
         """
-        # self.amount - self.extra_tolls
+        # amount = self.amount - self.tolls
+        # amount = (
+        #     self.amount - self.extra_tolls
+        #     if self.saved_tolls == 0 and self.debts == 0 and self.trailer_discount == 0
+        #     else (
+        #         self.total_deposited_amount
+        #         + self.prepayments
+        #         - self.debts
+        #         - self.tolls
+        #         - self.trailer_discount
+        #     )
+        # )
         amount = (
-            self.amount - self.extra_tolls
-            if self.saved_tolls == 0 and self.debts == 0 and self.trailer_discount == 0
-            else (
-                self.total_deposited_amount
-                + self.prepayments
-                - self.debts
-                - self.tolls
-                - self.trailer_discount
-            )
+            self.total_deposited_amount
+            + self.prepayments
+            - self.debts
+            - self.tolls
+            - self.trailer_discount
         )
         if amount < 0:
             return amount
