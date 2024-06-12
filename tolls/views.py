@@ -52,7 +52,7 @@ def create_toll(request, plate=None, contract=None):
 @login_required
 def create_contract_toll(request, contract: int):
     _contract = Contract.objects.get(id=contract)
-    _plate = TrailerPlates.objects.get(trailer=_contract.trailer)
+    _plate = TrailerPlates.objects.filter(trailer=_contract.trailer).last()
 
     if request.method == "POST":
         form = TollCreateForm(

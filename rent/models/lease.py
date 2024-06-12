@@ -477,13 +477,17 @@ class SecurityDepositDevolution(models.Model):
         if not the is for return but it will be returned
         just if not break the contract terms
         """
-        amount = self.amount
+        amount = self.amount - self.extra_tolls
         # (
-        #     self.total_deposited_amount
-        #     + self.prepayments
-        #     - self.debts
-        #     - self.tolls
-        #     - self.trailer_discount
+        #     self.amount
+        #     if self.saved_tolls == 0 and self.debts == 0 and self.trailer_discount == 0
+        #     else (
+        #         self.total_deposited_amount
+        #         + self.prepayments
+        #         - self.debts
+        #         - self.tolls
+        #         - self.trailer_discount
+        #     )
         # )
         if amount < 0:
             return amount
@@ -522,12 +526,22 @@ class SecurityDepositDevolution(models.Model):
     @property
     def tolls(self) -> float:
         unpay_tolls = 0
-        tolls = self.contract.tolldue_set.all()
+        tolls = self.contract.tolldue_set.filter(stage="unpaid")
 
         for toll in tolls:
-            if toll.stage == "paid":
-                continue
+            unpay_tolls += toll.amount
 
+        return unpay_tolls
+
+    @property
+    def extra_tolls(self) -> float:
+        unpay_tolls = 0
+        tolls = self.contract.tolldue_set.filter(
+            stage="unpaid",
+            created_date__gte=self.contract.ended_date,
+        )
+
+        for toll in tolls:
             unpay_tolls += toll.amount
 
         return unpay_tolls
