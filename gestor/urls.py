@@ -13,7 +13,6 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -61,8 +60,7 @@ urlpatterns = [
         dashboard.week_stats_recalculate,
         name="week-stats-recalculate",
     ),
-    path("erp/weekly-costs/<category_id>/<date>",
-         cost.weekly_cost, name="weekly-cost"),
+    path("erp/weekly-costs/<category_id>/<date>", cost.weekly_cost, name="weekly-cost"),
     # Monthly reports
     path("erp/monthly/", reports.monthly_report, name="monthly-report"),
     path(
@@ -105,4 +103,7 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
-init_permissions()
+try:
+    init_permissions()
+except Exception as e:
+    print(e)

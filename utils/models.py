@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.functions.datetime import datetime
+from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -189,46 +190,50 @@ def on_create(sender, instance, created, **kwargs):
 
 @receiver(models.signals.pre_save, sender=Order)
 def on_field_change(sender, instance, **kwargs):
-    old_order = Order.objects.filter(id=instance.id).last()
-    if old_order is None:
-        if instance.trailer is not None:
-            instance.trailer.update_active_order_pos(instance)
+    try:
+        with atomic():
+            old_order = Order.objects.filter(id=instance.id).last()
+            if old_order is None:
+                if instance.trailer is not None:
+                    instance.trailer.update_active_order_pos(instance)
 
-        return
+                return
 
-    if old_order.position != instance.position:
-        if instance.position == 0:
-            trace = OrderTrace(
-                order=instance,
-                trace="storage_in",
-                status=instance.status,
-                reason=instance.storage_reason,
-            )
-        else:
-            trace = OrderTrace(
-                order=instance,
-                trace="storage_out",
-                status=instance.status,
-                reason=instance.storage_reason,
-            )
-        trace.save()
-        instance.position_date = datetime.now()
-    if instance.position == 0 and (
-        old_order.status != instance.status
-        or old_order.storage_reason != instance.storage_reason
-    ):
-        trace = OrderTrace(
-            order=instance,
-            trace="storage_stage",
-            status=instance.status,
-            reason=instance.storage_reason,
-        )
-        trace.save()
+            if old_order.position != instance.position:
+                if instance.position == 0:
+                    trace = OrderTrace(
+                        order=instance,
+                        trace="storage_in",
+                        status=instance.status,
+                        reason=instance.storage_reason,
+                    )
+                else:
+                    trace = OrderTrace(
+                        order=instance,
+                        trace="storage_out",
+                        status=instance.status,
+                        reason=instance.storage_reason,
+                    )
+                trace.save()
+                instance.position_date = datetime.now()
+            if instance.position == 0 and (
+                old_order.status != instance.status
+                or old_order.storage_reason != instance.storage_reason
+            ):
+                trace = OrderTrace(
+                    order=instance,
+                    trace="storage_stage",
+                    status=instance.status,
+                    reason=instance.storage_reason,
+                )
+                trace.save()
 
-    if instance.trailer is not None:
-        instance.trailer.update_active_order_pos(instance, force=True)
-        if instance.status in ["complete", "decline"]:
-            instance.position = None
+            if instance.trailer is not None:
+                instance.trailer.update_active_order_pos(instance, force=True)
+                if instance.status in ["complete", "decline"]:
+                    instance.position = None
+    except Exception as e:
+        print(e)
 
 
 class OrderDeclineReazon(models.Model):

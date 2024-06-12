@@ -75,8 +75,7 @@ class ServicePicture(models.Model):
 
     def get_absolute_url(self):
         return (
-            reverse("detail-service-order",
-                    kwargs={"id": self.order.id}) + "#gallery"
+            reverse("detail-service-order", kwargs={"id": self.order.id}) + "#gallery"
         )
 
 
@@ -126,8 +125,7 @@ class DebtStatus(models.Model):
         ("cleared", _("Cleared")),
         ("lost", _("Lost")),
     ]
-    status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default="pending")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     last_modified_date = models.DateField(auto_now=True)
     weeks = models.PositiveIntegerField(default=0)
     amount_due_per_week = models.DecimalField(

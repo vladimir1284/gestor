@@ -90,46 +90,73 @@ def on_change_order_process(instance: Order):
 
 @receiver(models.signals.post_save, sender=Order)
 def on_change_order(sender, instance: Order, created, **kwargs):
-    on_change_order_process(instance)
+    try:
+        on_change_order_process(instance)
+    except Exception as e:
+        print(e)
 
 
 @receiver(models.signals.post_save, sender=Cost)
 def on_change_cost(sender, instance: Cost, created, **kwargs):
-    pushRecal(instance.date)
+    try:
+        pushRecal(instance.date)
+    except Exception as e:
+        print(e)
 
 
 @receiver(models.signals.post_save, sender=PendingPayment)
 def on_change_pendpay(sender, instance: PendingPayment, created, **kwargs):
-    pushRecal(instance.created_date)
+    try:
+        pushRecal(instance.created_date)
+    except Exception as e:
+        print(e)
 
 
 @receiver(models.signals.post_save, sender=Payment)
 def on_change_pay(sender, instance: Payment, created, **kwargs):
-    on_change_order_process(instance.order)
+    try:
+        on_change_order_process(instance.order)
+    except Exception as e:
+        print(e)
 
 
 @receiver(models.signals.post_save, sender=LeaseDeposit)
 def on_change_lease_dep(sender, instance: LeaseDeposit, created, **kwargs):
-    pushRecal(instance.date)
+    try:
+        pushRecal(instance.date)
+    except Exception as e:
+        print(e)
 
 
 @receiver(models.signals.post_save, sender=SecurityDepositDevolution)
 def on_change_sec_dep_ret(
     sender, instance: SecurityDepositDevolution, created, **kwargs
 ):
-    pushRecal(instance.returned_date)
+    try:
+        pushRecal(instance.returned_date)
+    except Exception as e:
+        print(e)
 
 
 @receiver(models.signals.post_save, sender=ProductTransaction)
 def on_change_prod_trans(sender, instance: ProductTransaction, created, **kwargs):
-    on_change_order_process(instance.order)
+    try:
+        on_change_order_process(instance.order)
+    except Exception as e:
+        print(e)
 
 
 @receiver(models.signals.post_save, sender=Expense)
 def on_change_expense(sender, instance: Expense, created, **kwargs):
-    on_change_order_process(instance.order)
+    try:
+        on_change_order_process(instance.order)
+    except Exception as e:
+        print(e)
 
 
 @receiver(models.signals.post_save, sender=ServiceTransaction)
 def on_change_ser_trans(sender, instance: ServiceTransaction, created, **kwargs):
-    on_change_order_process(instance.order)
+    try:
+        on_change_order_process(instance.order)
+    except Exception as e:
+        print(e)
