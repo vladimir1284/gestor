@@ -231,7 +231,11 @@
                             <tr>
                                 <td>Tolls:</td>
                                 <td class="text-right">
-                                    <strong>- ${{devolution.tolls | floatformat:'-2'}}</strong>
+                                    {% if original %}
+                                        <strong>- ${{devolution.original_tolls | floatformat:'-2'}}</strong>
+                                    {% else %}
+                                        <strong>- ${{devolution.tolls | floatformat:'-2'}}</strong>
+                                    {% endif %}
                                 </td>
                             </tr>
                             <tr class="border-b">
@@ -250,21 +254,33 @@
                                         {% endif %}
                                     </td>
                                     <td class="text-right">
-                                        <strong>${{ devolution.returned_amount | floatformat:'-2' }}</strong>
+                                        {% if original %}
+                                            <strong>${{ devolution.original_returned_amount | floatformat:'-2' }}</strong>
+                                        {% else %}
+                                            <strong>${{ devolution.returned_amount | floatformat:'-2' }}</strong>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {%else%}
                                 <tr>
                                     <td>Total client debt:</td>
                                     <td class="text-right">
-                                        <strong>${{ devolution.debt_amount|floatformat:'-2' }}</strong>
+                                        {% if original %}
+                                            <strong>${{ devolution.original_debt_amount|floatformat:'-2' }}</strong>
+                                        {% else %}
+                                            <strong>${{ devolution.debt_amount|floatformat:'-2' }}</strong>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {%endif%}
                             <tr>
                                 <td>Towit compensation:</td>
                                 <td class="text-right">
-                                    <strong>${{ devolution.income|floatformat:'-2' }}</strong>
+                                    {% if original %}
+                                        <strong>${{ devolution.original_income|floatformat:'-2' }}</strong>
+                                    {% else %}
+                                        <strong>${{ devolution.income|floatformat:'-2' }}</strong>
+                                    {% endif %}
                                 </td>
                             </tr>
                         </tbody>
@@ -272,5 +288,46 @@
                 </div>
             </div>
         </div>
+
+
+        {%if not original%}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        After contract ends tolls:
+                    </h3>
+                </div>
+                <div class="table-responsive text-nowrap">
+                    <div class="container ps-0 max-h-96 overflow-auto">
+                        <table class="table">
+                            <thead class="sticky top-0 bg-white">
+                                <tr>
+                                    <th>Invoice Number</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-border-bottom-0">
+                                {% for toll in devolution.extra_tolls_list %}
+                                    <tr>
+                                        <td>
+                                            {{toll.invoice_number}}
+                                        </td>
+                                        <td>
+                                            {{toll.created_date|date:'E d, Y'}}
+                                        </td>
+                                        <td>
+                                            <strong>
+                                                ${{toll.amount|floatformat:'-2'}}
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </body>
