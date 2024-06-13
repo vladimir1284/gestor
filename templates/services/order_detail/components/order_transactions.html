@@ -20,7 +20,9 @@
                 <tr :data-tag="transaction.name"
                     :class="{
                             'bg-red-100': transaction.decline,
-                            }">
+                            }"
+                    x-id="['quantity', 'price', 'tax']"
+                >
                     <!-- x-effect="if (transaction.id == selected.id) { -->
                     <!--           scrollTo($el) -->
                     <!--           }"> -->
@@ -50,10 +52,12 @@
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
+                                    :id="$id('quantity')"
                                     type="number"
                                     min="1"
                                     class="form-control !p-1 text-center"
                                     x-model="transaction.quantity"
+                                    @keydown.stop.alt.tab="focusElementById($id('price'))"
                                     @keyup.enter="save(transaction)"
                                     @blur="save(transaction)">
                                 <button
@@ -78,10 +82,12 @@
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
+                                    :id="$id('price')"
                                     type="number"
                                     min="0"
                                     class="form-control !p-1 text-center"
                                     x-model="transaction.price"
+                                    @keydown.stop.alt.tab="focusElementById($id('tax'))"
                                     @keyup.enter="save(transaction)"
                                     @blur="save(transaction)"
                                     x-init="$el.focus()">
@@ -103,13 +109,14 @@
                             <span class="input-group-text">
                                 <div class="form-check">
                                     <input
+                                        :id="$id('tax')"
                                         class="form-check-input checkboxinput"
                                         type="checkbox"
-                                        :id="`taxActInput${transaction.id}`"
+                                        @keydown.stop.alt.tab="focusElementById($id('quantity'))"
                                         @change="save(transaction)"
                                         x-model="transaction.active_tax">
                                 </div>
-                                <label class="form-check-label" :for="`taxActInput${transaction.id}`">
+                                <label class="form-check-label" :for="$id('tax')">
                                     $<span x-text="getTax(transaction).toFixed(2)"></span>
                                 </label>
                             </span>
@@ -161,7 +168,9 @@
                 <tr :data-tag="transaction.name"
                     :class="{
                             'bg-red-100': transaction.decline,
-                            }">
+                            }"
+                    x-id="['quantity', 'price', 'tax']"
+                >
                     <!-- x-effect="if (transaction.id == selected.id) { -->
                     <!--           scrollTo($el) -->
                     <!--           }"> -->
@@ -191,10 +200,12 @@
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
+                                    :id="$id('quantity')"
                                     type="number"
                                     min="1"
                                     class="form-control !p-1 text-center text-danger font-bold"
                                     x-model="transaction.quantity"
+                                    @keydown.stop.alt.tab="focusElementById($id('price'))"
                                     @keyup.enter="save(transaction)"
                                     @blur="save(transaction)">
                                 <button
@@ -219,10 +230,12 @@
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
+                                    :id="$id('price')"
                                     type="number"
                                     min="0"
                                     class="form-control !p-1 text-center"
                                     x-model="transaction.price"
+                                    @keydown.stop.alt.tab="focusElementById($id('tax'))"
                                     @keyup.enter="save(transaction)"
                                     @blur="save(transaction)"
                                     x-init="$el.focus()">
@@ -244,13 +257,14 @@
                             <span class="input-group-text">
                                 <div class="form-check">
                                     <input
+                                        :id="$id('tax')"
                                         class="form-check-input checkboxinput"
                                         type="checkbox"
-                                        :id="`taxActInput${transaction.id}`"
                                         @change="save(transaction)"
+                                        @keydown.stop.alt.tab="focusElementById($id('quantity'))"
                                         x-model="transaction.active_tax">
                                 </div>
-                                <label class="form-check-label" :for="`taxActInput${transaction.id}`">
+                                <label class="form-check-label" :for="$id('tax')">
                                     $<span x-text="getTax(transaction).toFixed(2)"></span>
                                 </label>
                             </span>

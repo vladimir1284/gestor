@@ -11,7 +11,6 @@ from django.db.models import Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.forms import ValidationError
-from django.template.defaultfilters import default
 from django.urls import reverse
 from django.utils import timezone
 from num2words import num2words
@@ -418,6 +417,8 @@ class SecurityDepositDevolution(models.Model):
     saved_tolls = models.FloatField(default=0)
     trailer_discount = models.FloatField(default=0)
 
+    # Dates and days properties
+
     @property
     def returned_date_days(self):
         if self.returned_date is None:
@@ -439,6 +440,132 @@ class SecurityDepositDevolution(models.Model):
         delta = datetime.now().date() - self.contract_end_date
         return delta.days
 
+    # Invoice number
+
+    @property
+    def invoice_number(self):
+        contract_id = self.contract.id if self.contract is not None else "000"
+        client_id = (
+            self.contract.lessee.id
+            if self.contract is not None and self.contract.lessee is not None
+            else "000"
+        )
+
+        return f"SDD{self.id}-{contract_id}{client_id}"
+
+    # Getting tolls
+
+    @property
+    def tolls(self) -> float:
+        unpay_tolls = 0
+        tolls = self.contract.tolldue_set.filter(stage="unpaid")
+
+        for toll in tolls:
+            unpay_tolls += toll.amount
+
+        return unpay_tolls
+
+    @property
+    def original_tolls(self) -> float:
+        unpay_tolls = 0
+        tolls = self.contract.tolldue_set.filter(
+            stage="unpaid",
+        ).exclude(
+            after_end=True,
+        )
+
+        for toll in tolls:
+            unpay_tolls += toll.amount
+
+        return unpay_tolls
+
+    @property
+    def extra_tolls_list(self) -> list:
+        tolls = self.contract.tolldue_set.filter(
+            stage="unpaid",
+            after_end=True,
+        )
+        return tolls
+
+    # Calculate returned amount
+
+    def calculate_returned_amount_with_tolls(self, tolls: float) -> float:
+        """
+        Calculate the returned amount
+        if is less than zero is a debt so we return it
+        if not the is for return but it will be returned
+        just if not break the contract terms
+        """
+        amount = (
+            self.total_deposited_amount
+            + self.prepayments
+            - self.debts
+            - tolls
+            - self.trailer_discount
+        )
+        if amount < 0:
+            return amount
+
+        disc = self.discount.last()
+        if disc is not None and not disc.should_return:
+            return 0
+
+        return amount
+
+    @property
+    def calculated_returned_amount(self):
+        return self.calculate_returned_amount_with_tolls(self.tolls)
+
+    @property
+    def calculated_original_returned_amount(self):
+        return self.calculate_returned_amount_with_tolls(self.original_tolls)
+
+    # Returns and debts
+
+    @property
+    def returned_amount(self):
+        return max(0, self.calculated_returned_amount)
+
+    @property
+    def original_returned_amount(self):
+        return max(0, self.calculated_original_returned_amount)
+
+    @property
+    def debt_amount(self):
+        return max(0, -self.calculated_returned_amount)
+
+    @property
+    def original_debt_amount(self):
+        return max(0, -self.calculated_original_returned_amount)
+
+    # Incomes
+
+    @property
+    def income_debt(self):
+        """
+        Calculate the part of the client debt that belongs
+        to towit compensation
+        Is the client debt - the tolls (tolls does not belongs to towit)
+        """
+        amount = self.calculated_returned_amount
+        if amount >= 0:
+            return 0
+
+        return self.tolls - amount
+
+    @property
+    def original_income_debt(self):
+        """
+        Calculate the part of the client debt that belongs
+        to towit compensation
+        Is the client debt - the tolls (tolls does not belongs to towit)
+        """
+        amount = self.calculated_original_returned_amount
+        if amount >= 0:
+            return 0
+
+        return self.original_tolls - amount
+
     @property
     def should_income(self):
         """
@@ -457,101 +584,13 @@ class SecurityDepositDevolution(models.Model):
         return self.should_income - self.income_debt
 
     @property
-    def income_debt(self):
+    def original_income(self):
         """
-        Calculate the part of the client debt that belongs
-        to towit compensation
-        Is the client debt - the tolls (tolls does not belongs to towit)
+        Calculate the part of the income towit already has
+        Is what should income: unpayments + trailer damages
+        minus what client debt
         """
-        amount = self.calculated_returned_amount
-        if amount >= 0:
-            return 0
-
-        return self.tolls - amount
-
-    @property
-    def calculated_returned_amount(self):
-        """
-        Calculate the returned amount
-        if is less than zero is a debt so we return it
-        if not the is for return but it will be returned
-        just if not break the contract terms
-        """
-        # amount = self.amount - self.tolls
-        # amount = (
-        #     self.amount - self.extra_tolls
-        #     if self.saved_tolls == 0 and self.debts == 0 and self.trailer_discount == 0
-        #     else (
-        #         self.total_deposited_amount
-        #         + self.prepayments
-        #         - self.debts
-        #         - self.tolls
-        #         - self.trailer_discount
-        #     )
-        # )
-        amount = (
-            self.total_deposited_amount
-            + self.prepayments
-            - self.debts
-            - self.tolls
-            - self.trailer_discount
-        )
-        if amount < 0:
-            return amount
-
-        disc = self.discount.last()
-        if disc is not None and not disc.should_return:
-            return 0
-
-        return amount
-
-    @property
-    def returned_amount(self):
-        amount = self.calculated_returned_amount
-        if amount < 0:
-            return 0
-        return amount
-
-    @property
-    def debt_amount(self):
-        amount = self.calculated_returned_amount
-        if amount > 0:
-            return 0
-        return -amount
-
-    @property
-    def invoice_number(self):
-        contract_id = self.contract.id if self.contract is not None else "000"
-        client_id = (
-            self.contract.lessee.id
-            if self.contract is not None and self.contract.lessee is not None
-            else "000"
-        )
-
-        return f"SDD{self.id}-{contract_id}{client_id}"
-
-    @property
-    def tolls(self) -> float:
-        unpay_tolls = 0
-        tolls = self.contract.tolldue_set.filter(stage="unpaid")
-
-        for toll in tolls:
-            unpay_tolls += toll.amount
-
-        return unpay_tolls
-
-    @property
-    def extra_tolls(self) -> float:
-        unpay_tolls = 0
-        tolls = self.contract.tolldue_set.filter(
-            stage="unpaid",
-            created_date__gte=self.contract.ended_date,
-        )
-
-        for toll in tolls:
-            unpay_tolls += toll.amount
-
-        return unpay_tolls
+        return self.should_income - self.original_income_debt
 
 
 class LeaseDeposit(models.Model):
