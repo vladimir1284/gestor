@@ -41,6 +41,8 @@ var Alpine;
         /** @type {boolean} */
         loading: false,
 
+        /** @type {Array<number>} */
+        transactionsServices: [],
         /** @type {Array<ServiceTransaction>} */
         transactions: [],
         transactions_args: {
@@ -70,6 +72,11 @@ var Alpine;
             this.transactions_args.tax = 0;
 
             for (let transaction of transactions) {
+              if (
+                this.transactionsServices.indexOf(transaction.service.id) == -1
+              ) {
+                this.transactionsServices.push(transaction.service.id);
+              }
               const amount = this.getAmount(transaction);
               const tax = this.getTax(transaction);
               const total = amount + tax;
@@ -83,6 +90,7 @@ var Alpine;
           this.loadServices();
 
           globalThis.bindShortcut(this.shortcut, () => {
+            this.closeAll();
             this.$refs.searchServices.focus();
           });
           globalThis.bindShortcut("escape", () => {
@@ -93,9 +101,30 @@ var Alpine;
             this.editNothing();
           });
 
+          const closeThis = () => {
+            this.closeNewServiceMode();
+            this.editNothing();
+          };
+          if (globalThis["closeAll"]) {
+            globalThis["closeAll"].push(closeThis);
+          } else {
+            globalThis["closeAll"] = [closeThis];
+          }
+
           globalThis[`reload_${this.transactionType}`] = () => {
             this.loadTransactions();
           };
+        },
+
+        /**
+         * Close all others instances
+         * */
+        closeAll() {
+          if (!globalThis["closeAll"]) return;
+
+          for (let close of globalThis["closeAll"]) {
+            if (close) close();
+          }
         },
 
         // Tools
@@ -144,6 +173,11 @@ var Alpine;
           this.loadingServices = true;
           try {
             this.services = await serviceApiClient.getServices();
+            for (let service of this.services) {
+              service.transaction_quantity = 1;
+              service.transaction_price = service.suggested_price;
+              service.transaction_tax = service.sell_tax;
+            }
           } catch (e) {
             console.error(e);
             globalThis.showNotify({
@@ -153,6 +187,15 @@ var Alpine;
             });
           }
           this.loadingServices = false;
+        },
+
+        /**
+         * Render product, return true if should be rendered
+         * @param {Service} service
+         * @returns {boolean}
+         * */
+        renderService(service) {
+          return this.transactionsServices.indexOf(service.id) == -1;
         },
 
         // Get some data from specific transaction
@@ -224,8 +267,8 @@ var Alpine;
          * @param {Service} service
          * */
         async addNewTransaction(service) {
-          /** @type {ServiceTransactionCreation} */
-          this.closeNewServiceMode();
+          // this.closeNewServiceMode();
+          service.transaction_loading = true;
 
           let addedTransaction = this.findByServiceId(service.id);
 
@@ -234,10 +277,10 @@ var Alpine;
               /**@type {ServiceTransactionCreation}*/
               const trans = {
                 service_id: service.id,
-                tax: service.sell_tax,
+                tax: service.transaction_tax ?? service.sell_tax,
                 // tax: this.newServiceTax,
-                quantity: this.newServiceQty,
-                price: service.suggested_price,
+                quantity: service.transaction_quantity ?? 1,
+                price: service.transaction_price ?? service.suggested_price,
               };
               console.log(trans);
               await serviceTransactionApiClient.addServiceTransaction(
@@ -259,6 +302,7 @@ var Alpine;
           }
 
           this.select(addedTransaction);
+          service.transaction_loading = false;
         },
 
         // Editing

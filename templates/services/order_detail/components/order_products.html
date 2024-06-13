@@ -1,23 +1,23 @@
 {% load static %}
 <div class="h-full flex flex-col overflow-hidden box-border">
-    <div class="card-body py-0">
-        <div class="input-group mb-3">
-            <span class="input-group-text">Default quantity:</span>
-            <input type="number" min="1" class="form-control" x-model="newProductQty">
-            <span class="input-group-text">
-                <div class="form-check">
-                    <label class="form-check-label" for="taxInput">
-                        Use tax
-                    </label>
-                    <input class="form-check-input checkboxinput" type="checkbox" id="taxInput" x-model="newProductTax">
-                </div>
-            </span>
-        </div>
-    </div>
+    <!-- <div class="card-body py-0"> -->
+    <!--     <div class="input-group mb-3"> -->
+    <!--         <span class="input-group-text">Default quantity:</span> -->
+    <!--         <input type="number" min="1" class="form-control" x-model="newProductQty"> -->
+    <!--         <span class="input-group-text"> -->
+    <!--             <div class="form-check"> -->
+    <!--                 <label class="form-check-label" for="taxInput"> -->
+    <!--                     Use tax -->
+    <!--                 </label> -->
+    <!--                 <input class="form-check-input checkboxinput" type="checkbox" id="taxInput" x-model="newProductTax"> -->
+    <!--             </div> -->
+    <!--         </span> -->
+    <!--     </div> -->
+    <!-- </div> -->
 
     <div class="table-responsive text-nowrap flex-grow !overflow-auto">
         <table class="table table-sm">
-            <thead class="sticky top-0 bg-white">
+            <thead class="sticky top-0 bg-white z-10">
                 <tr>
                     <th>
                         <i class="bx bx-cart"></i>
@@ -27,33 +27,67 @@
                     <th>Unit</th>
                     <th>Price</th>
                     <th>Cost</th>
+                    <th>Tax</th>
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0" @click.outside="editNothing()">
                 <template x-for="product in products">
-                    <tr x-show="globalThis.match(product.name, newProductSearch)">
+                    <tr x-show="renderProduct(product) && globalThis.match(product.name, newProductSearch)">
                         <td>
                             <button class="btn btn-icon btn-link"
-                                    @click="addNewTransaction(product)">
+                                    @click="addNewTransaction(product)"
+                                    x-show="!product.transaction_loading">
                                 <i class='bx bx-plus'></i>
                             </button>
+                            <div class="spinner-border text-primary" role="status"
+                                 x-show="product.transaction_loading">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
                         </td>
                         <td>
                             <strong x-html="globalThis.highlightMatch(product.name, newProductSearch)"></strong>
                         </td>
                         <td :class="product.quantity <= product.quantity_min && 'text-danger'">
-                            <strong x-text="newProductQty" :class="newProductQty > product.quantity ? 'text-danger' : 'text-success'"></strong>
-                            /
-                            <span x-text="product.quantity"></span>
+                            <div class="input-group !w-40">
+                                <input type="number"
+                                       min="1"
+                                       class="form-control"
+                                       x-model="product.transaction_quantity"
+                                       :class="product.transaction_quantity > product.quantity ? 'text-danger' : 'text-primary'">
+                                <span class="input-group-text">
+                                    /
+                                    <span x-text="product.quantity"></span>
+                                </span>
+                            </div>
                         </td>
                         <td>
                             <span x-text="product.unit.name"></span>
                         </td>
                         <td>
-                            $<span x-text="product.sell_price.toFixed(2)"></span>
+                            <div class="input-group !w-40">
+                                <input type="number"
+                                       min="1"
+                                       class="form-control"
+                                       x-model="product.transaction_price"
+                                       :class="product.transaction_price < product.sell_price ? 'text-danger' : 'text-primary'">
+                                <span class="input-group-text">
+                                    $<span x-text="product.sell_price.toFixed(2)"></span>
+                                </span>
+                            </div>
                         </td>
                         <td>
                             $<span x-text="product.average_cost.toFixed(2)"></span>
+                        </td>
+                        <td>
+                            <div class="input-group !w-40">
+                                <span class="input-group-text">
+                                    <div class="form-check">
+                                        <input class="form-check-input checkboxinput" type="checkbox" :id="`taxInput${product.id}`" x-model="product.transaction_tax">
+                                    </div>
+                                    <label class="form-check-label" :for="`taxInput${product.id}`" x-text="product.sell_tax">
+                                    </label>
+                                </span>
+                            </div>
                         </td>
                     </tr>
                 </template>

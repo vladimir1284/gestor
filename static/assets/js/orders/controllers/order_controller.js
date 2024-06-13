@@ -44,16 +44,18 @@ var Alpine;
           products: [],
           /** @type {string} */
           newProductSearch: "",
-          /** @type {number} */
-          newProductQty: 1,
-          /** @type {boolean} */
-          newProductTax: true,
-          /** @type {boolean} */
+          // /** @type {number} */
+          // newProductQty: 1,
+          // /** @type {boolean} */
+          // newProductTax: true,
+          // /** @type {boolean} */
           searchProductInputFocus: false,
 
           /** @type {boolean} */
           loading: false,
 
+          /** @type {Array<number>} */
+          transactionsProducts: [],
           /** @type {Array<ProductTransaction>} */
           transactions: [],
           /** @type {Array<ProductTransaction>} */
@@ -96,7 +98,15 @@ var Alpine;
               this.unsatisfied_args.amount = 0;
               this.unsatisfied_args.tax = 0;
 
+              this.transactionsProducts = [];
+
               for (let transaction of transactions) {
+                if (
+                  this.transactionsProducts.indexOf(transaction.product.id) ==
+                  -1
+                )
+                  this.transactionsProducts.push(transaction.product.id);
+
                 const amount = this.getAmount(transaction);
                 const tax = this.getTax(transaction);
                 const total = amount + tax;
@@ -111,10 +121,12 @@ var Alpine;
                 }
               }
             });
+
             this.loadTransactions();
             this.loadProducts();
 
             globalThis.bindShortcut(shortcut, () => {
+              this.closeAll();
               this.$refs.searchProducts.focus();
             });
             globalThis.bindShortcut("escape", () => {
@@ -125,9 +137,30 @@ var Alpine;
               this.editNothing();
             });
 
+            const closeThis = () => {
+              this.closeNewProductMode();
+              this.editNothing();
+            };
+            if (globalThis["closeAll"]) {
+              globalThis["closeAll"].push(closeThis);
+            } else {
+              globalThis["closeAll"] = [closeThis];
+            }
+
             globalThis[`reload_${this.transactionType}`] = () => {
               this.loadTransactions;
             };
+          },
+
+          /**
+           * Close all others instances
+           * */
+          closeAll() {
+            if (!globalThis["closeAll"]) return;
+
+            for (let close of globalThis["closeAll"]) {
+              if (close) close();
+            }
           },
 
           // Tools
@@ -185,6 +218,14 @@ var Alpine;
             this.loadingProducts = true;
             try {
               this.products = await productApiClient.getProducts();
+              for (let product of this.products) {
+                product.transaction_quantity = 1;
+                product.transaction_price = product.sell_price;
+                // product.suggested_price > product.sell_price
+                //   ? product.suggested_price
+                //   : product.sell_price;
+                product.transaction_tax = true;
+              }
             } catch (e) {
               console.error(e);
               globalThis.showNotify({
@@ -215,6 +256,15 @@ var Alpine;
            * */
           productUrl(id) {
             return globalThis.DetailProductUrl.replace("/0", `/${id}`);
+          },
+
+          /**
+           * Render product, return true if should be rendered
+           * @param {Product} product
+           * @returns {boolean}
+           * */
+          renderProduct(product) {
+            return this.transactionsProducts.indexOf(product.id) == -1;
           },
 
           /**
@@ -293,19 +343,20 @@ var Alpine;
            * @param {Product} product
            * */
           async addNewTransaction(product) {
-            /** @type {ProductTransactionCreation} */
-            this.closeNewProductMode();
+            // this.closeNewProductMode();
+            product.transaction_loading = true;
 
             let addedTransaction = this.findByProductId(product.id);
 
             if (!addedTransaction) {
               try {
+                /** @type {ProductTransactionCreation} */
                 const trans = {
                   product_id: product.id,
                   tax: product.sell_tax,
-                  active_tax: this.newProductTax,
-                  quantity: this.newProductQty,
-                  price: product.sell_price,
+                  active_tax: product.transaction_tax ?? false,
+                  quantity: product.transaction_quantity ?? 1,
+                  price: product.transaction_price ?? product.sell_price,
                 };
                 console.log(trans);
                 await productTransactionApiClient.addProductTransaction(
@@ -327,6 +378,7 @@ var Alpine;
             }
 
             this.select(addedTransaction);
+            product.transaction_loading = false;
           },
 
           // Editing

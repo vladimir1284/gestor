@@ -46,11 +46,32 @@ var Alpine;
           this.loadKits();
 
           globalThis.bindShortcut(this.shortcut, () => {
+            this.closeAll();
             this.openNewKitMode();
           });
           globalThis.bindShortcut("escape", () => {
             this.closeNewKitMode();
           });
+
+          const closeThis = () => {
+            this.closeNewKitMode();
+          };
+          if (globalThis["closeAll"]) {
+            globalThis["closeAll"].push(closeThis);
+          } else {
+            globalThis["closeAll"] = [closeThis];
+          }
+        },
+
+        /**
+         * Close all others instances
+         * */
+        closeAll() {
+          if (!globalThis["closeAll"]) return;
+
+          for (let close of globalThis["closeAll"]) {
+            if (close) close();
+          }
         },
 
         // Dialog methods

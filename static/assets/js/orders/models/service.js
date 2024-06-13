@@ -11,4 +11,8 @@
  * @property {boolean} tire
  * @property {boolean} internal
  * @property {boolean} marketing
+ * @property {number} [transaction_quantity]
+ * @property {number} [transaction_price]
+ * @property {number} [transaction_tax]
+ * @property {boolean} [transaction_loading]
  * */
