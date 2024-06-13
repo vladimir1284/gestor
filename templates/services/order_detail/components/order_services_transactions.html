@@ -17,6 +17,7 @@
         <tbody class="table-border-bottom-0">
             <template x-for="transaction in transactions">
                 <tr
+                    x-id="['quantity', 'price', 'tax']"
                     :data-tag="transaction.name"
                     :class="{
                             'bg-red-100': transaction.decline,
@@ -46,11 +47,14 @@
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
+                                    :id="$id('quantity')"
                                     type="number"
                                     min="1"
                                     class="form-control !p-1 text-center"
                                     x-model="transaction.quantity"
+                                    x-ref=""
                                     @keyup.enter="save(transaction)"
+                                    @keydown.stop.alt.tab="focusElementById($id('price'))"
                                     @blur="save(transaction)">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
@@ -71,11 +75,13 @@
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
+                                    :id="$id('price')"
                                     type="number"
                                     min="0"
                                     class="form-control !p-1 text-center"
                                     x-model="transaction.price"
                                     @keyup.enter="save(transaction)"
+                                    @keydown.stop.alt.tab="focusElementById($id('tax'))"
                                     @blur="save(transaction)"
                                     x-init="$el.focus()">
                                 <button
@@ -100,11 +106,13 @@
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
+                                    :id="$id('tax')"
                                     type="number"
                                     min="0"
                                     class="form-control !p-1 text-center"
                                     x-model="transaction.tax"
                                     @keyup.enter="save(transaction)"
+                                    @keydown.stop.alt.tab="focusElementById($id('quantity'))"
                                     @blur="save(transaction)"
                                     x-init="$el.focus()">
                                 <button

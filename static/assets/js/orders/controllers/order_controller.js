@@ -530,6 +530,26 @@ var Alpine;
               el.scrollIntoView({ behavior: "smooth" });
             }, 300);
           },
+
+          /**
+           * focus element
+           * @param {HTMLElement} el
+           * @param {boolean} [scroll]
+           * */
+          focusElement(el, scroll) {
+            el.focus();
+            if (scroll) this.scrollTo(el);
+          },
+
+          /**
+           * focus element by id
+           * @param {string} id
+           * @param {boolean} [scroll]
+           * */
+          focusElementById(id, scroll) {
+            const el = document.getElementById(id);
+            if (el) this.focusElement(el, scroll);
+          },
         };
       });
     });
