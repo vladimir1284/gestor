@@ -8,10 +8,6 @@ var Alpine;
   /** @typedef {import('../models/product_transaction.js').ProductTransactionCreation} */
   /** @typedef {import('../models/product.js').Product} */
 
-  const EditQuantity = "QTY";
-  const EditPrice = "PRICE";
-  const EditTax = "TAX";
-
   /**
    * Init a controller
    * @param {string} name - Identifier to use this controller from html
@@ -44,16 +40,18 @@ var Alpine;
           products: [],
           /** @type {string} */
           newProductSearch: "",
-          /** @type {number} */
-          newProductQty: 1,
-          /** @type {boolean} */
-          newProductTax: true,
+          // /** @type {number} */
+          // newProductQty: 1,
+          // /** @type {boolean} */
+          // newProductTax: true,
           /** @type {boolean} */
           searchProductInputFocus: false,
 
           /** @type {boolean} */
           loading: false,
 
+          /** @type {Array<number>} */
+          transactionsProducts: [],
           /** @type {Array<ProductTransaction>} */
           transactions: [],
           /** @type {Array<ProductTransaction>} */
@@ -70,13 +68,6 @@ var Alpine;
             total: 0,
             amount: 0,
             tax: 0,
-          },
-
-          selected: {
-            id: -1,
-            /** @type {ProductTransaction | undefined | null} */
-            ref: null,
-            editing: "",
           },
 
           toRemove: -1,
@@ -96,7 +87,15 @@ var Alpine;
               this.unsatisfied_args.amount = 0;
               this.unsatisfied_args.tax = 0;
 
+              this.transactionsProducts = [];
+
               for (let transaction of transactions) {
+                if (
+                  this.transactionsProducts.indexOf(transaction.product.id) ==
+                  -1
+                )
+                  this.transactionsProducts.push(transaction.product.id);
+
                 const amount = this.getAmount(transaction);
                 const tax = this.getTax(transaction);
                 const total = amount + tax;
@@ -111,23 +110,41 @@ var Alpine;
                 }
               }
             });
+
             this.loadTransactions();
             this.loadProducts();
 
             globalThis.bindShortcut(shortcut, () => {
+              this.closeAll();
               this.$refs.searchProducts.focus();
             });
             globalThis.bindShortcut("escape", () => {
               this.closeNewProductMode();
-              this.editNothing();
             });
-            globalThis.bindShortcut("enter", () => {
-              this.editNothing();
-            });
+
+            const closeThis = () => {
+              this.closeNewProductMode();
+            };
+            if (globalThis["closeAll"]) {
+              globalThis["closeAll"].push(closeThis);
+            } else {
+              globalThis["closeAll"] = [closeThis];
+            }
 
             globalThis[`reload_${this.transactionType}`] = () => {
               this.loadTransactions;
             };
+          },
+
+          /**
+           * Close all others instances
+           * */
+          closeAll() {
+            if (!globalThis["closeAll"]) return;
+
+            for (let close of globalThis["closeAll"]) {
+              if (close) close();
+            }
           },
 
           // Tools
@@ -185,6 +202,14 @@ var Alpine;
             this.loadingProducts = true;
             try {
               this.products = await productApiClient.getProducts();
+              for (let product of this.products) {
+                product.transaction_quantity = 1;
+                product.transaction_price = product.sell_price;
+                // product.suggested_price > product.sell_price
+                //   ? product.suggested_price
+                //   : product.sell_price;
+                product.transaction_tax = true;
+              }
             } catch (e) {
               console.error(e);
               globalThis.showNotify({
@@ -215,6 +240,15 @@ var Alpine;
            * */
           productUrl(id) {
             return globalThis.DetailProductUrl.replace("/0", `/${id}`);
+          },
+
+          /**
+           * Render product, return true if should be rendered
+           * @param {Product} product
+           * @returns {boolean}
+           * */
+          renderProduct(product) {
+            return this.transactionsProducts.indexOf(product.id) == -1;
           },
 
           /**
@@ -293,19 +327,20 @@ var Alpine;
            * @param {Product} product
            * */
           async addNewTransaction(product) {
-            /** @type {ProductTransactionCreation} */
-            this.closeNewProductMode();
+            // this.closeNewProductMode();
+            product.transaction_loading = true;
 
             let addedTransaction = this.findByProductId(product.id);
 
             if (!addedTransaction) {
               try {
+                /** @type {ProductTransactionCreation} */
                 const trans = {
                   product_id: product.id,
                   tax: product.sell_tax,
-                  active_tax: this.newProductTax,
-                  quantity: this.newProductQty,
-                  price: product.sell_price,
+                  active_tax: product.transaction_tax ?? false,
+                  quantity: product.transaction_quantity ?? 1,
+                  price: product.transaction_price ?? product.sell_price,
                 };
                 console.log(trans);
                 await productTransactionApiClient.addProductTransaction(
@@ -326,24 +361,25 @@ var Alpine;
               addedTransaction = this.findByProductId(product.id);
             }
 
-            this.select(addedTransaction);
+            product.transaction_loading = false;
           },
 
           // Editing
           /**
-           * Edit save
-           * @param {ProductTransaction} ref
+           * save transaction
+           * @param {ProductTransaction} trans
            * */
-          async editSave(ref) {
-            if (!ref.id) return;
-            ref.price = Math.max(ref.price, this.getMinPrice(ref));
+          async save(trans) {
+            if (!trans.id) return;
+            trans.loading = true;
+            trans.price = Math.max(trans.price, this.getMinPrice(trans));
             try {
               await productTransactionApiClient.updateProductTransaction(
                 orderID,
-                ref.id,
+                trans.id,
                 {
-                  ...ref,
-                  product_id: ref.product.id,
+                  ...trans,
+                  product_id: trans.product.id,
                 },
               );
             } catch (e) {
@@ -358,173 +394,62 @@ var Alpine;
                 console.error(await e.text());
               }
             }
+            trans.loading = false;
             await this.loadTransactions(false);
           },
 
           /**
-           * If an element was selected saved
+           * Execute a function on a transaction and save the transaction
+           * @param {ProductTransaction} trans
+           * @param {Function} func
            * */
-          async checkEditingSave() {
-            if (this.selected.ref) this.editSave(this.selected.ref);
-          },
-
-          /**
-           * Edit nothing
-           * */
-          editNothing() {
-            this.checkEditingSave();
-
-            this.selected.id = -1;
-            this.selected.ref = null;
-            this.selected.editing = "";
-          },
-
-          /**
-           * Select a transaction if exist
-           * @param {ProductTransaction | undefined} transaction
-           * @returns {ProductTransaction | undefined}
-           * */
-          select(transaction) {
-            this.checkEditingSave();
-
-            if (
-              transaction &&
-              transaction.id &&
-              transaction.id != this.selected.id
-            ) {
-              this.selected.id = transaction.id;
-              this.selected.ref = transaction;
-              this.selected.editing = "";
+          async execAndSave(trans, func) {
+            trans.loading = true;
+            try {
+              if (func) {
+                func(trans);
+              }
+            } catch (e) {
+              console.log(e);
             }
-            return transaction;
-          },
-
-          /**
-           * Select a transaction if exist by id
-           * @param {number} id
-           * @returns {ProductTransaction | undefined}
-           * */
-          selectById(id) {
-            const trans = this.findById(id);
-            return this.select(trans);
-          },
-
-          /**
-           * Get the editing field value
-           * @returns {number | undefined}
-           * */
-          getEditingField() {
-            if (!this.selected.ref) return undefined;
-
-            switch (this.selected.editing) {
-              case EditQuantity:
-                return this.selected.ref.quantity;
-              case EditPrice:
-                return this.selected.ref.price;
-            }
-          },
-
-          /**
-           * Set the editing field value
-           * @param {number} val
-           * */
-          setEditingField(val) {
-            if (!this.selected.ref) return undefined;
-
-            switch (this.selected.editing) {
-              case EditQuantity:
-                this.selected.ref.quantity = val;
-                break;
-              case EditPrice:
-                this.selected.ref.price = val;
-                break;
-            }
+            await this.save(trans);
+            trans.loading = false;
           },
 
           /**
            * Dec editing field
+           * @param {ProductTransaction} trans
+           * @param {string} field
            * @param {number} [step]
            * @param {number} [min]
            * */
-          decEditingField(step, min) {
-            let fieldVal = this.getEditingField();
+          dec(trans, field, step, min) {
+            let fieldVal = trans[field];
             if (fieldVal === undefined) return;
 
-            fieldVal = parseInt(fieldVal) - (step ?? 1);
+            fieldVal = parseFloat(fieldVal) - (step ?? 1);
             if (min !== undefined) fieldVal = Math.max(fieldVal, min);
+            fieldVal = parseFloat(fieldVal.toFixed(2));
 
-            this.setEditingField(fieldVal);
+            trans[field] = fieldVal;
           },
 
           /**
            * Dec editing field
+           * @param {ProductTransaction} trans
+           * @param {string} field
            * @param {number} [step]
            * @param {number} [max]
            * */
-          incEditingField(step, max) {
-            let fieldVal = this.getEditingField();
+          inc(trans, field, step, max) {
+            let fieldVal = trans[field];
             if (fieldVal === undefined) return;
 
-            fieldVal = parseInt(fieldVal) + (step ?? 1);
+            fieldVal = parseFloat(fieldVal) + (step ?? 1);
             if (max !== undefined) fieldVal = Math.min(fieldVal, max);
+            fieldVal = parseFloat(fieldVal.toFixed(2));
 
-            this.setEditingField(fieldVal);
-          },
-
-          /**
-           * Edit transaction quantity
-           * @param {number} id
-           * */
-          editQuantity(id) {
-            this.selectById(id);
-            this.selected.editing = EditQuantity;
-          },
-
-          /**
-           * Edit transaction price
-           * @param {number} id
-           * */
-          editPrice(id) {
-            this.selectById(id);
-            this.selected.editing = EditPrice;
-          },
-
-          /**
-           * Edit transaction tax
-           * @param {number} id
-           * */
-          editTax(id) {
-            this.selectById(id);
-            this.selected.editing = EditTax;
-          },
-
-          /**
-           * Check if editing transaction quantity
-           * @param {number} id
-           * @returns {boolean}
-           * */
-          editingQuantity(id) {
-            return (
-              this.selected.id == id && this.selected.editing == EditQuantity
-            );
-          },
-
-          /**
-           * Check if editing transaction price
-           * @param {number} id
-           * @returns {boolean}
-           * */
-          editingPrice(id) {
-            return this.selected.id == id && this.selected.editing == EditPrice;
-          },
-
-          /**
-           * Check if editing transaction tax
-           * @param {number} id
-           * @returns {boolean}
-           * */
-          editingTax(id) {
-            return this.selected.id == id && this.selected.editing == EditTax;
+            trans[field] = fieldVal;
           },
 
           // Remove

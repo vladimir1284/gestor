@@ -16,6 +16,7 @@
  * @property {number} price
  * @property {number} quantity
  * @property {boolean} active_tax
+ * @property {boolean} [loading]
  * @global
  * */
 

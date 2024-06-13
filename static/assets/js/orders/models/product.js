@@ -20,4 +20,8 @@
  * @property {number} quantity_min
  * @property {number} sell_price
  * @property {number} average_cost
+ * @property {number} [transaction_quantity]
+ * @property {number} [transaction_price]
+ * @property {boolean} [transaction_tax]
+ * @property {boolean} [transaction_loading]
  * */
