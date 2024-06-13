@@ -24,7 +24,7 @@
                     <th>Tax</th>
                 </tr>
             </thead>
-            <tbody class="table-border-bottom-0" @click.outside="editNothing()">
+            <tbody class="table-border-bottom-0">
                 <template x-for="service in services">
                     <tr x-show="renderService(service) && globalThis.match(service.name, newServiceSearch)">
                         <td>

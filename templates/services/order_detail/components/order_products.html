@@ -30,7 +30,7 @@
                     <th>Tax</th>
                 </tr>
             </thead>
-            <tbody class="table-border-bottom-0" @click.outside="editNothing()">
+            <tbody class="table-border-bottom-0">
                 <template x-for="product in products">
                     <tr x-show="renderProduct(product) && globalThis.match(product.name, newProductSearch)">
                         <td>

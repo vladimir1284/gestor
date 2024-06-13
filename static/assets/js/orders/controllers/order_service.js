@@ -8,10 +8,6 @@ var Alpine;
   /** @typedef {import('../models/service_transaction.js').ServiceTransactionCreation} */
   /** @typedef {import('../models/service.js').Service} */
 
-  const EditQuantity = "QTY";
-  const EditPrice = "PRICE";
-  const EditTax = "TAX";
-
   document.addEventListener("alpine:init", () => {
     Alpine.data("OrderService", () => {
       const serviceApiClient = new globalThis.ServiceApiClient(
@@ -51,13 +47,6 @@ var Alpine;
           tax: 0,
         },
 
-        selected: {
-          id: -1,
-          /** @type {ServiceTransaction | undefined | null} */
-          ref: null,
-          editing: "",
-        },
-
         toRemove: -1,
         removing: false,
 
@@ -95,15 +84,10 @@ var Alpine;
           });
           globalThis.bindShortcut("escape", () => {
             this.closeNewServiceMode();
-            this.editNothing();
-          });
-          globalThis.bindShortcut("enter", () => {
-            this.editNothing();
           });
 
           const closeThis = () => {
             this.closeNewServiceMode();
-            this.editNothing();
           };
           if (globalThis["closeAll"]) {
             globalThis["closeAll"].push(closeThis);
@@ -301,24 +285,24 @@ var Alpine;
             addedTransaction = this.findByServiceId(service.id);
           }
 
-          this.select(addedTransaction);
           service.transaction_loading = false;
         },
 
         // Editing
         /**
-         * Edit save
-         * @param {ServiceTransaction} ref
+         * save transaction
+         * @param {ServiceTransaction} trans
          * */
-        async editSave(ref) {
-          if (!ref.id) return;
+        async save(trans) {
+          if (!trans.id) return;
+          trans.loading = true;
           try {
             await serviceTransactionApiClient.updateServiceTransaction(
               globalThis.OrderID,
-              ref.id,
+              trans.id,
               {
-                ...ref,
-                service_id: ref.service.id,
+                ...trans,
+                service_id: trans.service.id,
               },
             );
           } catch (e) {
@@ -333,178 +317,62 @@ var Alpine;
               console.error(await e.text());
             }
           }
+          trans.loading = false;
           await this.loadTransactions(false);
         },
 
         /**
-         * If an element was selected saved
+         * Execute a function on a transaction and save the transaction
+         * @param {ServiceTransaction} trans
+         * @param {Function} func
          * */
-        async checkEditingSave() {
-          if (this.selected.ref) this.editSave(this.selected.ref);
-        },
-
-        /**
-         * Edit nothing
-         * */
-        editNothing() {
-          this.checkEditingSave();
-
-          this.selected.id = -1;
-          this.selected.ref = null;
-          this.selected.editing = "";
-        },
-
-        /**
-         * Select a transaction if exist
-         * @param {ServiceTransaction | undefined} transaction
-         * @returns {ServiceTransaction | undefined}
-         * */
-        select(transaction) {
-          this.checkEditingSave();
-
-          if (
-            transaction &&
-            transaction.id &&
-            transaction.id != this.selected.id
-          ) {
-            this.selected.id = transaction.id;
-            this.selected.ref = transaction;
-            this.selected.editing = "";
+        async execAndSave(trans, func) {
+          trans.loading = true;
+          try {
+            if (func) {
+              func(trans);
+            }
+          } catch (e) {
+            console.log(e);
           }
-          return transaction;
-        },
-
-        /**
-         * Get the editing field value
-         * @returns {number | undefined}
-         * */
-        getEditingField() {
-          if (!this.selected.ref) return undefined;
-
-          switch (this.selected.editing) {
-            case EditQuantity:
-              return this.selected.ref.quantity;
-            case EditPrice:
-              return this.selected.ref.price;
-            case EditTax:
-              return this.selected.ref.tax;
-          }
-        },
-
-        /**
-         * Set the editing field value
-         * @param {number} val
-         * */
-        setEditingField(val) {
-          if (!this.selected.ref) return undefined;
-
-          switch (this.selected.editing) {
-            case EditQuantity:
-              this.selected.ref.quantity = val;
-              break;
-            case EditPrice:
-              this.selected.ref.price = val;
-              break;
-            case EditTax:
-              this.selected.ref.tax = val;
-              break;
-          }
+          await this.save(trans);
+          trans.loading = false;
         },
 
         /**
          * Dec editing field
+         * @param {ServiceTransaction} trans
+         * @param {string} field
          * @param {number} [step]
          * @param {number} [min]
          * */
-        decEditingField(step, min) {
-          let fieldVal = this.getEditingField();
+        dec(trans, field, step, min) {
+          let fieldVal = trans[field];
           if (fieldVal === undefined) return;
 
-          fieldVal = parseInt(fieldVal) - (step ?? 1);
+          fieldVal = parseFloat(fieldVal) - (step ?? 1);
           if (min !== undefined) fieldVal = Math.max(fieldVal, min);
+          fieldVal = parseFloat(fieldVal.toFixed(2));
 
-          this.setEditingField(fieldVal);
+          trans[field] = fieldVal;
         },
 
         /**
          * Dec editing field
+         * @param {ServiceTransaction} trans
+         * @param {string} field
          * @param {number} [step]
          * @param {number} [max]
          * */
-        incEditingField(step, max) {
-          let fieldVal = this.getEditingField();
+        inc(trans, field, step, max) {
+          let fieldVal = trans[field];
           if (fieldVal === undefined) return;
 
-          fieldVal = parseInt(fieldVal) + (step ?? 1);
+          fieldVal = parseFloat(fieldVal) + (step ?? 1);
           if (max !== undefined) fieldVal = Math.min(fieldVal, max);
+          fieldVal = parseFloat(fieldVal.toFixed(2));
 
-          this.setEditingField(fieldVal);
-        },
-
-        /**
-         * Select a transaction if exist by id
-         * @param {number} id
-         * @returns {ServiceTransaction | undefined}
-         * */
-        selectById(id) {
-          const trans = this.findById(id);
-          return this.select(trans);
-        },
-
-        /**
-         * Edit transaction quantity
-         * @param {number} id
-         * */
-        editQuantity(id) {
-          this.selectById(id);
-          this.selected.editing = EditQuantity;
-        },
-
-        /**
-         * Edit transaction price
-         * @param {number} id
-         * */
-        editPrice(id) {
-          this.selectById(id);
-          this.selected.editing = EditPrice;
-        },
-
-        /**
-         * Edit transaction tax
-         * @param {number} id
-         * */
-        editTax(id) {
-          this.selectById(id);
-          this.selected.editing = EditTax;
-        },
-
-        /**
-         * Check if editing transaction quantity
-         * @param {number} id
-         * @returns {boolean}
-         * */
-        editingQuantity(id) {
-          return (
-            this.selected.id == id && this.selected.editing == EditQuantity
-          );
-        },
-
-        /**
-         * Check if editing transaction price
-         * @param {number} id
-         * @returns {boolean}
-         * */
-        editingPrice(id) {
-          return this.selected.id == id && this.selected.editing == EditPrice;
-        },
-
-        /**
-         * Check if editing transaction tax
-         * @param {number} id
-         * @returns {boolean}
-         * */
-        editingTax(id) {
-          return this.selected.id == id && this.selected.editing == EditTax;
+          trans[field] = fieldVal;
         },
 
         // Remove
