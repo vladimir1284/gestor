@@ -35,8 +35,16 @@
         </div>
         <div class="flex gap-4 flex-wrap justify-between">
             <div>
+                <a class="btn btn-icon btn-outline-warning"
+                   href="{% url 'security_deposit_devolution_invoice' devolution.id True %}"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="bottom"
+                   data-bs-custom-class="custom-tooltip"
+                   data-bs-title="Security deposit devolution invoice (Original)">
+                    <i class='bx bx-printer' ></i>
+                </a>
                 <a class="btn btn-icon btn-outline-primary"
-                   href="{% url 'security_deposit_devolution_invoice' devolution.id %}"
+                   href="{% url 'security_deposit_devolution_invoice' devolution.id False %}"
                    data-bs-toggle="tooltip"
                    data-bs-placement="bottom"
                    data-bs-custom-class="custom-tooltip"
