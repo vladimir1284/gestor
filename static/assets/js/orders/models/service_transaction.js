@@ -9,6 +9,7 @@
  * @property {number} tax
  * @property {number} price
  * @property {number} quantity
+ * @property {boolean} [loading]
  * */
 
 /**
