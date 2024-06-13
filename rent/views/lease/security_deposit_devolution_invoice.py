@@ -11,7 +11,11 @@ from rent.models.lease import SecurityDepositDevolution
 
 
 @login_required
-def security_deposit_devolution_invoices(request: HttpRequest, id: int):
+def security_deposit_devolution_invoices(
+    request: HttpRequest,
+    id: int,
+    original: bool = False,
+):
     dev: SecurityDepositDevolution = get_object_or_404(SecurityDepositDevolution, id=id)
     if dev.contract is not None:
         dis: DepositDiscount = DepositDiscount.objects.filter(
@@ -24,6 +28,7 @@ def security_deposit_devolution_invoices(request: HttpRequest, id: int):
         "devolution": dev,
         "discount": dis,
         "pdf": True,
+        "original": original,
     }
     html_string = render_to_string(
         "rent/deposits/devolution_invoice.html",

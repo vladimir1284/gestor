@@ -38,7 +38,9 @@ def create_toll(request, plate=None, contract=None):
             request.POST, request.FILES, plate=_plate, contract=_contract
         )
         if form.is_valid():
-            form.save()
+            toll: TollDue = form.save(commit=False)
+            toll.after_end = _contract.stage == "ended"
+            toll.save()
             if next_id:
                 return redirect(reverse("list-toll") + f"{next_id}")
             else:
@@ -59,7 +61,9 @@ def create_contract_toll(request, contract: int):
             request.POST, request.FILES, plate=_plate, contract=_contract
         )
         if form.is_valid():
-            form.save()
+            toll = form.save(commit=False)
+            toll.after_end = _contract.stage == "ended"
+            toll.save()
             return redirect("ended-contract-details", contract)
     else:
         form = TollCreateForm(plate=_plate, contract=_contract)

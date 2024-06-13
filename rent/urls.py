@@ -275,6 +275,11 @@ urlpatterns = [
         security_deposit_devolution_invoices,
         name="security_deposit_devolution_invoice",
     ),
+    path(
+        "security_deposit_dev_invoice/<id>/<original>",
+        security_deposit_devolution_invoices,
+        name="security_deposit_devolution_invoice",
+    ),
     path("adjust_deposit/<id>/", adjust_end_deposit, name="adjust-deposit"),
     path(
         "adjust_deposit_on_hold_from_contract/<id>/",
