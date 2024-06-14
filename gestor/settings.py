@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_cleanup.apps.CleanupConfig",
     "django_extensions",
+    "django_minio_backend",
     # local
     "utils.apps.UtilsConfig",
     "inventory.apps.inventoryConfig",
@@ -127,6 +128,20 @@ DATABASES = {
     },
 }
 
+# MINIO
+# Conection
+MINIO_ENDPOINT = "172.17.0.5:9000"
+MINIO_ACCESS_KEY = "sA2BcDKp04O8omIuEo4y"
+MINIO_SECRET_KEY = "reWfeMatUw4hblrq4iYqLEDJIN12HmA3Do5UyEVv"
+MINIO_USE_HTTPS = False
+# Files backends
+MINIO_BUCKET_CHECK_ON_SAVE = True
+DEFAULT_FILE_STORAGE = "django_minio_backend.models.MinioBackend"
+# Bucket
+MINIO_MEDIA_FILES_BUCKET = "gestor"
+MINIO_PUBLIC_BUCKETS = [
+    "gestor",
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
