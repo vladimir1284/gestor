@@ -32,7 +32,8 @@
             </thead>
             <tbody class="table-border-bottom-0">
                 <template x-for="product in products">
-                    <tr x-show="renderProduct(product) && globalThis.match(product.name, newProductSearch)">
+                    <tr x-show="renderProduct(product) && globalThis.match(product.name, newProductSearch)"
+                        x-id="['quantity', 'price', 'tax']">
                         <td>
                             <button class="btn btn-icon btn-link"
                                     @click="addNewTransaction(product)"
@@ -49,9 +50,12 @@
                         </td>
                         <td :class="product.quantity <= product.quantity_min && 'text-danger'">
                             <div class="input-group !w-40">
-                                <input type="number"
+                                <input :id="$id('quantity')"
+                                       type="number"
                                        min="1"
                                        class="form-control"
+                                       @keydown.stop.alt.tab="focusElementById($id('price'))"
+                                       @keypress.enter="addNewTransaction(product)"
                                        x-model="product.transaction_quantity"
                                        :class="product.transaction_quantity > product.quantity ? 'text-danger' : 'text-primary'">
                                 <span class="input-group-text">
@@ -65,9 +69,12 @@
                         </td>
                         <td>
                             <div class="input-group !w-40">
-                                <input type="number"
+                                <input :id="$id('price')"
+                                       type="number"
                                        min="1"
                                        class="form-control"
+                                       @keydown.stop.alt.tab="focusElementById($id('tax'))"
+                                       @keypress.enter="addNewTransaction(product)"
                                        x-model="product.transaction_price"
                                        :class="product.transaction_price < product.sell_price ? 'text-danger' : 'text-primary'">
                                 <span class="input-group-text">
@@ -82,9 +89,14 @@
                             <div class="input-group !w-40">
                                 <span class="input-group-text">
                                     <div class="form-check">
-                                        <input class="form-check-input checkboxinput" type="checkbox" :id="`taxInput${product.id}`" x-model="product.transaction_tax">
+                                        <input :id="$id('tax')"
+                                               class="form-check-input checkboxinput"
+                                               type="checkbox"
+                                               @keydown.stop.alt.tab="focusElementById($id('quantity'))"
+                                               @keypress.enter="addNewTransaction(product)"
+                                               x-model="product.transaction_tax">
                                     </div>
-                                    <label class="form-check-label" :for="`taxInput${product.id}`" x-text="product.sell_tax">
+                                    <label class="form-check-label" :for="$id('tax')" x-text="product.sell_tax">
                                     </label>
                                 </span>
                             </div>
