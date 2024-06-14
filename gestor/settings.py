@@ -121,8 +121,19 @@ DATABASES = {
 }
 
 # MINIO
+# Conection
+MINIO_ENDPOINT = "172.17.0.5:9000"
+MINIO_ACCESS_KEY = "sA2BcDKp04O8omIuEo4y"
+MINIO_SECRET_KEY = "reWfeMatUw4hblrq4iYqLEDJIN12HmA3Do5UyEVv"
+MINIO_USE_HTTPS = False
+# Files backends
+MINIO_BUCKET_CHECK_ON_SAVE = True
 DEFAULT_FILE_STORAGE = "django_minio_backend.models.MinioBackend"
-MINIO_MEDIA_FILES_BUCKET = "my-media-files-bucket"  # reemplaza con tu bucket
+# Bucket
+MINIO_MEDIA_FILES_BUCKET = "gestor"
+MINIO_PUBLIC_BUCKETS = [
+    "gestor",
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
