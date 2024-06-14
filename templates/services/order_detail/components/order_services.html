@@ -26,7 +26,8 @@
             </thead>
             <tbody class="table-border-bottom-0">
                 <template x-for="service in services">
-                    <tr x-show="renderService(service) && globalThis.match(service.name, newServiceSearch)">
+                    <tr x-show="renderService(service) && globalThis.match(service.name, newServiceSearch)"
+                        x-id="['quantity', 'price', 'tax']">
                         <td>
                             <button class="btn btn-icon btn-link"
                                     @click="addNewTransaction(service)"
@@ -43,17 +44,23 @@
                         </td>
                         <td>
                             <div class="input-group !w-24">
-                                <input type="number"
+                                <input :id="$id('quantity')"
+                                       type="number"
                                        min="1"
                                        class="form-control"
+                                       @keydown.stop.alt.tab="focusElementById($id('price'))"
+                                       @keypress.enter="addNewTransaction(service)"
                                        x-model="service.transaction_quantity">
                             </div>
                         </td>
                         <td>
                             <div class="input-group !w-40">
-                                <input type="number"
+                                <input :id="$id('price')"
+                                       type="number"
                                        min="0"
                                        class="form-control"
+                                       @keydown.stop.alt.tab="focusElementById($id('tax'))"
+                                       @keypress.enter="addNewTransaction(service)"
                                        x-model="service.transaction_price"
                                        :class="service.transaction_price < service.suggested_price ? 'text-danger' : 'text-primary'">
                                 <span class="input-group-text">
@@ -63,9 +70,12 @@
                         </td>
                         <td>
                             <div class="input-group !w-40">
-                                <input type="number"
+                                <input :id="$id('tax')"
+                                       type="number"
                                        min="0"
                                        class="form-control"
+                                       @keydown.stop.alt.tab="focusElementById($id('quantity'))"
+                                       @keypress.enter="addNewTransaction(service)"
                                        x-model="service.transaction_tax"
                                        :class="service.transaction_tax < service.sell_tax ? 'text-danger' : 'text-primary'">
                                 <span class="input-group-text">
