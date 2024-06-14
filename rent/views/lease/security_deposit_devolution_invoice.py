@@ -28,8 +28,10 @@ def security_deposit_devolution_invoices(
         "devolution": dev,
         "discount": dis,
         "pdf": True,
-        "original": original,
     }
+    if original == True or original == "True":
+        ctx["original"] = True
+
     html_string = render_to_string(
         "rent/deposits/devolution_invoice.html",
         ctx,
