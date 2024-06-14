@@ -286,16 +286,17 @@ var Alpine;
            * @returns {number}
            * */
           getMinPrice(transaction) {
-            const minPrice = transaction.product.min_price;
-            const cost = transaction.cost;
-            if (
-              minPrice !== undefined &&
-              minPrice !== null &&
-              minPrice > cost
-            ) {
-              return minPrice;
-            }
-            return cost;
+            return transaction.product.sell_price;
+            // const minPrice = transaction.product.min_price;
+            // const cost = transaction.cost;
+            // if (
+            //   minPrice !== undefined &&
+            //   minPrice !== null &&
+            //   minPrice > cost
+            // ) {
+            //   return minPrice;
+            // }
+            // return cost;
           },
 
           // Operations
