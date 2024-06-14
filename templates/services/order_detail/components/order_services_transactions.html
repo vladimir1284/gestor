@@ -43,7 +43,10 @@
                             <div class="input-group !w-32">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
-                                    @click="execAndSave(transaction, (trans) => dec(trans, 'quantity', 1, 1))">
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'quantity', 1, 1)
+                                            focusElementById($id('quantity'))
+                                            })">
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
@@ -58,7 +61,10 @@
                                     @blur="save(transaction)">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
-                                    @click="execAndSave(transaction, (trans) => inc(trans, 'quantity', 1))">
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'quantity', 1)
+                                            focusElementById($id('quantity'))
+                                            })">
                                     <i class='bx bx-plus' ></i>
                                 </button>
                             </div>
@@ -71,7 +77,10 @@
                             <div class="input-group !w-40">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
-                                    @click="execAndSave(transaction, (trans) => dec(trans, 'price', 1, 1))">
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'price', 1, 0)
+                                            focusElementById($id('price'))
+                                            })">
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
@@ -86,7 +95,10 @@
                                     x-init="$el.focus()">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
-                                    @click="execAndSave(transaction, (trans) => inc(trans, 'price', 1))">
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'price', 1)
+                                            focusElementById($id('price'))
+                                            })">
                                     <i class='bx bx-plus' ></i>
                                 </button>
                             </div>
@@ -102,7 +114,10 @@
                             <div class="input-group !w-32">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
-                                    @click="execAndSave(transaction, (trans) => dec(trans, 'tax', 1, 1))">
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'tax', 1, 0)
+                                            focusElementById($id('tax'))
+                                            })">
                                     <i class='bx bx-minus' ></i>
                                 </button>
                                 <input
@@ -117,7 +132,10 @@
                                     x-init="$el.focus()">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
-                                    @click="execAndSave(transaction, (trans) => inc(trans, 'tax', 1))">
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'tax', 1)
+                                            focusElementById($id('tax'))
+                                            })">
                                     <i class='bx bx-plus' ></i>
                                 </button>
                             </div>
