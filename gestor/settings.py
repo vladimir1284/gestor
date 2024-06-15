@@ -116,31 +116,31 @@ WSGI_APPLICATION = "gestor.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "GestorERP",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
     },
-    "old_db": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    },
+    # "old_db": {
+    #     "ENGINE": "django.db.backends.sqlite3",
+    #     "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    # },
 }
 
 # MINIO
 # Conection
-MINIO_ENDPOINT = "172.17.0.5:9000"
-MINIO_ACCESS_KEY = "sA2BcDKp04O8omIuEo4y"
-MINIO_SECRET_KEY = "reWfeMatUw4hblrq4iYqLEDJIN12HmA3Do5UyEVv"
-MINIO_USE_HTTPS = False
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
+MINIO_USE_HTTPS = os.getenv("MINIO_USE_HTTPS")
 # Files backends
-MINIO_BUCKET_CHECK_ON_SAVE = True
+MINIO_BUCKET_CHECK_ON_SAVE = os.getenv("MINIO_BUCKET_CHECK_ON_SAVE")
 DEFAULT_FILE_STORAGE = "django_minio_backend.models.MinioBackend"
 # Bucket
-MINIO_MEDIA_FILES_BUCKET = "gestor"
+MINIO_MEDIA_FILES_BUCKET = os.getenv("MINIO_MEDIA_FILES_BUCKET")
 MINIO_PUBLIC_BUCKETS = [
-    "gestor",
+    MINIO_MEDIA_FILES_BUCKET,
 ]
 
 # Password validation

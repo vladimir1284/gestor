@@ -1,0 +1,7 @@
+./.*
+./db*.sqlite3
+./**/__pycache__
+./media/
+./code_shot*.png
+./data.json
+./db.backup*
