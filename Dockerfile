@@ -6,5 +6,5 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 COPY . /app/
-# RUN pip install --break-system-packages -r requirements.txt
+RUN pip install --break-system-packages -r requirements.txt
 

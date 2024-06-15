@@ -3,6 +3,8 @@ aiohttp-retry==2.8.3
 aiosignal==1.3.1
 annotated-types==0.6.0
 APScheduler==3.10.4
+argon2-cffi==23.1.0
+argon2-cffi-bindings==21.2.0
 asgiref==3.7.2
 async-timeout==4.0.2
 attrs==23.1.0
@@ -21,6 +23,8 @@ django-cleanup==8.0.0
 django-cors-headers==4.3.1
 django-crispy-forms==2.0
 django-extensions==3.2.3
+django-minio-backend==3.6.0
+django-minio-storage==0.5.7
 django-phonenumber-field==7.1.0
 django-rest-framework==0.1.0
 django-scheduler==0.10.1
@@ -30,7 +34,7 @@ djhtml==3.0.6
 docopt==0.6.2
 fonttools==4.40.0
 frozenlist==1.3.3
-google-api-core==2.19.0
+google-api-core==2.10.2
 google-api-python-client==2.131.0
 google-auth==2.29.0
 google-auth-httplib2==0.2.0
@@ -41,6 +45,7 @@ html5lib==1.1
 httplib2==0.22.0
 icalendar==5.0.11
 idna==3.4
+minio==7.2.7
 mssql-django==1.4
 multidict==6.0.4
 num2words==0.5.13
@@ -55,6 +60,7 @@ psycopg2-binary==2.9.6
 pyasn1==0.5.0
 pyasn1-modules==0.3.0
 pycparser==2.21
+pycryptodome==3.20.0
 pydantic==2.6.0
 pydantic_core==2.16.1
 pydyf==0.6.0
