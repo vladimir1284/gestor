@@ -1,5 +1,5 @@
-# FROM mini_python
-FROM python:3
+FROM mini_python
+# FROM python:3.12
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
