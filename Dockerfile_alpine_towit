@@ -1,0 +1,8 @@
+FROM towit_python_base:1
+
+WORKDIR /app
+
+COPY . /app/
+
+RUN pip install -r requirements.txt
+

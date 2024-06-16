@@ -1,0 +1,12 @@
+FROM bitnami/minideb:latest
+
+RUN install_packages python3 python3-pip
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /app
+
+COPY . /app/
+RUN pip install --break-system-packages -r requirements.txt
+

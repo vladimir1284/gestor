@@ -1,8 +1,8 @@
 version: "3"
 services:
   web:
-    image: towit
-    command: bash -c "python3 manage.py migrate; python3 manage.py runserver 0.0.0.0:8000;"
+    image: towit_alpine:1
+    command: sh -c "python manage.py migrate; python manage.py runserver 0.0.0.0:8000;"
     # volumes:
     #   - .:/code
     ports:

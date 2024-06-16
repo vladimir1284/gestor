@@ -53,7 +53,7 @@ oauthlib==3.2.2
 openai==0.27.8
 paramiko==3.4.0
 phonenumbers==8.13.14
-Pillow==9.5.0
+Pillow==10.3.0
 proto-plus==1.23.0
 protobuf==4.23.3
 psycopg2-binary==2.9.6
