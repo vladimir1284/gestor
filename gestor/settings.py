@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
     "testserver",
     "www.tacocars.com",
     "192.168.43.89",
+    ".ngrok-free.app",
 ]
 
 
@@ -194,6 +195,13 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
 # SMS
 TWILIO_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+
+# Whatsapp
+TWILIO_WHATSAPP_SID = os.getenv("TWILIO_WHATSAPP_ACCOUNT_SID")
+TWILIO_WHATSAPP_TOKEN = os.getenv("TWILIO_WHATSAPP_AUTH_TOKEN")
+
+# TWILIO_WHATSAPP_NUM = "+13203563490"
+TWILIO_WHATSAPP_NUM = "+14155238886"
 
 # Chat GPT
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
