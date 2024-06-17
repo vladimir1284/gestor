@@ -13,13 +13,16 @@ def sendSMSLesseeContactURL(to: str, url: str, lang: str = "spanish"):
 
 
 def sendSMS(to: str, body: str):
-    if settings.ENVIRONMENT == "production":
-        sms_client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
-        message = sms_client.messages.create(
-            body=body,
-            from_="+13203563490",
-            to=str(to),
-        )
-        print(message.sid)
-    else:
-        print(body)
+    try:
+        if settings.ENVIRONMENT == "production":
+            sms_client = Client(settings.TWILIO_SID, settings.TWILIO_TOKEN)
+            message = sms_client.messages.create(
+                body=body,
+                from_="+13203563490",
+                to=str(to),
+            )
+            print(message.sid)
+        else:
+            print(body)
+    except Exception as e:
+        print(f"Fail to send SMS to: {to}\nWith body: {body}\n\nError: {e}")
