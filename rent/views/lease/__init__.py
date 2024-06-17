@@ -176,7 +176,7 @@ def contract_detail(request, id):
 
     if contract.stage in ["missing", "garbage"]:
         if phone is not None and phone != "":
-            # sendSMSLesseeContactURL(phone, url)
+            sendSMSLesseeContactURL(phone, url)
             send_whatsapp(
                 str(phone),
                 f"Please sing the contract in the following URL: {url}",
