@@ -102,6 +102,7 @@ urlpatterns = [
     path("erp/template/", include("template_admin.urls")),
     path("erp/rbac/", include("rbac.urls")),
     path("erp/crm/", include("crm.urls")),
+    path("erp/whatsapp/", include("whatsapp.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
