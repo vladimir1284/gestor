@@ -122,10 +122,10 @@ DATABASES = {
         "HOST": os.getenv("POSTGRES_HOST"),
         "PORT": os.getenv("POSTGRES_PORT"),
     },
-    # "old_db": {
-    #     "ENGINE": "django.db.backends.sqlite3",
-    #     "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    # },
+    "old_db": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    },
 }
 
 # MINIO
@@ -134,7 +134,6 @@ MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
 MINIO_USE_HTTPS = os.getenv("MINIO_USE_HTTPS")
-print(MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_USE_HTTPS)
 # Files backends
 MINIO_BUCKET_CHECK_ON_SAVE = os.getenv("MINIO_BUCKET_CHECK_ON_SAVE")
 DEFAULT_FILE_STORAGE = "django_minio_backend.models.MinioBackend"
