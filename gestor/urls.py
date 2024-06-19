@@ -24,6 +24,7 @@ from .views import dashboard
 from .views import reports
 from gestor.tools.week_stats_recal import initRecalculator
 from rbac.init_permissions import init_permissions
+from template_admin.tools.init_templates import init_templates
 
 
 def trigger_error(request):
@@ -105,5 +106,10 @@ urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 try:
     init_permissions()
+except Exception as e:
+    print(e)
+
+try:
+    init_templates()
 except Exception as e:
     print(e)

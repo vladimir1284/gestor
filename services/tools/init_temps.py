@@ -1,7 +1,7 @@
-from template_admin.models.template import Template
+from template_admin.tools.init_def_template import DefTemplate
+from template_admin.tools.template_initializer import add_template
 from template_admin.tools.templates_tools import TT_LIST
 from template_admin.tools.templates_tools import TT_TEXT
-
 
 DEF_COND_ES = """
 <ol>
@@ -54,53 +54,38 @@ DEC_REAZONS = "decline-reazons"
 
 def init_conditions():
     # Spanish
-    temp = Template.objects.filter(
-        module=MODULE,
-        template=TEMPLATE,
-        language=LANG_ES,
-        tmp_type=TT_TEXT,
-    ).last()
-    if temp is None:
-        temp = Template.objects.create(
+    add_template(
+        DefTemplate(
             module=MODULE,
             template=TEMPLATE,
-            language=LANG_ES,
+            lang=LANG_ES,
             content=DEF_COND_ES,
-            tmp_type=TT_TEXT,
+            ttype=TT_TEXT,
         )
+    )
 
     # English
-    temp = Template.objects.filter(
-        module=MODULE,
-        template=TEMPLATE,
-        language=LANG_EN,
-        tmp_type=TT_TEXT,
-    ).last()
-    if temp is None:
-        temp = Template.objects.create(
+    add_template(
+        DefTemplate(
             module=MODULE,
             template=TEMPLATE,
-            language=LANG_EN,
+            lang=LANG_EN,
             content=DEF_COND_EN,
-            tmp_type=TT_TEXT,
+            ttype=TT_TEXT,
         )
+    )
 
 
 def init_decline_reazons():
-    temp = Template.objects.filter(
-        module=MODULE,
-        template=DEC_REAZONS,
-        language=LANG_ES,
-        tmp_type=TT_LIST,
-    ).last()
-    if temp is None:
-        Template.objects.create(
+    add_template(
+        DefTemplate(
             module=MODULE,
             template=DEC_REAZONS,
-            language=LANG_ES,
-            tmp_type=TT_LIST,
+            lang=LANG_ES,
+            ttype=TT_LIST,
             content=DEF_DEC_REAZON,
         )
+    )
 
 
 def init_temps():

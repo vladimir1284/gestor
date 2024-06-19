@@ -13,6 +13,10 @@ class Template(models.Model):
     tmp_type = models.CharField(max_length=20, default=TT_TEXT)
     content = models.TextField()
 
+    @property
+    def tag(self):
+        return f"[{self.module}].[{self.template}].[{self.language}].[{self.tmp_type}]"
+
     def render_template(self, ctx) -> str:
         content = f'{Style}<div class="ck-content">{str(self.content)}</div>'
         temp = DT(content)

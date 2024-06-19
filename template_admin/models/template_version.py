@@ -1,7 +1,9 @@
 from django.db import models
 
-from template_admin.models.template_content_version import TemplateContentVersion
-from template_admin.models.template_version_configs import TemplateVersionConfig
+from template_admin.models.template_content_version import \
+    TemplateContentVersion
+from template_admin.models.template_version_configs import \
+    TemplateVersionConfig
 from template_admin.tools.templates_tools import TT_TEXT
 
 
@@ -11,6 +13,10 @@ class TemplateVersion(models.Model):
     language = models.CharField(max_length=50)
     tmp_type = models.CharField(max_length=20, default=TT_TEXT)
     custom = models.BooleanField(default=False)
+
+    @property
+    def tag(self):
+        return f"[{self.module}].[{self.template}].[{self.language}].[{self.tmp_type}]"
 
     @property
     def last_version(self) -> int:
@@ -35,10 +41,14 @@ class TemplateVersion(models.Model):
         ]
         return versions
 
-    def new_version(self, content: str = "") -> TemplateContentVersion:
+    def new_version(
+        self, content: str = "", version: int | None = None
+    ) -> TemplateContentVersion:
+        if version is None:
+            version = self.last_version + 1
         new_version = TemplateContentVersion(
             template=self,
-            version=self.last_version + 1,
+            version=version,
             content=content,
         )
         new_version.save()
