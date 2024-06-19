@@ -8,10 +8,8 @@ from rbac.tools.all_perms import PERMS_MAP
 
 
 def update_groups(p: Permission):
-    groups: list[Group] = Group.objects.all()
+    groups: list[Group] = Group.objects.filter(permissions=p)
     for g in groups:
-        if g.permissions.filter(id=p.id).exists():
-            continue
         g.permissions.add(p)
         g.save()
 
@@ -29,28 +27,57 @@ def sync_permission(ct: ContentType, p: PermissionParam):
         raise e
 
 
-def sync_permissiions_of_ct(ct: ContentType, perms: list[PermissionParam]):
+def sync_permissiions_of_ct(
+    ct: ContentType,
+    perms: list[PermissionParam],
+    permissions: dict[str, Permission],
+):
     for p in perms:
-        perm = Permission.objects.filter(
-            codename=p.code,
-            content_type=ct,
-        ).first()
-        if perm is None:
+        if p.code not in permissions:
             sync_permission(ct, p)
-        else:
-            perm.name = p.name
-            perm.save()
+        elif permissions[p.code].name != p.name:
+            permissions[p.code].name = p.name
+            permissions[p.code].save()
+
+
+def get_content_types_map(labs: list[str]) -> dict[str, ContentType]:
+    content_types = ContentType.objects.filter(app_label__in=labs, model="rbac")
+    content_types_map = {}
+    for content_type in content_types:
+        content_types_map[content_type.app_label] = content_type
+    return content_types_map
+
+
+def get_content_types_map_for_labs(labs: list[str]) -> dict[str, ContentType]:
+    content_types_map = get_content_types_map(labs)
+    for lab in labs:
+        if lab not in content_types_map:
+            ct = ContentType.objects.create(app_label=lab, model="rbac")
+            content_types_map[lab] = ct
+    return content_types_map
 
 
 def sync_permissions():
     init_permissions()
 
+    labs = PERMS_MAP.keys()
+    content_types_map = get_content_types_map_for_labs(labs)
+
+    codes = []
+
     for lab, ps in PERMS_MAP.items():
-        ct, _ = ContentType.objects.get_or_create(app_label=lab, model="rbac")
+        codes += [p.code for p in ps]
 
-        codes = [p.code for p in ps]
-        Permission.objects.filter(
-            content_type__app_label=lab, content_type__model="rbac"
-        ).exclude(codename__in=codes).delete()
+    permissions = Permission.objects.filter(
+        content_type__in=content_types_map.values(),
+    )
+    permissions.exclude(codename__in=codes).delete()
 
-        sync_permissiions_of_ct(ct, ps)
+    permissions_map = {}
+    for perm in permissions:
+        permissions_map[perm.codename] = perm
+
+    for lab, ps in PERMS_MAP.items():
+        ct = content_types_map[lab]
+
+        sync_permissiions_of_ct(ct, ps, permissions_map)
