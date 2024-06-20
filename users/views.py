@@ -12,6 +12,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.shortcuts import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -304,16 +305,25 @@ def list_deactivated_client(request):
 
 
 def getDebtOrders(debtor):
-    orders = Order.objects.filter(
-        associated=debtor, type="sell", status="complete"
-    ).order_by("-terminated_date")
+    orders = [
+        o for o in debtor.order_set.all() if o.type == "sell" and o.status == "complete"
+    ]
+    orders.sort(key=lambda o: o.terminated_date, reverse=True)
+    # orders = Order.objects.filter(
+    #     associated=debtor, type="sell", status="complete"
+    # ).order_by("-terminated_date")
     pending_orders = []
     debt = debtor.debt
     for order in orders:
-        debt_payment = Payment.objects.filter(
-            order=order, category__name="debt"
-        ).first()
-        if debt_payment is not None:
+        serv_pays = [
+            p for p in order.service_payment.all() if p.category.name == "debt"
+        ]
+        # debt_payment = Payment.objects.filter(
+        #     order=order, category__name="debt"
+        # ).first()
+        # if debt_payment is not None:
+        if len(serv_pays) > 0:
+            debt_payment = serv_pays[0]
             # Order with pending payment
             if debt > 0:
                 order.debt = debt_payment.amount
@@ -331,13 +341,21 @@ def list_debtor(request):
 
 
 def get_debtor(request):
-    debtors: List[Associated] = Associated.objects.filter(
-        debt__gt=0, active=True
-    ).order_by("name", "alias")
+    debtors: List[Associated] = (
+        Associated.objects.filter(debt__gt=0, active=True)
+        .order_by("name", "alias")
+        .prefetch_related(
+            "debtstatus_set",
+            "order_set",
+            "order_set__service_payment",
+            "order_set__service_payment__category",
+        )
+    )
     total = 0
     debtors_list = []
     for client in debtors:
-        debt_status = DebtStatus.objects.filter(client=client)[0]
+        debt_status = client.debtstatus_set.all()[0]
+        # debt_status = DebtStatus.objects.filter(client=client)[0]
         if debt_status.status == "pending":
             try:
                 client.oldest_debt = getDebtOrders(client)[-1]
@@ -346,11 +364,17 @@ def get_debtor(request):
                 client.overdue = client.oldest_debt.terminated_date < (
                     datetime.now(pytz.timezone("UTC")) - timedelta(days=14)
                 )
-                client.last_order = (
-                    Order.objects.filter(associated=client)
-                    .order_by("-created_date")
-                    .first()
-                )
+                client_orders = [o for o in client.order_set.all()]
+                if len(client_orders) > 0:
+                    client_orders.sort(key=lambda o: o.created_date, reverse=True)
+                    client.last_order = client_orders[0]
+                    # client.last_order = (
+                    #     Order.objects.filter(associated=client)
+                    #     .order_by("-created_date")
+                    #     .first()
+                    # )
+                else:
+                    client.last_order = None
                 if debt_status.weeks > 0:
                     client.weekly_payment = debt_status.amount_due_per_week
                     client.overdue = debt_status.last_modified_date < (
