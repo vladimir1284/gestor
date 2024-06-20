@@ -257,3 +257,26 @@ if ENVIRONMENT == "production":
         # We recommend adjusting this value in production.
         profiles_sample_rate=1.0,
     )
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "django_queries.log",  # Choose a file name and path
+        },
+    },
+    "loggers": {
+        "django.db.backends": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
+}

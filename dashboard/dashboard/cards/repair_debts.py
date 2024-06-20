@@ -4,6 +4,7 @@ from users.views import get_debtor
 
 
 def _resolver(request):
+    print("repair debts")
     return get_debtor(request)
 
 

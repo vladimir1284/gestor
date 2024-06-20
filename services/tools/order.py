@@ -3,9 +3,7 @@ from datetime import timedelta
 
 import pytz
 
-from inventory.models import (
-    ProductTransaction,
-)
+from inventory.models import ProductTransaction
 from services.models import DebtStatus
 from services.models import Expense
 from services.models import Order
@@ -49,10 +47,13 @@ def getRepairDebt(client: Associated):
 
 
 def computeOrderAmount(order: Order):
-    transactions = ProductTransaction.objects.filter(order=order)
+    # transactions = ProductTransaction.objects.filter(order=order)
+    transactions = order.producttransaction_set.all()
     transactions.satisfied = True
-    services = ServiceTransaction.objects.filter(order=order)
-    expenses = Expense.objects.filter(order=order)
+    # services = ServiceTransaction.objects.filter(order=order)
+    services = order.servicetransaction_set.all()
+    # expenses = Expense.objects.filter(order=order)
+    expenses = order.expense_set.all()
     # Compute amount
     tax = 0
     parts_amount = 0

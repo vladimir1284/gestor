@@ -1,10 +1,12 @@
-from django.db import models
 import math
 
-from utils.models import Category, Transaction
-from services.models import Service
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
+
+from services.models import Service
+from utils.models import Category
+from utils.models import Transaction
 
 
 class DifferentMagnitudeUnitsError(BaseException):
@@ -98,9 +100,22 @@ class Product(models.Model):
     def computeAvailable(self, current_transaction=None):
         # Compute the remaining products in stock
         available = self.quantity
-        transactions = ProductTransaction.objects.filter(
-            order__type="sell", order__status="processing", product=self
-        ).exclude(order__quotation=True)
+        transactions = [
+            pt
+            for pt in self.producttransaction_set.all()
+            if (
+                pt.order.type == "sell"
+                and pt.order.status == "processing"
+                and pt.order.quotation is not True
+            )
+        ]
+        # transactions = self.producttransaction_set.filter(
+        #     order__type="sell",
+        #     order__status="processing",
+        # ).exclude(order__quotation=True)
+        # transactions = ProductTransaction.objects.filter(
+        #     order__type="sell", order__status="processing", product=self
+        # ).exclude(order__quotation=True)
         for trans in transactions:
             if trans.id != current_transaction:
                 available -= trans.quantity

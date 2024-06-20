@@ -4,7 +4,12 @@ from rent.models.lease import Contract
 
 
 def _resolver():
-    contracts = Contract.objects.filter(stage="active")
+    print("contract renovations")
+    contracts = Contract.objects.filter(
+        stage="active",
+    ).prefetch_related(
+        "_renovations",
+    )
 
     to_renew = []
     not_7 = 0

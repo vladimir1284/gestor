@@ -13,22 +13,30 @@ def weekly_stats_array(date=None, n=12) -> List[Statistics]:
     """
 
     (start_date, end_date, previousWeek, nextWeek) = getWeek(date)  # This week
-    stats_list = []
+    stats_dates = [
+        {
+            "start": start_date,
+            "end": end_date,
+        }
+    ]
     for _ in range(n):
         # Previous week
         (start_date, end_date, previousWeek, nextWeek) = getWeek(
             previousWeek.strftime("%m%d%Y")
         )
+        stats_dates.append(
+            {
+                "start": start_date,
+                "end": end_date,
+            }
+        )
 
-        try:
-            # Weekly stats are stored in the end_date of the week
-            stats = Statistics.objects.get(date=end_date)
-            stats_list.append(stats)
-            continue
-        except Statistics.DoesNotExist:
-            stats = Statistics(date=end_date)
-            calculate_stats(stats, start_date, end_date)
-
+    stats_list = Statistics.objects.filter(date__in=[d["end"] for d in stats_dates])
+    existing_stats_dates = [s.date for s in stats_list]
+    for date in stats_dates:
+        if date["end"] not in existing_stats_dates:
+            stats = Statistics(date=date["end"])
+            calculate_stats(stats, date["start"], date["end"])
             stats_list.append(stats)
 
     return stats_list

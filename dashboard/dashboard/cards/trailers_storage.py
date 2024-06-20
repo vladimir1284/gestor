@@ -8,6 +8,7 @@ from rbac.tools.permission_param import PermissionParam
 
 
 def _resolver():
+    print("Trailer storage")
     orders = (
         Order.objects.filter(
             position=0,

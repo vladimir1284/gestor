@@ -1,7 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
 from itertools import chain
-from typing import List
 
 import pytz
 from dateutil.relativedelta import relativedelta
@@ -82,9 +81,10 @@ def getOrderBalance(order: Order, products: dict):
         order.labor += service.amount
 
     # Consumables and parts
-    transactions: List[ProductTransaction] = ProductTransaction.objects.filter(
-        order=order
-    )
+    # transactions: List[ProductTransaction] = ProductTransaction.objects.filter(
+    #     order=order
+    # )
+    transactions = order.producttransaction_set.all()
     parts_cost = 0
     consumable_expenses = 0
     for trans in transactions:
@@ -116,8 +116,10 @@ def getOrderBalance(order: Order, products: dict):
         if product.type == "consumable":
             if trans.cost is not None:
                 consumable_expenses += trans.cost
+
     # Third party expenses
-    tpe = Expense.objects.filter(order=order)
+    # tpe = Expense.objects.filter(order=order)
+    tpe = order.expense_set.all()
     third_party_expenses = 0
     for expense in tpe:
         third_party_expenses += expense.cost
@@ -203,8 +205,7 @@ def monthly_report(request, year=None, month=None):
 
     context.setdefault(
         "membership",
-        getMonthlyMembership(currentYear, currentMonth, all=True)[
-            "total"]["gross"],
+        getMonthlyMembership(currentYear, currentMonth, all=True)["total"]["gross"],
     )
 
     return render(request, "monthly.html", context)
@@ -228,8 +229,7 @@ def getRentalReport(currentYear, currentMonth):
             timezone.datetime(currentYear, currentMonth, 1),
             pytz.timezone(settings.TIME_ZONE),
         )
-        first_day_of_next_month = first_day_of_this_month + \
-            relativedelta(months=1)
+        first_day_of_next_month = first_day_of_this_month + relativedelta(months=1)
 
         interval_start = max(first_day_of_this_month, interval_start)
         interval_end = min(first_day_of_next_month, timezone.now())
@@ -241,8 +241,7 @@ def getRentalReport(currentYear, currentMonth):
         lease.unpaid_dues = []
         unpaid_lease = False
         for occurrence in occurrences:
-            paid_due = Due.objects.filter(
-                due_date=occurrence.start.date(), lease=lease)
+            paid_due = Due.objects.filter(due_date=occurrence.start.date(), lease=lease)
             if len(paid_due) == 0:
                 unpaid_amount += lease.payment_amount
                 lease.unpaid_dues.append(occurrence)
@@ -348,8 +347,7 @@ def getWeekMembership(start_date, end_date):
         .exclude(company=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -456,8 +454,7 @@ def weekly_report(request, date=None):
         .exclude(company__membership=True, associated=None)
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = Cost.objects.filter(date__range=(start_date, end_date)).order_by("-date")
 
     pending_payments = PendingPayment.objects.filter(
         created_date__gt=start_date, created_date__lte=end_date
@@ -606,7 +603,8 @@ def computeReport(orders, costs, pending_payments):
             discount += order.discount
 
         # Payments
-        order.payments = Payment.objects.filter(order=order)
+        # order.payments = Payment.objects.filter(order=order)
+        order.payments = order.service_payment
 
     total = {
         "parts": parts,
@@ -697,7 +695,13 @@ def computeReport(orders, costs, pending_payments):
             product.efficiency = None
 
     # Payments
-    payments = Payment.objects.filter(order__in=orders)  # Order payments
+    # payments = Payment.objects.filter(order__in=orders)  # Order payments
+
+    payments = []
+    for o in orders:
+        order_pays = o.service_payment.all()
+        payments += order_pays
+
     payments = list(chain(payments, pending_payments))  # Include debt payments
 
     payment_total = 0

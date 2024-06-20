@@ -2,13 +2,15 @@ from costs.models import Cost
 from gestor.views.reports import computeReport
 from rent.models.lease import LeaseDeposit
 from rent.models.lease import SecurityDepositDevolution
-from services.models import (
-    PendingPayment,
-)
+from services.models import PendingPayment
 from utils.models import Order
 
 
-def calculate_stats(stats, start_date, end_date):
+def calculate_stats(
+    stats,
+    start_date,
+    end_date,
+):
     """
     The "calculate_stats" function calculates various statistics based on the
     given parameters: "stats" (an object that stores the calculated stats),
@@ -37,14 +39,35 @@ def calculate_stats(stats, start_date, end_date):
         .order_by("-terminated_date")
         .exclude(associated__membership=True)
         .exclude(company__membership=True, associated=None)
+        .prefetch_related(
+            "service_payment",
+            "service_payment__category",
+        )
+        .prefetch_related("servicetransaction_set")
+        .prefetch_related("expense_set")
+        .prefetch_related(
+            "producttransaction_set",
+            "producttransaction_set__unit",
+            "producttransaction_set__product",
+            "producttransaction_set__product__unit",
+            "producttransaction_set__product__producttransaction_set",
+            "producttransaction_set__product__producttransaction_set__order",
+        )
     )
 
-    costs = Cost.objects.filter(date__range=(
-        start_date, end_date)).order_by("-date")
+    costs = (
+        Cost.objects.filter(date__range=(start_date, end_date))
+        .order_by("-date")
+        .select_related("category")
+    )
 
-    pending_payments = PendingPayment.objects.filter(
-        created_date__gt=start_date, created_date__lte=end_date
-    ).order_by("-created_date")
+    pending_payments = (
+        PendingPayment.objects.filter(
+            created_date__gt=start_date, created_date__lte=end_date
+        )
+        .order_by("-created_date")
+        .select_related("category")
+    )
 
     context = computeReport(orders, costs, pending_payments)
 
@@ -79,6 +102,20 @@ def calculate_stats(stats, start_date, end_date):
         .order_by("-terminated_date")
         .exclude(company__membership=False)
         .exclude(company=None)
+        .prefetch_related(
+            "service_payment",
+            "service_payment__category",
+        )
+        .prefetch_related("servicetransaction_set")
+        .prefetch_related("expense_set")
+        .prefetch_related(
+            "producttransaction_set",
+            "producttransaction_set__unit",
+            "producttransaction_set__product",
+            "producttransaction_set__product__unit",
+            "producttransaction_set__product__producttransaction_set",
+            "producttransaction_set__product__producttransaction_set__order",
+        )
     )
 
     context = computeReport(orders, costs, pending_payments)

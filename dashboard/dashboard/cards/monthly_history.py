@@ -4,6 +4,7 @@ from rbac.tools.permission_param import PermissionParam
 
 
 def _resolver():
+    print("monthly history")
     return {
         "indicators": get_indicators(),
     }
