@@ -11,7 +11,10 @@ def _resolver():
     active_trailers = []
     on_hold_trailers = []
 
-    trailers = Trailer.objects.filter(active=True).prefetch_related("trailer_deposit")
+    trailers = Trailer.objects.filter(active=True).prefetch_related(
+        "trailer_deposit",
+        "trailer_deposit__contract",
+    )
 
     contracts = Contract.objects.select_related(
         "trailer",
@@ -36,27 +39,33 @@ def _resolver():
         trailer.current_contract = contract
         is_on_hold = False
         if contract:
-            trailer_deposit = trailer.trailer_deposit.filter(
-                contract=contract,
-                cancelled=False,
-            ).last()
-            # trailer_deposit = TrailerDeposit.objects.filter(
-            #     contract=contract,
-            #     trailer=trailer,
-            #     cancelled=False,
-            # )
-            if trailer_deposit:
-                trailer.on_hold = trailer_deposit
+            trailer_deposits = [
+                td
+                for td in trailer.trailer_deposit.all()
+                if td.contract is not None
+                and td.contract.id == contract.id
+                and td.cancelled is False
+            ]
+            if len(trailer_deposits) > 0:
+                trailer.on_hold = trailer_deposits[-1]
                 is_on_hold = True
         else:
-            trailer_deposit = trailer.trailer_deposit.filter(
-                done=False,
-                cancelled=False,
-            ).last()
-            # trailer_deposit = get_current_trailer_deposit(trailer)
-            if trailer_deposit:
-                trailer.on_hold = trailer_deposit
+            trailer_deposits = [
+                td
+                for td in trailer.trailer_deposit.all()
+                if td.done is False and td.cancelled is False
+            ]
+            if len(trailer_deposits) > 0:
+                trailer.on_hold = trailer_deposits[-1]
                 is_on_hold = True
+            # trailer_deposit = trailer.trailer_deposit.filter(
+            #     done=False,
+            #     cancelled=False,
+            # ).last()
+            # # trailer_deposit = get_current_trailer_deposit(trailer)
+            # if trailer_deposit:
+            #     trailer.on_hold = trailer_deposit
+            #     is_on_hold = True
         if is_on_hold:
             on_hold_trailers.append(trailer)
         else:
