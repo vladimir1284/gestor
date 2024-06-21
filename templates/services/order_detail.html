@@ -81,8 +81,10 @@
             right: 5%;
         }
     </style>
-    <div class="row">
-        <div class="lg:pr-[30vw]">
+    <div class="row"
+         x-data="{show: true}">
+        <div class="transition-all"
+             :class="show && 'lg:pr-[30vw]'">
             {% if mensaje %}
 
                 <div class="alert alert-danger" role="alert">
@@ -197,7 +199,20 @@
                 {% endif %}
             </div>
         </div>
-        <div class="lg:fixed lg:top-6 lg:bottom-6 lg:right-2 lg:w-[30vw]">
+        <div class="lg:fixed lg:top-6 lg:bottom-6 lg:right-2 lg:w-[30vw] transition-all relative"
+             :style="{
+                     'transform': show ? 'translateX(0)': 'translateX(100%)',
+                     }">
+            <div class="!hidden lg:!block w-12 h-12 rounded-full bg-[#f5f5f9] absolute top-[-1.2rem] left-[-1.25rem] z-10 p-2 transition-all"
+                 :style="{
+                         'transform': show ? 'translateX(0)': 'translateX(-50%)',
+                         }"
+                 @click="show = !show">
+                <div class="w-full h-full rounded-full transition bg-main hover:bg-blue-400 text-white flex justify-center items-center">
+                    <i class='bx bx-chevron-right text-3xl' x-show="show"></i>
+                    <i class='bx bx-chevron-left text-3xl' x-show="!show" x-cloak></i>
+                </div>
+            </div>
             {% include "services/order_parts_history.html" %}
             {% include "services/order_services_history.html" %}
         </div>
