@@ -37,7 +37,6 @@ def _resolver():
     clients_by_date, n_active, n_processing, n_ended, rental_debt = get_sorted_clients(
         n=5
     )
-    print(1)
     (
         clients_by_amount,
         n_active,
@@ -46,35 +45,38 @@ def _resolver():
         rental_debt,
     ) = get_sorted_clients(n=5, order_by="amount")
 
-    print(2)
     yesterday_dues = []
 
-    leases = Lease.objects.select_related(
-        "event",
-        "contract",
-        "contract__lessee",
-    ).filter(contract__stage="active")
-    print(3)
+    leases = (
+        Lease.objects.select_related(
+            "event",
+            "contract",
+            "contract__lessee",
+        )
+        .filter(contract__stage="active")
+        .prefetch_related(
+            "due_set",
+            "event__rule",
+            "event__occurrence_set",
+        )
+    )
 
     # Get the first time of today
     first_time = datetime.combine(timezone.now().date(), time.min) - timedelta(days=1)
     # Get the last time of today
     last_time = datetime.combine(timezone.now().date(), time.max) - timedelta(days=1)
 
-    print(4)
     # dues = Due.objects.select_related("lease").filter(lease__in=leases)
     # dues_map = defaultdict([])
     # for d in dues:
     #     dues_map[d.lease.id].append(d.due_date)
 
     for lease in leases:
-        print(4.1)
         (
             debt,
             last_payment,
             unpaid_dues,
         ) = compute_client_debt(lease)
-        print(4.2)
         if check_interval(unpaid_dues, first_time, last_time):
             client = lease.contract.lessee
             client.debt, client.unpaid_dues = debt, unpaid_dues
@@ -83,7 +85,6 @@ def _resolver():
             else:
                 client.last_payment = last_payment
             yesterday_dues.append(client)
-        print(4.3)
         #
         # occurrences = (
         #     []
@@ -109,7 +110,6 @@ def _resolver():
         #         if client.debt > 0:
         #             client.last_payment = client.unpaid_dues[0].start
         #         yesterday_dues.append(client)
-    print(5)
 
     return {
         "rental_debt": rental_debt,
