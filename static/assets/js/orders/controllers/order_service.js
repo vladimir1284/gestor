@@ -8,6 +8,11 @@ var Alpine;
   /** @typedef {import('../models/service_transaction.js').ServiceTransactionCreation} */
   /** @typedef {import('../models/service.js').Service} */
 
+  const NONE = "";
+  const QTY = "qty";
+  const PRICE = "price";
+  const TAX = "tax";
+
   document.addEventListener("alpine:init", () => {
     Alpine.data("OrderService", () => {
       const serviceApiClient = new globalThis.ServiceApiClient(
@@ -25,12 +30,14 @@ var Alpine;
         loadingServices: false,
         /** @type {Array<Service>} */
         services: [],
+        /** @type {Array<Service>} */
+        filteredServices: [],
         /** @type {string} */
         newServiceSearch: "",
         /** @type {number} */
-        newServiceQty: 1,
-        /** @type {number} */
-        newServiceTax: 0,
+        newServiceIndex: 0,
+        /** @type {string} */
+        newServiceEditing: NONE,
         /** @type {boolean} */
         searchServiceInputFocus: false,
 
@@ -74,7 +81,14 @@ var Alpine;
               this.transactions_args.amount += amount;
               this.transactions_args.tax += tax;
             }
+
+            this.filteredServices = this.getFiltered();
           });
+
+          this.$watch("newServiceSearch", () => {
+            this.filteredServices = this.getFiltered();
+          });
+
           this.loadTransactions();
           this.loadServices();
 
@@ -84,6 +98,64 @@ var Alpine;
           });
           globalThis.bindShortcut("escape", () => {
             this.closeNewServiceMode();
+          });
+          globalThis.bindShortcut("enter", () => {
+            if (!this.newServiceMode()) {
+              return;
+            }
+            this.addNewTransaction(this.filteredServices[this.newServiceIndex]);
+          });
+          globalThis.bindShortcut(
+            "alt+arrowup",
+            (/**@type {KeyboardEvent}*/ e) => {
+              if (!this.newServiceMode()) {
+                return;
+              }
+              e.preventDefault();
+              this.newServiceIndex--;
+              if (this.newServiceIndex < 0) {
+                this.newServiceIndex = this.filteredServices.length - 1;
+              }
+              this.newServiceEditing = NONE;
+              this.blurEditables();
+            },
+          );
+          globalThis.bindShortcut(
+            "alt+arrowdown",
+            (/**@type {KeyboardEvent}*/ e) => {
+              if (!this.newServiceMode()) {
+                return;
+              }
+              e.preventDefault();
+              this.newServiceIndex++;
+              if (this.newServiceIndex >= this.filteredServices.length) {
+                this.newServiceIndex = 0;
+              }
+              this.newServiceEditing = NONE;
+              this.blurEditables();
+            },
+          );
+          globalThis.bindShortcut("alt+tab", () => {
+            if (!this.newServiceMode()) {
+              return;
+            }
+            switch (this.newServiceEditing) {
+              case NONE:
+                this.newServiceEditing = QTY;
+                break;
+              case QTY:
+                this.newServiceEditing = PRICE;
+                break;
+              case PRICE:
+                this.newServiceEditing = TAX;
+                break;
+              case TAX:
+                this.newServiceEditing = NONE;
+                break;
+              default:
+                this.newServiceEditing = NONE;
+            }
+            this.blurFocusEditable(this.newServiceEditing);
           });
 
           const closeThis = () => {
@@ -98,6 +170,52 @@ var Alpine;
           globalThis[`reload_${this.transactionType}`] = () => {
             this.loadTransactions();
           };
+        },
+        /**
+         * Blur all editables elements
+         * */
+        blurEditables() {
+          const editables = /**@type{NodeListOf<HTMLElement>}*/ (
+            document.querySelectorAll(".service_editable.service_active")
+          );
+
+          for (let e of editables) {
+            e.blur();
+          }
+        },
+        /**
+         * focus an editable element
+         * @param {string} editable
+         * */
+        focusEditable(editable) {
+          let type = "";
+          switch (editable) {
+            case QTY:
+              type = "quantity";
+              break;
+            case PRICE:
+              type = "price";
+              break;
+            case TAX:
+              type = "tax";
+              break;
+          }
+          if (type == "") return;
+          const editableElement = /**@type{HTMLElement}*/ (
+            document.querySelector(
+              `.service_editable.service_active.service_selected.service_${type}`,
+            )
+          );
+          if (!editableElement) return;
+          this.focusElement(editableElement);
+        },
+        /**
+         * focus an editable element blur others
+         * @param {string} editable
+         * */
+        blurFocusEditable(editable) {
+          this.blurEditables();
+          this.focusEditable(editable);
         },
 
         /**
@@ -162,6 +280,7 @@ var Alpine;
               service.transaction_price = service.suggested_price;
               service.transaction_tax = service.sell_tax;
             }
+            this.filteredServices = this.getFiltered();
           } catch (e) {
             console.error(e);
             globalThis.showNotify({
@@ -180,6 +299,22 @@ var Alpine;
          * */
         renderService(service) {
           return this.transactionsServices.indexOf(service.id) == -1;
+        },
+
+        // Get filter elements
+        /**
+         * @returns {Array<Service>}
+         * */
+        getFiltered() {
+          const filtered = this.services.filter((s) => {
+            return (
+              this.renderService(s) &&
+              globalThis.match(s.name, this.newServiceSearch)
+            );
+          });
+
+          this.newServiceIndex = 0;
+          return filtered;
         },
 
         // Get some data from specific transaction
@@ -448,7 +583,6 @@ var Alpine;
          * @param {HTMLElement} el
          * */
         scrollTo(el) {
-          console.log(el);
           setTimeout(() => {
             el.scrollIntoView({ behavior: "smooth" });
           }, 300);

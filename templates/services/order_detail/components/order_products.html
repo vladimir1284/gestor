@@ -1,4 +1,9 @@
 {% load static %}
+<style>
+    .selected {
+        box-shadow: inset 0 0 10px 3px rgba(0, 100, 255, 0.5);
+    }
+</style>
 <div class="h-full flex flex-col overflow-hidden box-border">
     <!-- <div class="card-body py-0"> -->
     <!--     <div class="input-group mb-3"> -->
@@ -31,9 +36,20 @@
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
-                <template x-for="product in products">
-                    <tr x-show="renderProduct(product) && globalThis.match(product.name, newProductSearch)"
-                        x-id="['quantity', 'price', 'tax']">
+                <template x-for="(product, index) in filteredProducts">
+                    <!-- <tr x-show="renderProduct(product) && globalThis.match(product.name, newProductSearch)" -->
+                    <tr x-id="['quantity', 'price', 'tax']"
+                        :class="{
+                                'selected': index == newProductIndex,
+                                }"
+                        x-effect="() => {
+                                  if (index == newProductIndex) {
+                                  scrollTo($el)
+                                  }
+                                  }"
+                        class="scroll-mt-40"
+                        @click="newProductIndex = index"
+                    >
                         <td>
                             <button class="btn btn-icon btn-link"
                                     @click="addNewTransaction(product)"
@@ -53,11 +69,14 @@
                                 <input :id="$id('quantity')"
                                        type="number"
                                        min="1"
-                                       class="form-control"
-                                       @keydown.stop.alt.tab="focusElementById($id('price'))"
-                                       @keypress.enter="addNewTransaction(product)"
                                        x-model="product.transaction_quantity"
-                                       :class="product.transaction_quantity > product.quantity ? 'text-danger' : 'text-primary'">
+                                       class="form-control product_editable product_quantity scroll-mt-40"
+                                       :class="{
+                                               'text-danger': product.transaction_quantity > product.quantity,
+                                               'text-primary': product.transaction_quantity <= product.quantity,
+                                               'product_selected': index == newProductIndex,
+                                               'product_active': newProductMode(),
+                                               }">
                                 <span class="input-group-text">
                                     /
                                     <span x-text="product.quantity"></span>
@@ -72,11 +91,14 @@
                                 <input :id="$id('price')"
                                        type="number"
                                        min="1"
-                                       class="form-control"
-                                       @keydown.stop.alt.tab="focusElementById($id('tax'))"
-                                       @keypress.enter="addNewTransaction(product)"
                                        x-model="product.transaction_price"
-                                       :class="product.transaction_price < product.sell_price ? 'text-danger' : 'text-primary'">
+                                       class="form-control product_editable product_price scroll-mt-40"
+                                       :class="{
+                                               'text-danger': product.transaction_price < product.sell_price,
+                                               'text-primary': product.transaction_price >= product.sell_price,
+                                               'product_selected': index == newProductIndex,
+                                               'product_active': newProductMode(),
+                                               }">
                                 <span class="input-group-text">
                                     $<span x-text="product.sell_price.toFixed(2)"></span>
                                 </span>
@@ -90,11 +112,13 @@
                                 <span class="input-group-text">
                                     <div class="form-check">
                                         <input :id="$id('tax')"
-                                               class="form-check-input checkboxinput"
+                                               class="form-check-input checkboxinput product_editable product_tax scroll-mt-40"
                                                type="checkbox"
-                                               @keydown.stop.alt.tab="focusElementById($id('quantity'))"
-                                               @keypress.enter="addNewTransaction(product)"
-                                               x-model="product.transaction_tax">
+                                               x-model="product.transaction_tax"
+                                               :class="{
+                                                       'product_selected': index == newProductIndex,
+                                                       'product_active': newProductMode(),
+                                                       }">
                                     </div>
                                     <label class="form-check-label" :for="$id('tax')" x-text="product.sell_tax">
                                     </label>
