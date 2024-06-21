@@ -6,9 +6,18 @@ from utils.models import Order
 
 def _resolver():
     print("payment pending")
-    orders_payment_pending = Order.objects.filter(
-        type="sell", status="payment_pending"
-    ).order_by("-created_date")
+    orders_payment_pending = (
+        Order.objects.filter(type="sell", status="payment_pending")
+        .order_by("-created_date")
+        .prefetch_related(
+            "expense_set",
+            "servicetransaction_set",
+            "producttransaction_set",
+            "producttransaction_set__product",
+            "producttransaction_set__product__producttransaction_set",
+            "producttransaction_set__product__producttransaction_set__order",
+        )
+    )
 
     for order in orders_payment_pending:
         computeOrderAmount(order)
