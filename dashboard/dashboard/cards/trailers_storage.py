@@ -12,9 +12,18 @@ def _resolver():
     orders = (
         Order.objects.filter(
             position=0,
+        ).select_related(
+            "vehicle",
+            "associated",
+            "company",
+            "trailer",
+            "trailer__manufacturer",
         )
         # .exclude(status="complete")
         # .exclude(status="decline")
+        .prefetch_related(
+            "storage_traces",
+        )
     )
 
     clientOwnsTriler = orders.filter(
@@ -23,7 +32,13 @@ def _resolver():
         associated=None,
     )
     for o in clientOwnsTriler:
-        o.trace = o.storage_traces.order_by("-date").first()
+        traces = [t for t in o.storage_traces.all()]
+        traces.sort(
+            key=lambda t: t.date,
+            reverse=True,
+        )
+        o.trace = traces[0] if len(traces) > 0 else None
+        # o.trace = o.storage_traces.order_by("-date").first()
         if o.trace:
             o.trace.time = (make_aware(datetime.now()) - o.trace.date).days
 
@@ -33,7 +48,13 @@ def _resolver():
         associated=None,
     )
     for o in clientRentTriler:
-        o.trace = o.storage_traces.order_by("-date").first()
+        traces = [t for t in o.storage_traces.all()]
+        traces.sort(
+            key=lambda t: t.date,
+            reverse=True,
+        )
+        o.trace = traces[0] if len(traces) > 0 else None
+        # o.trace = o.storage_traces.order_by("-date").first()
         if o.trace:
             o.trace.time = (make_aware(datetime.now()) - o.trace.date).days
 
@@ -43,7 +64,13 @@ def _resolver():
         trailer=None,
     )
     for o in justTriler:
-        o.trace = o.storage_traces.order_by("-date").first()
+        traces = [t for t in o.storage_traces.all()]
+        traces.sort(
+            key=lambda t: t.date,
+            reverse=True,
+        )
+        o.trace = traces[0] if len(traces) > 0 else None
+        # o.trace = o.storage_traces.order_by("-date").first()
         if o.trace:
             o.trace.time = (make_aware(datetime.now()) - o.trace.date).days
 
