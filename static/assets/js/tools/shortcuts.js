@@ -24,7 +24,7 @@ function _bindShortCut(shortcut, func, override = false) {
 globalThis.bindShortcut = _bindShortCut;
 
 function initShortCuts() {
-  window.addEventListener("keyup", (e) => {
+  window.addEventListener("keydown", (e) => {
     let shortcut = "";
     if (e.ctrlKey) {
       shortcut += "ctrl+";

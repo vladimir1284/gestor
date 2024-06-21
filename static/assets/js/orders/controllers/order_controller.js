@@ -8,6 +8,11 @@ var Alpine;
   /** @typedef {import('../models/product_transaction.js').ProductTransactionCreation} */
   /** @typedef {import('../models/product.js').Product} */
 
+  const NONE = "";
+  const QTY = "qty";
+  const PRICE = "price";
+  const TAX = "tax";
+
   /**
    * Init a controller
    * @param {string} name - Identifier to use this controller from html
@@ -38,8 +43,14 @@ var Alpine;
           loadingProducts: false,
           /** @type {Array<Product>} */
           products: [],
+          /** @type {Array<Product>} */
+          filteredProducts: [],
           /** @type {string} */
           newProductSearch: "",
+          /** @type {number} */
+          newProductIndex: 0,
+          /** @type {string} */
+          newProductEditing: NONE,
           // /** @type {number} */
           // newProductQty: 1,
           // /** @type {boolean} */
@@ -109,6 +120,11 @@ var Alpine;
                   this.unsatisfied_args.tax += tax;
                 }
               }
+              this.filteredProducts = this.getFiltered();
+            });
+
+            this.$watch("newProductSearch", () => {
+              this.filteredProducts = this.getFiltered();
             });
 
             this.loadTransactions();
@@ -120,6 +136,66 @@ var Alpine;
             });
             globalThis.bindShortcut("escape", () => {
               this.closeNewProductMode();
+            });
+            globalThis.bindShortcut("enter", () => {
+              if (!this.newProductMode()) {
+                return;
+              }
+              this.addNewTransaction(
+                this.filteredProducts[this.newProductIndex],
+              );
+            });
+            globalThis.bindShortcut(
+              "alt+arrowup",
+              (/**@type {KeyboardEvent}*/ e) => {
+                if (!this.newProductMode()) {
+                  return;
+                }
+                e.preventDefault();
+                this.newProductIndex--;
+                if (this.newProductIndex < 0) {
+                  this.newProductIndex = this.filteredProducts.length - 1;
+                }
+                this.newProductEditing = NONE;
+                this.blurEditables();
+              },
+            );
+            globalThis.bindShortcut(
+              "alt+arrowdown",
+              (/**@type {KeyboardEvent}*/ e) => {
+                if (!this.newProductMode()) {
+                  return;
+                }
+                e.preventDefault();
+                this.newProductIndex++;
+                if (this.newProductIndex >= this.filteredProducts.length) {
+                  this.newProductIndex = 0;
+                }
+                this.newProductEditing = NONE;
+                this.blurEditables();
+              },
+            );
+            globalThis.bindShortcut("alt+tab", () => {
+              if (!this.newProductMode()) {
+                return;
+              }
+              switch (this.newProductEditing) {
+                case NONE:
+                  this.newProductEditing = QTY;
+                  break;
+                case QTY:
+                  this.newProductEditing = PRICE;
+                  break;
+                case PRICE:
+                  this.newProductEditing = TAX;
+                  break;
+                case TAX:
+                  this.newProductEditing = NONE;
+                  break;
+                default:
+                  this.newProductEditing = NONE;
+              }
+              this.blurFocusEditable(this.newProductEditing);
             });
 
             const closeThis = () => {
@@ -134,6 +210,53 @@ var Alpine;
             globalThis[`reload_${this.transactionType}`] = () => {
               this.loadTransactions;
             };
+          },
+
+          /**
+           * Blur all editables elements
+           * */
+          blurEditables() {
+            const editables = /**@type{NodeListOf<HTMLElement>}*/ (
+              document.querySelectorAll(".product_editable.product_active")
+            );
+
+            for (let e of editables) {
+              e.blur();
+            }
+          },
+          /**
+           * focus an editable element
+           * @param {string} editable
+           * */
+          focusEditable(editable) {
+            let type = "";
+            switch (editable) {
+              case QTY:
+                type = "quantity";
+                break;
+              case PRICE:
+                type = "price";
+                break;
+              case TAX:
+                type = "tax";
+                break;
+            }
+            if (type == "") return;
+            const editableElement = /**@type{HTMLElement}*/ (
+              document.querySelector(
+                `.product_editable.product_active.product_selected.product_${type}`,
+              )
+            );
+            if (!editableElement) return;
+            this.focusElement(editableElement);
+          },
+          /**
+           * focus an editable element blur others
+           * @param {string} editable
+           * */
+          blurFocusEditable(editable) {
+            this.blurEditables();
+            this.focusEditable(editable);
           },
 
           /**
@@ -210,6 +333,7 @@ var Alpine;
                 //   : product.sell_price;
                 product.transaction_tax = true;
               }
+              this.filteredProducts = this.getFiltered();
             } catch (e) {
               console.error(e);
               globalThis.showNotify({
@@ -219,6 +343,22 @@ var Alpine;
               });
             }
             this.loadingProducts = false;
+          },
+
+          // Get filter elements
+          /**
+           * @returns {Array<Product>}
+           * */
+          getFiltered() {
+            const filtered = this.products.filter((p) => {
+              return (
+                this.renderProduct(p) &&
+                globalThis.match(p.name, this.newProductSearch)
+              );
+            });
+
+            this.newProductIndex = 0;
+            return filtered;
           },
 
           // Get some data from specific transaction
@@ -518,6 +658,7 @@ var Alpine;
             this.newProductSearch = "";
             this.searchProductInputFocus = false;
             this.$refs.searchProducts.blur();
+            this.newProductIndex = 0;
           },
 
           // Tools
@@ -526,9 +667,12 @@ var Alpine;
            * @param {HTMLElement} el
            * */
           scrollTo(el) {
-            console.log(el);
             setTimeout(() => {
-              el.scrollIntoView({ behavior: "smooth" });
+              el.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+                inline: "nearest",
+              });
             }, 300);
           },
 
