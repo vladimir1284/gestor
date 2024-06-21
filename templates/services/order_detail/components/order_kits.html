@@ -1,4 +1,13 @@
 {% load static %}
+<style>
+    .selected {
+        box-shadow: inset 0 0 10px 3px rgba(0, 100, 255, 0.5);
+
+        &.unavailable {
+            box-shadow: inset 0 0 10px 3px rgba(255, 0, 0, 0.5);
+        }
+    }
+</style>
 <div class="h-full flex flex-col overflow-hidden box-border">
     <div class="table-responsive text-nowrap flex-grow overflow-auto">
         <table class="table table-sm">
@@ -11,8 +20,13 @@
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
-                <template x-for="kit in kits">
-                    <tr x-show="globalThis.match(kit.name, newKitSearch)">
+                <template x-for="(kit, index) in filteredKits">
+                    <tr
+                        @click="newKitIndex = index"
+                        :class="{
+                                'selected': index == newKitIndex,
+                                'unavailable': !kit.available,
+                                }">
                         <td>
                             <template x-if="kit.available">
                                 <button class="btn btn-icon btn-link"

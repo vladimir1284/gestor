@@ -1,15 +1,20 @@
 {% load static %}
+<style>
+    .selected {
+        box-shadow: inset 0 0 10px 3px rgba(0, 100, 255, 0.5);
+    }
+</style>
 <div class="h-full flex flex-col overflow-hidden box-border">
-    <div class="card-body py-0 flex gap-2 flex-wrap box-border">
-        <div class="input-group mb-3">
-            <span class="input-group-text">Default quantity:</span>
-            <input type="number" min="1" class="form-control" x-model="newServiceQty">
-        </div>
+    <!-- <div class="card-body py-0 flex gap-2 flex-wrap box-border"> -->
+    <!--     <div class="input-group mb-3"> -->
+    <!--         <span class="input-group-text">Default quantity:</span> -->
+    <!--         <input type="number" min="1" class="form-control" x-model="newServiceQty"> -->
+    <!--     </div> -->
         <!-- <div class="input-group mb-3"> -->
         <!--     <span class="input-group-text">Default Tax:</span> -->
         <!--     <input type="number" min="1" class="form-control" x-model="newServiceTax"> -->
         <!-- </div> -->
-    </div>
+    <!-- </div> -->
 
     <div class="table-responsive text-nowrap flex-grow !overflow-auto">
         <table class="table table-sm">
@@ -25,9 +30,19 @@
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
-                <template x-for="service in services">
-                    <tr x-show="renderService(service) && globalThis.match(service.name, newServiceSearch)"
-                        x-id="['quantity', 'price', 'tax']">
+                <template x-for="(service, index) in filteredServices">
+                    <tr x-id="['quantity', 'price', 'tax']"
+                        :class="{
+                                'selected': index == newServiceIndex,
+                                }"
+                        x-effect="() => {
+                                  if (index == newServiceIndex) {
+                                  scrollTo($el)
+                                  }
+                                  }"
+                        class="scroll-mt-40"
+                        @click="newServiceIndex = index"
+                    >
                         <td>
                             <button class="btn btn-icon btn-link"
                                     @click="addNewTransaction(service)"
@@ -47,10 +62,12 @@
                                 <input :id="$id('quantity')"
                                        type="number"
                                        min="1"
-                                       class="form-control"
-                                       @keydown.stop.alt.tab="focusElementById($id('price'))"
-                                       @keypress.enter="addNewTransaction(service)"
-                                       x-model="service.transaction_quantity">
+                                       x-model="service.transaction_quantity"
+                                       class="form-control service_editable service_quantity scroll-mt-40"
+                                       :class="{
+                                               'service_selected': index == newServiceIndex,
+                                               'service_active': newServiceMode(),
+                                               }">
                             </div>
                         </td>
                         <td>
@@ -58,11 +75,14 @@
                                 <input :id="$id('price')"
                                        type="number"
                                        min="0"
-                                       class="form-control"
-                                       @keydown.stop.alt.tab="focusElementById($id('tax'))"
-                                       @keypress.enter="addNewTransaction(service)"
                                        x-model="service.transaction_price"
-                                       :class="service.transaction_price < service.suggested_price ? 'text-danger' : 'text-primary'">
+                                       class="form-control service_editable service_price scroll-mt-40"
+                                       :class="{
+                                               'text-danger': service.transaction_price < service.suggested_price,
+                                               'text-primary': service.transaction_price >= service.suggested_price,
+                                               'service_selected': index == newServiceIndex,
+                                               'service_active': newServiceMode(),
+                                               }">
                                 <span class="input-group-text">
                                     $<span x-text="service.suggested_price.toFixed(2)"></span>
                                 </span>
@@ -73,17 +93,20 @@
                                 <input :id="$id('tax')"
                                        type="number"
                                        min="0"
-                                       class="form-control"
-                                       @keydown.stop.alt.tab="focusElementById($id('quantity'))"
-                                       @keypress.enter="addNewTransaction(service)"
                                        x-model="service.transaction_tax"
-                                       :class="service.transaction_tax < service.sell_tax ? 'text-danger' : 'text-primary'">
+                                       class="form-control service_editable service_tax scroll-mt-40"
+                                       :class="{
+                                               'text-danger': service.transaction_tax < service.sell_tax,
+                                               'text-primary': service.transaction_tax >= service.sell_tax,
+                                               'service_selected': index == newServiceIndex,
+                                               'service_active': newServiceMode(),
+                                               }">
                                 <span class="input-group-text">
                                     $<span x-text="service.sell_tax.toFixed(2)"></span>
                                 </span>
                             </div>
                         </td>
-                    </tr>
+                    </trx-id>
                 </template>
             </tbody>
         </table>
