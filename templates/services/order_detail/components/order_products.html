@@ -69,8 +69,8 @@
                                 <input :id="$id('quantity')"
                                        type="number"
                                        min="1"
-                                       class="form-control product_editable product_quantity scroll-mt-40"
                                        x-model="product.transaction_quantity"
+                                       class="form-control product_editable product_quantity scroll-mt-40"
                                        :class="{
                                                'text-danger': product.transaction_quantity > product.quantity,
                                                'text-primary': product.transaction_quantity <= product.quantity,
@@ -91,8 +91,8 @@
                                 <input :id="$id('price')"
                                        type="number"
                                        min="1"
-                                       class="form-control product_editable product_price scroll-mt-40"
                                        x-model="product.transaction_price"
+                                       class="form-control product_editable product_price scroll-mt-40"
                                        :class="{
                                                'text-danger': product.transaction_price < product.sell_price,
                                                'text-primary': product.transaction_price >= product.sell_price,
