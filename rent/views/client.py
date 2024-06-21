@@ -43,6 +43,19 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
         contracts = Contract.objects.exclude(stage="ended")
     else:
         contracts = Contract.objects.all()
+    contracts = contracts.prefetch_related(
+        "lessee",
+        "trailer",
+        "tolldue_set",
+        "_renovations",
+        "lease_set",
+        "lease_set__event",
+        "lease_set__event__rule",
+        "lease_set__event__occurrence_set",
+        "lease_set__due_set",
+        "lease_set__contract",
+        "lease_set__lease_deposit",
+    )
     clients = []
     payment_dates = {}
     debt_amounts = {}
@@ -56,15 +69,20 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
         client.trailer = contract.trailer
         client.contract = contract
         client.renovation = contract.renovation_ctx
-        client.unpaid_tolls = (
-            True if client.contract.tolldue_set.all().filter(stage="unpaid") else False
-        )
 
-        client.tolls_amount = (
-            client.contract.tolldue_set.all()
-            .filter(stage="unpaid" if client.unpaid_tolls else "paid")
-            .aggregate(Sum("amount"))["amount__sum"]
-        )
+        tolldues = [td for td in contract.tolldue_set.all()]
+        client.unpaid_tolls = any(td.stage == "unpaid" for td in tolldues)
+        # True if contract.tolldue_set.all().filter(stage="unpaid") else False
+
+        filter = "unpaid" if client.unpaid_tolls else "paid"
+        tolls_amounts = [td.amount for td in tolldues if td.stage == filter]
+        client.tolls_amount = sum(tolls_amounts)
+
+        # client.tolls_amount = (
+        #     client.contract.tolldue_set.all()
+        #     .filter(stage="unpaid" if client.unpaid_tolls else "paid")
+        #     .aggregate(Sum("amount"))["amount__sum"]
+        # )
         if contract.contract_type == "lto":
             _, client.contract.paid = contract.paid()
         payment_dates.setdefault(client.id, timezone.now())
@@ -79,18 +97,34 @@ def get_sorted_clients(n=None, order_by="date", exclude=True):
                     client.contract.days = (
                         timezone.now().date() - contract.ended_date
                     ).days
-            try:
-                leases = Lease.objects.filter(contract=contract)
+            # try:
+            #     leases = Lease.objects.filter(contract=contract)
+            #     lease = leases[0]
+            # except (Lease.DoesNotExist, IndexError):
+            #     lease = Lease.objects.create(
+            #         contract=contract,
+            #         payment_amount=contract.payment_amount,
+            #         payment_frequency=contract.payment_frequency,
+            #         event=None,
+            #     )
+            leases = contract.lease_set.all()
+            if len(leases) > 0:
                 lease = leases[0]
-            except (Lease.DoesNotExist, IndexError):
+                empty = False
+            else:
                 lease = Lease.objects.create(
                     contract=contract,
                     payment_amount=contract.payment_amount,
                     payment_frequency=contract.payment_frequency,
                     event=None,
                 )
+                empty = True
+
             client.lease = lease
-            client.debt, last_payment, client.unpaid_dues = compute_client_debt(lease)
+            client.debt, last_payment, client.unpaid_dues = compute_client_debt(
+                lease,
+                empty=empty,
+            )
             if client.debt > 0:
                 # Discount remaining from debt
                 client.debt -= lease.remaining

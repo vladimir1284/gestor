@@ -12,12 +12,15 @@ from rent.models.lease import Lease
 def get_start_paying_date(lease: Lease, last_due: datetime | None | bool = True):
     # Find the last due payed by the client
     if last_due is True:
-        last_due = Due.objects.filter(lease=lease).last()
+        dues = [d.due_date for d in lease.due_set.all()].sort(reverse=True)
+        if len(dues) > 0:
+            last_due = dues[0]
+        else:
+            last_due = None
+        # last_due = Due.objects.filter(lease=lease).last()
 
     if last_due is not None:
-        interval_start = (
-            last_due.due_date if isinstance(last_due, Due) else last_due
-        ) + timedelta(days=2)
+        interval_start = last_due + timedelta(days=2)
     else:
         # If the client hasn't paid, then start paying on effective date
         interval_start = lease.contract.effective_date - timedelta(days=1)
@@ -29,12 +32,14 @@ def get_start_paying_date(lease: Lease, last_due: datetime | None | bool = True)
     return interval_start
 
 
-def compute_client_debt(lease: Lease, due_dates: list | None = None):
+def compute_client_debt(
+    lease: Lease, due_dates: list | None = None, empty: bool = False
+):
     if due_dates is None:
-        due_dates = []
-        dues = Due.objects.filter(lease=lease)
-        for d in dues:
-            due_dates.append(d.due_date)
+        due_dates = [] if empty else [d.due_date for d in lease.due_set.all()]
+        # dues = Due.objects.filter(lease=lease)
+        # for d in dues:
+        #     due_dates.append(d.due_date)
 
     due_dates.sort(reverse=True)
 
@@ -43,7 +48,11 @@ def compute_client_debt(lease: Lease, due_dates: list | None = None):
         due_dates[0] if len(due_dates) > 0 else None,
     )
     occurrences = (
-        lease.event.get_occurrences(interval_start, timezone.now())
+        lease.event.get_occurrences(
+            interval_start,
+            timezone.now(),
+            clear_prefetch=False,
+        )
         if lease.event is not None
         else []
     )

@@ -3,6 +3,8 @@ from datetime import time
 from datetime import timedelta
 
 from django.utils import timezone
+from django.utils.dateformat import is_naive
+from django.utils.dateformat import make_aware
 from schedule.models.events import Event
 
 from dashboard.dashboard.dashboard_card import DashboardCard
@@ -12,9 +14,15 @@ from rent.views.client import compute_client_debt
 from rent.views.client import get_sorted_clients
 
 
+def awarize(date: datetime):
+    if timezone.is_naive(date):
+        date = timezone.make_aware(date, timezone.get_current_timezone())
+    return date
+
+
 def is_in_interval(event: Event, from_: datetime, to: datetime) -> bool:
-    start = timezone.make_aware(event.start)
-    return start >= from_ and start <= to
+    start = awarize(event.start)
+    return start >= awarize(from_) and start <= awarize(to)
 
 
 def check_interval(events: list[Event], from_: datetime, to: datetime) -> bool:
@@ -29,6 +37,7 @@ def _resolver():
     clients_by_date, n_active, n_processing, n_ended, rental_debt = get_sorted_clients(
         n=5
     )
+    print(1)
     (
         clients_by_amount,
         n_active,
@@ -37,6 +46,7 @@ def _resolver():
         rental_debt,
     ) = get_sorted_clients(n=5, order_by="amount")
 
+    print(2)
     yesterday_dues = []
 
     leases = Lease.objects.select_related(
@@ -44,23 +54,27 @@ def _resolver():
         "contract",
         "contract__lessee",
     ).filter(contract__stage="active")
+    print(3)
 
     # Get the first time of today
     first_time = datetime.combine(timezone.now().date(), time.min) - timedelta(days=1)
     # Get the last time of today
     last_time = datetime.combine(timezone.now().date(), time.max) - timedelta(days=1)
 
+    print(4)
     # dues = Due.objects.select_related("lease").filter(lease__in=leases)
     # dues_map = defaultdict([])
     # for d in dues:
     #     dues_map[d.lease.id].append(d.due_date)
 
     for lease in leases:
+        print(4.1)
         (
             debt,
             last_payment,
             unpaid_dues,
         ) = compute_client_debt(lease)
+        print(4.2)
         if check_interval(unpaid_dues, first_time, last_time):
             client = lease.contract.lessee
             client.debt, client.unpaid_dues = debt, unpaid_dues
@@ -69,6 +83,7 @@ def _resolver():
             else:
                 client.last_payment = last_payment
             yesterday_dues.append(client)
+        print(4.3)
         #
         # occurrences = (
         #     []
@@ -94,6 +109,7 @@ def _resolver():
         #         if client.debt > 0:
         #             client.last_payment = client.unpaid_dues[0].start
         #         yesterday_dues.append(client)
+    print(5)
 
     return {
         "rental_debt": rental_debt,

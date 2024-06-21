@@ -114,9 +114,19 @@ class Contract(models.Model):
         elif exp_in.days <= 15 and not self.renovation_15_notify:
             self._notify("exp15")
 
+    _renovation_list: list[ContractRenovation] | None = None
+
+    @property
+    def renovations_list(self):
+        if self._renovation_list is None:
+            self._renovation_list = [r for r in self._renovations.all()]
+            self._renovation_list.sort(key=lambda r: r.effective_date)
+
+        return self._renovation_list
+
     @property
     def renovations(self) -> list[ContractRenovation]:
-        renovations = self._renovations.order_by("effective_date").all()
+        renovations = self.renovations_list
         num = 0
         for r in renovations:
             num += 1
@@ -127,11 +137,13 @@ class Contract(models.Model):
 
     @property
     def last_renovation(self) -> ContractRenovation | None:
-        return self._renovations.order_by("-effective_date").first()
+        if len(self.renovations_list) > 0:
+            return self.renovations_list[-1]
+        return None
 
     @property
     def renovations_count(self) -> int:
-        return self._renovations.count()
+        return len(self.renovations_list)
 
     @property
     def original_expiration_date(self) -> datetime.date:
@@ -235,24 +247,32 @@ class Contract(models.Model):
         return f"({self.id}) {self.trailer} -> {self.lessee}"
 
     def paid(self):
-        total_amount = Due.objects.filter(lease__contract=self).aggregate(
-            total_amount=Sum("amount")
-        )["total_amount"]
-        if total_amount is not None:
-            paid_amount = float(total_amount)
-        else:
-            paid_amount = 0
+        dues_amounts = []
+        for lease in self.lease_set.all():
+            dues_amounts += [d.amount for d in lease.due_set.all()]
+        paid_amount = float(sum(dues_amounts))
+        # total_amount = Due.objects.filter(lease__contract=self).aggregate(
+        #     total_amount=Sum("amount")
+        # )["total_amount"]
+        # if total_amount is not None:
+        #     paid_amount = float(total_amount)
+        # else:
+        #     paid_amount = 0
         # Add the down payment for LTO (security_deposit)
         if self.contract_type == "lto":
             if self.stage == "active":
-                lease = Lease.objects.get(contract=self)
-                total_deposit = LeaseDeposit.objects.filter(lease=lease).aggregate(
-                    total=Sum("amount")
-                )["total"]
-                if total_deposit is not None:
-                    paid_amount += total_deposit
+                for lease in self.lease_set.all():
+                    paid_amount += float(
+                        sum([ld.amount for ld in lease.lease_deposit.all()])
+                    )
+                # lease = Lease.objects.get(contract=self)
+                # total_deposit = LeaseDeposit.objects.filter(lease=lease).aggregate(
+                #     total=Sum("amount")
+                # )["total"]
+                # if total_deposit is not None:
+                #     paid_amount += total_deposit
             else:
-                paid_amount += self.security_deposit
+                paid_amount += float(self.security_deposit)
 
         return paid_amount, (paid_amount >= self.total_amount)
 
