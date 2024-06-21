@@ -5,10 +5,18 @@ from rent.models.lease import Contract
 
 def _resolver():
     print("contract renovations")
-    contracts = Contract.objects.filter(
-        stage="active",
-    ).prefetch_related(
-        "_renovations",
+    contracts = (
+        Contract.objects.filter(
+            stage="active",
+        )
+        .select_related(
+            "lessee",
+            "trailer",
+            "trailer__manufacturer",
+        )
+        .prefetch_related(
+            "_renovations",
+        )
     )
 
     to_renew = []

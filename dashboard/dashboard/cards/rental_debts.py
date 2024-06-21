@@ -50,13 +50,13 @@ def _resolver():
     leases = (
         Lease.objects.select_related(
             "event",
+            "event__rule",
             "contract",
             "contract__lessee",
         )
         .filter(contract__stage="active")
         .prefetch_related(
             "due_set",
-            "event__rule",
             "event__occurrence_set",
         )
     )

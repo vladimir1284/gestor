@@ -11,9 +11,15 @@ def _resolver():
     active_trailers = []
     on_hold_trailers = []
 
-    trailers = Trailer.objects.filter(active=True).prefetch_related(
-        "trailer_deposit",
-        "trailer_deposit__contract",
+    trailers = (
+        Trailer.objects.filter(active=True)
+        .select_related(
+            "manufacturer",
+        )
+        .prefetch_related(
+            "trailer_deposit",
+            "trailer_deposit__contract",
+        )
     )
 
     contracts = Contract.objects.select_related(

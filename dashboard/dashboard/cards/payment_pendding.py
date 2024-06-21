@@ -9,6 +9,12 @@ def _resolver():
     orders_payment_pending = (
         Order.objects.filter(type="sell", status="payment_pending")
         .order_by("-created_date")
+        .select_related(
+            "trailer",
+            "vehicle",
+            "company",
+            "associated",
+        )
         .prefetch_related(
             "expense_set",
             "servicetransaction_set",
