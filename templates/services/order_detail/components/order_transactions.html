@@ -58,7 +58,7 @@
                                     :id="$id('quantity')"
                                     type="number"
                                     min="1"
-                                    class="form-control !p-1 text-center"
+                                    class="form-control !p-1 text-center num-input"
                                     x-model="transaction.quantity"
                                     @keydown.stop.alt.tab="focusElementById($id('price'))"
                                     @keyup.enter="save(transaction)"
@@ -81,7 +81,7 @@
                         <div
                             :title="`Sell price: $${transaction.product.sell_price.toFixed(2)}`"
                         >
-                            <div class="input-group !w-40">
+                            <div class="input-group !w-36">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {
@@ -94,7 +94,7 @@
                                     :id="$id('price')"
                                     type="number"
                                     min="0"
-                                    class="form-control !p-1 text-center"
+                                    class="form-control !p-1 text-center num-input"
                                     x-model="transaction.price"
                                     @keydown.stop.alt.tab="focusElementById($id('tax'))"
                                     @keyup.enter="save(transaction)"
@@ -218,7 +218,7 @@
                                     :id="$id('quantity')"
                                     type="number"
                                     min="1"
-                                    class="form-control !p-1 text-center text-danger font-bold"
+                                    class="form-control !p-1 text-center text-danger font-bold num-input"
                                     x-model="transaction.quantity"
                                     @keydown.stop.alt.tab="focusElementById($id('price'))"
                                     @keyup.enter="save(transaction)"
@@ -241,7 +241,7 @@
                         <div
                             :title="`Sell price: $${transaction.product.sell_price.toFixed(2)}`"
                         >
-                            <div class="input-group !w-40">
+                            <div class="input-group !w-36">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {
@@ -254,7 +254,7 @@
                                     :id="$id('price')"
                                     type="number"
                                     min="0"
-                                    class="form-control !p-1 text-center"
+                                    class="form-control !p-1 text-center num-input"
                                     x-model="transaction.price"
                                     @keydown.stop.alt.tab="focusElementById($id('tax'))"
                                     @keyup.enter="save(transaction)"
