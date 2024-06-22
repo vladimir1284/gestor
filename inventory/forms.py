@@ -212,8 +212,19 @@ class TransactionCreateForm(forms.ModelForm):
             break
 
         minimum = f"Minimum: ${self.limit:.2f}/{self.product.unit}."
-        average = f" Cost: ${cost:.2f}/{self.product.unit}."
-        self.fields["price"].help_text = minimum + average
+        average = (
+            """
+            <span x-data="{show: false}">
+                Cost:
+                <span class="text-main" @click="show = !show">
+                    <i class='bx bx-hide' x-show="!show"></i>
+                    <i class='bx bx-show' x-show="show"></i>
+                </span>
+                <span x-show="show">
+            """
+            + f"${cost:.2f}/{self.product.unit}</span></span>."
+        )
+        self.fields["price"].help_text = minimum + mark_safe(average)
 
         # Quantity
         available = self.product.computeAvailable(self.id)

@@ -8,10 +8,12 @@ var Alpine;
   /** @typedef {import('../models/service_transaction.js').ServiceTransactionCreation} */
   /** @typedef {import('../models/service.js').Service} */
 
-  const NONE = "";
-  const QTY = "qty";
-  const PRICE = "price";
-  const TAX = "tax";
+  const NONE = 0;
+  const QTY = 1;
+  const PRICE = 2;
+  const TAX = 3;
+  const EditMIN = NONE;
+  const EditMAX = TAX;
 
   document.addEventListener("alpine:init", () => {
     Alpine.data("OrderService", () => {
@@ -25,6 +27,8 @@ var Alpine;
 
       return {
         // Controller properties
+        /** @type {{shortcut: string[], description: string}[]} */
+        shortcutHelper: [],
 
         /** @type {boolean} */
         loadingServices: false,
@@ -36,7 +40,7 @@ var Alpine;
         newServiceSearch: "",
         /** @type {number} */
         newServiceIndex: 0,
-        /** @type {string} */
+        /** @type {number} */
         newServiceEditing: NONE,
         /** @type {boolean} */
         searchServiceInputFocus: false,
@@ -92,72 +96,6 @@ var Alpine;
           this.loadTransactions();
           this.loadServices();
 
-          globalThis.bindShortcut(this.shortcut, () => {
-            this.closeAll();
-            this.$refs.searchServices.focus();
-          });
-          globalThis.bindShortcut("escape", () => {
-            this.closeNewServiceMode();
-          });
-          globalThis.bindShortcut("enter", () => {
-            if (!this.newServiceMode()) {
-              return;
-            }
-            this.addNewTransaction(this.filteredServices[this.newServiceIndex]);
-          });
-          globalThis.bindShortcut(
-            "alt+arrowup",
-            (/**@type {KeyboardEvent}*/ e) => {
-              if (!this.newServiceMode()) {
-                return;
-              }
-              e.preventDefault();
-              this.newServiceIndex--;
-              if (this.newServiceIndex < 0) {
-                this.newServiceIndex = this.filteredServices.length - 1;
-              }
-              this.newServiceEditing = NONE;
-              this.blurEditables();
-            },
-          );
-          globalThis.bindShortcut(
-            "alt+arrowdown",
-            (/**@type {KeyboardEvent}*/ e) => {
-              if (!this.newServiceMode()) {
-                return;
-              }
-              e.preventDefault();
-              this.newServiceIndex++;
-              if (this.newServiceIndex >= this.filteredServices.length) {
-                this.newServiceIndex = 0;
-              }
-              this.newServiceEditing = NONE;
-              this.blurEditables();
-            },
-          );
-          globalThis.bindShortcut("alt+tab", () => {
-            if (!this.newServiceMode()) {
-              return;
-            }
-            switch (this.newServiceEditing) {
-              case NONE:
-                this.newServiceEditing = QTY;
-                break;
-              case QTY:
-                this.newServiceEditing = PRICE;
-                break;
-              case PRICE:
-                this.newServiceEditing = TAX;
-                break;
-              case TAX:
-                this.newServiceEditing = NONE;
-                break;
-              default:
-                this.newServiceEditing = NONE;
-            }
-            this.blurFocusEditable(this.newServiceEditing);
-          });
-
           const closeThis = () => {
             this.closeNewServiceMode();
           };
@@ -170,7 +108,168 @@ var Alpine;
           globalThis[`reload_${this.transactionType}`] = () => {
             this.loadTransactions();
           };
+
+          // Shortcuts
+          /** @type {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} */
+          const shortcuts = [
+            {
+              shortcut: this.shortcut,
+              description: "Open the dialog to add new service",
+              func: () => {
+                this.closeAll();
+                this.$refs.searchServices.focus();
+              },
+              direct: true,
+            },
+            {
+              shortcut: "Alt+H",
+              description: "Open this dialog with shortcuts",
+              func: () => {
+                this.$refs.shortcutButton.dispatchEvent(new Event("click"));
+              },
+            },
+            {
+              shortcut: "Escape",
+              description: "Close the dialogs",
+              func: () => this.closeNewServiceMode(),
+            },
+            {
+              shortcut: "Enter",
+              description: "Add the selected service",
+              func: () =>
+                this.addNewTransaction(
+                  this.filteredServices[this.newServiceIndex],
+                ),
+            },
+            {
+              shortcut: "Alt+Space",
+              description: "Focus the search bar",
+              func: () => this.focusSearch(),
+            },
+            {
+              shortcut: "Alt+Shift+Space",
+              description:
+                "Focus the search bar and select the text in the bar",
+              func: () => this.focusSearch(true),
+            },
+            {
+              shortcut: ["Alt+ArrowUp", "ArrowUp"],
+              description: "Select the previous service on the list",
+              func: () => this.selectPreviousItem(),
+            },
+            {
+              shortcut: ["Alt+ArrowDown", "ArrowDown"],
+              description: "Select the next service on the list",
+              func: () => this.selectNextItem(),
+            },
+            {
+              shortcut: ["Tab", "Alt+Tab", "Alt+ArrowRight", "ArrowRight"],
+              description:
+                "Focus the next editable (quantity, price and tax) on the selected service",
+              func: () => this.focusNextEditableOfSelected(),
+            },
+            {
+              shortcut: ["Alt+ArrowLeft", "ArrowLeft"],
+              description:
+                "Focus the previous editable (quantity, price and tax) on the selected service",
+              func: () => this.focusPreviousEditableOfSelected(),
+            },
+          ];
+          this.initShortcuts(shortcuts);
         },
+
+        // Tools
+
+        /**
+         * Scroll to element
+         * @param {HTMLElement} el
+         * */
+        scrollTo(el) {
+          setTimeout(() => {
+            el.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+              inline: "nearest",
+            });
+          }, 300);
+        },
+
+        /**
+         * focus element
+         * @param {HTMLElement} el
+         * @param {boolean} [scroll]
+         * */
+        focusElement(el, scroll) {
+          el.focus();
+          if (scroll) this.scrollTo(el);
+        },
+
+        /**
+         * focus element by id
+         * @param {string} id
+         * @param {boolean} [scroll]
+         * */
+        focusElementById(id, scroll) {
+          const el = document.getElementById(id);
+          if (el) this.focusElement(el, scroll);
+        },
+
+        // Shortcuts methods
+
+        /**
+         * Create a shortcut function that run if the dialog is active
+         * @param {string | string[]} shortcut - the function to execute
+         * @param {Function} callback - the function to execute
+         * */
+        createShortcut(shortcut, callback) {
+          globalThis.bindShortcut(shortcut, (/**@type {KeyboardEvent}*/ e) => {
+            if (!this.newServiceMode()) {
+              return;
+            }
+            e.preventDefault();
+            callback();
+          });
+        },
+
+        /**
+         * Init the shortcuts
+         * @param {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} shortcuts
+         * */
+        initShortcuts(shortcuts) {
+          for (let sc of shortcuts) {
+            if (sc.direct) {
+              globalThis.bindShortcut(sc.shortcut, () => sc.func());
+            } else {
+              this.createShortcut(sc.shortcut, sc.func);
+            }
+            let shortcut = sc.shortcut;
+            if (!(shortcut instanceof Array)) {
+              shortcut = [shortcut];
+            }
+            this.shortcutHelper.push({
+              shortcut,
+              description: sc.description,
+            });
+          }
+        },
+
+        // focus tools
+
+        /**
+         * Focus search input
+         * @param {boolean} [select] - Specify if select the current text
+         * */
+        focusSearch(select) {
+          this.newServiceEditing = EditMIN;
+          const input = /**@type {HTMLInputElement}*/ (
+            this.$refs.searchServices
+          );
+          input.focus();
+          if (select) {
+            input.select();
+          }
+        },
+
         /**
          * Blur all editables elements
          * */
@@ -183,9 +282,10 @@ var Alpine;
             e.blur();
           }
         },
+
         /**
          * focus an editable element
-         * @param {string} editable
+         * @param {number} editable
          * */
         focusEditable(editable) {
           let type = "";
@@ -209,9 +309,10 @@ var Alpine;
           if (!editableElement) return;
           this.focusElement(editableElement);
         },
+
         /**
          * focus an editable element blur others
-         * @param {string} editable
+         * @param {number} editable
          * */
         blurFocusEditable(editable) {
           this.blurEditables();
@@ -219,17 +320,55 @@ var Alpine;
         },
 
         /**
-         * Close all others instances
+         * Focus next editable of selected element
          * */
-        closeAll() {
-          if (!globalThis["closeAll"]) return;
-
-          for (let close of globalThis["closeAll"]) {
-            if (close) close();
+        focusNextEditableOfSelected() {
+          this.newServiceEditing++;
+          if (this.newServiceEditing > EditMAX) {
+            this.newServiceEditing = EditMIN;
           }
+          this.blurFocusEditable(this.newServiceEditing);
+        },
+
+        /**
+         * Focus previous editable of selected element
+         * */
+        focusPreviousEditableOfSelected() {
+          this.newServiceEditing--;
+          if (this.newServiceEditing < EditMIN) {
+            this.newServiceEditing = EditMAX;
+          }
+          this.blurFocusEditable(this.newServiceEditing);
+        },
+
+        // Selector tools
+
+        /**
+         * Select next item
+         * */
+        selectNextItem() {
+          this.newServiceIndex++;
+          if (this.newServiceIndex >= this.filteredServices.length) {
+            this.newServiceIndex = this.filteredServices.length - 1;
+          }
+          this.newServiceEditing = NONE;
+          this.blurEditables();
+        },
+
+        /**
+         * Select next item
+         * */
+        selectPreviousItem() {
+          this.newServiceIndex--;
+          if (this.newServiceIndex < 0) {
+            this.newServiceIndex = 0;
+          }
+          this.newServiceEditing = NONE;
+          this.blurEditables();
         },
 
         // Tools
+
         /**
          * @returns {string}
          * */
@@ -345,7 +484,7 @@ var Alpine;
          * @returns {number}
          * */
         getTax(transaction) {
-          return transaction.quantity * transaction.tax;
+          return (this.getAmount(transaction) * transaction.tax) / 100.0;
         },
 
         /**
@@ -577,35 +716,17 @@ var Alpine;
           this.$refs.searchServices.blur();
         },
 
-        // Tools
-        /**
-         * Scroll to element
-         * @param {HTMLElement} el
-         * */
-        scrollTo(el) {
-          setTimeout(() => {
-            el.scrollIntoView({ behavior: "smooth" });
-          }, 300);
-        },
+        // global close (close others dialogs)
 
         /**
-         * focus element
-         * @param {HTMLElement} el
-         * @param {boolean} [scroll]
+         * Close all others instances
          * */
-        focusElement(el, scroll) {
-          el.focus();
-          if (scroll) this.scrollTo(el);
-        },
+        closeAll() {
+          if (!globalThis["closeAll"]) return;
 
-        /**
-         * focus element by id
-         * @param {string} id
-         * @param {boolean} [scroll]
-         * */
-        focusElementById(id, scroll) {
-          const el = document.getElementById(id);
-          if (el) this.focusElement(el, scroll);
+          for (let close of globalThis["closeAll"]) {
+            if (close) close();
+          }
         },
       };
     });

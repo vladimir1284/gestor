@@ -6,7 +6,7 @@
     globalThis.ProductPartsUrl,
     globalThis.ProductTransactionPartsUrl,
     globalThis.OrderID,
-    "alt+p",
+    "Alt+P",
     "part",
   );
 })();
