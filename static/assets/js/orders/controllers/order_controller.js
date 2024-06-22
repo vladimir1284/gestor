@@ -540,7 +540,7 @@ var Alpine;
            * */
           getTax(transaction, force = false) {
             if (!force && !transaction.active_tax) return 0;
-            return transaction.quantity * transaction.tax;
+            return (this.getAmount(transaction) * transaction.tax) / 100.0;
           },
 
           /**

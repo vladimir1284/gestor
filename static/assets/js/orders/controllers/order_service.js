@@ -484,7 +484,7 @@ var Alpine;
          * @returns {number}
          * */
         getTax(transaction) {
-          return transaction.quantity * transaction.tax;
+          return (this.getAmount(transaction) * transaction.tax) / 100.0;
         },
 
         /**

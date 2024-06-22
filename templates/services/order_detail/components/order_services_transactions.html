@@ -109,7 +109,7 @@
                     </td>
                     <td class="text-center">
                         <div class="flex"
-                             :title="`Sell tax: $${transaction.service.sell_tax.toFixed(2)}`"
+                             :title="`Sell tax: ${transaction.service.sell_tax.toFixed(2)}%\nTotal: $${getTax(transaction).toFixed(2)}`"
                         >
                             <div class="input-group !w-32">
                                 <button
