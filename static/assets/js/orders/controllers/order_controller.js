@@ -8,10 +8,12 @@ var Alpine;
   /** @typedef {import('../models/product_transaction.js').ProductTransactionCreation} */
   /** @typedef {import('../models/product.js').Product} */
 
-  const NONE = "";
-  const QTY = "qty";
-  const PRICE = "price";
-  const TAX = "tax";
+  const NONE = 0;
+  const QTY = 1;
+  const PRICE = 2;
+  const TAX = 3;
+  const EditMIN = NONE;
+  const EditMAX = TAX;
 
   /**
    * Init a controller
@@ -38,6 +40,8 @@ var Alpine;
 
         return {
           // Controller properties
+          /** @type {{shortcut: string[], description: string}[]} */
+          shortcutHelper: [],
 
           /** @type {boolean} */
           loadingProducts: false,
@@ -49,12 +53,8 @@ var Alpine;
           newProductSearch: "",
           /** @type {number} */
           newProductIndex: 0,
-          /** @type {string} */
+          /** @type {number} */
           newProductEditing: NONE,
-          // /** @type {number} */
-          // newProductQty: 1,
-          // /** @type {boolean} */
-          // newProductTax: true,
           /** @type {boolean} */
           searchProductInputFocus: false,
 
@@ -89,6 +89,7 @@ var Alpine;
 
           // Initialization
           init() {
+            // Init observers
             this.$watch("transactions", (transactions) => {
               this.satisfied_args.total = 0;
               this.satisfied_args.amount = 0;
@@ -127,77 +128,11 @@ var Alpine;
               this.filteredProducts = this.getFiltered();
             });
 
+            // Load elements
             this.loadTransactions();
             this.loadProducts();
 
-            globalThis.bindShortcut(shortcut, () => {
-              this.closeAll();
-              this.$refs.searchProducts.focus();
-            });
-            globalThis.bindShortcut("escape", () => {
-              this.closeNewProductMode();
-            });
-            globalThis.bindShortcut("enter", () => {
-              if (!this.newProductMode()) {
-                return;
-              }
-              this.addNewTransaction(
-                this.filteredProducts[this.newProductIndex],
-              );
-            });
-            globalThis.bindShortcut(
-              "alt+arrowup",
-              (/**@type {KeyboardEvent}*/ e) => {
-                if (!this.newProductMode()) {
-                  return;
-                }
-                e.preventDefault();
-                this.newProductIndex--;
-                if (this.newProductIndex < 0) {
-                  this.newProductIndex = this.filteredProducts.length - 1;
-                }
-                this.newProductEditing = NONE;
-                this.blurEditables();
-              },
-            );
-            globalThis.bindShortcut(
-              "alt+arrowdown",
-              (/**@type {KeyboardEvent}*/ e) => {
-                if (!this.newProductMode()) {
-                  return;
-                }
-                e.preventDefault();
-                this.newProductIndex++;
-                if (this.newProductIndex >= this.filteredProducts.length) {
-                  this.newProductIndex = 0;
-                }
-                this.newProductEditing = NONE;
-                this.blurEditables();
-              },
-            );
-            globalThis.bindShortcut("alt+tab", () => {
-              if (!this.newProductMode()) {
-                return;
-              }
-              switch (this.newProductEditing) {
-                case NONE:
-                  this.newProductEditing = QTY;
-                  break;
-                case QTY:
-                  this.newProductEditing = PRICE;
-                  break;
-                case PRICE:
-                  this.newProductEditing = TAX;
-                  break;
-                case TAX:
-                  this.newProductEditing = NONE;
-                  break;
-                default:
-                  this.newProductEditing = NONE;
-              }
-              this.blurFocusEditable(this.newProductEditing);
-            });
-
+            // global close this
             const closeThis = () => {
               this.closeNewProductMode();
             };
@@ -210,6 +145,167 @@ var Alpine;
             globalThis[`reload_${this.transactionType}`] = () => {
               this.loadTransactions;
             };
+
+            // Shortcuts
+            /** @type {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} */
+            const shortcuts = [
+              {
+                shortcut: this.shortcut,
+                description: `Open the dialog to add new ${transactionType}`,
+                func: () => {
+                  this.closeAll();
+                  this.$refs.searchProducts.focus();
+                },
+                direct: true,
+              },
+              {
+                shortcut: "Alt+H",
+                description: "Open this dialog with shortcuts",
+                func: () => {
+                  this.$refs.shortcutButton.dispatchEvent(new Event("click"));
+                },
+              },
+              {
+                shortcut: "Escape",
+                description: "Close the dialogs",
+                func: () => this.closeNewProductMode(),
+              },
+              {
+                shortcut: "Enter",
+                description: `Add the selected ${transactionType}`,
+                func: () =>
+                  this.addNewTransaction(
+                    this.filteredProducts[this.newProductIndex],
+                  ),
+              },
+              {
+                shortcut: "Alt+Space",
+                description: "Focus the search bar",
+                func: () => this.focusSearch(),
+              },
+              {
+                shortcut: "Alt+Shift+Space",
+                description:
+                  "Focus the search bar and select the text in the bar",
+                func: () => this.focusSearch(true),
+              },
+              {
+                shortcut: ["Alt+ArrowUp", "ArrowUp"],
+                description: `Select the previous ${transactionType} on the list`,
+                func: () => this.selectPreviousItem(),
+              },
+              {
+                shortcut: ["Alt+ArrowDown", "ArrowDown"],
+                description: `Select the next ${transactionType} on the list`,
+                func: () => this.selectNextItem(),
+              },
+              {
+                shortcut: ["Tab", "Alt+Tab", "Alt+ArrowRight", "ArrowRight"],
+                description: `Focus the next editable (quantity, price and tax) on the selected ${transactionType}`,
+                func: () => this.focusNextEditableOfSelected(),
+              },
+              {
+                shortcut: ["Alt+ArrowLeft", "ArrowLeft"],
+                description: `Focus the previous editable (quantity, price and tax) on the selected ${transactionType}`,
+                func: () => this.focusPreviousEditableOfSelected(),
+              },
+            ];
+            this.initShortcuts(shortcuts);
+          },
+
+          // Tools
+
+          /**
+           * Scroll to element
+           * @param {HTMLElement} el
+           * */
+          scrollTo(el) {
+            setTimeout(() => {
+              el.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+                inline: "nearest",
+              });
+            }, 300);
+          },
+
+          /**
+           * focus element
+           * @param {HTMLElement} el
+           * @param {boolean} [scroll]
+           * */
+          focusElement(el, scroll) {
+            el.focus();
+            if (scroll) this.scrollTo(el);
+          },
+
+          /**
+           * focus element by id
+           * @param {string} id
+           * @param {boolean} [scroll]
+           * */
+          focusElementById(id, scroll) {
+            const el = document.getElementById(id);
+            if (el) this.focusElement(el, scroll);
+          },
+
+          // Shortcuts methods
+
+          /**
+           * Create a shortcut function that run if the dialog is active
+           * @param {string | string[]} shortcut - the function to execute
+           * @param {Function} callback - the function to execute
+           * */
+          createShortcut(shortcut, callback) {
+            globalThis.bindShortcut(
+              shortcut,
+              (/**@type {KeyboardEvent}*/ e) => {
+                if (!this.newProductMode()) {
+                  return;
+                }
+                e.preventDefault();
+                callback();
+              },
+            );
+          },
+
+          /**
+           * Init the shortcuts
+           * @param {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} shortcuts
+           * */
+          initShortcuts(shortcuts) {
+            for (let sc of shortcuts) {
+              if (sc.direct) {
+                globalThis.bindShortcut(sc.shortcut, () => sc.func());
+              } else {
+                this.createShortcut(sc.shortcut, sc.func);
+              }
+              let shortcut = sc.shortcut;
+              if (!(shortcut instanceof Array)) {
+                shortcut = [shortcut];
+              }
+              this.shortcutHelper.push({
+                shortcut,
+                description: sc.description,
+              });
+            }
+          },
+
+          // focus tools
+
+          /**
+           * Focus search input
+           * @param {boolean} [select] - Specify if select the current text
+           * */
+          focusSearch(select) {
+            this.newProductEditing = EditMIN;
+            const input = /**@type {HTMLInputElement}*/ (
+              this.$refs.searchProducts
+            );
+            input.focus();
+            if (select) {
+              input.select();
+            }
           },
 
           /**
@@ -224,9 +320,10 @@ var Alpine;
               e.blur();
             }
           },
+
           /**
            * focus an editable element
-           * @param {string} editable
+           * @param {number} editable
            * */
           focusEditable(editable) {
             let type = "";
@@ -250,9 +347,10 @@ var Alpine;
             if (!editableElement) return;
             this.focusElement(editableElement);
           },
+
           /**
            * focus an editable element blur others
-           * @param {string} editable
+           * @param {number} editable
            * */
           blurFocusEditable(editable) {
             this.blurEditables();
@@ -260,14 +358,51 @@ var Alpine;
           },
 
           /**
-           * Close all others instances
+           * Focus next editable of selected element
            * */
-          closeAll() {
-            if (!globalThis["closeAll"]) return;
-
-            for (let close of globalThis["closeAll"]) {
-              if (close) close();
+          focusNextEditableOfSelected() {
+            this.newProductEditing++;
+            if (this.newProductEditing > EditMAX) {
+              this.newProductEditing = EditMIN;
             }
+            this.blurFocusEditable(this.newProductEditing);
+          },
+
+          /**
+           * Focus previous editable of selected element
+           * */
+          focusPreviousEditableOfSelected() {
+            this.newProductEditing--;
+            if (this.newProductEditing < EditMIN) {
+              this.newProductEditing = EditMAX;
+            }
+            this.blurFocusEditable(this.newProductEditing);
+          },
+
+          // Selector tools
+
+          /**
+           * Select next item
+           * */
+          selectNextItem() {
+            this.newProductIndex++;
+            if (this.newProductIndex >= this.filteredProducts.length) {
+              this.newProductIndex = this.filteredProducts.length - 1;
+            }
+            this.newProductEditing = NONE;
+            this.blurEditables();
+          },
+
+          /**
+           * Select next item
+           * */
+          selectPreviousItem() {
+            this.newProductIndex--;
+            if (this.newProductIndex < 0) {
+              this.newProductIndex = 0;
+            }
+            this.newProductEditing = NONE;
+            this.blurEditables();
           },
 
           // Tools
@@ -328,9 +463,6 @@ var Alpine;
               for (let product of this.products) {
                 product.transaction_quantity = 1;
                 product.transaction_price = product.sell_price;
-                // product.suggested_price > product.sell_price
-                //   ? product.suggested_price
-                //   : product.sell_price;
                 product.transaction_tax = true;
               }
               this.filteredProducts = this.getFiltered();
@@ -427,16 +559,6 @@ var Alpine;
            * */
           getMinPrice(transaction) {
             return transaction.product.sell_price;
-            // const minPrice = transaction.product.min_price;
-            // const cost = transaction.cost;
-            // if (
-            //   minPrice !== undefined &&
-            //   minPrice !== null &&
-            //   minPrice > cost
-            // ) {
-            //   return minPrice;
-            // }
-            // return cost;
           },
 
           // Operations
@@ -468,7 +590,6 @@ var Alpine;
            * @param {Product} product
            * */
           async addNewTransaction(product) {
-            // this.closeNewProductMode();
             product.transaction_loading = true;
 
             let addedTransaction = this.findByProductId(product.id);
@@ -490,7 +611,6 @@ var Alpine;
                 );
               } catch (e) {
                 console.log(e);
-                // console.log(await e.text());
                 globalThis.showNotify({
                   title: "Error",
                   msg: `Fail to create the new ${transactionType}`,
@@ -525,7 +645,6 @@ var Alpine;
               );
             } catch (e) {
               console.error(e);
-              // console.log(await e.text());
               globalThis.showNotify({
                 title: "Error",
                 msg: `Fail to update the ${transactionType}`,
@@ -624,7 +743,6 @@ var Alpine;
                 status: "danger",
               });
             }
-            // this.loading = false;
             this.removing = false;
           },
 
@@ -661,39 +779,17 @@ var Alpine;
             this.newProductIndex = 0;
           },
 
-          // Tools
-          /**
-           * Scroll to element
-           * @param {HTMLElement} el
-           * */
-          scrollTo(el) {
-            setTimeout(() => {
-              el.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-                inline: "nearest",
-              });
-            }, 300);
-          },
+          // global close (close others dialogs)
 
           /**
-           * focus element
-           * @param {HTMLElement} el
-           * @param {boolean} [scroll]
+           * Close all others instances
            * */
-          focusElement(el, scroll) {
-            el.focus();
-            if (scroll) this.scrollTo(el);
-          },
+          closeAll() {
+            if (!globalThis["closeAll"]) return;
 
-          /**
-           * focus element by id
-           * @param {string} id
-           * @param {boolean} [scroll]
-           * */
-          focusElementById(id, scroll) {
-            const el = document.getElementById(id);
-            if (el) this.focusElement(el, scroll);
+            for (let close of globalThis["closeAll"]) {
+              if (close) close();
+            }
           },
         };
       });

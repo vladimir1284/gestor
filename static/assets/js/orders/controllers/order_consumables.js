@@ -6,7 +6,7 @@
     globalThis.ProductConsumablesUrl,
     globalThis.ProductTransactionConsumablesUrl,
     globalThis.OrderID,
-    "alt+c",
+    "Alt+C",
     "consumable",
   );
 })();

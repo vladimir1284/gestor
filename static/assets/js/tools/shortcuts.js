@@ -10,6 +10,7 @@ const shortcutMap = new Map();
  * @param {boolean} [override] - Override the previous shortcuts bind to this keys combination or keep them
  * */
 function _bindShortCut(shortcut, func, override = false) {
+  shortcut = shortcut.toLowerCase();
   if (override) {
     shortcutMap.set(shortcut, [func]);
   }
@@ -21,7 +22,24 @@ function _bindShortCut(shortcut, func, override = false) {
   }
 }
 
-globalThis.bindShortcut = _bindShortCut;
+/**
+ * Bind a shortcut or a list of shortcuts to a function
+ * @param {string | string[]} shortcuts - Keys for the shortcut, example: ctrl+b or alt+b or ctrl+alt+shift+b
+ * @param {Function} func - The function to execute on shortcut recognized
+ * @param {boolean} [override] - Override the previous shortcuts bind to this keys combination or keep them
+ * */
+function _bindShortsCut(shortcuts, func, override = false) {
+  if (shortcuts instanceof Array) {
+    for (let sc of shortcuts) {
+      _bindShortCut(sc, func, override);
+    }
+    return;
+  }
+
+  _bindShortCut(shortcuts, func, override);
+}
+
+globalThis.bindShortcut = _bindShortsCut;
 
 function initShortCuts() {
   window.addEventListener("keydown", (e) => {
@@ -35,7 +53,16 @@ function initShortCuts() {
     if (e.shiftKey) {
       shortcut += "shift+";
     }
-    shortcut += e.key.toLowerCase();
+    let key = e.key.toLowerCase();
+    if (key === " ") {
+      key = "space";
+    }
+
+    shortcut += key;
+
+    if (globalThis.keyboard) {
+      console.log(shortcut);
+    }
 
     const funcs = shortcutMap.get(shortcut);
     if (funcs && funcs?.length > 0) {
