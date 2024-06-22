@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import twilio_views
-from .views import crm_view
+from .views import crm_view, twilio_views
 
 urlpatterns = [
     path("handle-call", twilio_views.handle_call, name="registro"),

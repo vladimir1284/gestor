@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from ..models.twilio_model import Associated, TwilioCall
 from ..models.crm_model import FlaggedCalls
 
+# vista de la página de borrar registro del CRM 
 @csrf_exempt
 def flagged_call_view(request, id):
     register_row = get_object_or_404(TwilioCall, id=id)
@@ -18,9 +19,11 @@ def flagged_call_view(request, id):
             return redirect('registro-llamadas')
     else:
         form = FlaggedCallsForm(initial=initial)
+    context = {"form": form}
 
-    return render(request, 'crm/borrar_del_registro.html', {'form': form})
+    return render(request, 'crm/borrar_del_registro.html', context)
 
+# vista de la página de crear un associated del CRM
 @login_required
 def create_associated(request, id):
     type = "client"

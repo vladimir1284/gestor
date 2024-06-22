@@ -32,10 +32,10 @@ class TwilioCall(models.Model):
 
 @receiver(pre_save, sender=TwilioCall)
 def pre_save_twilio_call(sender, instance, **kwargs):
-    # Aquí se puede agregar la lógica que necesites antes de guardar una instancia de TwilioCall
+    #revisa que no en el modelo TwilioCall no haya instancia con associated_id
     if not instance.associated and instance.from_phone_number:
         from_last_8 = instance.from_phone_number[-8:]  # Obtener los últimos 8 caracteres de from_phone_number
-        try:
+        try: #
             associated = Associated.objects.get(phone_number__endswith=from_last_8)
             instance.associated = associated
         except Associated.DoesNotExist:

@@ -1,12 +1,11 @@
 from django import forms
 from crispy_forms.bootstrap import PrependedText
-import phonenumbers
 from .models.crm_model import FlaggedCalls
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, ButtonHolder, Div, Field, HTML
 from django.utils.safestring import mark_safe
 from users.forms import AssociatedCreateForm
-
+from .models.crm_model import FlaggedCalls
 
 class CommonContactLayout(Layout):
     def __init__(self, *args, **kwargs):
@@ -50,7 +49,7 @@ class PictureLayout(Layout):
                 ),
                 css_class="d-flex align-items-start align-items-sm-center gap-4",
             ),
-            Div(Div(Field("avatar")), css_class="mb-3"),
+            # Div(Div(Field("avatar")), css_class="mb-3"),
         )
 
 
@@ -58,18 +57,22 @@ class FlaggedCallsForm(forms.ModelForm):
     class Meta:
         model = FlaggedCalls
         fields = ["phone_number", "list_type", "reason"]
+        
         widgets = {
             "phone_number": forms.TextInput(attrs={"readonly": "readonly"}),
-        }
+            "list_type" : forms.RadioSelect(),
+        }    
 
     def __init__(self, *args, **kwargs):
         super(FlaggedCallsForm, self).__init__(*args, **kwargs)
+        self.fields["list_type"].choices = FlaggedCalls.LIST_CHOICES
+        self.fields["reason"].choices = FlaggedCalls.REASON_CHOICES
         self.helper = FormHelper()
         self.helper.form_tag = False  # No renderizar la etiqueta del formulario
         self.helper.disable_csrf = True  # No renderizar el token CSRF
         self.helper.layout = Layout(
             CommonContactLayout(),
-            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Borrar", css_class="btn btn-danger")),
         )
 
 
