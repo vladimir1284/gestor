@@ -95,7 +95,7 @@
         </h5>
         <div class="flex transition-all" :class="newServiceMode() && 'w-full'">
           {%if not terminated%}
-            <div class="input-group mb-3">
+            <div class="input-group mb-3" x-id="['scModal']">
               <span class="input-group-text" id="basic-addon1">
                 <i class='bx bx-search-alt-2' ></i>
               </span>
@@ -106,14 +106,24 @@
                      @focus="searchServiceInputFocus = true"
                      x-model="newServiceSearch"
                      x-ref="searchServices">
-              <span class="input-group-text text-danger"
-                    id="close"
-                    x-show="newServiceMode()"
-                    @click="closeNewServiceMode()"
-                    title="Close dialog (Esc)"
+              <button class="input-group-text btn btn-icon btn-outline-primary"
+                      id="help"
+                      x-show="newServiceMode()"
+                      data-bs-toggle="modal"
+                      :data-bs-target="'#' + $id('scModal')"
+                      x-ref="shortcutButton"
+              >
+                <i class='bx bxs-keyboard'></i>
+              </button>
+              <button class="input-group-text btn btn-icon btn-outline-danger"
+                      id="close"
+                      x-show="newServiceMode()"
+                      @click="closeNewServiceMode()"
+                      title="Close dialog (Esc)"
               >
                 <i class='bx bx-x'></i>
-              </span>
+              </button>
+              {% include "./components/shortcut_helper.html" %}
             </div>
           {% endif %}
         </div>

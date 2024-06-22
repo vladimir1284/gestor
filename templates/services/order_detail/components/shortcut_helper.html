@@ -1,0 +1,51 @@
+<div
+  class="modal fade"
+  :id="$id('scModal')"
+  tabindex="-1"
+  aria-labelledby="ShortcutsDialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="ShortcutsDialog">Shortcuts</h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body p-0">
+        <table class="table">
+          <thead class="sticky top-0 bg-white">
+            <tr>
+              <td>Shortcuts</td>
+              <td>Description</td>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(sc, index) in shortcutHelper">
+              <tr class="py-2">
+                <td>
+                  <template x-for="km in sc.shortcut">
+                    <span>
+                      <span
+                        class="inline-block bg-gray-50 shadow-sm rounded m-1 py-1 px-2 font-mono"
+                        x-text="km"
+                      >
+                      </span>
+                    </span>
+                  </template>
+                </td>
+                <td>
+                  <div x-html="sc.description"></div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
