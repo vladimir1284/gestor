@@ -77,7 +77,6 @@ INSTALLED_APPS = [
     "crm",
     # Must be the last one
     "rbac",
-
 ]
 
 MIDDLEWARE = [
@@ -239,7 +238,7 @@ OCELLID_KEY = os.environ.get("OCELLID_KEY")
 STATIC_URL = "/static/"
 
 # Location for collected static files
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Directories to search for static files
 STATICFILES_DIRS = [
