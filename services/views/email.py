@@ -1,9 +1,14 @@
-from django.core.mail import EmailMessage, get_connection
-from django.conf import settings
-from .sms import DEBT_REMINDER
 import tempfile
-from services.models import Payment
+
+from django.conf import settings
+from django.core.mail import EmailMessage
+from django.core.mail import get_connection
 from django.template.loader import render_to_string
+from weasyprint import CSS
+
+from .sms import DEBT_REMINDER
+from gestor.tools.create_pdf import create_pdf
+from services.models import Payment
 
 PAYMENT_DICT = {
     "english": """Dear {}, your vehicle at TOWITHOUSTON is ready!
@@ -51,8 +56,7 @@ def mail_send_invoice(context, request, recipient_list):
             payments = Payment.objects.filter(order=order)
             for payment in payments:
                 if payment.category.name == "debt":
-                    body += "\n" + \
-                        DEBT_REMINDER[client.language].format(payment.amount)
+                    body += "\n" + DEBT_REMINDER[client.language].format(payment.amount)
                     break
         else:
             from .order import computeOrderAmount
@@ -105,13 +109,9 @@ def sendMail(context, request, address, send_copy=False):
 def generate_invoice_pdf(context, request):
     """Generate pdf."""
     image = settings.STATIC_ROOT + "/assets/img/icons/TOWIT.png"
-    # Render
     context.setdefault("image", image)
-    html_string = render_to_string("services/invoice_pdf.html", context)
-    if settings.USE_WEASYPRINT:
-        from weasyprint import HTML
-
-        html = HTML(string=html_string, base_url=request.build_absolute_uri())
-        main_doc = html.render(presentational_hints=True)
-        return main_doc.write_pdf()
-    return None
+    return create_pdf(
+        template="services/invoice_pdf.html",
+        context=context,
+        request=request,
+    )
