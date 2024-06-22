@@ -15,7 +15,6 @@ source /home/vladimir/gestor/gestorenv/bin/activate
 # Echo message for running database migration
 echo "Running database migration..."
 ./manage.py migrate
-./manage.py collectstatic
 
 if [[ -z "$1" ]]; then
 	echo "Please provide the sudo password as an argument."
