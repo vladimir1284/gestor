@@ -96,11 +96,14 @@
         <div class="flex transition-all" :class="newServiceMode() && 'w-full'">
           {%if not terminated%}
             <div class="input-group mb-3" x-id="['scModal']">
-              <span class="input-group-text" id="basic-addon1">
+              <span class="input-group-text !rounded-l-lg" id="basic-addon1">
                 <i class='bx bx-search-alt-2' ></i>
               </span>
               <input type="text"
                      class="form-control transition-all"
+                     :class="{
+                             '!rounded-r-lg': !newServiceMode(),
+                             }"
                      :placeholder="`(${shortcut.toUpperCase()}) Add a new ${transactionType}`"
                      @keyup.escape="newServiceSearch = ''"
                      @focus="searchServiceInputFocus = true"
@@ -115,7 +118,7 @@
               >
                 <i class='bx bxs-keyboard'></i>
               </button>
-              <button class="input-group-text btn btn-icon btn-outline-danger"
+              <button class="input-group-text btn btn-icon btn-outline-danger !rounded-r-lg"
                       id="close"
                       x-show="newServiceMode()"
                       @click="closeNewServiceMode()"
