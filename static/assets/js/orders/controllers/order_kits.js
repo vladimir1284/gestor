@@ -14,6 +14,8 @@ var Alpine;
 
       return {
         // Controller properties
+        /** @type {{shortcut: string[], description: string}[]} */
+        shortcutHelper: [],
 
         /** @type {boolean} */
         loadingKit: false,
@@ -25,20 +27,11 @@ var Alpine;
         newKitSearch: "",
         /** @type {number} */
         newKitIndex: 0,
-        /** @type {number} */
-        newKitQty: 1,
-        /** @type {number} */
-        newKitPrice: 1,
-        /** @type {boolean} */
-        newKitTax: false,
         /** @type {boolean} */
         searchKitInputFocus: false,
 
-        /** @type {Kit | null} */
-        selectedKit: null,
-
         /** @type {string} */
-        shortcut: "alt+k",
+        shortcut: "Alt+K",
         /** @type {string} */
         transactionType: "kit",
 
@@ -51,14 +44,6 @@ var Alpine;
             this.filteredKits = this.getFiltered();
           });
           this.loadKits();
-
-          globalThis.bindShortcut(this.shortcut, () => {
-            this.closeAll();
-            this.openNewKitMode();
-          });
-          globalThis.bindShortcut("escape", () => {
-            this.closeNewKitMode();
-          });
 
           globalThis.bindShortcut(
             "alt+arrowup",
@@ -91,50 +76,6 @@ var Alpine;
             if (!this.newKitMode()) {
               return;
             }
-            if (!this.selectedKitMode()) {
-              const kit = this.filteredKits[this.newKitIndex];
-              if (kit.available) {
-                this.selectKit(kit);
-              }
-            } else {
-              this.addKit();
-            }
-          });
-          globalThis.bindShortcut(
-            "alt+arrowleft",
-            (/**@type {KeyboardEvent}*/ e) => {
-              if (!this.newKitMode() || !this.selectedKitMode()) {
-                return;
-              }
-              e.preventDefault();
-              this.selectedKit = null;
-            },
-          );
-          globalThis.bindShortcut(
-            "alt+arrowright",
-            (/**@type {KeyboardEvent}*/ e) => {
-              if (!this.newKitMode() || this.selectedKitMode()) {
-                return;
-              }
-              e.preventDefault();
-              const kit = this.filteredKits[this.newKitIndex];
-              if (kit.available) {
-                this.selectKit(kit);
-              }
-            },
-          );
-          globalThis.bindShortcut("alt+tab", (/**@type {KeyboardEvent}*/ e) => {
-            if (!this.newKitMode() || !this.selectedKitMode()) {
-              return;
-            }
-            e.preventDefault();
-            this.switchEditableFocus();
-          });
-          globalThis.bindShortcut("alt+t", () => {
-            if (!this.newKitMode() || !this.selectedKitMode()) {
-              return;
-            }
-            this.newKitTax = !this.newKitTax;
           });
 
           const closeThis = () => {
@@ -145,6 +86,144 @@ var Alpine;
           } else {
             globalThis["closeAll"] = [closeThis];
           }
+
+          // Shortcuts
+          /** @type {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} */
+          const shortcuts = [
+            {
+              shortcut: this.shortcut,
+              description: "Open the dialog to add new kit",
+              func: () => {
+                this.closeAll();
+                this.openNewKitMode();
+              },
+              direct: true,
+            },
+            {
+              shortcut: "Alt+H",
+              description: "Open this dialog with shortcuts",
+              func: () => {
+                this.$refs.shortcutButton.dispatchEvent(new Event("click"));
+              },
+            },
+            {
+              shortcut: "Escape",
+              description: "Close the dialogs",
+              func: () => this.closeNewKitMode(),
+            },
+            {
+              shortcut: "Enter",
+              description: "Add the selected kit",
+              func: () => this.addKit(),
+            },
+            {
+              shortcut: "Alt+Space",
+              description: "Focus the search bar",
+              func: () => this.focusSearch(),
+            },
+            {
+              shortcut: "Alt+Shift+Space",
+              description:
+                "Focus the search bar and select the text in the bar",
+              func: () => this.focusSearch(true),
+            },
+            {
+              shortcut: ["Alt+ArrowUp", "ArrowUp"],
+              description: "Select the previous kit on the list",
+              func: () => this.selectPreviousItem(),
+            },
+            {
+              shortcut: ["Alt+ArrowDown", "ArrowDown"],
+              description: "Select the next kit on the list",
+              func: () => this.selectNextItem(),
+            },
+          ];
+          this.initShortcuts(shortcuts);
+        },
+
+        // Shortcuts methods
+
+        /**
+         * Create a shortcut function that run if the dialog is active
+         * @param {string | string[]} shortcut - the function to execute
+         * @param {Function} callback - the function to execute
+         * */
+        createShortcut(shortcut, callback) {
+          globalThis.bindShortcut(shortcut, (/**@type {KeyboardEvent}*/ e) => {
+            if (!this.newKitMode()) {
+              return;
+            }
+            e.preventDefault();
+            callback();
+          });
+        },
+
+        /**
+         * Init the shortcuts
+         * @param {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} shortcuts
+         * */
+        initShortcuts(shortcuts) {
+          for (let sc of shortcuts) {
+            if (sc.direct) {
+              globalThis.bindShortcut(sc.shortcut, () => sc.func());
+            } else {
+              this.createShortcut(sc.shortcut, sc.func);
+            }
+            let shortcut = sc.shortcut;
+            if (!(shortcut instanceof Array)) {
+              shortcut = [shortcut];
+            }
+            this.shortcutHelper.push({
+              shortcut,
+              description: sc.description,
+            });
+          }
+        },
+
+        // focus tools
+
+        /**
+         * Focus search input
+         * @param {boolean} [select] - Specify if select the current text
+         * */
+        focusSearch(select) {
+          const input = /**@type {HTMLInputElement}*/ (this.$refs.searchKit);
+          input.focus();
+          if (select) {
+            input.select();
+          }
+        },
+
+        // Selector tools
+
+        /**
+         * Select next item
+         * */
+        selectNextItem() {
+          this.newKitIndex++;
+          if (this.newKitIndex >= this.filteredKits.length) {
+            this.newKitIndex = this.filteredKits.length - 1;
+          }
+        },
+
+        /**
+         * Select next item
+         * */
+        selectPreviousItem() {
+          this.newKitIndex--;
+          if (this.newKitIndex < 0) {
+            this.newKitIndex = 0;
+          }
+        },
+
+        /**
+         * @returns {Kit | null}
+         * */
+        selectedKit() {
+          if (this.filteredKits.length == 0) {
+            return null;
+          }
+          return this.filteredKits[this.newKitIndex];
         },
 
         /**
@@ -184,64 +263,35 @@ var Alpine;
         closeNewKitMode() {
           this.searchKitInputFocus = false;
           this.newKitSearch = "";
-          this.unselectKit();
-        },
-
-        /**
-         * Return if the user select a kit to add
-         * */
-        selectedKitMode() {
-          return this.selectedKit != null;
-        },
-
-        /**
-         * Set a selected kit
-         * @param {Kit} kit
-         * */
-        selectKit(kit) {
-          this.selectedKit = kit;
-          this.newKitPrice = kit.suggested_price;
-          this.newKitQty = 1;
-          this.newKitTax = true;
-          setTimeout(() => this.$refs.kitQty.focus(), 100);
-        },
-
-        switchEditableFocus() {
-          if (document.activeElement === this.$refs.kitQty) {
-            this.$refs.kitPrice.focus();
-          } else {
-            this.$refs.kitQty.focus();
-          }
-        },
-
-        /**
-         * Unselected the selected kit
-         * */
-        unselectKit() {
-          this.selectedKit = null;
+          this.newKitIndex = 0;
         },
 
         /**
          * Add the selected kit to the order
+         * @param {Kit | null} [addKit]
          * */
-        async addKit() {
-          if (!this.selectedKit) {
+        async addKit(addKit) {
+          if (!addKit) {
+            addKit = this.selectedKit();
+          }
+          if (addKit == null) {
             return;
           }
 
+          addKit.loading = true;
           this.creating = true;
 
           try {
             /**@type {KitCreation}*/
             const kit = {
-              id: this.selectedKit.id,
-              tax: this.newKitTax,
-              quantity: this.newKitQty,
-              price: this.newKitPrice,
+              id: addKit.id,
+              tax: true,
+              quantity: 1,
+              price: addKit.suggested_price,
             };
-            console.log(kit);
             await kitApiClient.addKit(globalThis.OrderID, kit);
             this.reloadTransactions();
+            this.loadKits();
           } catch (e) {
             console.log(e);
             globalThis.showNotify({
@@ -251,8 +301,8 @@ var Alpine;
             });
           }
 
-          this.unselectKit();
           this.closeNewKitMode();
+          addKit.loading = false;
           this.creating = false;
         },
 
@@ -278,8 +328,20 @@ var Alpine;
          * @returns {Array<Kit>}
          * */
         getFiltered() {
-          const filtered = this.kits.filter((k) => {
-            return globalThis.match(k.name, this.newKitSearch);
+          let filtered = this.kits.filter((k) => {
+            const st = globalThis.advanceMatch(k.name, this.newKitSearch);
+            k.searchType = st;
+            return st !== undefined && st !== -1;
+          });
+
+          filtered = filtered.sort((a, b) => {
+            if (b.searchType === undefined || b.searchType === -1) {
+              return -1;
+            }
+            if (a.searchType === undefined || a.searchType === -1) {
+              return 1;
+            }
+            return a.searchType - b.searchType;
           });
 
           this.newKitIndex = 0;
