@@ -8,14 +8,11 @@ from rest_framework.response import Response
 from services.api.serializer.service_transaction import \
     ServiceTransactionSerializer
 from services.models import ServiceTransaction
-from services.tools.transaction import check_transaction
-from services.tools.transaction import handle_transaction
-from services.tools.transaction import reverse_transaction
 from utils.models import Order
 
 
 class ServiceTransactionView(viewsets.ModelViewSet):
-    queryset = ServiceTransaction.objects.all()
+    queryset = ServiceTransaction.objects.all().select_related("service")
     serializer_class = ServiceTransactionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
