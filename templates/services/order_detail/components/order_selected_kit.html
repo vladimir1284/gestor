@@ -1,89 +1,59 @@
 {% load static %}
-<div class="h-full flex flex-col overflow-hidden box-border">
-    <div class="px-4">
-        <div class="input-group mb-3">
-            <span class="input-group-text">Quantity:</span>
-            <input type="number" min="1" class="form-control text-primary font-bold" x-ref="kitQty" x-model="newKitQty">
-            <span class="input-group-text">
-                <div class="form-check">
-                    <label class="form-check-label" for="taxInput">
-                        Use tax
-                    </label>
-                    <input class="form-check-input checkboxinput" type="checkbox" id="taxInput" x-ref="kitTax" x-model="newKitTax">
-                </div>
-            </span>
+<template x-if="selectedKit() != null">
+    <div class="h-full flex-grow flex flex-col !overflow-hidden gap-4 pl-4 w-full">
+        <div class="table-responsive text-nowrap h-full flex-grow !overflow-auto">
+            <table class="table table-sm">
+                <thead class="sticky top-0 bg-white">
+                    <tr>
+                        <th>Service</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    <template x-for="kitService in selectedKit().services">
+                        <tr>
+                            <td>
+                                <span x-text="kitService.service.name"></span>
+                            </td>
+                            <td>
+                                <strong>
+                                    $<span x-text="kitService.service.suggested_price"></span>
+                                </strong>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
         </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text">
-                <!-- <i class='bx bx-dollar' ></i> -->
-                Price:
-            </span>
-            <input type="number" min="1" class="form-control text-primary font-bold" x-ref="kitPrice" x-model="newKitPrice">
-            <span class="input-group-text">
-                <span class="mr-2">Min price:</span>
-                <strong>
-                    $<span x-text="selectedKit.min_price"></span>
-                </strong>
-            </span>
+        <div class="table-responsive text-nowrap h-full flex-grow !overflow-auto">
+            <table class="table table-sm">
+                <thead class="sticky top-0 bg-white">
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    <template x-for="kitProduct in selectedKit().elements">
+                        <tr>
+                            <td>
+                                <span x-text="kitProduct.product.name"></span>
+                            </td>
+                            <td>
+                                <strong>
+                                    <span x-text="kitProduct.quantity"></span>
+                                </strong>
+                            </td>
+                            <td>
+                                <strong>
+                                    <span x-text="kitProduct.unit.name"></span>
+                                </strong>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <div class="flex-grow flex flex-col !overflow-auto lg:!overflow-hidden">
-        <div class="flex-grow flex gap-4 flex-col lg:flex-row lg:!overflow-hidden">
-            <div class="table-responsive text-nowrap h-max lg:h-full !overflow-hidden lg:!overflow-auto lg:flex-grow">
-                <table class="table table-sm">
-                    <thead class="sticky top-0 bg-white">
-                        <tr>
-                            <th>Service</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        <template x-for="kitService in selectedKit.services">
-                            <tr>
-                                <td>
-                                    <span x-text="kitService.service.name"></span>
-                                </td>
-                                <td>
-                                    <strong>
-                                        $<span x-text="kitService.service.suggested_price"></span>
-                                    </strong>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-            <div class="table-responsive text-nowrap h-max !overflow-hidden lg:h-full lg:!overflow-auto lg:flex-grow">
-                <table class="table table-sm">
-                    <thead class="sticky top-0 bg-white">
-                        <tr>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Unit</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        <template x-for="kitProduct in selectedKit.elements">
-                            <tr>
-                                <td>
-                                    <span x-text="kitProduct.product.name"></span>
-                                </td>
-                                <td>
-                                    <strong>
-                                        <span x-text="kitProduct.quantity"></span>
-                                    </strong>
-                                </td>
-                                <td>
-                                    <strong>
-                                        <span x-text="kitProduct.unit.name"></span>
-                                    </strong>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+</template>

@@ -12,6 +12,8 @@
  * @property {number} suggested_price
  * @property {KitElement[]} elements
  * @property {KitService[]} services
+ * @property {boolean} [loading]
+ * @property {number} [searchType]
  * */
 
 /**

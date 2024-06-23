@@ -8,7 +8,7 @@
         }
     }
 </style>
-<div class="h-full flex flex-col overflow-hidden box-border">
+<div class="h-full flex flex-col overflow-hidden box-border flex-grow w-full">
     <div class="table-responsive text-nowrap flex-grow overflow-auto">
         <table class="table table-sm">
             <thead class="sticky top-0 bg-white">
@@ -20,7 +20,7 @@
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
-                <template x-for="(kit, index) in filteredKits">
+                <template x-for="(kit, index) in filteredKits" :key="kit.id">
                     <tr
                         @click="newKitIndex = index"
                         :class="{
@@ -29,10 +29,18 @@
                                 }">
                         <td>
                             <template x-if="kit.available">
-                                <button class="btn btn-icon btn-link"
-                                        @click="selectKit(kit)">
-                                    <i class='bx bx-plus'></i>
-                                </button>
+                                <div>
+                                    <div class="spinner-border text-primary" role="status"
+                                         x-show="kit.loading">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <button class="btn btn-icon btn-link"
+                                            @click="addKit(kit)"
+                                            x-show="!kit.loading"
+                                    >
+                                        <i class='bx bx-plus'></i>
+                                    </button>
+                                </div>
                             </template>
                             <template x-if="!kit.available">
                                 <button class="btn btn-icon btn-link text-danger">
@@ -41,7 +49,7 @@
                             </template>
                         </td>
                         <td :class="kit.available || 'text-danger'">
-                            <strong x-html="globalThis.highlightMatch(kit.name, newKitSearch)"></strong>
+                            <strong x-html="globalThis.advanceHighlightMatch(kit.name, newKitSearch, kit.searchType)"></strong>
                         </td>
                     </tr>
                 </template>

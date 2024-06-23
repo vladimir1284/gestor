@@ -456,8 +456,11 @@ var Alpine;
           },
 
           // Load Products
-          async loadProducts() {
-            this.loadingProducts = true;
+          /**
+           * @param {boolean} [reload]
+           * */
+          async loadProducts(reload) {
+            if (!reload) this.loadingProducts = true;
             try {
               this.products = await productApiClient.getProducts();
               for (let product of this.products) {
@@ -474,7 +477,7 @@ var Alpine;
                 status: "danger",
               });
             }
-            this.loadingProducts = false;
+            if (!reload) this.loadingProducts = false;
           },
 
           // Get filter elements
@@ -630,6 +633,7 @@ var Alpine;
                 });
               }
               await this.loadTransactions(false);
+              await this.loadProducts(true);
 
               addedTransaction = this.findByProductId(product.id);
             }
