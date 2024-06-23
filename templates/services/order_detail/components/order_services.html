@@ -30,7 +30,7 @@
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
-                <template x-for="(service, index) in filteredServices">
+                <template x-for="(service, index) in filteredServices" :key="service.id">
                     <tr x-id="['quantity', 'price', 'tax']"
                         :class="{
                                 'selected': index == newServiceIndex,
@@ -55,7 +55,7 @@
                             </div>
                         </td>
                         <td>
-                            <strong x-html="globalThis.highlightMatch(service.name, newServiceSearch)"></strong>
+                            <strong x-html="globalThis.advanceHighlightMatch(service.name, newServiceSearch, service.searchType)"></strong>
                         </td>
                         <td>
                             <div class="input-group !w-24">

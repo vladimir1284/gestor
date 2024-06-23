@@ -200,12 +200,12 @@ var Alpine;
                 func: () => this.selectNextItem(),
               },
               {
-                shortcut: ["Tab", "Alt+Tab", "Alt+ArrowRight", "ArrowRight"],
+                shortcut: ["Tab", "Alt+Tab", "Alt+ArrowRight"],
                 description: `Focus the next editable (quantity, price and tax) on the selected ${transactionType}`,
                 func: () => this.focusNextEditableOfSelected(),
               },
               {
-                shortcut: ["Alt+ArrowLeft", "ArrowLeft"],
+                shortcut: ["Alt+ArrowLeft"],
                 description: `Focus the previous editable (quantity, price and tax) on the selected ${transactionType}`,
                 func: () => this.focusPreviousEditableOfSelected(),
               },
@@ -482,11 +482,23 @@ var Alpine;
            * @returns {Array<Product>}
            * */
           getFiltered() {
-            const filtered = this.products.filter((p) => {
-              return (
-                this.renderProduct(p) &&
-                globalThis.match(p.name, this.newProductSearch)
-              );
+            let filtered = this.products.filter((p) => {
+              const st = globalThis.advanceMatch(p.name, this.newProductSearch);
+              p.searchType = st;
+              return this.renderProduct(p) && st !== undefined && st !== -1;
+            });
+
+            filtered = filtered.sort((a, b) => {
+              if (a.searchType == b.searchType) {
+                return b.total_sells - a.total_sells;
+              }
+              if (b.searchType === undefined || b.searchType === -1) {
+                return -1;
+              }
+              if (a.searchType === undefined || a.searchType === -1) {
+                return 1;
+              }
+              return a.searchType - b.searchType;
             });
 
             this.newProductIndex = 0;

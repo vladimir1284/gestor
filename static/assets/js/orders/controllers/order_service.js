@@ -163,13 +163,13 @@ var Alpine;
               func: () => this.selectNextItem(),
             },
             {
-              shortcut: ["Tab", "Alt+Tab", "Alt+ArrowRight", "ArrowRight"],
+              shortcut: ["Tab", "Alt+Tab", "Alt+ArrowRight"],
               description:
                 "Focus the next editable (quantity, price and tax) on the selected service",
               func: () => this.focusNextEditableOfSelected(),
             },
             {
-              shortcut: ["Alt+ArrowLeft", "ArrowLeft"],
+              shortcut: ["Alt+ArrowLeft"],
               description:
                 "Focus the previous editable (quantity, price and tax) on the selected service",
               func: () => this.focusPreviousEditableOfSelected(),
@@ -445,11 +445,23 @@ var Alpine;
          * @returns {Array<Service>}
          * */
         getFiltered() {
-          const filtered = this.services.filter((s) => {
-            return (
-              this.renderService(s) &&
-              globalThis.match(s.name, this.newServiceSearch)
-            );
+          let filtered = this.services.filter((s) => {
+            const st = globalThis.advanceMatch(s.name, this.newServiceSearch);
+            s.searchType = st;
+            return this.renderService(s) && st !== undefined && st !== -1;
+          });
+
+          filtered = filtered.sort((a, b) => {
+            if (a.searchType == b.searchType) {
+              return b.total_sells - a.total_sells;
+            }
+            if (b.searchType === undefined || b.searchType === -1) {
+              return -1;
+            }
+            if (a.searchType === undefined || a.searchType === -1) {
+              return 1;
+            }
+            return a.searchType - b.searchType;
           });
 
           this.newServiceIndex = 0;
