@@ -36,7 +36,7 @@
                 </tr>
             </thead>
             <tbody class="table-border-bottom-0">
-                <template x-for="(product, index) in filteredProducts">
+                <template x-for="(product, index) in filteredProducts" :key="product.id">
                     <!-- <tr x-show="renderProduct(product) && globalThis.match(product.name, newProductSearch)" -->
                     <tr x-id="['quantity', 'price', 'tax']"
                         :class="{
@@ -62,7 +62,8 @@
                             </div>
                         </td>
                         <td>
-                            <strong x-html="globalThis.highlightMatch(product.name, newProductSearch)"></strong>
+                            <strong x-html="globalThis.advanceHighlightMatch(product.name, newProductSearch, product.searchType)"></strong>
+                            <!-- <span x-text="product.searchType + '/' + product.total_sells"></span> -->
                         </td>
                         <td :class="product.quantity <= product.quantity_min && 'text-danger'">
                             <div class="input-group !w-40">
