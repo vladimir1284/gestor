@@ -4,4 +4,10 @@ from services.api.views.core.product_transaction_view import \
 
 
 class ProductTransactionConsumablesView(ProductTransactionView):
-    queryset = ProductTransaction.objects.filter(product__type="consumable")
+    queryset = ProductTransaction.objects.filter(
+        product__type="consumable"
+    ).select_related(
+        "unit",
+        "product",
+        "product__unit",
+    )
