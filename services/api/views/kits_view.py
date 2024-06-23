@@ -24,7 +24,18 @@ class KitView(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request: Request, order_id: int):
-        kits = ProductKit.objects.all().order_by("name")
+        kits = (
+            ProductKit.objects.all()
+            .order_by("name")
+            .prefetch_related(
+                "kitservice_set",
+                "kitservice_set__service",
+                "kitelement_set",
+                "kitelement_set__unit",
+                "kitelement_set__product",
+                "kitelement_set__product__unit",
+            )
+        )
         serializer = ProductKitSerializer(kits, many=True)
         return Response(serializer.data)
 

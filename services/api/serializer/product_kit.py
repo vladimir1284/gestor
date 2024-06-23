@@ -1,7 +1,5 @@
 from rest_framework import serializers
 
-from inventory.models import KitElement
-from inventory.models import KitService
 from inventory.models import ProductKit
 from services.api.serializer.kit_element import KitElementSerializer
 from services.api.serializer.kit_service import KitServiceSerializer
@@ -28,7 +26,7 @@ class ProductKitSerializer(serializers.ModelSerializer):
         ]
 
     def get_available(self, kit: ProductKit):
-        elements = KitElement.objects.filter(kit=kit)
+        elements = kit.kitelement_set.all()
         for element in elements:
             element.product.available = convertUnit(
                 element.product.unit,
@@ -41,18 +39,18 @@ class ProductKitSerializer(serializers.ModelSerializer):
         return True
 
     def get_elements(self, kit: ProductKit):
-        elements = KitElement.objects.filter(kit=kit)
+        elements = kit.kitelement_set.all()
         serializer = KitElementSerializer(elements, many=True)
         return serializer.data
 
     def get_services(self, kit: ProductKit):
-        services = KitService.objects.filter(kit=kit)
+        services = kit.kitservice_set.all()
         serializer = KitServiceSerializer(services, many=True)
         return serializer.data
 
     def get_min_price(self, kit: ProductKit):
         min_price = 0
-        elements = KitElement.objects.filter(kit=kit)
+        elements = kit.kitelement_set.all()
         for element in elements:
             min_price += element.quantity * convertUnit(
                 element.product.unit,
@@ -64,7 +62,7 @@ class ProductKitSerializer(serializers.ModelSerializer):
     def get_suggested_price(self, kit: ProductKit):
         suggested_price = 0
 
-        elements = KitElement.objects.filter(kit=kit)
+        elements = kit.kitelement_set.all()
         for element in elements:
             suggested_price += element.quantity * convertUnit(
                 element.product.unit,
@@ -72,7 +70,7 @@ class ProductKitSerializer(serializers.ModelSerializer):
                 element.product.getSuggestedPrice(),
             )
 
-        services = KitService.objects.filter(kit=kit)
+        services = kit.kitservice_set.all()
         for service in services:
             suggested_price += service.service.suggested_price
 
