@@ -28,6 +28,14 @@ class DepositDiscount(models.Model):
         related_name="discount",
     )
 
+    init_state = models.BooleanField(null=True)
+
+    def save_initial_state(self, returned: bool = False):
+        if self.init_state is None:
+            self.init_state = returned
+            self.save()
+        return self.init_state
+
     def reset(self):
         self.expiration_date = None
         self.expirate_in_days = None
