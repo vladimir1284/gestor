@@ -68,3 +68,18 @@ def is_valid_as_next(mhw: str | None, is_guarantor: bool) -> bool:
     return (not is_guarantor and mhw in DEFAULT_LESSEE_SIGNATURES) or (
         is_guarantor and mhw in DEFAULT_GUARANTOR_SIGNATURES
     )
+
+
+def get_valid_next(contract, is_guarantor: bool) -> str | None:
+    missing_hws = get_missing_handwriting(contract)
+    mhw = None
+
+    # Get the first valid to change
+    while len(missing_hws) > 0 and not is_valid_as_next(mhw, is_guarantor):
+        mhw = missing_hws.pop(0)
+
+    # if exists capture
+    if is_valid_as_next(mhw, is_guarantor):
+        return mhw
+
+    return None

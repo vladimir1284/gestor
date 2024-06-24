@@ -85,6 +85,7 @@ class Contract(models.Model):
     total_amount = models.IntegerField(default=0)
     template_version = models.IntegerField(null=True, blank=True)
     client_complete = models.BooleanField(null=True, blank=True)
+    guarantor_complete = models.BooleanField(null=True, blank=True)
 
     renovation_15_notify = models.BooleanField(default=False)
     renovation_7_notify = models.BooleanField(default=False)

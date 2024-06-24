@@ -61,6 +61,7 @@ from rent.tools.get_missing_handwriting import check_handwriting
 from rent.tools.get_missing_handwriting import DEFAULT_GUARANTOR_SIGNATURES
 from rent.tools.get_missing_handwriting import DEFAULT_LESSEE_SIGNATURES
 from rent.tools.get_missing_handwriting import get_missing_handwriting
+from rent.tools.get_missing_handwriting import get_valid_next
 from rent.tools.get_missing_handwriting import is_valid_as_next
 from rent.tools.lessee_contact_sms import sendSMSLesseeContactURL
 from rent.views.client import compute_client_debt
@@ -126,22 +127,13 @@ def create_handwriting(request, token, position, external=False):
 
             if external:
                 # Get missing hand writings
-                missing_hws = get_missing_handwriting(contract)
-                mhw = None
-
-                # Get the first valid to change
-                while len(missing_hws) > 0 and not is_valid_as_next(mhw, is_guarantor):
-                    mhw = missing_hws.pop(0)
-
-                # if exists capture
-                print(mhw)
-                if is_valid_as_next(mhw, is_guarantor):
+                mhw = get_valid_next(contract, is_guarantor)
+                if mhw is not None:
                     return redirect(
                         "ext-capture-signature",
                         mhw,
                         token,
                     )
-
                 return redirect("contract-signature", token)
             return redirect("detail-contract", contract.id)
     else:

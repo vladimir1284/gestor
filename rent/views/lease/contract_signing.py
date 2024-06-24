@@ -12,6 +12,7 @@ from rent.tools.contract_ctx import get_contract_token
 from rent.tools.contract_ctx import prepare_contract_view
 from rent.tools.get_conditions import get_conditions
 from rent.tools.get_missing_handwriting import check_handwriting
+from rent.tools.get_missing_handwriting import get_valid_next
 from rent.views.calendar import login_required
 
 
@@ -20,7 +21,9 @@ def is_contract_cli_complete(request: HttpRequest, id: int):
     contract = Contract.objects.filter(id=id).first()
     if contract is None:
         return JsonResponse({"msg": "Can not find contract"}, status="400")
-    return JsonResponse({"completed": contract.client_complete})
+    return JsonResponse(
+        {"completed": contract.client_complete and contract.guarantor_complete}
+    )
 
 
 @login_required
@@ -53,7 +56,10 @@ def contract_signing(request, token):
 
     contract: Contract = get_object_or_404(Contract, pk=contract_id)
     if request.method == "POST":
-        contract.client_complete = True
+        if is_guarantor:
+            contract.guarantor_complete = True
+        else:
+            contract.client_complete = True
         contract.save()
         return redirect(settings.REDIR_CLIENTS)
 
@@ -63,7 +69,10 @@ def contract_signing(request, token):
     context = prepare_contract_view(contract_id)
     context.setdefault("external", True)
 
-    context["handwriting_ok"] = check_handwriting(context["contract"], daniel=False)
+    mhw = get_valid_next(context["contract"], is_guarantor)
+    context["handwriting_ok"] = (
+        mhw is None
+    )  # check_handwriting(context["contract"], daniel=False)
     context["contract_signature"] = True
     context["token"] = token
     context["is_guarantor"] = is_guarantor
