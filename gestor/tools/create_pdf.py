@@ -25,15 +25,15 @@ def create_pdf(
     if settings.USE_WEASYPRINT:
         from weasyprint import HTML
 
-        boxicons = CSS(f"{settings.STATIC_ROOT}/assets/vendor/fonts/boxicons.css")
-        core = CSS(f"{settings.STATIC_ROOT}/assets/vendor/css/core.css")
-        theme = CSS(f"{settings.STATIC_ROOT}/assets/vendor/css/theme-default.css")
-        demo = CSS(f"{settings.STATIC_ROOT}/assets/css/demo.css")
-        apex_chart = CSS(
-            f"{settings.STATIC_ROOT}/assets/vendor/libs/apex-charts/apex-charts.css"
-        )
-        editor = CSS(f"{settings.STATIC_ROOT}/libs/ckeditor/ckeditor.css")
-        style = CSS(f"{settings.STATIC_ROOT}/assets/css/style.css")
+        start = settings.PDF_STATIC_ROOT
+
+        boxicons = CSS(f"{start}/assets/vendor/fonts/boxicons.css")
+        core = CSS(f"{start}/assets/vendor/css/core.css")
+        theme = CSS(f"{start}/assets/vendor/css/theme-default.css")
+        demo = CSS(f"{start}/assets/css/demo.css")
+        apex_chart = CSS(f"{start}/assets/vendor/libs/apex-charts/apex-charts.css")
+        editor = CSS(f"{start}/libs/ckeditor/ckeditor.css")
+        style = CSS(f"{start}/assets/css/style.css")
 
         html = HTML(
             string=html_string,
