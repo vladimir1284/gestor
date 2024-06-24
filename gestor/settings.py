@@ -238,7 +238,7 @@ OCELLID_KEY = os.environ.get("OCELLID_KEY")
 STATIC_URL = "/static/"
 
 # Location for collected static files
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Directories to search for static files
 STATICFILES_DIRS = [
