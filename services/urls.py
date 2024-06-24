@@ -208,6 +208,17 @@ urlpatterns = [
     path("create-order/<id>", create_order, name="create-service-order"),
     path("update-order/<id>", order.update_order, name="update-service-order"),
     path(
+        "detail-order-back/<id>/<back>",
+        order.detail_order_back,
+        {"msg": ""},
+        name="detail-service-order-back",
+    ),
+    path(
+        "detail-order-back/<id>/<back>/<msg>",
+        order.detail_order_back,
+        name="detail-service-order-back",
+    ),
+    path(
         "detail-order/<id>",
         order.detail_order,
         {"msg": ""},
@@ -353,6 +364,7 @@ urlpatterns = [
         name="update-debt-status",
     ),
     path("storage", storage.storage, name="storage-view"),
+    path("storage/<tab>", storage.storage, name="storage-view"),
     ################# Order Complete ######################
     path(
         "service-order-complete/<id>",

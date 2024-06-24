@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.http import HttpRequest
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
@@ -79,7 +80,8 @@ STATUS_ORDER = ["pending", "processing", "approved", "complete", "decline"]
 
 
 @login_required
-def list_order(request):
+def list_order(request: HttpRequest):
+    request.session["order_back"] = "order"
     context = prepareListOrder(
         request,
         ("processing", "pending"),
@@ -231,6 +233,15 @@ def preparePaginatedListOrder(request, status_list, currentYear, currentMonth):
 
 
 @login_required
+def detail_order_back(request: HttpRequest, id, msg=None, back: str | None = None):
+    if back is not None:
+        request.session["order_back"] = back
+    if msg is not None and msg != "":
+        return redirect("detail-service-order", id, msg)
+    return redirect("detail-service-order", id)
+
+
+@login_required
 def detail_order(request, id, msg=None):
     # Prepare the flow for creating order
     request.session["creating_order"] = None
@@ -314,6 +325,10 @@ def detail_order(request, id, msg=None):
 
     context["psc_total"] = (
         context["parts_total"] + context["service_total"] + context["consumable_total"]
+    )
+
+    context["order_back"] = (
+        request.session["order_back"] if "order_back" in request.session else None
     )
 
     return render(request, "services/order_detail.html", context)
