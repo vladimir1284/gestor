@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest
 from django.shortcuts import render
 from django.utils.timezone import datetime
 from django.utils.timezone import make_aware
@@ -10,7 +11,8 @@ from utils.models import OrderDeclineReazon
 
 
 @login_required
-def storage(request):
+def storage(request: HttpRequest, tab: str | None = None):
+    request.session["order_back"] = "storage"
     orders = (
         Order.objects.filter(
             position=0,
@@ -78,8 +80,7 @@ def storage(request):
             if o.terminated_date is not None:
                 o.time = (make_aware(datetime.now()) - o.terminated_date).days
             if o.status == "decline":
-                o.dec_reazon = OrderDeclineReazon.objects.filter(
-                    order=o).last()
+                o.dec_reazon = OrderDeclineReazon.objects.filter(order=o).last()
         trailers = Trailer.objects.filter(active=True, position=pos).exclude(
             id__in=not_ids
         )
@@ -91,8 +92,7 @@ def storage(request):
             "trailers": trailers,
         }
 
-    trailers = Trailer.objects.filter(
-        active=True, position=0).exclude(id__in=not_ids)
+    trailers = Trailer.objects.filter(active=True, position=0).exclude(id__in=not_ids)
     for t in trailers:
         if t.position_date is not None:
             t.time = (make_aware(datetime.now()) - t.position_date).days
@@ -106,5 +106,6 @@ def storage(request):
         "workshop": workshop,
         "available_trailers": trailers,
         "on_storage_count": justTriler.count() + trailers.count(),
+        "tab": tab,
     }
     return render(request, "services/storage/storage_view.html", context)
