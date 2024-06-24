@@ -1,31 +1,31 @@
+from crispy_forms.bootstrap import AppendedText
+from crispy_forms.bootstrap import PrependedText
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import ButtonHolder
+from crispy_forms.layout import Div
+from crispy_forms.layout import Field
+from crispy_forms.layout import Fieldset
+from crispy_forms.layout import HTML
+from crispy_forms.layout import Layout
+from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils.safestring import mark_safe
-
-from .models import (
-    KitElement,
-    Product,
-    convertUnit,
-    Unit,
-    ProductTransaction,
-    PriceReference,
-    ProductCategory,
-    ProductKit,
-)
-from utils.forms import (
-    CategoryCreateForm as BaseCategoryCreateForm,
-    OrderCreateForm as BaseOrderCreateForm,
-    BaseForm,
-)
 from django.forms import HiddenInput
-
-from users.models import (
-    Associated,
-)
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Field
-from crispy_forms.bootstrap import PrependedText, AppendedText
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
+from .models import convertUnit
+from .models import KitElement
+from .models import PriceReference
+from .models import Product
+from .models import ProductCategory
+from .models import ProductKit
+from .models import ProductTransaction
+from .models import Unit
+from users.models import Associated
+from utils.forms import BaseForm
+from utils.forms import CategoryCreateForm as BaseCategoryCreateForm
+from utils.forms import OrderCreateForm as BaseOrderCreateForm
 
 
 class OrderCreateForm(BaseOrderCreateForm):
@@ -136,19 +136,24 @@ class TransactionCreateForm(forms.ModelForm):
 
     def clean_quantity(self):
         quantity = self.cleaned_data["quantity"]
-        if self.order.type == "sell" and not self.order.quotation:
-            error_msg = ""
-            unit = Unit.objects.get(id=int(self.data["unit"]))
-            available = self.product.computeAvailable(self.id)
-            # Compute the available quantity in transaction unit
-            available = convertUnit(self.product.unit, unit, available)
-            if available < quantity:
-                if int(available) == float(available):
-                    decimals = 0
-                else:
-                    decimals = 2  # Assumes 2 decimal places
-                error_msg += f"The quantity cannot be higher than {available:.{decimals}f}{unit}."
-                raise ValidationError(error_msg)
+        # if (
+        #     self.order.type == "sell"
+        #     and not self.order.quotation
+        #     and self.order.status != "pending"
+        #     and self.order.status != "decline"
+        # ):
+        #     error_msg = ""
+        #     unit = Unit.objects.get(id=int(self.data["unit"]))
+        #     available = self.product.computeAvailable(self.id)
+        #     # Compute the available quantity in transaction unit
+        #     available = convertUnit(self.product.unit, unit, available)
+        #     if available < quantity:
+        #         if int(available) == float(available):
+        #             decimals = 0
+        #         else:
+        #             decimals = 2  # Assumes 2 decimal places
+        #         error_msg += f"The quantity cannot be higher than {available:.{decimals}f}{unit}."
+        #         raise ValidationError(error_msg)
         return quantity
 
     def clean_price(self):
@@ -207,8 +212,19 @@ class TransactionCreateForm(forms.ModelForm):
             break
 
         minimum = f"Minimum: ${self.limit:.2f}/{self.product.unit}."
-        average = f" Cost: ${cost:.2f}/{self.product.unit}."
-        self.fields["price"].help_text = minimum + average
+        average = (
+            """
+            <span x-data="{show: false}">
+                Cost:
+                <span class="text-main" @click="show = !show">
+                    <i class='bx bx-hide' x-show="!show"></i>
+                    <i class='bx bx-show' x-show="show"></i>
+                </span>
+                <span x-show="show">
+            """
+            + f"${cost:.2f}/{self.product.unit}</span></span>."
+        )
+        self.fields["price"].help_text = minimum + mark_safe(average)
 
         # Quantity
         available = self.product.computeAvailable(self.id)
@@ -216,9 +232,9 @@ class TransactionCreateForm(forms.ModelForm):
             decimals = 0
         else:
             decimals = 2  # Assumes 2 decimal places for money
-        self.fields[
-            "quantity"
-        ].help_text = f"Available: {available:.{decimals}f}{self.product.unit}."
+        self.fields["quantity"].help_text = (
+            f"Available: {available:.{decimals}f}{self.product.unit}."
+        )
 
         self.helper = FormHelper()
         self.helper.form_tag = False  # Don't render form tag
@@ -301,8 +317,7 @@ class UnitCreateForm(forms.ModelForm):
             Div(Div(Field("name")), css_class="mb-3"),
             Div(Div(Field("factor")), css_class="mb-3"),
             Div(Div(Field("magnitude")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
 
 
@@ -327,8 +342,7 @@ class PriceReferenceCreateForm(forms.ModelForm):
             Div(Div(Field("store")), css_class="mb-3"),
             Div(Div(Field("url")), css_class="mb-3"),
             Div(Div(Field(PrependedText("price", "$")), css_class="mb-3")),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
 
 
@@ -426,8 +440,7 @@ class ProductCreateForm(forms.ModelForm):
                             Div(Field(AppendedText("sell_tax", "%"))), css_class="mb-3"
                         ),
                         ButtonHolder(
-                            Submit("submit", "Enviar",
-                                   css_class="btn btn-success")
+                            Submit("submit", "Enviar", css_class="btn btn-success")
                         ),
                         css_class="card-body",
                     ),
@@ -452,8 +465,7 @@ class KitCreateForm(BaseForm):
         self.helper.layout = Layout(
             Div(Div(Field("name")), css_class="mb-3"),
             Div(Div(Field("category", css_class="form-select")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )
 
 
@@ -468,6 +480,5 @@ class KitElementCreateForm(BaseForm):
         self.helper.layout = Layout(
             Div(Div(Field("quantity")), css_class="mb-3"),
             Div(Div(Field("unit", css_class="form-select")), css_class="mb-3"),
-            ButtonHolder(Submit("submit", "Enviar",
-                         css_class="btn btn-success")),
+            ButtonHolder(Submit("submit", "Enviar", css_class="btn btn-success")),
         )

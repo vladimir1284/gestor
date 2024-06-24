@@ -1,0 +1,35 @@
+{%load static%}
+<tr data-tag="{{ trans.product.name }}"
+    {% if trans.decline %}
+        class="bg-red-100"
+    {% endif %}>
+    <td>
+        <a
+            href="{% if terminated %}{% url 'detail-transaction' trans.id %}{% else %}{% url 'update-transaction' trans.id %}{% endif %}"
+        >
+            ${{ trans.amount|floatformat:"0" }}
+        </a>
+    </td>
+    <td>
+        <a
+            href="{% url 'detail-product' trans.product.id %}"
+            {%if trans.product.quantity == 0 %}class="text-danger"{%endif%}
+        >
+            <strong>{{ trans.product.name }}</strong>
+        </a>
+    </td>
+    <td
+        {%if trans.product.quantity == 0%}class="text-danger"{%endif%}
+    >
+        {{ trans.quantity|floatformat:"-2" }}
+        {%if not trans.satisfied or trans.product.quantity <= trans.product.quantity_min %}
+            <span {%if not trans.satisfied%}class="text-danger"{%endif%}>
+                ({{trans.product.quantity|floatformat:"-2"}})
+            </span>
+        {%endif%}
+    </td>
+    <td>{{ trans.unit }}</td>
+    <td>${{ trans.price|floatformat:"2" }}</td>
+    <td>${{ trans.amount|floatformat:"2" }}</td>
+    <td>${{ trans.total_tax|floatformat:"2" }}</td>
+</tr>

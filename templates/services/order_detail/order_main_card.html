@@ -1,0 +1,164 @@
+{%load static%}
+{% load crispy_forms_tags %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">
+            <b>{{ order.concept }}</b>
+            <p class="pt-2 d-flex">
+                <span class="pt-2">
+                    <b>${{ order.total|floatformat:"-2" }}</b>
+                    {% if order.tax > 0 or order.discount > 0 %}
+                        = ${{ order.amount|floatformat:"-2" }}+${{ order.tax|floatformat:"-2" }}
+                    {% endif %}
+                    - &nbsp;
+                </span>
+                {%if perms.extra_perm.order_discount%}
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#discountCollapse"
+                            aria-expanded="true"
+                            aria-controls="discountCollapse">
+                        ${{ order.discount|floatformat:"-2" }} discount
+                    </button>
+                    <div class="collapse mt-2" id="discountCollapse">
+                        <form enctype="multipart/form-data"
+                              method="post"
+                              id="update-form"
+                              class="border p-3">
+                            {% csrf_token %}
+                            {% crispy form %}
+                        </form>
+                    </div>
+                {%endif%}
+            </p>
+            <div class="flex flex-wrap justify-end">
+                <p class="flex-grow">
+                    <strong>Position:</strong>
+                    {% if order.position == 0 %}
+                        Storage
+                    {% elif order.position is None %}
+                        Null
+                    {% else %}
+                        {{ order.position }}
+                    {% endif %}
+
+                    <a class="btn btn-outline-primary" href="{%url 'order-position-change' order.id%}">
+                        <i class='bx bx-refresh'></i>
+                    </a>
+                </p>
+                {% include "services/order_detail/components/order_status.html" %}
+            </div>
+        </h5>
+        {% include "services/order_header.html" %}
+        <div class="demo-inline-spacing">
+            <ul class="p-0 m-0">
+                {% for payment in payments %}
+                    <li class="d-flex mb-4 pb-1">
+                        <div class="avatar flex-shrink-0 me-3">
+                            {% if payment.category.icon %}<img src="{{ payment.category.icon.url }}" alt="" class="w-px-40" />{% endif %}
+                        </div>
+                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                                <small class="text-muted d-block mb-1">{{ payment.category }}</small>
+                                <h6 class="mb-0">${{ payment.amount|floatformat:"2" }}</h6>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+                {% for payment in towit_payments %}
+                    <li class="d-flex mb-4 pb-1">
+                        <div class="avatar flex-shrink-0 me-3">
+                            <img src="{%static 'assets/img/icons/company.png'%}" alt="" class="w-px-40" />
+                        </div>
+                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                                <small class="text-muted d-block mb-1">Towit Payment: <strong>{{payment.note}}</strong></small>
+                                <h6 class="mb-0">${{ payment.amount|floatformat:"2" }}</h6>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <p class="card-text">{{ order.note }}</p>
+        <div class="demo-inline-spacing">
+            <a class="btn btn-icon btn-outline-primary"
+               type="button"
+               {% if not order_back or order_back == 'order' %}
+                   href="{% url 'list-service-order' %}"
+               {% elif order_back == 'storage' %}
+                   href="{% url 'storage-view' %}"
+               {% else %}
+                   href="{% url 'storage-view' order_back %}"
+               {% endif %}
+            >
+                <span class="tf-icons bx bx-arrow-back"></a>
+            </a>
+                <!-- <a class="btn btn-icon btn-outline-primary" -->
+                <!--    type="button" -->
+                <!--    href="{% url 'service-invoice' order.id %}"> -->
+                <!--     <span class="tf-icons bx bx-credit-card"></span> -->
+                <!-- </a> -->
+
+            <a class="btn btn-icon btn-outline-primary"
+               type="button"
+               href="{% url 'pdf-invoice' order.id %}">
+                <span class="tf-icons bx bx-printer"></span>
+            </a>
+
+            <a class="btn btn-icon btn-outline-primary"
+               type="button"
+               href="{% url 'service-labor' order.id %}">
+                <span class="tf-icons bx bx-wrench"></span>
+            </a>
+
+            <a class="btn btn-icon btn-outline-primary"
+               type="button"
+               href="{% url 'trailer-identification-pdf' order.id %}">
+                <span class="tf-icons bx bx-purchase-tag"></span>
+            </a>
+            {%if not order.invoice_sended%}
+                <a class="btn btn-icon btn-outline-primary"
+                   type="button"
+                   href="{% url 'service-order-send-invoice' order.id %}">
+                    <span class="tf-icons bx bx-mail-send"></span>
+                </a>
+            {%endif%}
+
+
+            {% if order.status != 'decline' and order.status != 'complete' and order.status != 'payment_pending' and order.status != 'processing' %}
+                <a onclick="updateStatus('{% url 'order-decline-reazon' order.id %}', 'decline')"
+                   type="button"
+                   class="btn btn-icon btn-outline-danger float-end">
+                    <span class="tf-icons bx bx-trash"></span>
+                </a>
+            {% endif %}
+            {% if not terminated %}
+                <a class="btn btn-icon btn-outline-primary float-end"
+                   type="button"
+                   href="{% url 'update-service-order' order.id %}">
+                    <span class="tf-icons bx bx-edit"></span>
+                </a>
+            {% endif %}
+            {% if order.status == 'payment_pending' %}
+                    <!-- <a href="{% url 'process-payment' order.id %}" -->
+                <a href="{% url 'update-order-position' order.id 'complete' %}"
+                   type="button"
+                   class="btn btn-icon btn-outline-success float-end">
+                    <span class="tf-icons bx bx-money"></span>
+                </a>
+            {% endif %}
+            <a href="{% url 'select-service' 'create-service-transaction' order.id %}"
+               type="button"
+               data-bs-toggle="tooltip"
+               data-bs-offset="0,4"
+               data-bs-placement="left"
+               data-bs-html="true"
+               data-bs-original-title="Add part or service"
+               class="btn btn-icon btn-outline-info float-end">
+                <span class="tf-icons bx bx-plus"></span>
+            </a>
+        </div>
+    </div>
+</div>

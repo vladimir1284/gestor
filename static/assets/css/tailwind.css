@@ -11,5 +11,31 @@
 }
 
 .match {
-  @apply text-main font-bold;
+  @apply !text-main !font-bold;
+}
+
+.text-primary .match,
+.text-primary.match,
+a .match,
+a.match {
+  @apply !text-red-800 !font-bold;
+}
+
+.partsCard {
+  box-sizing: border-box;
+}
+
+.num-input {
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  &[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
 }

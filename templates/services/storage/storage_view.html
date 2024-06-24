@@ -15,7 +15,11 @@
                 <ul class="nav nav-pills nav-fill" role="tablist">
                     <li class="nav-item">
                         <button type="button"
-                                class="nav-link active"
+                                {% if tab is None or tab == '' or tab == 'client-trailer' %}
+                                    class="nav-link active"
+                                {% else %}
+                                    class="nav-link"
+                                {% endif %}
                                 role="tab"
                                 data-bs-toggle="tab"
                                 data-bs-target="#navs-pills-justified-active"
@@ -28,7 +32,11 @@
                     </li>
                     <li class="nav-item">
                         <button type="button"
-                                class="nav-link"
+                                {% if tab is not None and tab == 'client-rent' %}
+                                    class="nav-link active"
+                                {% else %}
+                                    class="nav-link"
+                                {% endif %}
                                 role="tab"
                                 data-bs-toggle="tab"
                                 data-bs-target="#navs-pills-justified-processing"
@@ -41,7 +49,11 @@
                     </li>
                     <li class="nav-item">
                         <button type="button"
-                                class="nav-link"
+                                {% if tab is not None and tab == 'trailer-rent' %}
+                                    class="nav-link active"
+                                {% else %}
+                                    class="nav-link"
+                                {% endif %}
                                 role="tab"
                                 data-bs-toggle="tab"
                                 data-bs-target="#navs-pills-justified-ended"
@@ -54,7 +66,11 @@
                     </li>
                     <li class="nav-item">
                         <button type="button"
-                                class="nav-link"
+                                {% if tab is not None and tab == 'workshop' %}
+                                    class="nav-link active"
+                                {% else %}
+                                    class="nav-link"
+                                {% endif %}
                                 role="tab"
                                 data-bs-toggle="tab"
                                 data-bs-target="#workshop"
@@ -70,9 +86,14 @@
         </div>
     </div>
     <div class="tab-content p-0">
-        <div class="tab-pane fade active show"
-             id="navs-pills-justified-active"
-             role="tabpanel">
+        <div
+            {% if tab is None or tab == '' or tab == 'client-trailer' %}
+                class="tab-pane fade active show"
+            {% else %}
+                class="tab-pane fade"
+            {% endif %}
+            id="navs-pills-justified-active"
+            role="tabpanel">
             <div class="table-responsive text-nowrap">
                 <table class="table" id="table_active">
                     <thead class="sticky top-0 bg-white">
@@ -90,15 +111,20 @@
                     </thead>
                     <tbody class="table-border-bottom-0">
                         {% for order in client_owns_trailers %}
-                            {% include 'services/storage/storage_order.html' %}
+                            {% include 'services/storage/storage_order.html' with order_back='client-trailer' %}
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="tab-pane fade"
-             id="navs-pills-justified-processing"
-             role="tabpanel">
+        <div
+            {% if tab is not None and tab == 'client-rent' %}
+                class="tab-pane fade active show"
+            {% else %}
+                class="tab-pane fade"
+            {% endif %}
+            id="navs-pills-justified-processing"
+            role="tabpanel">
             <div class="table-responsive text-nowrap">
                 <table class="table" id="table_consumables">
                     <thead class="sticky top-0 bg-white">
@@ -116,13 +142,20 @@
                     </thead>
                     <tbody class="table-border-bottom-0">
                         {% for order in client_rent_trailers %}
-                            {% include 'services/storage/storage_order.html' %}
+                            {% include 'services/storage/storage_order.html' with order_back='client-rent' %}
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="tab-pane fade" id="navs-pills-justified-ended" role="tabpanel">
+        <div
+            {% if tab is not None and tab == 'trailer-rent' %}
+                class="tab-pane fade active show"
+            {% else %}
+                class="tab-pane fade"
+            {% endif %}
+            id="navs-pills-justified-ended"
+            role="tabpanel">
             <div class="table-responsive text-nowrap">
                 <table class="table" id="table_consumables">
                     <thead class="sticky top-0 bg-white">
@@ -140,7 +173,7 @@
                     </thead>
                     <tbody class="table-border-bottom-0">
                         {% for order in just_trailers %}
-                            {% include 'services/storage/storage_order.html' %}
+                            {% include 'services/storage/storage_order.html' with order_back='trailer-rent' %}
                         {% endfor %}
                         {% for trailer in available_trailers %}
                             {% include 'services/storage/storage_trailer.html' %}
@@ -149,7 +182,14 @@
                 </table>
             </div>
         </div>
-        <div class="tab-pane fade" id="workshop" role="tabpanel">
+        <div
+            {% if tab is not None and tab == 'workshop' %}
+                class="tab-pane fade active show"
+            {% else %}
+                class="tab-pane fade"
+            {% endif %}
+            id="workshop"
+            role="tabpanel">
             <div class="table-responsive text-nowrap">
                 <table class="table" id="table_consumables">
                     <thead class="sticky top-0 bg-white">
@@ -181,7 +221,7 @@
                                 </tr>
                             {%else%}
                                 {%for order in ws.orders%}
-                                    {% include 'services/storage/workshop_order.html' %}
+                                    {% include 'services/storage/workshop_order.html' with order_back='workshop' %}
                                 {% endfor %}
                                 {%for trailer in ws.trailers%}
                                     {% include 'services/storage/workshop_trailer.html' %}

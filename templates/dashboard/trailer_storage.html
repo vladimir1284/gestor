@@ -107,7 +107,11 @@
                             </thead>
                             <tbody>
                                 {% for order in just_trailers %}
-                                    {% include "services/storage/dashboard_storage_order.html" %}
+                                    {%if order.is_trailer%}
+                                        {% include "services/storage/dashboard_storage_trailer.html" %}
+                                    {%else%}
+                                        {% include "services/storage/dashboard_storage_order.html" %}
+                                    {%endif%}
                                 {% endfor %}
                             </tbody>
                         </table>

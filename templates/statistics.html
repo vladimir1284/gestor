@@ -255,6 +255,35 @@
                                 </div>
                             </li>
                         {% endfor %}
+
+                        <!-- {%if towit_payment_total%} -->
+                        <!--     <li class="d-flex mb-4 pb-1"> -->
+                        <!--         <div class="avatar flex-shrink-0 me-3 mt-0"> -->
+                        <!--             <img src="{% static 'assets/img/icons/company.png' %}" -->
+                        <!--                  alt="" -->
+                        <!--                  class="rounded" /> -->
+                        <!--         </div> -->
+                        <!--         <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-0"> -->
+                        <!--             <h6 class="mb-0">Towit Payment</h6> -->
+                        <!--             <a type="button"> -->
+                        <!--                 <small class="badge bg-secondary"> -->
+                        <!--                     ${{ towit_payment_total|floatformat:"0" }} -->
+                        <!--                 </small> -->
+                        <!--             </a> -->
+                        <!---->
+                        <!--             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between"> -->
+                        <!--                 <small class="text-muted"> -->
+                        <!--                     {{ towit_payment_count }} -->
+                        <!--                     {%if towit_payment_count == 1 %} -->
+                        <!--                         payment -->
+                        <!--                     {%else%} -->
+                        <!--                         payments -->
+                        <!--                     {%endif%} -->
+                        <!--                 </small> -->
+                        <!--             </div> -->
+                        <!--         </div> -->
+                        <!--     </li> -->
+                        <!-- {%endif%} -->
                     </ul>
                 </div>
             </div>
@@ -660,10 +689,38 @@
 
     // Payment Statistics Chart
     // --------------------------------------------------------------------
-    labels = [{% for cat in chart_payments %}'{{cat.name}}',{% endfor %}];
-    series = [{% for cat in chart_payments %}{{cat.amount|floatformat:"0"}},{% endfor %}];
-    colors = [{% for cat in chart_payments %}"{{cat.chartColor}}",{% endfor %}];
-    plotChart('#paymentStatisticsChart', labels, series, colors, '${{ payment_total|floatformat:"0" }}')
+    cats = [
+        {%for cat in chart_payments%}
+            {
+                'name': "{{cat.name}}",
+                'amount': {{cat.amount|floatformat:'0'}},
+                'color': "{{cat.chartColor}}",
+            },
+        {%endfor%}
+
+            //{
+            //    'name': "Towit",
+            //    'amount': {{towit_payment_total|floatformat:'0'}},
+            //    'color': "#A8A8A8",
+            //},
+    ]
+    cats = cats.sort((a,b) => {
+        return b.amount - a.amount
+    })
+
+    //labels = [{% for cat in chart_payments %}'{{cat.name}}',{% endfor %} "Towit",];
+    //series = [{% for cat in chart_payments %}{{cat.amount|floatformat:"0"}},{% endfor %} {{towit_payment_total|floatformat:'0'}},];
+    //colors = [{% for cat in chart_payments %}"{{cat.chartColor}}",{% endfor %} '555555',];
+    labels = []
+    series = []
+    colors = []
+    cats.forEach(e => {
+        labels.push(e.name)
+        series.push(e.amount)
+        colors.push(e.color)
+    })
+    total = {{ payment_total }} // + {{ towit_payment_total }}
+    plotChart('#paymentStatisticsChart', labels, series, colors, '$' + parseInt(total))
      
 })();
 

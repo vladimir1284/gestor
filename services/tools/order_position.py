@@ -35,6 +35,7 @@ def order_update_position(
             reason = form.cleaned_data["reason"]
             if pos == "":
                 pos = None
+
             order.position = pos
             order.storage_reason = reason
             order.save()

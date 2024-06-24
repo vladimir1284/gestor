@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
     "testserver",
     "www.tacocars.com",
     "192.168.43.89",
+    ".ngrok-free.app",
 ]
 
 
@@ -57,6 +58,8 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_cleanup.apps.CleanupConfig",
     "django_extensions",
+    "rest_framework",
+    "rest_framework.authtoken",
     # local
     "utils.apps.UtilsConfig",
     "inventory.apps.inventoryConfig",
@@ -101,6 +104,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "menu.menu.menu.getMenuCtx",
+                "gestor.tools.set_not.get_not",
             ],
         },
     },
@@ -116,6 +120,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        "OPTIONS": {
+            "timeout": 1000,
+        },
     }
 }
 
@@ -137,6 +144,13 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_PARSER_CLASSES": [
+        "rest_framework.parsers.JSONParser",
+    ],
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
+}
 
 
 # Internationalization
@@ -194,6 +208,13 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
 # SMS
 TWILIO_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+
+# Whatsapp
+TWILIO_WHATSAPP_SID = os.getenv("TWILIO_WHATSAPP_ACCOUNT_SID")
+TWILIO_WHATSAPP_TOKEN = os.getenv("TWILIO_WHATSAPP_AUTH_TOKEN")
+
+# TWILIO_WHATSAPP_NUM = "+13203563490"
+TWILIO_WHATSAPP_NUM = "+14155238886"
 
 # Chat GPT
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

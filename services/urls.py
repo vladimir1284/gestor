@@ -1,3 +1,4 @@
+from django.urls import include
 from django.urls import path
 
 from .views import category
@@ -12,32 +13,39 @@ from .views import sms
 from .views import storage
 from .views import transaction
 from services.tools.init_temps import init_temps
+from services.views.order.order_status import update_order_status
+from services.views.order.print_outstock import order_print_outstock_trans
 from services.views.order_decline_reazon import order_decline_reazon
 from services.views.order_flow.contact_form import lessee_form
-from services.views.order_flow.contract_client_signature import (
-    contact_create_handwriting,
-)
-from services.views.order_flow.contract_client_signature import (
-    contract_client_use_old_sign,
-)
+from services.views.order_flow.contract_client_signature import contact_create_handwriting
+from services.views.order_flow.contract_client_signature import contract_client_use_old_sign
 from services.views.order_flow.contract_end import process_ended_page
-from services.views.order_flow.contract_view_conditions import contact_view_conditions
-from services.views.order_flow.create_order_contract import create_order_contact
+from services.views.order_flow.contract_view_conditions import \
+    contact_view_conditions
+from services.views.order_flow.create_order_contract import \
+    create_order_contact
 from services.views.order_flow.fast_orders import fast_order_create
 from services.views.order_flow.fast_orders import order_quotation
 from services.views.order_flow.fast_orders import parts_sale
 from services.views.order_flow.generate_url import generate_url
 from services.views.order_flow.get_preorder_state import preorder_state
+from services.views.order_flow.order_complete import force_order_complete
+from services.views.order_flow.order_complete import order_complete
 from services.views.order_flow.order_create import create_order
 from services.views.order_flow.select_client import select_client
 from services.views.order_flow.select_lessee import select_lessee
 from services.views.order_flow.select_lessee import select_lessee_trailer
-from services.views.order_flow.select_unrented_trailer import select_unrented_trailer
+from services.views.order_flow.select_unrented_trailer import \
+    select_unrented_trailer
 from services.views.order_flow.signature import create_handwriting
 from services.views.order_flow.signature import use_old_sign
 from services.views.order_flow.start_flow import select_order_flow
 from services.views.order_flow.view_conditions import view_conditions
-from services.views.order_flow.view_contract_details import view_contract_details
+from services.views.order_flow.view_contract_details import \
+    view_contract_details
+from services.views.order_payment.order_payment import process_order_payment
+from services.views.order_payment.rent_not_client_payment import \
+    process_payment_rent_without_client
 from services.views.picture_capture import capture_service_picture
 from services.views.picture_capture import create_expense_capture_picture
 from services.views.picture_capture import update_expense_capture_picture
@@ -48,6 +56,8 @@ except Exception as e:
     print(e)
 
 urlpatterns = [
+    # -------------------- APIS --------------------------------
+    path("api/", include("services.api.urls")),
     # -------------------- Category ----------------------------
     path(
         "create-category/",
@@ -198,13 +208,28 @@ urlpatterns = [
     path("create-order/<id>", create_order, name="create-service-order"),
     path("update-order/<id>", order.update_order, name="update-service-order"),
     path(
+        "detail-order-back/<id>/<back>",
+        order.detail_order_back,
+        {"msg": ""},
+        name="detail-service-order-back",
+    ),
+    path(
+        "detail-order-back/<id>/<back>/<msg>",
+        order.detail_order_back,
+        name="detail-service-order-back",
+    ),
+    path(
         "detail-order/<id>",
         order.detail_order,
         {"msg": ""},
         name="detail-service-order",
     ),
-    path("detail-order/<id>/<msg>/", order.detail_order,
-         name="detail-service-order"),
+    path("detail-order/<id>/<msg>/", order.detail_order, name="detail-service-order"),
+    path(
+        "order-out-stock-print/<id>",
+        order_print_outstock_trans,
+        name="service-order-out-stock-print",
+    ),
     path(
         "order-send-invoice/<id>",
         order.send_invoice_email,
@@ -233,7 +258,7 @@ urlpatterns = [
     ),
     path(
         "update-order-status/<id>/<status>",
-        order.update_order_status,
+        update_order_status,
         name="update-service-order-status",
     ),
     path(
@@ -261,8 +286,7 @@ urlpatterns = [
     path("pdf-labor/<id>", labor.generate_labor, name="pdf-labor"),
     path("html-labor/<id>", labor.html_labor, name="html-labor"),
     # -------------------- Expense ----------------------------
-    path("create-expense/<order_id>",
-         expense.create_expense, name="create-expense"),
+    path("create-expense/<order_id>", expense.create_expense, name="create-expense"),
     path("update-expense/<id>", expense.update_expense, name="update-expense"),
     path("delete-expense/<id>", expense.delete_expense, name="delete-expense"),
     # -------------------- Picture ----------------------------
@@ -325,7 +349,12 @@ urlpatterns = [
     ),
     path(
         "process-payment/<int:order_id>",
-        payment.process_payment,
+        process_order_payment,
+        name="process-payment",
+    ),
+    path(
+        "process-payment/<int:order_id>/<decline_unsatisfied>",
+        process_order_payment,
         name="process-payment",
     ),
     path("pay-debt/<int:client_id>", payment.pay_debt, name="pay-debt"),
@@ -335,4 +364,31 @@ urlpatterns = [
         name="update-debt-status",
     ),
     path("storage", storage.storage, name="storage-view"),
+    path("storage/<tab>", storage.storage, name="storage-view"),
+    ################# Order Complete ######################
+    path(
+        "service-order-complete/<id>",
+        order_complete,
+        name="service-order-complete",
+    ),
+    path(
+        "service-order-complete/<id>/<decline_unsatisfied>",
+        order_complete,
+        name="service-order-complete",
+    ),
+    path(
+        "service-order-payment-trailer-without-client/<order_id>",
+        process_payment_rent_without_client,
+        name="service-order-payment-trailer-without-client",
+    ),
+    path(
+        "service-order-payment-trailer-without-client/<order_id>/<decline_unsatisfied>",
+        process_payment_rent_without_client,
+        name="service-order-payment-trailer-without-client",
+    ),
+    path(
+        "service-order-complete-forced/<id>",
+        force_order_complete,
+        name="service-order-complete-forced",
+    ),
 ]

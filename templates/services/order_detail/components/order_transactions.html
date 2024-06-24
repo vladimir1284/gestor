@@ -1,0 +1,309 @@
+{% load static %}
+<div class="table-responsive text-nowrap">
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>
+                    <i class="bx bx-cog"></i>
+                </th>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th>Tax</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            <template x-for="transaction in satisfied">
+                <tr :data-tag="transaction.name"
+                    :class="{
+                            'bg-red-100': transaction.decline,
+                            }"
+                    x-id="['quantity', 'price', 'tax']"
+                >
+                    <!-- x-effect="if (transaction.id == selected.id) { -->
+                    <!--           scrollTo($el) -->
+                    <!--           }"> -->
+                    <td>
+                        <a :href="transactionUrl(transaction.id)">
+                            $<span x-text="getTotalPrice(transaction).toFixed(2)"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <div class="flex justify-between relative">
+                            <a :href="productUrl(transaction.product.id)" :class="transaction.product.quantity == 0 && 'text-danger'" class="mr-8">
+                                <strong x-text="transaction.product.name"></strong>
+                            </a>
+                            <div class="spinner-border spinner-border-sm text-primary absolute right-0" role="status" x-show="transaction.loading">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center" :class="transaction.product.quantity == 0 && 'text-danger'">
+                        <div class="flex"
+                             :title="`Left in inventory: ${transaction.product.quantity.toFixed(2)}`"
+                        >
+                            <div class="input-group !w-32">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'quantity', 1, 1)
+                                            focusElementById($id('quantity'))
+                                            })">
+                                    <i class='bx bx-minus' ></i>
+                                </button>
+                                <input
+                                    :id="$id('quantity')"
+                                    type="number"
+                                    min="1"
+                                    class="form-control !p-1 text-center num-input"
+                                    x-model="transaction.quantity"
+                                    @keydown.stop.alt.tab="focusElementById($id('price'))"
+                                    @keyup.enter="save(transaction)"
+                                    @blur="save(transaction)">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'quantity', 1)
+                                            focusElementById($id('quantity'))
+                                            })">
+                                    <i class='bx bx-plus' ></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span x-text="transaction.unit.name"></span>
+                    </td>
+                    <td class="text-center">
+                        <div
+                            :title="`Sell price: $${transaction.product.sell_price.toFixed(2)}`"
+                        >
+                            <div class="input-group !w-36">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'price', 1, 1)
+                                            focusElementById($id('price'))
+                                            })">
+                                    <i class='bx bx-minus' ></i>
+                                </button>
+                                <input
+                                    :id="$id('price')"
+                                    type="number"
+                                    min="0"
+                                    class="form-control !p-1 text-center num-input"
+                                    x-model="transaction.price"
+                                    @keydown.stop.alt.tab="focusElementById($id('tax'))"
+                                    @keyup.enter="save(transaction)"
+                                    @blur="save(transaction)"
+                                    x-init="$el.focus()">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'price', 1)
+                                            focusElementById($id('price'))
+                                            })">
+                                    <i class='bx bx-plus' ></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        $<span x-text="getAmount(transaction).toFixed(2)"></span>
+                    </td>
+                    <td>
+                        <div class="input-group"
+                             :title="`Product tax: $${transaction.product.sell_tax.toFixed(2)}`"
+                        >
+                            <span class="input-group-text">
+                                <div class="form-check">
+                                    <input
+                                        :id="$id('tax')"
+                                        class="form-check-input checkboxinput"
+                                        type="checkbox"
+                                        @keydown.stop.alt.tab="focusElementById($id('quantity'))"
+                                        @change="save(transaction)"
+                                        x-model="transaction.active_tax">
+                                </div>
+                                <label class="form-check-label" :for="$id('tax')">
+                                    $<span x-text="getTax(transaction).toFixed(2)"></span>
+                                </label>
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex justify-end">
+                            <button class="btn btn-icon btn-link text-danger"
+                                    @click="remove(transaction.id)">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </template>
+
+            {%if order.status == 'processing'%}
+                <tr class="bg-mainBG" x-show="unsatisfied.length > 0">
+                    <th colspan="100%">
+                        <div class="flex items-center">
+                            <div class="flex-grow">
+                                <span class="text-danger mr-2">
+                                    Out Stock
+                                </span>
+                                <strong>
+                                    $<span x-text="unsatisfied_args.total.toFixed(2)"></span>
+                                </strong>
+                                =
+                                <span>
+                                    $<span x-text="unsatisfied_args.amount.toFixed(2)"></span>
+                                </span>
+                                +
+                                <span>
+                                    $<span x-text="unsatisfied_args.tax.toFixed(2)"></span>
+                                </span>
+                            </div>
+                            <div>
+                                <a class="btn btn-link btn-icon"
+                                   href="{%url 'service-order-out-stock-print' order.id%}">
+                                    <i class='bx bx-printer'></i>
+                                </a>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            {% endif %}
+
+            <template x-for="transaction in unsatisfied">
+                <tr :data-tag="transaction.name"
+                    :class="{
+                            'bg-red-100': transaction.decline,
+                            }"
+                    x-id="['quantity', 'price', 'tax']"
+                >
+                    <!-- x-effect="if (transaction.id == selected.id) { -->
+                    <!--           scrollTo($el) -->
+                    <!--           }"> -->
+                    <td>
+                        <a :href="transactionUrl(transaction.id)">
+                            $<span x-text="getTotalPrice(transaction).toFixed(2)"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <div class="flex justify-between relative">
+                            <a :href="productUrl(transaction.product.id)" :class="transaction.product.quantity == 0 && 'text-danger'" class="mr-8">
+                                <strong x-text="transaction.product.name"></strong>
+                            </a>
+                            <div class="spinner-border spinner-border-sm text-primary absolute right-0" role="status" x-show="transaction.loading">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center" :class="transaction.product.quantity == 0 && 'text-danger'">
+                        <div class="flex"
+                             :title="`Left in inventory: ${transaction.product.quantity.toFixed(2)}`"
+                        >
+                            <div class="input-group !w-32">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'quantity', 1, 1)
+                                            focusElementById($id('quantity'))
+                                            })">
+                                    <i class='bx bx-minus' ></i>
+                                </button>
+                                <input
+                                    :id="$id('quantity')"
+                                    type="number"
+                                    min="1"
+                                    class="form-control !p-1 text-center text-danger font-bold num-input"
+                                    x-model="transaction.quantity"
+                                    @keydown.stop.alt.tab="focusElementById($id('price'))"
+                                    @keyup.enter="save(transaction)"
+                                    @blur="save(transaction)">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'quantity', 1)
+                                            focusElementById($id('quantity'))
+                                            })">
+                                    <i class='bx bx-plus' ></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span x-text="transaction.unit.name"></span>
+                    </td>
+                    <td class="text-center">
+                        <div
+                            :title="`Sell price: $${transaction.product.sell_price.toFixed(2)}`"
+                        >
+                            <div class="input-group !w-36">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'price', 1, 1)
+                                            focusElementById($id('price'))
+                                            })">
+                                    <i class='bx bx-minus' ></i>
+                                </button>
+                                <input
+                                    :id="$id('price')"
+                                    type="number"
+                                    min="0"
+                                    class="form-control !p-1 text-center num-input"
+                                    x-model="transaction.price"
+                                    @keydown.stop.alt.tab="focusElementById($id('tax'))"
+                                    @keyup.enter="save(transaction)"
+                                    @blur="save(transaction)"
+                                    x-init="$el.focus()">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'price', 1)
+                                            focusElementById($id('price'))
+                                            })">
+                                    <i class='bx bx-plus' ></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        $<span x-text="getAmount(transaction).toFixed(2)"></span>
+                    </td>
+                    <td>
+                        <div class="input-group"
+                             :title="`Product tax: $${transaction.product.sell_tax.toFixed(2)}`"
+                        >
+                            <span class="input-group-text">
+                                <div class="form-check">
+                                    <input
+                                        :id="$id('tax')"
+                                        class="form-check-input checkboxinput"
+                                        type="checkbox"
+                                        @change="save(transaction)"
+                                        @keydown.stop.alt.tab="focusElementById($id('quantity'))"
+                                        x-model="transaction.active_tax">
+                                </div>
+                                <label class="form-check-label" :for="$id('tax')">
+                                    $<span x-text="getTax(transaction).toFixed(2)"></span>
+                                </label>
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex justify-end">
+                            <button class="btn btn-icon btn-link text-danger"
+                                    @click="remove(transaction.id)">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+</div>

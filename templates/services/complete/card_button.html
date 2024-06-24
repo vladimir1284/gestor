@@ -1,0 +1,8 @@
+{% load static %}
+<button class="btn btn-outline-{% if but %}{{ but }}{% else %}primary{% endif %}" x-cloak {% if show %}x-show="{{ show }}"{% endif %} {% if click %}@click="{{ click }}"{% endif %} {{ attrs }}>
+    {% if text %}
+        {{ text }}
+    {% else %}
+        Continue
+    {% endif %}
+</button>

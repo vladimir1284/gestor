@@ -90,6 +90,14 @@
                        href="{% url 'reserve-trailer' equipment.id %}">
                         <i class='bx bx-calendar'></i>
                     </a>
+                    {% if not equipment.pos_readonly %}
+                        <a class="btn btn-icon btn-outline-primary"
+                           type
+                           None="button"
+                           href="{% url 'change-trailer-pos' equipment.id %}">
+                            <i class='bx bx-refresh'></i>
+                        </a>
+                    {% endif %}
                 {% endif %}
             </td>
             <td>

@@ -69,6 +69,7 @@ from rent.views.create_lessee_with_data import create_lessee
 from rent.views.create_lessee_with_data import update_lessee as updateLessee
 from users.models import Associated
 from users.views import addStateCity
+from whatsapp.tools.whatsapp import send_whatsapp
 
 
 def create_handwriting(request, token, position, external=False):
@@ -183,6 +184,10 @@ def contract_detail(request, id):
     if contract.stage in ["missing", "garbage"]:
         if phone is not None and phone != "":
             sendSMSLesseeContactURL(phone, url_client)
+            send_whatsapp(
+                str(phone),
+                f"Please sing the contract in the following URL: {url_client}",
+            )
 
         client = contract.lessee
         if client.email is not None and client.email != "":
@@ -202,6 +207,10 @@ def contract_detail(request, id):
                 sendSMSLesseeContactURL(
                     guarantor.guarantor_phone_number,
                     url_guarantor,
+                )
+                send_whatsapp(
+                    str(phone),
+                    f"Please sing the contract in the following URL: {url_guarantor}",
                 )
             if (
                 guarantor.guarantor_email is not None

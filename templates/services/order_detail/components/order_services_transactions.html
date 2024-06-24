@@ -1,0 +1,156 @@
+{% load static %}
+<div class="table-responsive text-nowrap">
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>
+                    <i class="bx bx-cog"></i>
+                </th>
+                <th>Service</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th>Tax</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            <template x-for="transaction in transactions">
+                <tr
+                    x-id="['quantity', 'price', 'tax']"
+                    :data-tag="transaction.name"
+                    :class="{
+                            'bg-red-100': transaction.decline,
+                            }">
+                    <!-- x-effect="if (transaction.id == selected.id) { -->
+                    <!--           scrollTo($el) -->
+                    <!--           }"> -->
+                    <td>
+                        <a :href="transactionUrl(transaction.id)">
+                            $<span x-text="getTotalPrice(transaction).toFixed(2)"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <div class="flex justify-between relative">
+                            <strong x-text="transaction.service.name" class="mr-8"></strong>
+                            <div class="spinner-border spinner-border-sm text-primary absolute right-0" role="status" x-show="transaction.loading">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div class="flex">
+                            <div class="input-group !w-32">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'quantity', 1, 1)
+                                            focusElementById($id('quantity'))
+                                            })">
+                                    <i class='bx bx-minus' ></i>
+                                </button>
+                                <input
+                                    :id="$id('quantity')"
+                                    type="number"
+                                    min="1"
+                                    class="form-control !p-1 text-center num-input"
+                                    x-model="transaction.quantity"
+                                    x-ref=""
+                                    @keyup.enter="save(transaction)"
+                                    @keydown.stop.alt.tab="focusElementById($id('price'))"
+                                    @blur="save(transaction)">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'quantity', 1)
+                                            focusElementById($id('quantity'))
+                                            })">
+                                    <i class='bx bx-plus' ></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div
+                            :title="`Suggested price: $${transaction.service.suggested_price.toFixed(2)}`"
+                        >
+                            <div class="input-group !w-36">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'price', 1, 0)
+                                            focusElementById($id('price'))
+                                            })">
+                                    <i class='bx bx-minus' ></i>
+                                </button>
+                                <input
+                                    :id="$id('price')"
+                                    type="number"
+                                    min="0"
+                                    class="form-control !p-1 text-center num-input"
+                                    x-model="transaction.price"
+                                    @keyup.enter="save(transaction)"
+                                    @keydown.stop.alt.tab="focusElementById($id('tax'))"
+                                    @blur="save(transaction)"
+                                    x-init="$el.focus()">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'price', 1)
+                                            focusElementById($id('price'))
+                                            })">
+                                    <i class='bx bx-plus' ></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        $<span x-text="getAmount(transaction).toFixed(2)"></span>
+                    </td>
+                    <td class="text-center">
+                        <div class="flex"
+                             :title="`Sell tax: ${transaction.service.sell_tax.toFixed(2)}%\nTotal: $${getTax(transaction).toFixed(2)}`"
+                        >
+                            <div class="input-group !w-32">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            dec(trans, 'tax', 1, 0)
+                                            focusElementById($id('tax'))
+                                            })">
+                                    <i class='bx bx-minus' ></i>
+                                </button>
+                                <input
+                                    :id="$id('tax')"
+                                    type="number"
+                                    min="0"
+                                    class="form-control !p-1 text-center num-input"
+                                    x-model="transaction.tax"
+                                    @keyup.enter="save(transaction)"
+                                    @keydown.stop.alt.tab="focusElementById($id('quantity'))"
+                                    @blur="save(transaction)"
+                                    x-init="$el.focus()">
+                                <button
+                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    @click="execAndSave(transaction, (trans) => {
+                                            inc(trans, 'tax', 1)
+                                            focusElementById($id('tax'))
+                                            })">
+                                    <i class='bx bx-plus' ></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex justify-end">
+                            <button class="btn btn-icon btn-link text-danger"
+                                    @click="remove(transaction.id)">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+</div>

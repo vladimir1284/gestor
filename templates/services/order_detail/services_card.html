@@ -1,0 +1,172 @@
+{%load static%}
+
+<div x-data="OrderService">
+  <style>
+    .loader, .loader:before, .loader:after {
+      border-radius: 50%;
+      width: 2.5em;
+      height: 2.5em;
+      animation-fill-mode: both;
+      animation: bblFadInOut 1.8s infinite ease-in-out;
+    }
+    .loader {
+      color: #06F;
+      font-size: 7px;
+      position: relative;
+      text-indent: -9999em;
+      transform: translateZ(0);
+      animation-delay: -0.16s;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      position: absolute;
+      top: 0;
+    }
+    .loader:before {
+      left: -3.5em;
+      animation-delay: -0.32s;
+    }
+    .loader:after {
+      left: 3.5em;
+    }
+
+    @keyframes bblFadInOut {
+      0%, 80%, 100% { box-shadow: 0 2.5em 0 -1.3em }
+      40% { box-shadow: 0 2.5em 0 0 }
+    }
+
+    .highlight {
+      box-shadow: inset 0 0 10px rgba(0, 50, 255, 0.5);
+    }
+  </style>
+
+  <div class="fixed top-0 left-0 right-0 bottom-0 z-[1100] bg-[rgba(0,0,0,0.4)]" style="backdrop-filter: blur(5px);" x-show="showRemoveDialog()" x-cloak>
+    <div class="">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Remove this <span x-text="transactionType"></span>?</h5>
+            <button type="button" class="btn-close absolute right-0 top-0 m-0 shadow-sm bg-white rounded p-2" @click="removeCancel()"></button>
+          </div>
+
+          <div class="modal-body">
+            <div>
+              Are you sure to remove this <span x-text="transactionType"></span>?
+            </div>
+            <div>
+              <span x-text="titleTransactionType()"></span> to remove: <strong x-text='getToRemoveName()'></strong>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-center" x-show="removing">
+              <span class="loader"></span>
+            </div>
+            <div x-show="!removing">
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" @click="removeCancel()">Cancel</button>
+                <button type="button" class="btn btn-danger" @click="doRemove()">Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div :class="newServiceMode() && 'fixed top-0 left-0 right-0 bottom-0 z-[1100] bg-[rgba(0,0,0,0.4)] py-4 sm:px-4 lg:px-20 xl:px-40'" style="backdrop-filter: blur(5px);">
+    <div class="card mb-3 transition-all h-full partsCard flex flex-col" @click.outside="closeNewServiceMode()">
+      <div class="card-header flex items-center box-border">
+        <h5 class="flex-grow m-0 p-0" x-show="!newServiceMode()">
+          <span x-text="titleTransactionType()"></span>:
+
+          <strong>
+            $<span x-text="transactions_args.total.toFixed(2)"></span>
+          </strong>
+          =
+          <span>
+            $<span x-text="transactions_args.amount.toFixed(2)"></span>
+          </span>
+          +
+          <span>
+            $<span x-text="transactions_args.tax.toFixed(2)"></span>
+          </span>
+        </h5>
+        <div class="flex transition-all" :class="newServiceMode() && 'w-full'">
+          {%if not terminated%}
+            <div class="input-group mb-3" x-id="['scModal']">
+              <span class="input-group-text !rounded-l-lg" id="basic-addon1">
+                <i class='bx bx-search-alt-2' ></i>
+              </span>
+              <input type="text"
+                     class="form-control transition-all"
+                     :class="{
+                             '!rounded-r-lg': !newServiceMode(),
+                             }"
+                     :placeholder="`(${shortcut.toUpperCase()}) Add a new ${transactionType}`"
+                     @keyup.escape="newServiceSearch = ''"
+                     @focus="searchServiceInputFocus = true"
+                     x-model="newServiceSearch"
+                     x-ref="searchServices">
+              <button class="input-group-text btn btn-icon btn-outline-primary"
+                      id="help"
+                      x-show="newServiceMode()"
+                      data-bs-toggle="modal"
+                      :data-bs-target="'#' + $id('scModal')"
+                      x-ref="shortcutButton"
+              >
+                <i class='bx bxs-keyboard'></i>
+              </button>
+              <button class="input-group-text btn btn-icon btn-outline-danger !rounded-r-lg"
+                      id="close"
+                      x-show="newServiceMode()"
+                      @click="closeNewServiceMode()"
+                      title="Close dialog (Esc)"
+              >
+                <i class='bx bx-x'></i>
+              </button>
+              {% include "./components/shortcut_helper.html" %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <div x-show="newServiceMode()" class="flex-grow overflow-hidden box-border">
+        <div class="flex justify-center items-center w-96 h-12" x-show="loadingServices">
+          <span class="loader"></span>
+        </div>
+        <div x-show="!loadingServices" class="h-full">
+          {% include "./components/order_services.html" %}
+        </div>
+      </div>
+      <div x-show="!newServiceMode()">
+        <div class="flex justify-center items-center w-96 h-12" x-show="loading">
+          <span class="loader"></span>
+        </div>
+        <div x-show="!loading">
+          {% include "./components/order_services_transactions.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    globalThis.OrderID = {{order.id}}
+    globalThis.DetailServiceTransUrl = "{% url 'detail-service-transaction' 0 %}"
+    globalThis.UpdateServiceTransUrl = "{% url 'update-service-transaction' 0 %}"
+    {% if terminated %}
+      globalThis.Terminated = true
+    {% else %}
+      globalThis.Terminated = false
+    {% endif %}
+  </script>
+  <script src="{% static "assets/js/orders/config/get_cookies.js" %}"></script>
+
+  <script src="{% static "assets/js/orders/config/service_transaction_urls.js" %}"></script>
+  <script src="{% static "assets/js/orders/config/service_urls.js" %}"></script>
+
+  <script src="{% static "assets/js/orders/api/service_api_client.js" %}"></script>
+  <script src="{% static "assets/js/orders/api/service_transaction_api_client.js" %}"></script>
+
+  <script src="{% static "assets/js/orders/controllers/order_service.js" %}"></script>
+</div>

@@ -25,11 +25,18 @@ class TrailerChangePosForm(forms.Form):
         self.fields["note"] = forms.CharField(
             widget=forms.Textarea(
                 attrs={"rows": 3},
-            )
+            ),
+            required=False,
         )
 
     def clean_position(self):
         valor = self.cleaned_data.get("position")
         if valor == "-":
             raise forms.ValidationError("Please, select a position")
+        return valor
+
+    def clean_position_note(self):
+        valor = self.cleaned_data.get("position_note")
+        if valor is None:
+            return ""
         return valor

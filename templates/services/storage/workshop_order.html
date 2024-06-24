@@ -2,7 +2,7 @@
 <tr data-search=" {{ order.vin }}{{ order.plate }} {% if order.associated %}{{ order.associated.name }}{{ order.associated.phone_number }}{{ order.associated.email }}{% endif %} {% if order.trailer %} {{ order.trailer.get_manufacturer_display }}{{ order.trailer.get_type_display }}{{ order.trailer.get_year_display }} {% else %} {{ order.vehicle.get_manufacturer_display }}{{ order.vehicle.get_model_display }}{{ order.vehicle.get_year_display }}{{ order.trailer.vin }} {% endif %}">
     <!-- {% if pos %}<td>{{ pos }}</td>{% endif %} -->
     <td class="chapilla" data-custom="{{ order.position }}">
-        <a href="{% url 'detail-service-order' order.id %}">
+        <a href="{% url 'detail-service-order-back' order.id order_back %}">
             <img {% if order.status == 'processing' %} src="{% static 'assets/img/icons/tag-primary.png' %}" {% elif order.status == 'complete' %} src="{% static 'assets/img/icons/tag-success.png' %}" {% elif order.status == 'pending' %} src="{% static 'assets/img/icons/tag-warning.png' %}" {% elif order.status == 'approved' %} src="{% static 'assets/img/icons/tag-info.png' %}" {% elif order.status == 'payment_pending' %} src="{% static 'assets/img/icons/tag-danger.png' %}" {% elif order.status == 'decline' %} src="{% static 'assets/img/icons/cancel.png' %}" {% endif %}
                  alt="{{ order.position }}"
                  height="32px"

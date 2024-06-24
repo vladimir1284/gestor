@@ -13,11 +13,11 @@
         <th>Cost</th>
     </tr>
 </thead>
-<tbody class="table-border-bottom-0">
+<tbody class="table-border-bottom-0" x-data>
     {% for product in products %}
         {% if product.type == type %}
             <tr data-tag="{{ product.category }}"
-                x-show='match("{{product.name|escapejs}}", $store.search.search) || match("{{product.description|escapejs}}", $store.search.search)'
+                x-show='match("{{product.name|escapejs}} | {{product.description|escapejs}}", $store.search.search)'
             >
                 <td>
                     <a href="{% url 'create-transaction' order_id product.id %}"><i class="bx bx-plus"></i></a>

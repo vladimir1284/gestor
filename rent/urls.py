@@ -439,6 +439,7 @@ urlpatterns = [
     ),
     path("contract_notes/<contract_id>", contract_notes, name="contract_notes"),
     # -------------------- Cost ----------------------------
+    # -------------------- Trailer Pos ---------------------
     path(
         "change_trailer_pos/<id>",
         trailer_change_position,

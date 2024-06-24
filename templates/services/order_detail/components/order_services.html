@@ -1,0 +1,114 @@
+{% load static %}
+<style>
+    .selected {
+        box-shadow: inset 0 0 10px 3px rgba(0, 100, 255, 0.5);
+    }
+</style>
+<div class="h-full flex flex-col overflow-hidden box-border">
+    <!-- <div class="card-body py-0 flex gap-2 flex-wrap box-border"> -->
+    <!--     <div class="input-group mb-3"> -->
+    <!--         <span class="input-group-text">Default quantity:</span> -->
+    <!--         <input type="number" min="1" class="form-control" x-model="newServiceQty"> -->
+    <!--     </div> -->
+        <!-- <div class="input-group mb-3"> -->
+        <!--     <span class="input-group-text">Default Tax:</span> -->
+        <!--     <input type="number" min="1" class="form-control" x-model="newServiceTax"> -->
+        <!-- </div> -->
+    <!-- </div> -->
+
+    <div class="table-responsive text-nowrap flex-grow !overflow-auto">
+        <table class="table table-sm">
+            <thead class="sticky top-0 bg-white z-10">
+                <tr>
+                    <th>
+                        <i class="bx bx-cart"></i>
+                    </th>
+                    <th>Service</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Tax</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                <template x-for="(service, index) in filteredServices" :key="service.id">
+                    <tr x-id="['quantity', 'price', 'tax']"
+                        :class="{
+                                'selected': index == newServiceIndex,
+                                }"
+                        x-effect="() => {
+                                  if (index == newServiceIndex) {
+                                  scrollTo($el)
+                                  }
+                                  }"
+                        class="scroll-mt-40"
+                        @click="newServiceIndex = index"
+                    >
+                        <td>
+                            <button class="btn btn-icon btn-link"
+                                    @click="addNewTransaction(service)"
+                                    x-show="!service.transaction_loading">
+                                <i class='bx bx-plus'></i>
+                            </button>
+                            <div class="spinner-border text-primary" role="status"
+                                 x-show="service.transaction_loading">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                        <td>
+                            <strong x-html="globalThis.advanceHighlightMatch(service.name, newServiceSearch, service.searchType)"></strong>
+                        </td>
+                        <td>
+                            <div class="input-group !w-24">
+                                <input :id="$id('quantity')"
+                                       type="number"
+                                       min="1"
+                                       x-model="service.transaction_quantity"
+                                       class="form-control service_editable service_quantity scroll-mt-40"
+                                       :class="{
+                                               'service_selected': index == newServiceIndex,
+                                               'service_active': newServiceMode(),
+                                               }">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group !w-40">
+                                <input :id="$id('price')"
+                                       type="number"
+                                       min="0"
+                                       x-model="service.transaction_price"
+                                       class="form-control service_editable service_price scroll-mt-40"
+                                       :class="{
+                                               'text-danger': service.transaction_price < service.suggested_price,
+                                               'text-primary': service.transaction_price >= service.suggested_price,
+                                               'service_selected': index == newServiceIndex,
+                                               'service_active': newServiceMode(),
+                                               }">
+                                <span class="input-group-text">
+                                    $<span x-text="service.suggested_price.toFixed(2)"></span>
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group !w-40">
+                                <input :id="$id('tax')"
+                                       type="number"
+                                       min="0"
+                                       x-model="service.transaction_tax"
+                                       class="form-control service_editable service_tax scroll-mt-40"
+                                       :class="{
+                                               'text-danger': service.transaction_tax < service.sell_tax,
+                                               'text-primary': service.transaction_tax >= service.sell_tax,
+                                               'service_selected': index == newServiceIndex,
+                                               'service_active': newServiceMode(),
+                                               }">
+                                <span class="input-group-text">
+                                    $<span x-text="service.sell_tax.toFixed(2)"></span>
+                                </span>
+                            </div>
+                        </td>
+                    </trx-id>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>

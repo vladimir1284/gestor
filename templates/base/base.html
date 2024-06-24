@@ -94,16 +94,46 @@
         <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="{% static 'assets/js/config.js' %}"></script>
+
+        <script src="{% static "assets/js/tools/shortcuts.js" %}"></script>
+
         <script defer src="{%static 'js/alpine-sort.min.js'%}"></script>
+        <script defer src="{%static 'js/alpine-mask.min.js'%}"></script>
         <script defer src="{%static 'js/alpine-collapse.min.js'%}"></script>
         <script defer src="{%static 'js/alpine-intersect.min.js'%}"></script>
         <script defer src="{%static 'js/alpine-mask.min.js'%}"></script>
+        <script defer src="{%static 'js/alpine-component.min.js'%}"></script>
         <script defer src="{%static 'js/alpine.min.js'%}"></script>
 
+        <script src="{%static 'assets/js/search.js'%}">
+        </script>
         <script defer src="{%static 'assets/js/email/email.js'%}"></script>
         <script defer src="{%static 'assets/js/base-list.js'%}"></script>
     </head>
     <body>
+        <script src="{%static 'assets/js/search.js'%}">
+        </script>
+        <div class="toast-container position-fixed top-0 end-0 p-3 z-[2000]"
+             x-data>
+            <template x-for="not in $store.notifications.nots">
+                <div class="toast z-[2000] show"
+                     x-cloak
+                     role="alert"
+                     aria-live="assertive"
+                     aria-atomic="true">
+                    <div class="toast-header mb-0 pb-2" :class="'text-'+not.status">
+                        <i :class="'bx ' + not.icon"></i>
+                        <strong class="me-auto ml-2" x-text="not.title"></strong>
+                        <button type="button"
+                                class="btn-close"
+                                @click="() => {$store.notifications.remove(not)}"></button>
+                    </div>
+                    <div class="toast-body pt-0 mt-0" x-text="not.msg"></div>
+                </div>
+            </template>
+        </div>
+        <script src="{% static "assets/js/tools/notifications.js" %}">
+        </script>
         {% block body %}
             <!-- Layout wrapper -->
             <div class="layout-wrapper layout-content-navbar">

@@ -46,9 +46,10 @@
             </div>
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}
-                <div class="card-body">{% crispy form %}</div>
+                <div class="card-body" x-data="RBACSearch">{% crispy form %}</div>
             </form>
         </div>
     </div>
     <script src='{%static 'assets/js/role-form.js'%}'></script>
+    <script src='{%static 'assets/js/rbac-form-search.js'%}'></script>
 {% endblock content %}

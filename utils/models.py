@@ -174,6 +174,14 @@ class Order(models.Model):
             and self.company is None
         )
 
+    @property
+    def rent_with_client(self):
+        return self.associated is not None and self.trailer is not None
+
+    @property
+    def rent_without_client(self):
+        return self.associated is None and self.trailer is not None
+
 
 @receiver(models.signals.post_save, sender=Order)
 def on_create(sender, instance, created, **kwargs):
