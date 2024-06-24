@@ -238,6 +238,7 @@ STATIC_URL = "/static/"
 
 # Location for collected static files
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+PDF_STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Directories to search for static files
 STATICFILES_DIRS = [

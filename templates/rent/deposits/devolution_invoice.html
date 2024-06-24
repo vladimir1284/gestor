@@ -92,7 +92,9 @@
                                 <td>
                                     <strong>Invoice number</strong>
                                 </td>
-                                <td>{{ devolution.invoice_number }}</td>
+                                <td>
+                                    {{ devolution.invoice_number }}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -142,14 +144,26 @@
             <div class="card-header">
                 <h2 class="mb-0">
                     Security Deposit -
-                    {% if devolution.returned %}
-                        {% if discount.should_return and devolution.debt_amount == 0 %}
-                            <span>Returned</span>:
+                    {% if original %}
+                        {% if discount.init_state %}
+                            {% if discount.should_return and devolution.debt_amount == 0 %}
+                                <span>Returned</span>:
+                            {% else %}
+                                <span>Towit Compensation</span>:
+                            {% endif %}
                         {% else %}
-                            <span>Towit Compensation</span>:
+                            <span>Pending Return</span>:
                         {% endif %}
                     {% else %}
-                        <span>Pending Return</span>:
+                        {% if devolution.returned %}
+                            {% if discount.should_return and devolution.debt_amount == 0 %}
+                                <span>Returned</span>:
+                            {% else %}
+                                <span>Towit Compensation</span>:
+                            {% endif %}
+                        {% else %}
+                            <span>Pending Return</span>:
+                        {% endif %}
                     {% endif %}
                 </h2>
             </div>
@@ -203,10 +217,18 @@
                             <tr class="border-t">
                                 <td>Return date:</td>
                                 <td class="text-right">
-                                    {% if devolution.returned %}
-                                        {{devolution.returned_date|date:"E d, Y"}}
+                                    {% if original %}
+                                        {% if discount.init_state%}
+                                            {{devolution.returned_date|date:"E d, Y"}}
+                                        {% else %}
+                                            {{devolution.refund_date|date:"E d, Y"}}
+                                        {% endif %}
                                     {% else %}
-                                        {{devolution.refund_date|date:"E d, Y"}}
+                                        {% if devolution.returned %}
+                                            {{devolution.returned_date|date:"E d, Y"}}
+                                        {% else %}
+                                            {{devolution.refund_date|date:"E d, Y"}}
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </tr>
