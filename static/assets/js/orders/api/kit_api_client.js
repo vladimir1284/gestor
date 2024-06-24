@@ -38,7 +38,7 @@
 
     /**
      * @param {number} order_id
-     * @param {KitCreation} kit
+     * @param {Kit} kit
      * */
     async addKit(order_id, kit) {
       const csrftoken = globalThis.getCookie("csrftoken");

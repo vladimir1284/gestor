@@ -7,4 +7,5 @@
  * @property {number} id
  * @property {number} kit
  * @property {Service} service
+ * @property {number} [new_price]
  * */
