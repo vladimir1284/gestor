@@ -142,9 +142,8 @@ var Alpine;
               globalThis["closeAll"] = [closeThis];
             }
 
-            globalThis[`reload_${this.transactionType}`] = () => {
-              this.loadTransactions;
-            };
+            globalThis[`reload_${this.transactionType}`] = () =>
+              this.loadTransactions();
 
             // Shortcuts
             /** @type {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} */

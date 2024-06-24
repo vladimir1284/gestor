@@ -10,4 +10,7 @@
  * @property {number} quantity
  * @property {Product} product
  * @property {Unit} unit
+ * @property {number} [new_quantity]
+ * @property {number} [new_price]
+ * @property {boolean} [new_tax]
  * */
