@@ -85,8 +85,15 @@
         <div class="demo-inline-spacing">
             <a class="btn btn-icon btn-outline-primary"
                type="button"
-               href="{% url 'list-service-order' %}">
-                <span class="tf-icons bx bx-arrow-back"></span>
+               {% if not order_back or order_back == 'order' %}
+                   href="{% url 'list-service-order' %}"
+               {% elif order_back == 'storage' %}
+                   href="{% url 'storage-view' %}"
+               {% else %}
+                   href="{% url 'storage-view' order_back %}"
+               {% endif %}
+            >
+                <span class="tf-icons bx bx-arrow-back"></a>
             </a>
                 <!-- <a class="btn btn-icon btn-outline-primary" -->
                 <!--    type="button" -->
