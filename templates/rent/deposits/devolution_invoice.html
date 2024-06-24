@@ -266,6 +266,16 @@
                                     <strong>- ${{devolution.trailer_discount | floatformat:'-2'}}</strong>
                                 </td>
                             </tr>
+                            <tr class="border-b">
+                                <td>Towit compensation:</td>
+                                <td class="text-right">
+                                    {% if original %}
+                                        <strong>${{ devolution.original_income|floatformat:'-2' }}</strong>
+                                    {% else %}
+                                        <strong>${{ devolution.income|floatformat:'-2' }}</strong>
+                                    {% endif %}
+                                </td>
+                            </tr>
                             {%if devolution.amount >= 0%}
                                 <tr>
                                     <td>
@@ -295,16 +305,6 @@
                                     </td>
                                 </tr>
                             {%endif%}
-                            <tr>
-                                <td>Towit compensation:</td>
-                                <td class="text-right">
-                                    {% if original %}
-                                        <strong>${{ devolution.original_income|floatformat:'-2' }}</strong>
-                                    {% else %}
-                                        <strong>${{ devolution.income|floatformat:'-2' }}</strong>
-                                    {% endif %}
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
