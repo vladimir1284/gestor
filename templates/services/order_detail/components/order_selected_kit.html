@@ -16,9 +16,17 @@
                                 <span x-text="kitService.service.name"></span>
                             </td>
                             <td>
-                                <strong>
-                                    $<span x-text="kitService.service.suggested_price"></span>
-                                </strong>
+                                <div class="input-group !w-36">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        x-model="kitService.new_price"
+                                        class="form-control product_editable product_quantity scroll-mt-40 num-input"
+                                    >
+                                    <span class="input-group-text">
+                                        $<span x-text="kitService.service.suggested_price"></span>
+                                    </span>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -32,6 +40,8 @@
                         <th>Product</th>
                         <th>Quantity</th>
                         <th>Unit</th>
+                        <th>Price</th>
+                        <th>Tax</th>
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0">
@@ -41,14 +51,43 @@
                                 <span x-text="kitProduct.product.name"></span>
                             </td>
                             <td>
-                                <strong>
-                                    <span x-text="kitProduct.quantity"></span>
-                                </strong>
+                                <div class="input-group !w-32">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        x-model="kitProduct.new_quantity"
+                                        class="form-control product_editable product_quantity scroll-mt-40 num-input"
+                                    >
+                                    <span class="input-group-text">
+                                        <span x-text="kitProduct.quantity"></span>
+                                    </span>
+                                </div>
                             </td>
                             <td>
                                 <strong>
                                     <span x-text="kitProduct.unit.name"></span>
                                 </strong>
+                            </td>
+                            <td>
+                                <div class="input-group !w-32">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        x-model="kitProduct.new_price"
+                                        class="form-control product_editable product_quantity scroll-mt-40 num-input"
+                                    >
+                                    <span class="input-group-text">
+                                        $<span x-text="kitProduct.product.sell_price"></span>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input checkboxinput product_editable product_tax scroll-mt-40"
+                                        type="checkbox"
+                                        x-model="kitProduct.new_tax">
+                                </div>
                             </td>
                         </tr>
                     </template>

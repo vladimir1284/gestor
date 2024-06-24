@@ -282,18 +282,13 @@ var Alpine;
           this.creating = true;
 
           try {
-            /**@type {KitCreation}*/
-            const kit = {
-              id: addKit.id,
-              tax: true,
-              quantity: 1,
-              price: addKit.suggested_price,
-            };
-            await kitApiClient.addKit(globalThis.OrderID, kit);
+            await kitApiClient.addKit(globalThis.OrderID, addKit);
             this.reloadTransactions();
             this.loadKits();
           } catch (e) {
             console.log(e);
+            console.log(await e.text());
+
             globalThis.showNotify({
               title: "Error",
               msg: `Fail to create the new ${this.transactionType}`,
@@ -311,6 +306,9 @@ var Alpine;
           this.loadingKit = true;
           try {
             this.kits = await kitApiClient.getKitList(globalThis.OrderID);
+            for (let k of this.kits) {
+              this.processKit(k);
+            }
             this.filteredKits = this.getFiltered();
           } catch (e) {
             console.error(e);
@@ -321,6 +319,21 @@ var Alpine;
             });
           }
           this.loadingKit = false;
+        },
+
+        /**
+         * Initialize kit models
+         * @param {Kit} k
+         * */
+        processKit(k) {
+          for (let e of k.elements) {
+            e.new_quantity = e.quantity;
+            e.new_price = e.product.sell_price;
+            e.new_tax = true;
+          }
+          for (let s of k.services) {
+            s.new_price = s.service.suggested_price;
+          }
         },
 
         // Get filter elements
