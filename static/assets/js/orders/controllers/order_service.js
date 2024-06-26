@@ -27,7 +27,7 @@ var Alpine;
 
       return {
         // Controller properties
-        /** @type {{shortcut: string[], description: string}[]} */
+        /** @type {{shortcut: string[], description: string[]}[]} */
         shortcutHelper: [],
 
         /** @type {boolean} */
@@ -110,11 +110,14 @@ var Alpine;
           };
 
           // Shortcuts
-          /** @type {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} */
+          /** @type {{shortcut: string | string[], func: function, description: string | string[], direct?: boolean}[]} */
           const shortcuts = [
             {
               shortcut: this.shortcut,
-              description: "Open the dialog to add new service",
+              description: [
+                "Open the dialog to add new service",
+                "Abrir el dialogo para agregar nuevos servicios",
+              ],
               func: () => {
                 this.closeAll();
                 this.$refs.searchServices.focus();
@@ -123,55 +126,76 @@ var Alpine;
             },
             {
               shortcut: "Alt+H",
-              description: "Open this dialog with shortcuts",
+              description: [
+                "Open this dialog with shortcuts",
+                "Abrir esta ventana con los atajos de teclado",
+              ],
               func: () => {
                 this.$refs.shortcutButton.dispatchEvent(new Event("click"));
               },
             },
             {
               shortcut: "Escape",
-              description: "Close the dialogs",
+              description: ["Close the dialogs", "Cerrar los dialogos"],
               func: () => this.closeNewServiceMode(),
             },
             {
               shortcut: "Enter",
-              description: "Add the selected service",
+              description: [
+                "Add the selected service",
+                "Agregar el servicio seleccionado",
+              ],
               func: () =>
                 this.addNewTransaction(
                   this.filteredServices[this.newServiceIndex],
                 ),
             },
             {
-              shortcut: "Alt+Space",
-              description: "Focus the search bar",
+              shortcut: ["Alt+Space", "Alt+Enter"],
+              description: [
+                "Focus the search bar",
+                "Enfocar la barra de busqueda",
+              ],
               func: () => this.focusSearch(),
             },
             {
-              shortcut: "Alt+Shift+Space",
-              description:
+              shortcut: ["Alt+Shift+Space", "Alt+Shift+Enter"],
+              description: [
                 "Focus the search bar and select the text in the bar",
+                "Enfocar la barra de busqueda y seleccionar el texto en la barra",
+              ],
               func: () => this.focusSearch(true),
             },
             {
               shortcut: ["Alt+ArrowUp", "ArrowUp"],
-              description: "Select the previous service on the list",
+              description: [
+                "Select the previous service on the list",
+                "Seleccionar el servicio anterior en la lista",
+              ],
               func: () => this.selectPreviousItem(),
             },
             {
               shortcut: ["Alt+ArrowDown", "ArrowDown"],
-              description: "Select the next service on the list",
+              description: [
+                "Select the next service on the list",
+                "Seleccionar el servicio siguiente en la lista",
+              ],
               func: () => this.selectNextItem(),
             },
             {
               shortcut: ["Tab", "Alt+Tab", "Alt+ArrowRight"],
-              description:
+              description: [
                 "Focus the next editable (quantity, price and tax) on the selected service",
+                "Enfocar el editable siguiente (cantidad, precio y impuesto) del servicio seleccionado",
+              ],
               func: () => this.focusNextEditableOfSelected(),
             },
             {
               shortcut: ["Alt+ArrowLeft"],
-              description:
+              description: [
                 "Focus the previous editable (quantity, price and tax) on the selected service",
+                "Enfocar el editable anterior (cantidad, precio y impuesto) del servicio seleccionado",
+              ],
               func: () => this.focusPreviousEditableOfSelected(),
             },
           ];
@@ -233,7 +257,7 @@ var Alpine;
 
         /**
          * Init the shortcuts
-         * @param {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} shortcuts
+         * @param {{shortcut: string | string[], func: function, description: string | string[], direct?: boolean}[]} shortcuts
          * */
         initShortcuts(shortcuts) {
           for (let sc of shortcuts) {
@@ -246,9 +270,13 @@ var Alpine;
             if (!(shortcut instanceof Array)) {
               shortcut = [shortcut];
             }
+            let description = sc.description;
+            if (!(description instanceof Array)) {
+              description = [description];
+            }
             this.shortcutHelper.push({
               shortcut,
-              description: sc.description,
+              description,
             });
           }
         },
@@ -572,6 +600,7 @@ var Alpine;
           }
 
           service.transaction_loading = false;
+          this.focusSearch(true);
         },
 
         // Editing

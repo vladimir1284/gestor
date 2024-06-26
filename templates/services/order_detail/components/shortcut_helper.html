@@ -26,7 +26,10 @@
           </thead>
           <tbody>
             <template x-for="(sc, index) in shortcutHelper">
-              <tr class="py-2">
+              <tr
+                class="py-2 hover:bg-mainBG"
+                :class="index % 2 == 0 || 'bg-gray-50'"
+              >
                 <td>
                   <template x-for="km in sc.shortcut">
                     <span>
@@ -39,7 +42,12 @@
                   </template>
                 </td>
                 <td>
-                  <div x-html="sc.description"></div>
+                  <template x-for="desc in sc.description">
+                    <div
+                      x-html="desc"
+                      class="py-1 px-2 my-1 rounded-lg shadow-inner bg-white"
+                    ></div>
+                  </template>
                 </td>
               </tr>
             </template>

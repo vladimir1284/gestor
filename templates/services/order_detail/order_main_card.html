@@ -6,10 +6,37 @@
             <b>{{ order.concept }}</b>
             <p class="pt-2 d-flex">
                 <span class="pt-2">
-                    <b>${{ order.total|floatformat:"-2" }}</b>
-                    {% if order.tax > 0 or order.discount > 0 %}
-                        = ${{ order.amount|floatformat:"-2" }}+${{ order.tax|floatformat:"-2" }}
-                    {% endif %}
+                    <!-- <b>${{ order.total|floatformat:"-2" }}</b> -->
+                    <strong>
+                        $<span x-text="(
+                                       parts_args.total +
+                                       services_args.total +
+                                       consumables_args.total +
+                                       parts_args.tax +
+                                       services_args.tax +
+                                       consumables_args.tax-
+                                       {{order.discount}}
+                                       ).toFixed(2)"></span>
+                    </strong>
+                    =
+                    <span>
+                        $<span x-text="(
+                                       parts_args.total +
+                                       services_args.total +
+                                       consumables_args.total
+                                       ).toFixed(2)"></span>
+                    </span>
+                    +
+                    <span>
+                        $<span x-text="(
+                                       parts_args.tax +
+                                       services_args.tax +
+                                       consumables_args.tax
+                                       ).toFixed(2)"></span>
+                    </span>
+                    <!-- {% if order.tax > 0 or order.discount > 0 %} -->
+                    <!--     = ${{ order.amount|floatformat:"-2" }}+${{ order.tax|floatformat:"-2" }} -->
+                    <!-- {% endif %} -->
                     - &nbsp;
                 </span>
                 {%if perms.extra_perm.order_discount%}
