@@ -82,7 +82,24 @@
         }
     </style>
     <div class="row"
-         x-data="{show: true}">
+         x-data="{
+                 show: true,
+                 parts_args: {
+                 total: 0,
+                 amount: 0,
+                 tax: 0,
+                 },
+                 services_args: {
+                 total: 0,
+                 amount: 0,
+                 tax: 0,
+                 },
+                 consumables_args: {
+                 total: 0,
+                 amount: 0,
+                 tax: 0,
+                 },
+                 }">
         <div class="transition-all"
              :class="show && 'lg:pr-[30vw]'">
             {% if mensaje %}

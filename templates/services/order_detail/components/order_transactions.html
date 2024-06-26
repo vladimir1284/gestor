@@ -45,7 +45,7 @@
                         <div class="flex"
                              :title="`Left in inventory: ${transaction.product.quantity.toFixed(2)}`"
                         >
-                            <div class="input-group !w-32">
+                            <div class="input-group !min-w-32 !max-w-52">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {
@@ -81,7 +81,7 @@
                         <div
                             :title="`Sell price: $${transaction.product.sell_price.toFixed(2)}`"
                         >
-                            <div class="input-group !w-36">
+                            <div class="input-group !min-w-36 !max-w-52">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {
@@ -205,7 +205,7 @@
                         <div class="flex"
                              :title="`Left in inventory: ${transaction.product.quantity.toFixed(2)}`"
                         >
-                            <div class="input-group !w-32">
+                            <div class="input-group !min-w-32 !max-w-52">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {
@@ -241,7 +241,7 @@
                         <div
                             :title="`Sell price: $${transaction.product.sell_price.toFixed(2)}`"
                         >
-                            <div class="input-group !w-36">
+                            <div class="input-group !min-w-36 !max-w-52">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {

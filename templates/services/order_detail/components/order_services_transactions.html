@@ -40,7 +40,7 @@
                     </td>
                     <td class="text-center">
                         <div class="flex">
-                            <div class="input-group !w-32">
+                            <div class="input-group !min-w-32 !max-w-52">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {
@@ -74,7 +74,7 @@
                         <div
                             :title="`Suggested price: $${transaction.service.suggested_price.toFixed(2)}`"
                         >
-                            <div class="input-group !w-36">
+                            <div class="input-group !min-w-36 !max-w-52">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {
@@ -111,7 +111,7 @@
                         <div class="flex"
                              :title="`Sell tax: ${transaction.service.sell_tax.toFixed(2)}%\nTotal: $${getTax(transaction).toFixed(2)}`"
                         >
-                            <div class="input-group !w-32">
+                            <div class="input-group !min-w-32 !max-w-52">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {

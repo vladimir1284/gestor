@@ -40,7 +40,7 @@ var Alpine;
 
         return {
           // Controller properties
-          /** @type {{shortcut: string[], description: string}[]} */
+          /** @type {{shortcut: string[], description: string[]}[]} */
           shortcutHelper: [],
 
           /** @type {boolean} */
@@ -146,11 +146,14 @@ var Alpine;
               this.loadTransactions();
 
             // Shortcuts
-            /** @type {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} */
+            /** @type {{shortcut: string | string[], func: function, description: string | string[], direct?: boolean}[]} */
             const shortcuts = [
               {
                 shortcut: this.shortcut,
-                description: `Open the dialog to add new ${transactionType}`,
+                description: [
+                  `Open the dialog to add new products of type ${transactionType}`,
+                  `Abrir el dialogo para agregar nuevos productos de tipo ${transactionType}`,
+                ],
                 func: () => {
                   this.closeAll();
                   this.$refs.searchProducts.focus();
@@ -159,53 +162,76 @@ var Alpine;
               },
               {
                 shortcut: "Alt+H",
-                description: "Open this dialog with shortcuts",
+                description: [
+                  "Open this dialog with shortcuts",
+                  "Abrir esta ventana con los atajos de teclado",
+                ],
                 func: () => {
                   this.$refs.shortcutButton.dispatchEvent(new Event("click"));
                 },
               },
               {
                 shortcut: "Escape",
-                description: "Close the dialogs",
+                description: ["Close the dialogs", "Cerrar los dialogos"],
                 func: () => this.closeNewProductMode(),
               },
               {
                 shortcut: "Enter",
-                description: `Add the selected ${transactionType}`,
+                description: [
+                  "Add the selected product",
+                  "Agregar el producto seleccionado",
+                ],
                 func: () =>
                   this.addNewTransaction(
                     this.filteredProducts[this.newProductIndex],
                   ),
               },
               {
-                shortcut: "Alt+Space",
-                description: "Focus the search bar",
+                shortcut: ["Alt+Space", "Alt+Enter"],
+                description: [
+                  "Focus the search bar",
+                  "Enfocar la barra de busqueda",
+                ],
                 func: () => this.focusSearch(),
               },
               {
-                shortcut: "Alt+Shift+Space",
-                description:
+                shortcut: ["Alt+Shift+Space", "Alt+Shift+Enter"],
+                description: [
                   "Focus the search bar and select the text in the bar",
+                  "Enfocar la barra de busqueda y seleccionar el texto en la barra",
+                ],
                 func: () => this.focusSearch(true),
               },
               {
                 shortcut: ["Alt+ArrowUp", "ArrowUp"],
-                description: `Select the previous ${transactionType} on the list`,
+                description: [
+                  "Select the previous product on the list",
+                  "Seleccionar el producto anterior en la lista",
+                ],
                 func: () => this.selectPreviousItem(),
               },
               {
                 shortcut: ["Alt+ArrowDown", "ArrowDown"],
-                description: `Select the next ${transactionType} on the list`,
+                description: [
+                  "Select the next product on the list",
+                  "Seleccionar el producto siguiente en la lista",
+                ],
                 func: () => this.selectNextItem(),
               },
               {
                 shortcut: ["Tab", "Alt+Tab", "Alt+ArrowRight"],
-                description: `Focus the next editable (quantity, price and tax) on the selected ${transactionType}`,
+                description: [
+                  "Focus the next editable (quantity, price and tax) on the selected product",
+                  "Enfocar el siguiente editable (cantidad, precio y impuesto) del producto seleccionado",
+                ],
                 func: () => this.focusNextEditableOfSelected(),
               },
               {
                 shortcut: ["Alt+ArrowLeft"],
-                description: `Focus the previous editable (quantity, price and tax) on the selected ${transactionType}`,
+                description: [
+                  "Focus the previous editable (quantity, price and tax) on the selected product",
+                  "Enfocar el anterior editable (cantidad, precio y impuesto) del producto seleccionado",
+                ],
                 func: () => this.focusPreviousEditableOfSelected(),
               },
             ];
@@ -270,7 +296,7 @@ var Alpine;
 
           /**
            * Init the shortcuts
-           * @param {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} shortcuts
+           * @param {{shortcut: string | string[], func: function, description: string | string[], direct?: boolean}[]} shortcuts
            * */
           initShortcuts(shortcuts) {
             for (let sc of shortcuts) {
@@ -283,9 +309,13 @@ var Alpine;
               if (!(shortcut instanceof Array)) {
                 shortcut = [shortcut];
               }
+              let description = sc.description;
+              if (!(description instanceof Array)) {
+                description = [description];
+              }
               this.shortcutHelper.push({
                 shortcut,
-                description: sc.description,
+                description,
               });
             }
           },
@@ -638,6 +668,7 @@ var Alpine;
             }
 
             product.transaction_loading = false;
+            this.focusSearch(true);
           },
 
           // Editing
