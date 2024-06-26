@@ -14,7 +14,7 @@ var Alpine;
 
       return {
         // Controller properties
-        /** @type {{shortcut: string[], description: string}[]} */
+        /** @type {{shortcut: string[], description: string[]}[]} */
         shortcutHelper: [],
 
         /** @type {boolean} */
@@ -88,11 +88,14 @@ var Alpine;
           }
 
           // Shortcuts
-          /** @type {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} */
+          /** @type {{shortcut: string | string[], func: function, description: string | string[], direct?: boolean}[]} */
           const shortcuts = [
             {
               shortcut: this.shortcut,
-              description: "Open the dialog to add new kit",
+              description: [
+                "Open the dialog to add new kits",
+                "Abrir el dialogo para agregar nuevos kits",
+              ],
               func: () => {
                 this.closeAll();
                 this.openNewKitMode();
@@ -101,40 +104,57 @@ var Alpine;
             },
             {
               shortcut: "Alt+H",
-              description: "Open this dialog with shortcuts",
+              description: [
+                "Open this dialog with shortcuts",
+                "Abrir esta ventana con los atajos de teclado",
+              ],
               func: () => {
                 this.$refs.shortcutButton.dispatchEvent(new Event("click"));
               },
             },
             {
               shortcut: "Escape",
-              description: "Close the dialogs",
+              description: ["Close the dialogs", "Cerrar los dialogos"],
               func: () => this.closeNewKitMode(),
             },
             {
               shortcut: "Enter",
-              description: "Add the selected kit",
+              description: [
+                "Add the selected kit",
+                "Agregar el kit seleccionado",
+              ],
               func: () => this.addKit(),
             },
             {
-              shortcut: "Alt+Space",
-              description: "Focus the search bar",
+              shortcut: ["Alt+Space", "Alt+Enter"],
+              description: [
+                "Focus the search bar",
+                "Foco en la barra de busqueda",
+              ],
               func: () => this.focusSearch(),
             },
             {
-              shortcut: "Alt+Shift+Space",
-              description:
+              shortcut: ["Alt+Shift+Space", "Alt+Shift+Enter"],
+              description: [
                 "Focus the search bar and select the text in the bar",
+                "Foco en la barra de busqueda y selecciona el texto en la barra",
+              ],
               func: () => this.focusSearch(true),
             },
             {
               shortcut: ["Alt+ArrowUp", "ArrowUp"],
-              description: "Select the previous kit on the list",
+              description: [
+                "Select the previous kit on the list",
+                "Selecciona el kit anterior en la lista",
+              ],
               func: () => this.selectPreviousItem(),
             },
             {
               shortcut: ["Alt+ArrowDown", "ArrowDown"],
-              description: "Select the next kit on the list",
+              description: [
+                "Select the next kit on the list",
+                "Selecciona el kit siguiente en la lista",
+              ],
               func: () => this.selectNextItem(),
             },
           ];
@@ -160,7 +180,7 @@ var Alpine;
 
         /**
          * Init the shortcuts
-         * @param {{shortcut: string | string[], func: function, description: string, direct?: boolean}[]} shortcuts
+         * @param {{shortcut: string | string[], func: function, description: string | string[], direct?: boolean}[]} shortcuts
          * */
         initShortcuts(shortcuts) {
           for (let sc of shortcuts) {
@@ -173,9 +193,13 @@ var Alpine;
             if (!(shortcut instanceof Array)) {
               shortcut = [shortcut];
             }
+            let description = sc.description;
+            if (!(description instanceof Array)) {
+              description = [description];
+            }
             this.shortcutHelper.push({
               shortcut,
-              description: sc.description,
+              description,
             });
           }
         },

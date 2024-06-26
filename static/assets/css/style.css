@@ -525,12 +525,24 @@
   width: min-content;
 }
 
+.\!min-w-32 {
+  min-width: 8rem !important;
+}
+
+.\!min-w-36 {
+  min-width: 9rem !important;
+}
+
 .min-w-60 {
   min-width: 15rem;
 }
 
 .min-w-\[30\%\] {
   min-width: 30%;
+}
+
+.\!max-w-52 {
+  max-width: 13rem !important;
 }
 
 .max-w-\[10cm\] {
@@ -704,11 +716,6 @@
 .rounded-l-lg {
   border-top-left-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
-}
-
-.rounded-r-lg {
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
 }
 
 .rounded-tl-none {
@@ -1223,6 +1230,10 @@
 .hover\:bg-blue-400:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(96 165 250 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-mainBG:hover {
+  background-color: rgba(105, 108, 255, 0.16);
 }
 
 .hover\:bg-red-500:hover {
