@@ -14,6 +14,18 @@
             {% include "services/order_header.html" %}
             <form enctype="multipart/form-data" method="post" id="update-form">
                 {% csrf_token %}
+
+                <datalist id="vinsList">
+                    {% for vin in vins %}
+                        <option value="{{ vin }}"></option>
+                    {% endfor %}
+                </datalist>
+                <datalist id="platesList">
+                    {% for plate in plates %}
+                        <option value="{{ plate }}"></option>
+                    {% endfor %}
+                </datalist>
+
                 <div class="card-body" x-data="orderForm">{% crispy form %}</div>
             </form>
         </div>

@@ -71,10 +71,13 @@ class OrderCreateForm(BaseForm):
             "placeholder"
         ] = "Información adicional relativa a esta orden"
 
+        self.fields["vin"].widget.attrs["list"] = "vinsList"
+        self.fields["plate"].widget.attrs["list"] = "platesList"
+
         if self.getPlate:
             self.helper.layout = Layout(
-                Div(Div(Field("quotation")), css_class="mb-3"),
-                Div(Div(Field("parts_sale")), css_class="mb-3"),
+                # Div(Div(Field("quotation")), css_class="mb-3"),
+                # Div(Div(Field("parts_sale")), css_class="mb-3"),
                 Div(Div(Field("concept")), css_class="mb-3"),
                 Div(Div(Field("vin")), css_class="mb-3"),
                 Div(Div(Field("plate")), css_class="mb-3"),
@@ -86,8 +89,8 @@ class OrderCreateForm(BaseForm):
             )
         else:
             self.helper.layout = Layout(
-                Div(Div(Field("quotation")), css_class="mb-3"),
-                Div(Div(Field("concept")), css_class="mb-3"),
+                # Div(Div(Field("quotation")), css_class="mb-3"),
+                # Div(Div(Field("concept")), css_class="mb-3"),
                 Div(Div(Field("vin")), css_class="mb-3"),
                 Div(Div(Field("position")), css_class="mb-3"),
                 Div(Div(Field("storage_reason")), css_class="mb-3"),
