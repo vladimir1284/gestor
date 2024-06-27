@@ -26,6 +26,12 @@ def create_order(request, id):
     ):
         return redirect("view-conditions", id)
 
+    prev_orders = Order.objects.filter(associated=preorder.associated)
+    VINs = [po.vin for po in prev_orders if (po.vin is not None and po.vin != "")]
+    Plates = [
+        po.plate for po in prev_orders if (po.plate is not None and po.plate != "")
+    ]
+
     initial = {
         "concept": preorder.concept,
     }
@@ -76,5 +82,7 @@ def create_order(request, id):
         "form": form,
         "title": _("Create service order"),
         "order": order,
+        "vins": VINs,
+        "plates": Plates,
     }
     return render(request, "services/order_create.html", context)
