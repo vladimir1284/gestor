@@ -90,6 +90,18 @@ class Contract(models.Model):
     renovation_15_notify = models.BooleanField(default=False)
     renovation_7_notify = models.BooleanField(default=False)
 
+    ####### Payment
+
+    @property
+    def monthly_payment_amount(self):
+        if self.payment_frequency == "weekly":
+            frec_mul = 4
+        elif self.payment_frequency == "biweekly":
+            frec_mul = 2
+        else:
+            frec_mul = 1
+        return self.payment_amount * frec_mul
+
     ####### Renovations #########################################
     def _notify(self, status):
         # return
