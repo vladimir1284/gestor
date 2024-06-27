@@ -1,7 +1,6 @@
 from menu.menu.menu_element import MenuItem
 from rbac.tools.permission_param import PermissionParam
 
-
 MENU = [
     # Main menu
     MenuItem(
@@ -111,7 +110,7 @@ MENU = [
         name="Órdenes",
         i18n="Sells",
         icon="bx-wrench",
-        url="list-service-order",
+        url="list-service-order-direct",
         extra_match=[
             "list-service-order-terminated",
             "detail-service-order",
