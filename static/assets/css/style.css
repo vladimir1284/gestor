@@ -62,6 +62,10 @@
   visibility: visible;
 }
 
+.\!visible {
+  visibility: visible !important;
+}
+
 .invisible {
   visibility: hidden;
 }
@@ -418,6 +422,10 @@
 
 .hidden {
   display: none;
+}
+
+.\!h-full {
+  height: 100% !important;
 }
 
 .h-1 {
@@ -1285,6 +1293,10 @@
 
   .lg\:\!block {
     display: block !important;
+  }
+
+  .lg\:block {
+    display: block;
   }
 
   .lg\:flex {

@@ -4,19 +4,8 @@
         box-shadow: inset 0 0 10px 3px rgba(0, 100, 255, 0.5);
     }
 </style>
-<div class="h-full flex flex-col overflow-hidden box-border">
-    <!-- <div class="card-body py-0 flex gap-2 flex-wrap box-border"> -->
-    <!--     <div class="input-group mb-3"> -->
-    <!--         <span class="input-group-text">Default quantity:</span> -->
-    <!--         <input type="number" min="1" class="form-control" x-model="newServiceQty"> -->
-    <!--     </div> -->
-        <!-- <div class="input-group mb-3"> -->
-        <!--     <span class="input-group-text">Default Tax:</span> -->
-        <!--     <input type="number" min="1" class="form-control" x-model="newServiceTax"> -->
-        <!-- </div> -->
-    <!-- </div> -->
-
-    <div class="table-responsive text-nowrap flex-grow !overflow-auto">
+<div class="h-full flex overflow-hidden box-border">
+    <div class="!h-full table-responsive flex-grow !overflow-auto">
         <table class="table table-sm">
             <thead class="sticky top-0 bg-white z-10">
                 <tr>
@@ -106,9 +95,10 @@
                                 </span>
                             </div>
                         </td>
-                    </trx-id>
+                    </tr>
                 </template>
             </tbody>
         </table>
     </div>
+    {% include "./order_services_sublist_transactions.html" %}
 </div>

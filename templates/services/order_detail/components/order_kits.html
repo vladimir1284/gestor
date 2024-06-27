@@ -28,25 +28,19 @@
                                 'unavailable': !kit.available,
                                 }">
                         <td>
-                            <template x-if="kit.available">
-                                <div>
-                                    <div class="spinner-border text-primary" role="status"
-                                         x-show="kit.loading">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <button class="btn btn-icon btn-link"
-                                            @click="addKit(kit)"
-                                            x-show="!kit.loading"
-                                    >
-                                        <i class='bx bx-plus'></i>
-                                    </button>
+                            <div>
+                                <div class="spinner-border text-primary" role="status"
+                                     x-show="kit.loading">
+                                    <span class="visually-hidden">Loading...</span>
                                 </div>
-                            </template>
-                            <template x-if="!kit.available">
-                                <button class="btn btn-icon btn-link text-danger">
-                                    <i class='bx bx-minus'></i>
+                                <button class="btn btn-icon btn-link"
+                                        :class="kit.available || 'text-danger'"
+                                        @click="addKit(kit)"
+                                        x-show="!kit.loading"
+                                >
+                                    <i class='bx bx-plus'></i>
                                 </button>
-                            </template>
+                            </div>
                         </td>
                         <td :class="kit.available || 'text-danger'">
                             <strong x-html="globalThis.advanceHighlightMatch(kit.name, newKitSearch, kit.searchType)"></strong>
