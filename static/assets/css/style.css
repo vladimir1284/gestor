@@ -542,6 +542,22 @@
   width: min-content;
 }
 
+.w-72 {
+  width: 18rem;
+}
+
+.\!w-72 {
+  width: 18rem !important;
+}
+
+.\!w-80 {
+  width: 20rem !important;
+}
+
+.\!w-96 {
+  width: 24rem !important;
+}
+
 .\!min-w-32 {
   min-width: 8rem !important;
 }
@@ -556,6 +572,18 @@
 
 .min-w-\[30\%\] {
   min-width: 30%;
+}
+
+.min-w-80 {
+  min-width: 20rem;
+}
+
+.min-w-96 {
+  min-width: 24rem;
+}
+
+.min-w-72 {
+  min-width: 18rem;
 }
 
 .\!max-w-52 {
@@ -1359,9 +1387,19 @@ a.match {
     gap: 1rem;
   }
 
+  .lg\:px-10 {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+
   .lg\:px-20 {
     padding-left: 5rem;
     padding-right: 5rem;
+  }
+
+  .lg\:px-8 {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 
   .lg\:pr-\[30vw\] {
@@ -1384,6 +1422,11 @@ a.match {
 
   .xl\:flex-grow {
     flex-grow: 1;
+  }
+
+  .xl\:px-20 {
+    padding-left: 5rem;
+    padding-right: 5rem;
   }
 
   .xl\:px-40 {

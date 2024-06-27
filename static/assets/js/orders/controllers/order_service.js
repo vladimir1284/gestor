@@ -226,6 +226,11 @@ var Alpine;
         focusElement(el, scroll) {
           el.focus();
           if (scroll) this.scrollTo(el);
+          if (el instanceof HTMLInputElement) {
+            setTimeout(() => {
+              el.select();
+            }, 100);
+          }
         },
 
         /**
@@ -329,7 +334,7 @@ var Alpine;
               break;
           }
           if (type == "") return;
-          const editableElement = /**@type{HTMLElement}*/ (
+          const editableElement = /**@type{HTMLInputElement}*/ (
             document.querySelector(
               `.service_editable.service_active.service_selected.service_${type}`,
             )
