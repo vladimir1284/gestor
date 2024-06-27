@@ -15,6 +15,7 @@ from .views import transaction
 from services.tools.init_temps import init_temps
 from services.views.order.order_status import update_order_status
 from services.views.order.print_outstock import order_print_outstock_trans
+from services.views.order.url_checker import url_list_order_checker
 from services.views.order_decline_reazon import order_decline_reazon
 from services.views.order_flow.contact_form import lessee_form
 from services.views.order_flow.contract_client_signature import contact_create_handwriting
@@ -235,7 +236,8 @@ urlpatterns = [
         order.send_invoice_email,
         name="service-order-send-invoice",
     ),
-    path("list-order/", order.list_order, name="list-service-order"),
+    path("list-order/", order.list_order, name="list-service-order-direct"),
+    path("list-order-checker/", url_list_order_checker, name="list-service-order"),
     path(
         "service-order-on-pos/",
         order.list_order_on_pos,

@@ -62,6 +62,10 @@
   visibility: visible;
 }
 
+.\!visible {
+  visibility: visible !important;
+}
+
 .invisible {
   visibility: hidden;
 }
@@ -1329,6 +1333,10 @@ a.match {
 
   .lg\:\!block {
     display: block !important;
+  }
+
+  .lg\:block {
+    display: block;
   }
 
   .lg\:flex {
