@@ -66,6 +66,12 @@ var Alpine;
 
         // Initialization
         init() {
+          // this.$store.globalPSC[this.transactionType] = this;
+          if (!globalThis.globalPSC) {
+            globalThis.globalPSC = Alpine.reactive({});
+          }
+          globalThis.globalPSC[this.transactionType] = this;
+
           this.$watch("transactions", (transactions) => {
             this.transactions_args.total = 0;
             this.transactions_args.amount = 0;

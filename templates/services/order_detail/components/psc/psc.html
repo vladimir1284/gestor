@@ -1,0 +1,92 @@
+{% load static %}
+
+<div class="table-responsive !overflow-auto !visible !hidden lg:!block"
+     x-data="OrderPSC"
+>
+  <table class="table table-sm">
+    <thead class="sticky top-0 bg-white z-10 h-10">
+      <tr class="align-top">
+        <th>Product</th>
+        <th class="text-end">Quantity</th>
+        <th class="text-end">Price</th>
+        <th class="text-end">Tax</th>
+      </tr>
+    </thead>
+    <tbody class="table-border-bottom-0">
+
+      <!-- Parts -->
+      <tr class="bg-[#dfe8ff] sticky top-8 z-10">
+        <th colspan="100%">
+          Parts
+        </th>
+      </tr>
+
+      <template x-for="transaction in getParts()">
+        <tr>
+          <td :class="transaction.satisfied || 'text-danger'">
+            <strong x-text="transaction.product.name"></strong>
+          </td>
+          <td class="text-end">
+            <span x-text="transaction.quantity"></span>
+          </td>
+          <td class="text-end">
+            $<strong x-text="parts.getAmount(transaction).toFixed(2)"></strong>
+          </td>
+          <td class="text-end">
+            $<span x-text="parts.getTax(transaction).toFixed(2)"></span>
+          </td>
+        </tr>
+      </template>
+
+      <!-- Services -->
+      <tr class="bg-[#dfe8ff] sticky top-8 z-10">
+        <th colspan="100%">
+          Services
+        </th>
+      </tr>
+
+      <template x-for="transaction in getServices()">
+        <tr>
+          <td>
+            <strong x-text="transaction.service.name"></strong>
+          </td>
+          <td class="text-end">
+            <span x-text="transaction.quantity"></span>
+          </td>
+          <td class="text-end">
+            $<strong x-text="services.getAmount(transaction).toFixed(2)"></strong>
+          </td>
+          <td class="text-end">
+            $<span x-text="services.getTax(transaction).toFixed(2)"></span>
+          </td>
+        </tr>
+      </template>
+
+      <!-- Consumables -->
+      <tr class="bg-[#dfe8ff] sticky top-8 z-10">
+        <th colspan="100%">
+          Consumables
+        </th>
+      </tr>
+
+      <template x-for="transaction in getConsumables()">
+        <tr>
+          <td :class="transaction.satisfied || 'text-danger'">
+            <strong x-text="transaction.product.name"></strong>
+          </td>
+          <td class="text-end">
+            <span x-text="transaction.quantity"></span>
+          </td>
+          <td class="text-end">
+            $<strong x-text="consumables.getAmount(transaction).toFixed(2)"></strong>
+          </td>
+          <td class="text-end">
+            $<span x-text="consumables.getTax(transaction).toFixed(2)"></span>
+          </td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+
+  <script src="{% static "assets/js/orders/controllers/order_psc.js" %}"></script>
+</div>
