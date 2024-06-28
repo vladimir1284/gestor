@@ -10,6 +10,9 @@
         <th class="text-end">Quantity</th>
         <th class="text-end">Price</th>
         <th class="text-end">Tax</th>
+        <th class="text-end">
+          <i class='bx bx-cog'></i>
+        </th>
       </tr>
     </thead>
     <tbody class="table-border-bottom-0">
@@ -35,6 +38,12 @@
           <td class="text-end">
             $<span x-text="parts.getTax(transaction).toFixed(2)"></span>
           </td>
+          <td class="text-end">
+            <button class="btn btn-icon btn-link text-danger"
+                    @click="parts.remove(transaction.id)">
+              <i class='bx bx-trash'></i>
+            </button>
+          </td>
         </tr>
       </template>
 
@@ -59,6 +68,12 @@
           <td class="text-end">
             $<span x-text="services.getTax(transaction).toFixed(2)"></span>
           </td>
+          <td class="text-end">
+            <button class="btn btn-icon btn-link text-danger"
+                    @click="services.remove(transaction.id)">
+              <i class='bx bx-trash'></i>
+            </button>
+          </td>
         </tr>
       </template>
 
@@ -82,6 +97,12 @@
           </td>
           <td class="text-end">
             $<span x-text="consumables.getTax(transaction).toFixed(2)"></span>
+          </td>
+          <td class="text-end">
+            <button class="btn btn-icon btn-link text-danger"
+                    @click="consumables.remove(transaction.id)">
+              <i class='bx bx-trash'></i>
+            </button>
           </td>
         </tr>
       </template>
