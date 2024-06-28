@@ -92,6 +92,9 @@
         <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
         <script src="{% static 'assets/js/config.js' %}"></script>
 
+        <script src="{% static "wasm/wasm_exec.js" %}"></script>
+        <script src="{% static "wasm/wasm_loader.js" %}"></script>
+
         <script src="{% static "assets/js/tools/shortcuts.js" %}"></script>
 
         <script defer src="{%static 'js/alpine-sort.min.js'%}"></script>
@@ -101,10 +104,14 @@
         <script defer src="{%static 'js/alpine-mask.min.js'%}"></script>
         <script defer src="{%static 'js/alpine-component.min.js'%}"></script>
         <script defer src="{%static 'js/alpine.min.js'%}"></script>
-    </head>
-    <body>
+
+        <script>
+            loadGOWasm('{% static "wasm/search_tools.wasm" %}')
+        </script>
         <script src="{%static 'assets/js/search.js'%}">
         </script>
+    </head>
+    <body>
         <div class="toast-container position-fixed top-0 end-0 p-3 z-[2000]"
              x-data>
             <template x-for="not in $store.notifications.nots">
