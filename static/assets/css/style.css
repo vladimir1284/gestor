@@ -174,6 +174,10 @@
   top: 1rem;
 }
 
+.top-8 {
+  top: 2rem;
+}
+
 .top-\[-0\.3rem\] {
   top: -0.3rem;
 }
@@ -437,6 +441,10 @@
   height: 0.25rem;
 }
 
+.h-10 {
+  height: 2.5rem;
+}
+
 .h-12 {
   height: 3rem;
 }
@@ -542,22 +550,6 @@
   width: min-content;
 }
 
-.w-72 {
-  width: 18rem;
-}
-
-.\!w-72 {
-  width: 18rem !important;
-}
-
-.\!w-80 {
-  width: 20rem !important;
-}
-
-.\!w-96 {
-  width: 24rem !important;
-}
-
 .\!min-w-32 {
   min-width: 8rem !important;
 }
@@ -566,24 +558,16 @@
   min-width: 9rem !important;
 }
 
+.\!min-w-60 {
+  min-width: 15rem !important;
+}
+
 .min-w-60 {
   min-width: 15rem;
 }
 
 .min-w-\[30\%\] {
   min-width: 30%;
-}
-
-.min-w-80 {
-  min-width: 20rem;
-}
-
-.min-w-96 {
-  min-width: 24rem;
-}
-
-.min-w-72 {
-  min-width: 18rem;
 }
 
 .\!max-w-52 {
@@ -816,6 +800,11 @@
 .bg-\[\#FFCC00\] {
   --tw-bg-opacity: 1;
   background-color: rgb(255 204 0 / var(--tw-bg-opacity));
+}
+
+.bg-\[\#dfe8ff\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(223 232 255 / var(--tw-bg-opacity));
 }
 
 .bg-\[\#f5f5f9\] {
@@ -1387,16 +1376,6 @@ a.match {
     gap: 1rem;
   }
 
-  .lg\:px-10 {
-    padding-left: 2.5rem;
-    padding-right: 2.5rem;
-  }
-
-  .lg\:px-20 {
-    padding-left: 5rem;
-    padding-right: 5rem;
-  }
-
   .lg\:px-8 {
     padding-left: 2rem;
     padding-right: 2rem;
@@ -1422,16 +1401,6 @@ a.match {
 
   .xl\:flex-grow {
     flex-grow: 1;
-  }
-
-  .xl\:px-20 {
-    padding-left: 5rem;
-    padding-right: 5rem;
-  }
-
-  .xl\:px-40 {
-    padding-left: 10rem;
-    padding-right: 10rem;
   }
 }
 

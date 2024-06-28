@@ -55,7 +55,8 @@ function wordMatch(text, query) {
  * 1 is less important than 0,
  * 2 is less important than 1...
  * */
-function advanceMatch(text, query) {
+function _advanceMatch(text, query) {
+  console.log("js");
   text = text.toUpperCase();
   query = query.toUpperCase();
 
@@ -203,7 +204,7 @@ function highlightWordMatch(text, query) {
  * @param {number} [type]
  * @returns {string}
  * */
-function advanceHighlightMatch(text, query, type) {
+function _advanceHighlightMatch(text, query, type) {
   if (type === undefined) {
     type = advanceMatch(text, query);
   }
@@ -279,5 +280,31 @@ document.addEventListener("alpine:init", () => {
 globalThis.match = wordMatch;
 globalThis.highlightMatch = highlightWordMatch;
 
+/**
+ * Search for match
+ * Search for words
+ * @param {string} text - the text to search for matches
+ * @param {string} query - the query
+ * @returns {number} - Match type order by match importance
+ * where -1 is no match,
+ * 0 is the most important match,
+ * 1 is less important than 0,
+ * 2 is less important than 1...
+ * */
+function advanceMatch(text, query) {
+  return AdvanceMatch(text, query);
+  // return _advanceMatch(text, query)
+}
+/**
+ * Return a highlighted html string for the words matches
+ * @param {string} text
+ * @param {string} query
+ * @param {number} [type]
+ * @returns {string}
+ * */
+function advanceHighlightMatch(text, query, type) {
+  return AdvanceHighlightMatch(text, query, type);
+  // return _advanceHighlightMatch(text, query, type);
+}
 globalThis.advanceMatch = advanceMatch;
 globalThis.advanceHighlightMatch = advanceHighlightMatch;
