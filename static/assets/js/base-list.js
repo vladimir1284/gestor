@@ -76,7 +76,6 @@ const SortClass = "text-primary";
 let grids = document.getElementsByTagName("table");
 const ths = document.querySelectorAll("table th");
 ths.forEach((th) => {
-  console.log(th);
   if (!th.dataset.type) return;
 
   const sortable = document.createElement("span");
@@ -181,11 +180,9 @@ function sortGrid(tbody, th, colNum, type) {
   // sort
   rowsArray.sort(compare);
   if (reversed == 1) {
-    console.log("reversed");
     let reversedArray = rowsArray.reverse();
     tbody.append(...reversedArray);
   } else {
-    console.log("normal");
     tbody.append(...rowsArray);
   }
 
