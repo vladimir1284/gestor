@@ -40,42 +40,9 @@
   }
 </style>
 
-<div class="fixed top-0 left-0 right-0 bottom-0 z-[1100] bg-[rgba(0,0,0,0.4)]" style="backdrop-filter: blur(5px);" x-show="showRemoveDialog()" x-cloak>
-  <div class="">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Remove this <span x-text="transactionType"></span>?</h5>
-          <button type="button" class="btn-close absolute right-0 top-0 m-0 shadow-sm bg-white rounded p-2" @click="removeCancel()"></button>
-        </div>
-
-        <div class="modal-body">
-          <div>
-            Are you sure to remove this <span x-text="transactionType"></span>?
-          </div>
-          <div>
-            <span x-text="titleTransactionType()"></span> to remove: <strong x-text='getToRemoveName()'></strong>
-          </div>
-        </div>
-
-        <div>
-          <div class="flex justify-center" x-show="removing">
-            <span class="loader"></span>
-          </div>
-          <div x-show="!removing">
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-primary" @click="removeCancel()">Cancel</button>
-              <button type="button" class="btn btn-danger" @click="doRemove()">Remove</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div :class="newProductMode() && 'fixed top-0 left-0 right-0 bottom-0 z-[1100] bg-[rgba(0,0,0,0.4)] py-4 sm:px-4 lg:px-8'" style="backdrop-filter: blur(5px);">
-  <div class="card mb-3 transition-all h-full partsCard flex flex-col" @click.outside="closeNewProductMode()">
+<div :class="newProductMode() && 'fixed top-0 left-0 right-0 bottom-0 z-[1100] bg-[rgba(0,0,0,0.4)] py-4 sm:px-4 lg:px-8'" style="backdrop-filter: blur(5px);"
+     @click="closeNewProductMode()">
+  <div class="card mb-3 transition-all h-full partsCard flex flex-col" @click.stop="">
     <div class="card-header flex items-center">
       <h5 class="flex-grow m-0 p-0" x-show="!newProductMode()">
         <span x-text="titleTransactionType()"></span>:
@@ -144,6 +111,40 @@
       </div>
       <div x-show="!loading">
         {% include "./order_transactions.html" %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fixed top-0 left-0 right-0 bottom-0 z-[1101] bg-[rgba(0,0,0,0.4)]" style="backdrop-filter: blur(5px);" x-show="showRemoveDialog()" x-cloak>
+  <div class="">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Remove this <span x-text="transactionType"></span>?</h5>
+          <button type="button" class="btn-close absolute right-0 top-0 m-0 shadow-sm bg-white rounded p-2" @click="removeCancel()"></button>
+        </div>
+
+        <div class="modal-body">
+          <div>
+            Are you sure to remove this <span x-text="transactionType"></span>?
+          </div>
+          <div>
+            <span x-text="titleTransactionType()"></span> to remove: <strong x-text='getToRemoveName()'></strong>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-center" x-show="removing">
+            <span class="loader"></span>
+          </div>
+          <div x-show="!removing">
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-primary" @click="removeCancel()">Cancel</button>
+              <button type="button" class="btn btn-danger" @click="doRemove()">Remove</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
