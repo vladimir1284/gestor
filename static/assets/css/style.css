@@ -573,6 +573,14 @@
   min-width: 30%;
 }
 
+.\!min-w-72 {
+  min-width: 18rem !important;
+}
+
+.\!min-w-60 {
+  min-width: 15rem !important;
+}
+
 .\!max-w-52 {
   max-width: 13rem !important;
 }
