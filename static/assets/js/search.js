@@ -56,7 +56,6 @@ function wordMatch(text, query) {
  * 2 is less important than 1...
  * */
 function _advanceMatch(text, query) {
-  console.log("js");
   text = text.toUpperCase();
   query = query.toUpperCase();
 
