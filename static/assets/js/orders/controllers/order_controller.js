@@ -87,6 +87,11 @@ var Alpine;
           shortcut,
           transactionType,
 
+          /** @type {number} */
+          lastScrollTimeout: -1,
+          /** @type {number} */
+          lastSelectTimeout: -1,
+
           // Initialization
           init() {
             if (!globalThis.globalPSC) {
@@ -250,7 +255,8 @@ var Alpine;
            * @param {HTMLElement} el
            * */
           scrollTo(el) {
-            setTimeout(() => {
+            clearTimeout(this.lastScrollTimeout);
+            this.lastScrollTimeout = setTimeout(() => {
               el.scrollIntoView({
                 behavior: "smooth",
                 block: "start",
@@ -268,7 +274,8 @@ var Alpine;
             el.focus();
             if (scroll) this.scrollTo(el);
             if (el instanceof HTMLInputElement) {
-              setTimeout(() => {
+              clearTimeout(this.lastSelectTimeout);
+              this.lastSelectTimeout = setTimeout(() => {
                 el.select();
               }, 100);
             }

@@ -64,6 +64,11 @@ var Alpine;
         shortcut: "alt+s",
         transactionType: "service",
 
+        /** @type {number} */
+        lastScrollTimeout: -1,
+        /** @type {number} */
+        lastSelectTimeout: -1,
+
         // Initialization
         init() {
           // this.$store.globalPSC[this.transactionType] = this;
@@ -215,7 +220,8 @@ var Alpine;
          * @param {HTMLElement} el
          * */
         scrollTo(el) {
-          setTimeout(() => {
+          clearTimeout(this.lastScrollTimeout);
+          this.lastScrollTimeout = setTimeout(() => {
             el.scrollIntoView({
               behavior: "smooth",
               block: "start",
@@ -233,7 +239,8 @@ var Alpine;
           el.focus();
           if (scroll) this.scrollTo(el);
           if (el instanceof HTMLInputElement) {
-            setTimeout(() => {
+            clearTimeout(this.lastSelectTimeout);
+            this.lastSelectTimeout = setTimeout(() => {
               el.select();
             }, 100);
           }
