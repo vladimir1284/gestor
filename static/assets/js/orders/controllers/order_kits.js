@@ -40,6 +40,12 @@ var Alpine;
 
         // Initialization
         init() {
+          // this.$store.globalPSC[this.transactionType] = this;
+          if (!globalThis.globalPSC) {
+            globalThis.globalPSC = Alpine.reactive({});
+          }
+          globalThis.globalPSC[this.transactionType] = this;
+
           this.$watch("newKitSearch", () => {
             this.filteredKits = this.getFiltered();
           });
