@@ -292,8 +292,13 @@ globalThis.highlightMatch = highlightWordMatch;
  * 2 is less important than 1...
  * */
 function advanceMatch(text, query) {
-  return AdvanceMatch(text, query);
-  // return _advanceMatch(text, query)
+  try {
+    // Use WASM function fastest
+    return AdvanceMatch(text, query);
+  } catch (e) {
+    // If wasm fail for some reason use JS slower
+    return _advanceMatch(text, query);
+  }
 }
 /**
  * Return a highlighted html string for the words matches
@@ -303,8 +308,13 @@ function advanceMatch(text, query) {
  * @returns {string}
  * */
 function advanceHighlightMatch(text, query, type) {
-  return AdvanceHighlightMatch(text, query, type);
-  // return _advanceHighlightMatch(text, query, type);
+  try {
+    // Use WASM function fastest
+    return AdvanceHighlightMatch(text, query, type);
+  } catch (e) {
+    // If wasm fail for some reason use JS slower
+    return _advanceHighlightMatch(text, query, type);
+  }
 }
 globalThis.advanceMatch = advanceMatch;
 globalThis.advanceHighlightMatch = advanceHighlightMatch;
