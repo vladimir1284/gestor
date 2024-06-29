@@ -112,10 +112,7 @@
             {%if order.status == 'decline' and order.decline_reazon%}
                 {% include "services/order_detail/decline_card.html" %}
             {% endif %}
-            {%include "services/order_detail/parts_card.html"%}
-            {%include "services/order_detail/services_card.html"%}
-            {%include "services/order_detail/consumables_card.html"%}
-            {%include "services/order_detail/kits_card.html"%}
+            {% include "./order_detail/psc_all_cards.html" %}
             {% if not terminated or expenses %}
                 <div class="card mb-3">
                     <h5 class="card-header">
