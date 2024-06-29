@@ -101,11 +101,11 @@
           {% endif %}
         </div>
       </div>
-      <div x-show="newServiceMode()" class="flex-grow overflow-hidden box-border">
+      <div x-show="newServiceMode()" class="flex-grow overflow-hidden box-border" x-cloak>
         <div class="flex justify-center items-center w-96 h-12" x-show="loadingServices">
           <span class="loader"></span>
         </div>
-        <template x-if="!loadingServices" x-cloak>
+        <template x-if="!loadingServices">
           <div class="h-full">
             {% include "./components/order_services.html" %}
           </div>

@@ -99,7 +99,7 @@
         {% endif %}
       </div>
     </div>
-    <div class="flex-grow overflow-hidden box-border" x-show="newProductMode()">
+    <div class="flex-grow overflow-hidden box-border" x-show="newProductMode()" x-cloak>
       <div class="flex justify-center items-center w-96 h-12" x-show="loadingProducts">
         <span class="loader"></span>
       </div>
@@ -109,7 +109,7 @@
         </div>
       </template>
     </div>
-    <div x-show="!newProductMode()">
+    <div x-show="!newProductMode()" x-cloak>
       <div class="flex justify-center items-center w-96 h-12" x-show="loading">
         <span class="loader"></span>
       </div>
