@@ -44,21 +44,23 @@
      @click="closeNewProductMode()">
   <div class="card mb-3 transition-all h-full partsCard flex flex-col" @click.stop="">
     <div class="card-header flex items-center">
-      <h5 class="flex-grow m-0 p-0" x-show="!newProductMode()">
-        <span x-text="titleTransactionType()"></span>:
+      <template x-if="!newProductMode()">
+        <h5 class="flex-grow m-0 p-0">
+          <span x-text="titleTransactionType()"></span>:
 
-        <strong>
-          $<span x-text="satisfied_args.total.toFixed(2)"></span>
-        </strong>
-        =
-        <span>
-          $<span x-text="satisfied_args.amount.toFixed(2)"></span>
-        </span>
-        +
-        <span>
-          $<span x-text="satisfied_args.tax.toFixed(2)"></span>
-        </span>
-      </h5>
+          <strong>
+            $<span x-text="satisfied_args.total.toFixed(2)"></span>
+          </strong>
+          =
+          <span>
+            $<span x-text="satisfied_args.amount.toFixed(2)"></span>
+          </span>
+          +
+          <span>
+            $<span x-text="satisfied_args.tax.toFixed(2)"></span>
+          </span>
+        </h5>
+      </template>
       <div class="flex transition-all" :class="newProductMode() && 'w-full'">
         {%if not terminated%}
           <div class="input-group mb-3" x-id="['scModal']">
@@ -101,72 +103,57 @@
       <div class="flex justify-center items-center w-96 h-12" x-show="loadingProducts">
         <span class="loader"></span>
       </div>
-      <div x-show="!loadingProducts" class="h-full">
-        {% include "./order_products.html" %}
-      </div>
+      <template x-if="!loadingProducts">
+        <div class="h-full">
+          {% include "./order_products.html" %}
+        </div>
+      </template>
     </div>
     <div x-show="!newProductMode()">
       <div class="flex justify-center items-center w-96 h-12" x-show="loading">
         <span class="loader"></span>
       </div>
-      <div x-show="!loading">
-        {% include "./order_transactions.html" %}
-      </div>
+      <template x-if="!loading">
+        <div>
+          {% include "./order_transactions.html" %}
+        </div>
+      </template>
     </div>
   </div>
 </div>
 
-<div class="fixed top-0 left-0 right-0 bottom-0 z-[1101] bg-[rgba(0,0,0,0.4)]" style="backdrop-filter: blur(5px);" x-show="showRemoveDialog()" x-cloak>
-  <div class="">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Remove this <span x-text="transactionType"></span>?</h5>
-          <button type="button" class="btn-close absolute right-0 top-0 m-0 shadow-sm bg-white rounded p-2" @click="removeCancel()"></button>
-        </div>
+<template x-if="showRemoveDialog()">
+  <div class="fixed top-0 left-0 right-0 bottom-0 z-[1101] bg-[rgba(0,0,0,0.4)]" style="backdrop-filter: blur(5px);" x-cloak>
+    <div class="">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Remove this <span x-text="transactionType"></span>?</h5>
+            <button type="button" class="btn-close absolute right-0 top-0 m-0 shadow-sm bg-white rounded p-2" @click="removeCancel()"></button>
+          </div>
 
-        <div class="modal-body">
-          <div>
-            Are you sure to remove this <span x-text="transactionType"></span>?
+          <div class="modal-body">
+            <div>
+              Are you sure to remove this <span x-text="transactionType"></span>?
+            </div>
+            <div>
+              <span x-text="titleTransactionType()"></span> to remove: <strong x-text='getToRemoveName()'></strong>
+            </div>
           </div>
-          <div>
-            <span x-text="titleTransactionType()"></span> to remove: <strong x-text='getToRemoveName()'></strong>
-          </div>
-        </div>
 
-        <div>
-          <div class="flex justify-center" x-show="removing">
-            <span class="loader"></span>
-          </div>
-          <div x-show="!removing">
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-primary" @click="removeCancel()">Cancel</button>
-              <button type="button" class="btn btn-danger" @click="doRemove()">Remove</button>
+          <div>
+            <div class="flex justify-center" x-show="removing">
+              <span class="loader"></span>
+            </div>
+            <div x-show="!removing">
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" @click="removeCancel()">Cancel</button>
+                <button type="button" class="btn btn-danger" @click="doRemove()">Remove</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-<script>
-  globalThis.OrderID = {{order.id}}
-  globalThis.UpdateTransUrl = "{% url 'update-transaction' 0 %}"
-  globalThis.DetailTransUrl = "{% url 'detail-transaction' 0 %}"
-  globalThis.DetailProductUrl = "{% url 'detail-product' 0 %}"
-  {% if terminated %}
-    globalThis.Terminated = true
-  {% else %}
-    globalThis.Terminated = false
-  {% endif %}
-</script>
-<script src="{% static "assets/js/orders/config/get_cookies.js" %}"></script>
-
-<script src="{% static "assets/js/orders/config/product_transaction_urls.js" %}"></script>
-<script src="{% static "assets/js/orders/config/product_urls.js" %}"></script>
-
-<script src="{% static "assets/js/orders/api/product_api_client.js" %}"></script>
-<script src="{% static "assets/js/orders/api/product_transaction_api_client.js" %}"></script>
-
-<script src="{% static "assets/js/orders/controllers/order_controller.js" %}"></script>
+</template>

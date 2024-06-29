@@ -1,0 +1,56 @@
+{% load static %}
+
+{%include "services/order_detail/parts_card.html"%}
+{%include "services/order_detail/services_card.html"%}
+{%include "services/order_detail/consumables_card.html"%}
+{%include "services/order_detail/kits_card.html"%}
+
+<!-- Scripts -->
+<script>
+  globalThis.OrderID = {{order.id}}
+
+  globalThis.DetailServiceTransUrl = "{% url 'detail-service-transaction' 0 %}"
+  globalThis.UpdateServiceTransUrl = "{% url 'update-service-transaction' 0 %}"
+
+  globalThis.UpdateTransUrl = "{% url 'update-transaction' 0 %}"
+  globalThis.DetailTransUrl = "{% url 'detail-transaction' 0 %}"
+  globalThis.DetailProductUrl = "{% url 'detail-product' 0 %}"
+
+  {% if terminated %}
+    globalThis.Terminated = true
+  {% else %}
+    globalThis.Terminated = false
+  {% endif %}
+</script>
+
+<!-- Tools -->
+<script src="{% static "assets/js/orders/config/get_cookies.js" %}"></script>
+
+<!-- Urls -->
+<script src="{% static "assets/js/orders/config/service_transaction_urls.js" %}"></script>
+<script src="{% static "assets/js/orders/config/service_urls.js" %}"></script>
+
+<script src="{% static "assets/js/orders/config/product_transaction_urls.js" %}"></script>
+<script src="{% static "assets/js/orders/config/product_urls.js" %}"></script>
+
+<script src="{% static "assets/js/orders/config/kit_urls.js" %}"></script>
+
+<!-- Clients -->
+<script src="{% static "assets/js/orders/api/service_api_client.js" %}"></script>
+<script src="{% static "assets/js/orders/api/service_transaction_api_client.js" %}"></script>
+
+<script src="{% static "assets/js/orders/api/product_api_client.js" %}"></script>
+<script src="{% static "assets/js/orders/api/product_transaction_api_client.js" %}"></script>
+
+<script src="{% static "assets/js/orders/api/kit_api_client.js" %}"></script>
+
+<!-- Controllers -->
+<script src="{% static "assets/js/orders/controllers/order_controller.js" %}"></script>
+
+<script src="{% static "assets/js/orders/controllers/order_parts.js" %}"></script>
+<script src="{% static "assets/js/orders/controllers/order_consumables.js" %}"></script>
+
+<script src="{% static "assets/js/orders/controllers/order_service.js" %}"></script>
+<script src="{% static "assets/js/orders/controllers/order_kits.js" %}"></script>
+
+<script src="{% static "assets/js/orders/controllers/order_psc.js" %}"></script>

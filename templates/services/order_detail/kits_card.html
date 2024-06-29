@@ -87,21 +87,5 @@
         </div>
       </div>
     </div>
-
-    <script>
-      globalThis.OrderID = {{order.id}}
-      {% if terminated %}
-        globalThis.Terminated = true
-      {% else %}
-        globalThis.Terminated = false
-      {% endif %}
-    </script>
-    <script src="{% static "assets/js/orders/config/get_cookies.js" %}"></script>
-
-    <script src="{% static "assets/js/orders/config/kit_urls.js" %}"></script>
-
-    <script src="{% static "assets/js/orders/api/kit_api_client.js" %}"></script>
-
-    <script src="{% static "assets/js/orders/controllers/order_kits.js" %}"></script>
   </div>
 {% endif %}
