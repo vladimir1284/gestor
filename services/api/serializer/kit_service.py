@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from inventory.models import KitElement
+from inventory.models import KitService
 from services.api.serializer.service import ServiceSerializer
 
 
@@ -8,7 +8,7 @@ class KitServiceSerializer(serializers.ModelSerializer):
     service = ServiceSerializer(read_only=True)
 
     class Meta:
-        model = KitElement
+        model = KitService
         fields = [
             "id",
             "kit",

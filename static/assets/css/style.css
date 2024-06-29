@@ -558,16 +558,16 @@
   min-width: 6rem !important;
 }
 
-.\!min-w-32 {
-  min-width: 8rem !important;
-}
-
-.\!min-w-36 {
-  min-width: 9rem !important;
+.\!min-w-28 {
+  min-width: 7rem !important;
 }
 
 .\!min-w-60 {
   min-width: 15rem !important;
+}
+
+.min-w-52 {
+  min-width: 13rem;
 }
 
 .min-w-60 {
@@ -576,14 +576,6 @@
 
 .min-w-\[30\%\] {
   min-width: 30%;
-}
-
-.\!min-w-28 {
-  min-width: 7rem !important;
-}
-
-.min-w-52 {
-  min-width: 13rem;
 }
 
 .\!max-w-52 {
@@ -1072,6 +1064,10 @@
   text-align: right;
 }
 
+.text-start {
+  text-align: start;
+}
+
 .text-end {
   text-align: end;
 }
@@ -1385,14 +1381,6 @@ a.match {
     height: 100%;
   }
 
-  .lg\:w-\[30vw\] {
-    width: 30vw;
-  }
-
-  .lg\:w-\[28vw\] {
-    width: 28vw;
-  }
-
   .lg\:w-\[25vw\] {
     width: 25vw;
   }
@@ -1408,14 +1396,6 @@ a.match {
   .lg\:px-8 {
     padding-left: 2rem;
     padding-right: 2rem;
-  }
-
-  .lg\:pr-\[30vw\] {
-    padding-right: 30vw;
-  }
-
-  .lg\:pr-\[28vw\] {
-    padding-right: 28vw;
   }
 
   .lg\:pr-\[25vw\] {

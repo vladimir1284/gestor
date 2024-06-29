@@ -11,8 +11,12 @@
         <th class="text-end">Quantity</th>
         <th class="text-end">Price</th>
         <th class="text-end">Tax</th>
-        <th class="text-end">
-          <i class='bx bx-cog'></i>
+        <th class="text-start">
+          <button class="btn btn-link p-0"
+                  title="Create a new KIT with selected products and services"
+                  @click="newKitMode()">
+            <i class='bx bx-cog'></i>
+          </button>
         </th>
       </tr>
     </thead>
@@ -39,11 +43,19 @@
           <td class="text-end">
             $<span x-text="parts.getTax(transaction).toFixed(2)"></span>
           </td>
-          <td class="text-end">
-            <button class="btn btn-icon btn-link text-danger"
-                    @click="parts.remove(transaction.id)">
-              <i class='bx bx-trash'></i>
-            </button>
+          <td>
+            <div class="flex justify-between items-center">
+              <div class="form-check">
+                <input
+                  class="form-check-input checkboxinput"
+                  type="checkbox"
+                  x-model="transaction.select_for_kit">
+              </div>
+              <button class="btn btn-icon btn-link text-danger"
+                      @click="parts.remove(transaction.id)">
+                <i class='bx bx-trash'></i>
+              </button>
+            </div>
           </td>
         </tr>
       </template>
@@ -69,11 +81,19 @@
           <td class="text-end">
             $<span x-text="services.getTax(transaction).toFixed(2)"></span>
           </td>
-          <td class="text-end">
-            <button class="btn btn-icon btn-link text-danger"
-                    @click="services.remove(transaction.id)">
-              <i class='bx bx-trash'></i>
-            </button>
+          <td>
+            <div class="flex justify-between items-center">
+              <div class="form-check">
+                <input
+                  class="form-check-input checkboxinput"
+                  type="checkbox"
+                  x-model="transaction.select_for_kit">
+              </div>
+              <button class="btn btn-icon btn-link text-danger"
+                      @click="services.remove(transaction.id)">
+                <i class='bx bx-trash'></i>
+              </button>
+            </div>
           </td>
         </tr>
       </template>
@@ -99,14 +119,63 @@
           <td class="text-end">
             $<span x-text="consumables.getTax(transaction).toFixed(2)"></span>
           </td>
-          <td class="text-end">
-            <button class="btn btn-icon btn-link text-danger"
-                    @click="consumables.remove(transaction.id)">
-              <i class='bx bx-trash'></i>
-            </button>
+          <td>
+            <div class="flex justify-between items-center">
+              <div class="form-check">
+                <input
+                  class="form-check-input checkboxinput"
+                  type="checkbox"
+                  x-model="transaction.select_for_kit">
+              </div>
+              <button class="btn btn-icon btn-link text-danger"
+                      @click="consumables.remove(transaction.id)">
+                <i class='bx bx-trash'></i>
+              </button>
+            </div>
           </td>
         </tr>
       </template>
     </tbody>
   </table>
+
+  <template x-if="showNewKitDialog()">
+    <div class="fixed top-0 left-0 right-0 bottom-0 z-[1101] bg-[rgba(0,0,0,0.4)]" style="backdrop-filter: blur(5px);" x-cloak>
+      <div class="">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">New Kit</h5>
+              <button type="button" class="btn-close absolute right-0 top-0 m-0 shadow-sm bg-white rounded p-2" @click="newKitCancel()"></button>
+            </div>
+
+            <div class="modal-body">
+              <div class="input-group">
+                <span class="input-group-text">
+                  Kit name:
+                </span>
+                <input
+                  type="text"
+                  x-model="newKitName"
+                  x-ref="newKitNameInput"
+                  class="form-control"
+                >
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-center" x-show="creatingNewKit">
+                <span class="loader"></span>
+              </div>
+              <div x-show="!creatingNewKit">
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-primary" @click="newKitCancel()">Cancel</button>
+                  <button type="button" class="btn btn-primary" @click="createNewKit()">Create</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
 </div>

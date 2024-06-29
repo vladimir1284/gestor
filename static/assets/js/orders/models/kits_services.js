@@ -9,3 +9,8 @@
  * @property {Service} service
  * @property {number} [new_price]
  * */
+
+/**
+ * @typedef NewKitService
+ * @property {Service} service
+ * */
