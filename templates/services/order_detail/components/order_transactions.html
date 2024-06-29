@@ -98,8 +98,7 @@
                                     x-model="transaction.price"
                                     @keydown.stop.alt.tab="focusElementById($id('tax'))"
                                     @keyup.enter="save(transaction)"
-                                    @blur="save(transaction)"
-                                    x-init="$el.focus()">
+                                    @blur="save(transaction)">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {
@@ -258,8 +257,7 @@
                                     x-model="transaction.price"
                                     @keydown.stop.alt.tab="focusElementById($id('tax'))"
                                     @keyup.enter="save(transaction)"
-                                    @blur="save(transaction)"
-                                    x-init="$el.focus()">
+                                    @blur="save(transaction)">
                                 <button
                                     class="btn btn-icon btn-outline-primary input-group-text"
                                     @click="execAndSave(transaction, (trans) => {
