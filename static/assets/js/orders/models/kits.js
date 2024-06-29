@@ -23,3 +23,10 @@
  * @property {number} price
  * @property {boolean} tax
  * */
+
+/**
+ * @typedef NewKit
+ * @property {string} name
+ * @property {NewKitService[]} services
+ * @property {NewKitElement[]} elements
+ * */

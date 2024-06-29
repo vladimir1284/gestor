@@ -10,6 +10,7 @@
  * @property {number} price
  * @property {number} quantity
  * @property {boolean} [loading]
+ * @property {boolean} [select_for_kit]
  * */
 
 /**

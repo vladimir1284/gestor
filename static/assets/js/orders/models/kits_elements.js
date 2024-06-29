@@ -14,3 +14,9 @@
  * @property {number} [new_price]
  * @property {boolean} [new_tax]
  * */
+
+/**
+ * @typedef NewKitElement
+ * @property {Product} product
+ * @property {number} quantity
+ * */

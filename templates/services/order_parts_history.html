@@ -19,14 +19,14 @@
             </div>
         </h5>
     </div>
-    <div class="card-body pt-0 table-box h-72 lg:h-full mb-3">
+    <div class="card-body pt-0 px-0 table-box h-72 lg:h-full mb-3">
         <table class="table" id="partTable">
             <thead class="sticky top-0 bg-white">
+                <th>Date</th>
+                <th>Part</th>
                 <th class="w-3 text-center">
                     <i class='bx bx-cog'></i>
                 </th>
-                <th>Part</th>
-                <th>Date</th>
                 <th>Price</th>
             </thead>
             <tbody>
@@ -62,11 +62,11 @@
     renderTable(partsHistory, 'partTable', false)
 </script>
 <style>
-.pointer {
-    cursor: pointer;
-}
-.table-box {
-    overflow-y: auto;
-    width: 100%;
-}
+    .pointer {
+        cursor: pointer;
+    }
+    .table-box {
+        overflow-y: auto;
+        width: 100%;
+    }
 </style>
