@@ -4,15 +4,17 @@
         <thead>
             <tr>
                 <th>
-                    <i class="bx bx-cog"></i>
+                    <i class="bx bx-dollar"></i>
                 </th>
-                <th class="min-w-60">Product</th>
+                <th class="min-w-52">Product</th>
                 <th>Qty</th>
                 <th>Unit</th>
                 <th>Price</th>
                 <th>Amount</th>
                 <th>Tax</th>
-                <th class="text-end">Actions</th>
+                <th class="text-center">
+                    <i class="bx bx-cog"></i>
+                </th>
             </tr>
         </thead>
         <tbody class="table-border-bottom-0">
@@ -33,7 +35,7 @@
                     </td>
                     <td>
                         <div class="flex justify-between relative">
-                            <a :href="productUrl(transaction.product.id)" :class="transaction.product.quantity == 0 && 'text-danger'" class="mr-8">
+                            <a :href="productUrl(transaction.product.id)" :class="transaction.product.quantity == 0 && 'text-danger'" class="mr-4">
                                 <strong x-text="transaction.product.name"></strong>
                             </a>
                             <div class="spinner-border spinner-border-sm text-primary absolute right-0" role="status" x-show="transaction.loading">
@@ -45,9 +47,9 @@
                         <div class="flex"
                              :title="`Left in inventory: ${transaction.product.quantity.toFixed(2)}`"
                         >
-                            <div class="input-group !min-w-32 !max-w-52">
+                            <div class="input-group !min-w-24 !max-w-52">
                                 <button
-                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    class="btn btn-outline-primary input-group-text !px-1"
                                     @click="execAndSave(transaction, (trans) => {
                                             dec(trans, 'quantity', 1, 1)
                                             focusElementById($id('quantity'))
@@ -64,7 +66,7 @@
                                     @keyup.enter="save(transaction)"
                                     @blur="save(transaction)">
                                 <button
-                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    class="btn btn-outline-primary input-group-text !px-1"
                                     @click="execAndSave(transaction, (trans) => {
                                             inc(trans, 'quantity', 1)
                                             focusElementById($id('quantity'))
@@ -81,9 +83,9 @@
                         <div
                             :title="`Sell price: $${transaction.product.sell_price.toFixed(2)}`"
                         >
-                            <div class="input-group !min-w-36 !max-w-52">
+                            <div class="input-group !min-w-28 !max-w-52">
                                 <button
-                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    class="btn btn-outline-primary input-group-text !px-1"
                                     @click="execAndSave(transaction, (trans) => {
                                             dec(trans, 'price', 1, 1)
                                             focusElementById($id('price'))
@@ -100,7 +102,7 @@
                                     @keyup.enter="save(transaction)"
                                     @blur="save(transaction)">
                                 <button
-                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    class="btn btn-outline-primary input-group-text !px-1"
                                     @click="execAndSave(transaction, (trans) => {
                                             inc(trans, 'price', 1)
                                             focusElementById($id('price'))
@@ -117,7 +119,7 @@
                         <div class="input-group"
                              :title="`Product tax: $${transaction.product.sell_tax.toFixed(2)}`"
                         >
-                            <span class="input-group-text">
+                            <span class="input-group-text !px-1">
                                 <div class="form-check">
                                     <input
                                         :id="$id('tax')"
@@ -204,9 +206,9 @@
                         <div class="flex"
                              :title="`Left in inventory: ${transaction.product.quantity.toFixed(2)}`"
                         >
-                            <div class="input-group !min-w-32 !max-w-52">
+                            <div class="input-group !min-w-24 !max-w-52">
                                 <button
-                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    class="btn btn-outline-primary input-group-text !px-1"
                                     @click="execAndSave(transaction, (trans) => {
                                             dec(trans, 'quantity', 1, 1)
                                             focusElementById($id('quantity'))
@@ -223,7 +225,7 @@
                                     @keyup.enter="save(transaction)"
                                     @blur="save(transaction)">
                                 <button
-                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    class="btn btn-outline-primary input-group-text !px-1"
                                     @click="execAndSave(transaction, (trans) => {
                                             inc(trans, 'quantity', 1)
                                             focusElementById($id('quantity'))
@@ -240,9 +242,9 @@
                         <div
                             :title="`Sell price: $${transaction.product.sell_price.toFixed(2)}`"
                         >
-                            <div class="input-group !min-w-36 !max-w-52">
+                            <div class="input-group !min-w-28 !max-w-52">
                                 <button
-                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    class="btn btn-outline-primary input-group-text !px-1"
                                     @click="execAndSave(transaction, (trans) => {
                                             dec(trans, 'price', 1, 1)
                                             focusElementById($id('price'))
@@ -259,7 +261,7 @@
                                     @keyup.enter="save(transaction)"
                                     @blur="save(transaction)">
                                 <button
-                                    class="btn btn-icon btn-outline-primary input-group-text"
+                                    class="btn btn-outline-primary input-group-text !px-1"
                                     @click="execAndSave(transaction, (trans) => {
                                             inc(trans, 'price', 1)
                                             focusElementById($id('price'))
@@ -276,7 +278,7 @@
                         <div class="input-group"
                              :title="`Product tax: $${transaction.product.sell_tax.toFixed(2)}`"
                         >
-                            <span class="input-group-text">
+                            <span class="input-group-text !px-1">
                                 <div class="form-check">
                                     <input
                                         :id="$id('tax')"
