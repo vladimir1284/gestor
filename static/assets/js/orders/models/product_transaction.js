@@ -17,6 +17,7 @@
  * @property {number} quantity
  * @property {boolean} active_tax
  * @property {boolean} [loading]
+ * @property {boolean} [select_for_kit]
  * @global
  * */
 

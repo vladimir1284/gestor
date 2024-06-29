@@ -1,5 +1,6 @@
 from rest_framework import routers
 
+from services.api.views.kits_transaction_view import KitTransactionView
 from services.api.views.kits_view import KitView
 from services.api.views.product_consumables_view import ProductConsumableView
 from services.api.views.product_parts_view import ProductPartView
@@ -46,7 +47,12 @@ router.register(
 )
 # Apis for kits
 router.register(
-    r"kits/(?P<order_id>\d+)",
+    r"kits/transaction/(?P<order_id>\d+)",
+    KitTransactionView,
+    basename="kits-transaction",
+)
+router.register(
+    r"kits",
     KitView,
     basename="kits",
 )

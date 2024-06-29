@@ -127,7 +127,7 @@
                                 class="btn-close"
                                 @click="() => {$store.notifications.remove(not)}"></button>
                     </div>
-                    <div class="toast-body pt-0 mt-0" x-text="not.msg"></div>
+                    <div class="toast-body pt-0 mt-0" x-html="not.msg"></div>
                 </div>
             </template>
         </div>

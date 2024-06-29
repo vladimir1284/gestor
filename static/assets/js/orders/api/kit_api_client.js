@@ -18,9 +18,9 @@
      * */
     getURL(order_id, kit_id = undefined) {
       if (kit_id) {
-        return `${this.BaseUrl}/${order_id}/${kit_id}/`;
+        return `${this.BaseUrl}/transaction/${order_id}/${kit_id}/`;
       }
-      return `${this.BaseUrl}/${order_id}/`;
+      return `${this.BaseUrl}/transaction/${order_id}/`;
     }
 
     /**
