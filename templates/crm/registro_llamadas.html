@@ -1,5 +1,6 @@
 {% extends 'base/base_list.html' %}
 {% load static %}
+
 {% block title %}
     {{ title }}
 {% endblock title %}
@@ -18,21 +19,82 @@
     <th>
         <i class="bx bx-cog"></i>
     </th>
-    <th>Call SID</th>
-    <th>From Phone Number</th>
-    <th>To Phone Number</th>
-    <th>From Country</th>
-    <th>From City</th>
+    <th>History</th>
 {% endblock Theader %}
 
 {% block Tbody %}
     {% for llamada in llamadas %}
-        <tr>
-            <td>{{ llamada.call_sid }}</td>
-            <td>{{ llamada.from_phone_number }}</td>
-            <td>{{ llamada.to_phone_number }}</td>
-            <td>{{ llamada.from_country }}</td>
-            <td>{{ llamada.from_city }}</td>
+        <tr x-show='match("{{ llamada.from_phone_number|escapejs }}", $store.search.search) || match("{{ llamada.from_country|escapejs }}", $store.search.search) || match("{{ llamada.associated|escapejs }}", $store.search.search)'>
+            <td>
+                {% if type == 'client' %}
+                    {% url 'created_associated_crm' llamada.id as create_url %}
+                {% elif type == 'provider' %}
+                    {% url 'create-provider' as create_url %}
+                {% endif %}
+                {% if llamada.associated %}
+                    <a href={% url 'update-associated' llamada.associated.id %}>
+                        <i class="bx">📝</i>
+                    </a>
+                    <a href={% url 'borrar_del_registro' llamada.id %}>
+                        <i class="bx">🗑️</i>
+                    </a>
+                {%else%}
+                    <a href="{{ create_url }} ">
+                        <i class="bx">➕</i>
+                    </a>
+                    <a href="{% url 'borrar_del_registro' llamada.id %}">
+                        <i class="bx">🗑️</i>
+                    </a>
+                {% endif %}
+            </td>           
+            <td>
+                <div class="d-flex pb-1">
+                    <div class="avatar flex-shrink-0 me-3">
+                        {% if llamada.associated %}
+                            <a href={% url 'detail-associated' llamada.associated.id %}>
+                                <span class="avatar-initial rounded-circle bg-label-primary">
+                                    <img {% if llamada.associated.avatar %} src="{{ llamada.associated.avatar.url }}" {% else %} src="{% static 'assets/img/icons/user.png' %}" {% endif %}
+                                        alt="Avatar"
+                                        height="100px"
+                                        width="100px"
+                                        class="w-px-40 rounded-circle" />
+                                </span>
+                            </a>
+                        {% else %}
+                            <span class="avatar-initial rounded-circle bg-label-primary">
+                                <img src="{% static 'assets/img/icons/user.png' %}" 
+                                    alt="Avatar"
+                                    height="100px"
+                                    width="100px"
+                                    class="w-px-40 rounded-circle" />
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                        <div data-tag="{{ llamada.associated }}{{ llamada.from_phone_number }}{{ llamada.from_country }}" class="me-2  associated-data">
+                            <h6 class="mb-0" x-html='highlightMatch("{{ llamada.associated|escapejs }}", $store.search.search)'>
+                                {{ llamada.associated }}
+                            </h6>
+                            {% if llamada.from_phone_number %}
+                                <small class="text-muted" x-html='highlightMatch("{{ llamada.from_phone_number|escapejs }}", $store.search.search)'>
+                                    {{ llamada.from_phone_number }}
+                                </small>
+                            {% else %}
+                                <small class="text-muted">-</small>
+                            {% endif %}
+                            {% if llamada.from_country %}
+                                <small class="text-muted" x-html='highlightMatch("{{ llamada.from_country|escapejs }}", $store.search.search)'>
+                                    {{ llamada.from_country }}
+                                </small>
+                            {% else %}
+                                <small class="text-muted">-</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </td>
         </tr>
     {% endfor %}
+    {% block addButton %}
+    {% endblock addButton%}
 {% endblock Tbody %}

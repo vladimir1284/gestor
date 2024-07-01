@@ -233,6 +233,7 @@ def create_associated(request, type):
             print(next)
             return redirect(next)
     title = {"client": _("Create client"), "provider": _("Create Provider")}[type]
+    print(title)
     context = {"form": form, "title": title}
     addStateCity(context)
     return render(request, "users/contact_create.html", context)
